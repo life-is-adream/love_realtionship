@@ -5,6 +5,10 @@ version: 1
 
 # Role-play → Critique → Retry
 
+本地确定性入口：`.agents/skills/relationship-coach-cn/runtime/simulation/scenario-engine.mjs`。
+
+它提供 5 个不依赖性别刻板印象的场景和有限评分；它不模拟真实第三方人格，也不保存用户原始练习文本。
+
 训练流程：
 
 1. 给出边界清楚的 Scenario 和角色目标；

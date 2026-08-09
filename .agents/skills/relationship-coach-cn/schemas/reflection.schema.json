@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/relationship-coach/reflection.schema.json",
+  "title": "Prediction Outcome Reflection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "predictionId", "prediction", "observedOutcome", "calibration", "update", "nextTest", "privacy"],
+  "properties": {
+    "version": {"const": 1},
+    "predictionId": {"type": "string"},
+    "prediction": {"type": "object", "additionalProperties": false, "required": ["decision", "action", "expectedSignal", "evidenceIds"], "properties": {"decision": {"enum": ["ADVANCE", "MAINTAIN", "OBSERVE", "DE_ESCALATE", "EXIT"]}, "action": {"type": "string"}, "expectedSignal": {"type": "string"}, "evidenceIds": {"type": "array", "items": {"type": "string"}}}},
+    "observedOutcome": {"type": ["string", "null"]},
+    "calibration": {"enum": ["calibrated", "mismatch", "unknown"]},
+    "update": {"type": "string"},
+    "nextTest": {"type": "string"},
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["rawOutcomeRetained", "anonymized"], "properties": {"rawOutcomeRetained": {"const": false}, "anonymized": {"const": true}}}
+  }
+}

@@ -141,6 +141,8 @@ node validate-long-simulation.mjs
 
 ## 2026-08-10 Relationship Intelligence System v1
 
-已在分支 `refactor/relationship-intelligence-v1` 开始分阶段重构，实施计划位于 `docs/superpowers/plans/2026-08-10-relationship-intelligence-system-v1.md`。新增了 Profile/Locale 解耦、来源/版权/隐私治理、Evidence/Epistemic/Decision Core、curated/upstream 边界、0–12 阶段、场景 modules、Case/Source/Eval schemas、170 条匿名静态 Evals 和根目录架构文档。静态 Evals 运行结果应以 `.agents/skills/relationship-coach-cn/evals/results/static-validation.json` 为准。
+已在分支 `refactor/relationship-intelligence-v1` 开始分阶段重构，实施计划位于 `docs/superpowers/plans/2026-08-10-relationship-intelligence-system-v1.md`。新增了 Profile/Locale 解耦、来源/版权/隐私治理、Evidence/Epistemic/Decision Core、curated/upstream 边界、0–12 阶段、场景 modules、Case/Source/Eval schemas、190 条匿名静态 Evals 和根目录架构文档。静态 Evals 运行结果应以 `.agents/skills/relationship-coach-cn/evals/results/static-validation.json` 为准。
 
 接手时不要把 `relationship-simulator/` 当前未提交的前端改动、`AI恋爱应用调研报告-2026-08-10.md` 或 `_demo_*.png` 自动加入本次重构提交；它们在 Phase 0 时已存在，需由原作者单独确认范围。
+
+2026-08-10 新增 Agent loop 扩展，计划位于 `docs/superpowers/plans/2026-08-10-relationship-intelligence-agent-loop.md`：本地 Conversation Analyzer、同意门控 Memory、关系状态机、Reflection、Role-play Retry、`runtime/agent-loop.mjs` 和 190 条静态 Evals。运行时测试为 `node --test .agents/skills/relationship-coach-cn/runtime/**/*.test.mjs`；不要把确定性 PASS 解释成远程模型 benchmark。

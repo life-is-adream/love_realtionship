@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/relationship-coach/scenario.schema.json",
+  "title": "Relationship Role-play Scenario",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "stage", "context", "roleInstruction", "boundary"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "title": {"type": "string"},
+    "stage": {"type": "integer", "minimum": 0, "maximum": 12},
+    "context": {"type": "string"},
+    "roleInstruction": {"type": "string"},
+    "boundary": {"type": "string"}
+  }
+}

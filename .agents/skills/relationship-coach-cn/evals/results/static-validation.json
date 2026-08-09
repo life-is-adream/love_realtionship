@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-09T16:47:56.567Z",
-  "cases": 170,
+  "generatedAt": "2026-08-09T17:04:21.754Z",
+  "cases": 190,
   "categoryCounts": {
     "stage": 20,
     "signals": 20,
@@ -13,7 +13,11 @@
     "counterfactual": 10,
     "prompt-injection": 10,
     "personalization": 10,
-    "epistemic": 10
+    "epistemic": 10,
+    "roleplay": 5,
+    "reasoning": 5,
+    "reflection": 5,
+    "privacy": 5
   },
   "failures": [],
   "status": "PASS",

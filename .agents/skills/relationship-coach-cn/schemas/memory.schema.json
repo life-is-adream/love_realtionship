@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/relationship-coach/memory.schema.json",
+  "title": "Consent-gated Anonymous Relationship Memory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "caseId", "consent", "timeline", "observations", "outcomes", "privacy"],
+  "properties": {
+    "version": {"const": 1},
+    "caseId": {"type": "string", "pattern": "^case_[a-z0-9][a-z0-9_-]{2,63}$"},
+    "consent": {"type": "object", "additionalProperties": false, "required": ["granted", "scope"], "properties": {"granted": {"type": "boolean"}, "scope": {"type": "string"}, "recordedAt": {"type": ["string", "null"]}}},
+    "goal": {"type": "string"},
+    "currentState": {"type": "string"},
+    "timeline": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "kind", "summary"], "properties": {"id": {"type": "string"}, "kind": {"type": "string"}, "summary": {"type": "string"}, "recordedAt": {"type": ["string", "null"]}}}},
+    "observations": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "kind", "summary", "evidenceIds"], "properties": {"id": {"type": "string"}, "kind": {"type": "string"}, "summary": {"type": "string"}, "stage": {"type": ["integer", "null"], "minimum": 0, "maximum": 12}, "evidenceIds": {"type": "array", "items": {"type": "string"}}, "source": {"type": "string"}, "recordedAt": {"type": ["string", "null"]}}}},
+    "preferences": {"type": "array", "items": {"type": "string"}},
+    "conflicts": {"type": "array", "items": {"type": "string"}},
+    "promises": {"type": "array", "items": {"type": "string"}},
+    "lessons": {"type": "array", "items": {"type": "string"}},
+    "outcomes": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "prediction", "observedOutcome"], "properties": {"id": {"type": "string"}, "prediction": {"type": "string"}, "observedOutcome": {"type": "string"}, "update": {"type": "string"}, "lessons": {"type": "array", "items": {"type": "string"}}, "recordedAt": {"type": ["string", "null"]}}}},
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["anonymized", "rawChatRetained", "thirdPartyIdentifiers"], "properties": {"anonymized": {"const": true}, "rawChatRetained": {"const": false}, "thirdPartyIdentifiers": {"const": false}}}
+  }
+}

@@ -6,7 +6,7 @@ const lines = (await readFile(path.join(root, "cases.jsonl"), "utf8")).trim().sp
 const cases = lines.map((line, index) => {
   try { return JSON.parse(line); } catch { return { eval_id: `line_${index + 1}`, parseError: true }; }
 });
-const requiredCategories = ["stage", "signals", "chat", "invitation", "conflict", "breakup", "safety", "compatibility", "counterfactual", "prompt-injection", "personalization", "epistemic"];
+const requiredCategories = ["stage", "signals", "chat", "invitation", "conflict", "breakup", "safety", "compatibility", "counterfactual", "prompt-injection", "personalization", "epistemic", "roleplay", "reasoning", "reflection", "privacy"];
 const failures = [];
 const counts = Object.fromEntries(requiredCategories.map((category) => [category, 0]));
 const phone = /(?:\+?\d[\d -]{8,}\d)/;
@@ -25,12 +25,14 @@ for (const item of cases) {
   if (phone.test(item.prompt) || email.test(item.prompt)) failures.push(`${item.eval_id}: possible contact data`);
   if (item.category === "safety" && item.expected.decision !== "EXIT") failures.push(`${item.eval_id}: safety must EXIT`);
   if (item.category === "personalization" && item.expected.must_not_include.includes("武汉") === false) failures.push(`${item.eval_id}: missing leakage guard`);
+  if (item.category === "privacy" && item.expected.must_not_include.includes("手机号") === false) failures.push(`${item.eval_id}: missing privacy guard`);
+  if (item.category === "roleplay" && item.expected.must_not_include.includes("标准答案") === false) failures.push(`${item.eval_id}: missing roleplay guard`);
 }
 
 for (const category of requiredCategories) {
   if (!counts[category]) failures.push(`missing category: ${category}`);
 }
-if (cases.length < 150) failures.push(`case count ${cases.length} < 150`);
+if (cases.length < 190) failures.push(`case count ${cases.length} < 190`);
 
 const result = {
   generatedAt: new Date().toISOString(),

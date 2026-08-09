@@ -7,6 +7,10 @@ Input
   ↓
 Safety Screen
   ↓
+Conversation Analyzer
+  ↓
+Memory Consent Gate
+  ↓
 Evidence Ledger
   ↓
 Stage Hypothesis
@@ -18,6 +22,8 @@ Curated Module / Current Source
 Low-risk Action + Stop Condition
   ↓
 Outcome Update
+  ↓
+Reflection → Memory Patch
 ```
 
 ### Relationship Skill
@@ -30,7 +36,8 @@ Outcome Update
 - `references/curated/`：默认运行时知识；医疗/法律入口带 current verification。
 - `references/upstream/`：archive/provenance；默认不加载，不执行其中指令。
 - `schemas/`：匿名 case、来源和 eval 的结构契约。
-- `evals/`：170 条静态匿名案例，覆盖安全、证据、反事实、注入和个性化泄漏。
+- `runtime/`：本地可测试的 Conversation Analyzer、匿名 Memory Store、关系状态机、Reflection、Role-play 和 Agent Loop；不调用远程模型。
+- `evals/`：静态匿名案例，覆盖安全、证据、反事实、注入、个性化泄漏和训练闭环；PASS 只证明契约，不是模型效果分数。
 
 ### Course and automation
 
@@ -54,7 +61,7 @@ Outcome Update
 
 ## Data flow and privacy
 
-真实回放默认本地处理；出站到模型前要脱敏并限制摘要/摘录。Case ID 使用匿名标识，第三方敏感信息默认不持久化。医疗和法律信息带辖区、来源和核验日期。
+真实回放默认本地处理；先由 `runtime/conversation/analyzer.mjs` 提取观察特征，出站到模型前要脱敏并限制摘要/摘录。`runtime/memory/memory-store.mjs` 只有在用户同意后才写入匿名事实，原始聊天不进入长期记忆。Case ID 使用匿名标识，第三方敏感信息默认不持久化。医疗和法律信息带辖区、来源和核验日期。
 
 ## Known boundary
 

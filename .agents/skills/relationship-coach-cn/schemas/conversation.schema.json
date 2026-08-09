@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/relationship-coach/conversation.schema.json",
+  "title": "Observation-only Conversation Analysis",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "metrics", "evidence", "privacy", "limitations"],
+  "properties": {
+    "version": {"const": 1},
+    "metrics": {"type": "object", "additionalProperties": true, "required": ["messageCount", "speakerCounts", "timestampCoverage", "dataQuality"], "properties": {
+      "messageCount": {"type": "integer", "minimum": 0},
+      "speakerCounts": {"type": "object", "required": ["user", "other", "unknown"], "properties": {"user": {"type": "integer", "minimum": 0}, "other": {"type": "integer", "minimum": 0}, "unknown": {"type": "integer", "minimum": 0}}},
+      "userInitiationRatio": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+      "otherQuestionRatio": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+      "averageReplyGapMs": {"type": ["integer", "null"], "minimum": 0},
+      "timestampCoverage": {"enum": ["complete", "partial", "missing"]},
+      "dataQuality": {"enum": ["adequate", "limited"]}
+    }},
+    "evidence": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "kind", "observation", "source"], "properties": {"id": {"type": "string"}, "kind": {"type": "string"}, "observation": {"type": "string"}, "source": {"type": "string"}}}},
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["rawMessagesRetained", "anonymized"], "properties": {"rawMessagesRetained": {"const": false}, "anonymized": {"const": true}}},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}

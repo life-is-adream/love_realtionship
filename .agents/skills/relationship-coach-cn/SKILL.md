@@ -32,6 +32,17 @@ description: "中文 Relationship Intelligence System：基于事实、证据、
 6. `core/objectives.md`
 7. `core/privacy-policy.md`
 
+## Local agent loop
+
+当用户提供聊天记录、要求长期跟进或要求练习时，按最小闭环加载：
+
+- `runtime/conversation/analyzer.mjs`：只提取消息数量、主动比例、问题比例、时间戳覆盖、主题连续性、边界/冲突词等观察信号；不保存原始消息。
+- `runtime/memory/memory-store.mjs`：只有用户明确同意且使用匿名 `case_` ID 时才生成 Memory Patch。
+- `runtime/state/state-machine.mjs`：使用 `UNKNOWN`、`INITIAL_CONTACT`、`MUTUAL_FAMILIARITY`、`GROWING_INTEREST`、`DATING_EXPLORATION`、`COMMITTED_RELATIONSHIP`、`CONFLICT`、`REPAIR`、`STABLE_RELATIONSHIP`、`EXIT` 的可回退状态。
+- `runtime/reflection/reflection-engine.mjs`：把 Prediction → Outcome → Update 分开；结果未知时保持 `unknown`，不强行总结。
+- `runtime/simulation/scenario-engine.mjs`：使用 Scenario → User Response → Critique → Retry，不先提供可背诵标准答案。
+- `runtime/agent-loop.mjs`：将本地分析、状态、五分类决策、行动、预测和可选 Memory Patch 组合成有界输出。
+
 ## Runtime knowledge boundary
 
 - 默认运行时知识：`modules/`、`references/curated/`、必要的本地 `references/*.md`。
@@ -50,13 +61,13 @@ description: "中文 Relationship Intelligence System：基于事实、证据、
 
 1. **Safety screen**：识别拒绝、胁迫、暴力、跟踪、隐私、医疗、法律和自伤风险。
 2. **Classify**：从 intake、self-readiness、social entry、chat、invitation、dating、signals、compatibility、long-term、conflict、breakup、marriage、sexual-health、roleplay 中选最小模块。
-3. **Extract evidence**：记录时间、原话、主动/回应、具体安排、边界和现实行为。
+3. **Extract evidence**：先对聊天运行本地 Analyzer，记录时间戳可用性、主动/回应、问题、具体安排、边界和现实行为；不要把原始文本直接当作心理证据。
 4. **Estimate stage**：使用 `references/relationship-roadmap.md` 的 0–12 非线性阶段，只作工作假设。
 5. **Generate hypotheses**：至少保留一个合理替代解释，写支持、反证和未知。
 6. **Choose decision**：`ADVANCE` / `MAINTAIN` / `OBSERVE` / `DE_ESCALATE` / `EXIT`。
 7. **Recommend action**：给一个最小风险、可逆、可验证动作、停止条件和下一观察点。
 8. **Optional script**：只有用户需要时给自然稳妥、轻松幽默、适度主动三种版本；对方不接住就退回普通互动。
-9. **Follow up**：若用户回来，询问上次建议后的现实结果，形成 Prediction → Outcome → Update，而不是坚持旧判断。
+9. **Follow up**：若用户回来，询问上次建议后的现实结果，运行 Reflection 并在获同意后生成 Memory Patch，形成 Prediction → Outcome → Update，而不是坚持旧判断。
 
 ## Default response contract
 
@@ -114,6 +125,8 @@ C 更主动（有足够证据时）：
 | 长期关系/婚姻 | `modules/long-term.md`, `modules/marriage.md` |
 | 性、避孕、STI、HIV、HPV | `modules/sexual-health.md`, `references/curated/health/README.md` |
 | 模拟训练 | `modules/roleplay.md`, `evals/` |
+
+有完整聊天记录时，额外读取 `runtime/conversation/analyzer.mjs` 的输出；需要长期跟进时读取 `runtime/memory/` 和 `runtime/reflection/`，不自动加载私人 Profile。
 
 ## Explicit modes
 

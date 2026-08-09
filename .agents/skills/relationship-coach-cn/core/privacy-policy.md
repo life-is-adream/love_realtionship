@@ -17,6 +17,15 @@ version: 1
 
 Case 必须使用 `case_001`、`person_A` 等匿名标识，`privacy.anonymized` 必须为 `true`。只有用户明确允许时才保留稳定偏好；第三方数据只保存抽象事实、时间范围和与决策相关的最小证据。
 
+## Relationship Memory
+
+`runtime/memory/memory-store.mjs` 是同意门控的不可变内存辅助层：
+
+- 未获得同意时，`appendObservation` 和 `recordOutcome` 不写入；
+- 只保存有限的事实摘要、证据 ID、状态和 Prediction → Outcome → Update；
+- 原始聊天、原始回复、第三方身份和联系方式永不进入 Memory Patch；
+- 持久化由调用方负责，必须使用私有存储、保留期限和用户可见的删除/导出流程。
+
 ## 出站边界
 
 向模型发送内容前：

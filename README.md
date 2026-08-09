@@ -4,6 +4,7 @@
 
 - `恋爱15分钟学习/`：160 天预生成课程和课程总纲；
 - `.agents/skills/relationship-coach-cn/`：证据驱动的 Relationship Intelligence System Skill；
+- `.agents/skills/relationship-coach-cn/runtime/`：本地 Conversation Analyzer、匿名 Memory、关系状态机、Reflection、Role-play 和 Agent Loop；
 - `relationship-simulator/`：本地 HeartFlow 对话训练、回放分析、长篇教材和 Role-play 应用；
 - `sources/`、`PRIVACY.md`、`THIRD_PARTY_NOTICES.md`：来源、隐私和版权治理。
 
@@ -44,7 +45,16 @@ Codex Automation 15 每天按 Asia/Shanghai 日期读取唯一匹配的已有课
 - 来源登记：`sources/registry.yaml`；未知许可证不得猜测。
 - 隐私：`PRIVACY.md` 和 `.agents/skills/relationship-coach-cn/core/privacy-policy.md`。
 - Evals：`.agents/skills/relationship-coach-cn/evals/`，运行 `node .agents/skills/relationship-coach-cn/evals/run-static-evals.mjs`。
-- 当前静态数据集为 170 条匿名案例；静态 PASS 不等于已完成 LLM 效果 benchmark。
+- Runtime 测试：`node --test .agents/skills/relationship-coach-cn/runtime/**/*.test.mjs`。
+- 当前静态数据集为 190 条匿名案例；静态 PASS 和本地单元测试不等于已完成 LLM 效果 benchmark。
+
+## Agent loop 示例
+
+```powershell
+node --input-type=module -e "import { runRelationshipLoop } from './.agents/skills/relationship-coach-cn/runtime/agent-loop.mjs'; console.log(JSON.stringify(runRelationshipLoop({messages:[{speaker:'我',text:'最近有空一起喝咖啡吗？'},{speaker:'对方',text:'最近有点忙，之后再说吧。'}]}), null, 2))"
+```
+
+输出只包含有界统计、假设、决策、行动和预测，不返回原始聊天，也不会在未同意时写入长期记忆。
 
 ## 许可证
 
