@@ -1,188 +1,21 @@
-# Relationship roadmap
+# Relationship Roadmap
 
-## Stage 0: become selectable
+阶段是可回退、可跳转的工作假设，不是给人贴标签的线性等级。可出现 `6 → 4`、`8 → 7`、`9 → 11 → 9` 或 `9 → 12`。
 
-Goal: reach a baseline where normal women do not immediately filter the user out.
+| Stage | Name | 关注点 |
+|---:|---|---|
+| 0 | Self Readiness | 卫生、健康、作息、表达、兴趣、生活方向和情绪稳定 |
+| 1 | Social Exposure | 公开、可重复、有共同任务的社会入口 |
+| 2 | First Interaction | 共同情境开场、轻问题、适度自我披露 |
+| 3 | Familiarity | 持续出现、共同任务、自然记忆和边界 |
+| 4 | Private Communication | 联系节奏、互惠、话题和从线上到现实 |
+| 5 | Invitation / First Date | 低成本、白天、公共场所、明确可拒绝 |
+| 6 | Mutual Exploration | 观察投入、兼容性和共同安排 |
+| 7 | Interest Clarification | 清楚表达好感，给对方时间和拒绝空间 |
+| 8 | Relationship Definition | 排他性、联系节奏、空间、金钱、性与安全 |
+| 9 | Long-Term Relationship | 友谊、共同计划、亲密、信任和修复 |
+| 10 | Commitment / Marriage | 城市、职业、钱、家庭、孩子、照护和法律核验 |
+| 11 | Conflict / Repair | 暂停、具体问题、责任、修复和边界 |
+| 12 | De-escalation / Breakup / Recovery | 降级、结束、体面退出、支持和安全 |
 
-Minimum standard:
-
-- Clean haircut, fresh clothes, no odor, clean shoes.
-- Basic skincare and dental hygiene.
-- Exercise 3 times/week.
-- Stable daily routine and visible life direction.
-- At least two non-study activities.
-- Can talk about topics beyond AI, code, papers, exams.
-
-Output advice:
-
-- Give 2–4 week action plans.
-- Make the user create social contexts, not just optimize text replies.
-
-## Stage 1: meet women
-
-Goal: increase repeated exposure in safe, natural scenes.
-
-Preferred channels:
-
-- Graduate student association, school/college student organizations.
-- Academic salons, new-student activities, reading groups.
-- Cultural/art/sports/volunteer clubs.
-- Public library lectures, exhibitions, museums, youth volunteering.
-- Badminton, running groups, frisbee, campus competitions.
-- Friend gatherings and mixed-gender group meals.
-
-Avoid:
-
-- Cornering strangers in isolated spaces.
-- Dormitory areas, night roads, self-study rooms, subway harassment.
-- Treating volunteering or school activities as hunting grounds.
-
-## Stage 2: opening
-
-Goal: establish normality and shared context.
-
-Formula:
-
-1. Situation observation.
-2. Low-pressure question.
-3. Small self-disclosure.
-4. Shared-task/team feeling.
-
-Examples:
-
-- “你也是第一次参加这个活动吗？我刚才看流程表，感觉今天可能会有点忙。”
-- “这个环节我还没完全搞清楚，你负责哪块？”
-- “等会儿要是流程乱了，我们可以互相救一下。”
-
-Do not:
-
-- Ask relationship status immediately.
-- Compliment appearance as first move.
-- Ask private details.
-- Force WeChat before rapport.
-
-## Stage 3: WeChat
-
-Goal: create one next offline reason, not endless chat.
-
-Healthy rhythm:
-
-- Message after a real shared event.
-- Reference shared context.
-- Ask one easy question.
-- Add light self-disclosure.
-- If response is warm, invite within 2–5 days.
-
-Interest signals:
-
-- She asks questions back.
-- She gives details, not only “嗯嗯/哈哈”.
-- She accepts or counteroffers invitations.
-- She remembers prior details.
-- She initiates sometimes.
-
-Low-interest signals:
-
-- Repeated short replies.
-- No questions back.
-- Frequent “忙” with no alternative.
-- Cancels repeatedly.
-- Only contacts for utility.
-
-## Stage 4: invitation and first date
-
-Goal: low-pressure offline meeting.
-
-Good first dates:
-
-- Coffee + walk.
-- Simple meal near campus.
-- Exhibition/library/cultural event + drink.
-- Daytime public venue.
-
-Bad first dates:
-
-- Bar, private home, long-distance trip, expensive dinner, locked-room activities.
-
-Invitation formula:
-
-```text
-这周六下午我打算去 XX，顺便喝杯咖啡。你要是有空，可以一起。
-```
-
-If rejected:
-
-```text
-行，那你先忙。下次有合适活动再叫你。
-```
-
-Do not interrogate or bargain.
-
-## Stage 5: ambiguity and interest expression
-
-Goal: avoid indefinite friend-zone while keeping pressure low.
-
-After 2–3 positive one-on-one meetings:
-
-```text
-我跟你相处挺舒服的，也对你有好感，不只是普通朋友那种。你不用马上回答，我只是想表达清楚。
-```
-
-If she reciprocates: continue dating.
-
-If she is unsure: slow down and observe investment.
-
-If she rejects: accept cleanly.
-
-## Stage 6: defining relationship
-
-Goal: clarify exclusivity and expectations.
-
-Use:
-
-```text
-我想认真和你发展，也希望我们是排他的恋爱关系。你怎么看？
-```
-
-Clarify:
-
-- Exclusivity.
-- Public/private status.
-- Contact rhythm.
-- Opposite-sex boundaries.
-- Conflict rules.
-- Personal space.
-
-## Stage 7: long-term relationship
-
-Core skills:
-
-- Emotional regulation.
-- Repair after conflict.
-- Appreciation.
-- Boundary setting.
-- Shared planning.
-- Sexual communication.
-
-Useful question:
-
-```text
-你现在是想让我帮你分析，还是想让我先听你说？
-```
-
-Repair formula:
-
-```text
-我刚才那句话确实让你不舒服了。我的本意是 X，但表达方式有问题。我们先把这件事说清楚。
-```
-
-## Stage 8: family and marriage
-
-Move to marriage only after:
-
-- Stable conflict repair.
-- Compatible city/career direction.
-- Money transparency.
-- Family boundaries.
-- Sexual and reproductive expectations discussed.
-- No major hidden debt, addiction, violence, coercion, or chronic contempt.
+阶段判断必须引用事实和未知项；不能仅凭性别、MBTI、依恋自测、星座或几条微信决定阶段。

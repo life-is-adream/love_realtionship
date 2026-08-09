@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/relationship-coach/case.schema.json",
+  "title": "Anonymous Relationship Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["case_id", "context", "observations", "hypotheses", "decision", "privacy"],
+  "properties": {
+    "case_id": {"type": "string", "pattern": "^case_[0-9]{3,}$"},
+    "context": {"type": "object", "additionalProperties": false, "required": ["stage", "goal"], "properties": {
+      "stage": {"type": "integer", "minimum": 0, "maximum": 12},
+      "goal": {"type": "string", "minLength": 1},
+      "jurisdiction": {"type": "string"}
+    }},
+    "observations": {"type": "array", "items": {"type": "string"}},
+    "hypotheses": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["label", "confidence", "support", "counter"], "properties": {
+      "label": {"type": "string"},
+      "confidence": {"enum": ["low", "medium_low", "medium", "medium_high", "high", "insufficient_evidence"]},
+      "support": {"type": "array", "items": {"type": "string"}},
+      "counter": {"type": "array", "items": {"type": "string"}}
+    }}},
+    "decision": {"enum": ["ADVANCE", "MAINTAIN", "OBSERVE", "DE_ESCALATE", "EXIT"]},
+    "action": {"type": "string"},
+    "prediction": {"type": "string"},
+    "outcome": {"type": "string"},
+    "update": {"type": "string"},
+    "lessons": {"type": "array", "items": {"type": "string"}},
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["anonymized"], "properties": {
+      "anonymized": {"const": true},
+      "third_party_consent": {"type": "boolean"}
+    }}
+  }
+}

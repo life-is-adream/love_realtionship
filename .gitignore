@@ -21,6 +21,12 @@ _relationship_skills_incoming_*/
 **/.workbuddy/
 **/.workbuddy-*
 
+# Private relationship context and case data
+.agents/skills/relationship-coach-cn/profiles/private-profile.md
+.agents/skills/relationship-coach-cn/cases/private/
+.agents/skills/relationship-coach-cn/evals/results/local-*
+**/*private-profile*.local.*
+
 # Generated dependency/runtime artifacts
 **/node_modules/
 npm-debug.log*
@@ -30,4 +36,3 @@ pnpm-debug.log*
 *.log
 __pycache__/
 *.py[cod]
-

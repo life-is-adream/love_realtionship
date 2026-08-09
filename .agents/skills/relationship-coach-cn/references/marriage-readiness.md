@@ -1,80 +1,20 @@
-# Marriage readiness
+---
+domain: relationship_planning
+current_law_separate: true
+---
 
-## Before marriage, discuss these
+# Marriage and Long-Term Readiness
 
-Money:
+婚姻准备讨论关系协作，不等同于法律意见。当前登记材料、年龄、程序、地方政策和身份要求必须读取 `references/curated/legal/china-marriage-current.md` 并在实际办理前重新核验。
 
-- Income, debt, savings, consumption habits.
-- Joint account or separate accounts.
-- House, car, bride price/dowry expectations.
-- Financial support to parents.
+## 现实议题
 
-City and career:
+- 钱：收入、债务、储蓄、消费、共同/分开账户、对双方家庭的支持；
+- 城市和职业：迁移、工作优先级、异地、住房和照护；
+- 家务和育儿：完整责任、标准、时间、祖辈边界和生育选择；
+- 家庭：节日、同住、双方父母和决策权；
+- 性与亲密：同意、避孕、健康、频率差异和不适时的停止；
+- 冲突：暂停、修复、咨询和不使用威胁/消失/羞辱；
+- 红线：暴力、胁迫、持续欺骗、成瘾、隐藏重大债务、轻蔑和控制。
 
-- Wuhan, hometown, first-tier city, overseas, PhD/work path.
-- Whose career takes priority under conflict.
-
-Housework:
-
-- Cooking, cleaning, shopping, repairs.
-- Standards and division of labor.
-
-Children:
-
-- Whether to have children.
-- When.
-- Who cares for them.
-- Grandparent involvement.
-- Fertility and contraception plan.
-
-Families:
-
-- Holiday allocation.
-- Living with parents.
-- Boundaries with in-laws.
-- Caregiving duties.
-
-Sex and intimacy:
-
-- Frequency expectations.
-- Contraception.
-- Health checks.
-- Boundaries and mismatch handling.
-
-Conflict:
-
-- How to pause.
-- How to repair.
-- Whether both accept counseling if needed.
-
-Red lines:
-
-- Violence.
-- Cheating.
-- Gambling/drug addiction.
-- Major hidden debt.
-- Chronic contempt.
-- Coercive control.
-- Severe unresolved family interference.
-
-## Chinese marriage registration notes
-
-As of researched 2026 context:
-
-- Marriage must be fully voluntary.
-- Minimum legal age: male 22, female 20.
-- No existing spouse.
-- Direct blood relatives and collateral relatives within three generations cannot marry.
-- Since 2025-05-10, marriage registration in mainland China has national handling convenience; mainland residents generally provide ID cards and signed statements of no spouse and no prohibited kinship, without household register. Verify local civil affairs office requirements before going.
-
-## Marriage readiness test
-
-Do not marry if:
-
-- You cannot discuss money without explosion.
-- One side hides debt, addiction, health, or prior marriage/children.
-- Parents control the relationship and the partner cannot set boundaries.
-- Conflict ends in threats, disappearing, humiliation, or violence.
-- Sex, children, city, or money expectations are fundamentally incompatible.
-
-Marriage is not a fix for unstable dating.
+不以结婚解决不稳定约会；若关键议题存在不可调和冲突，决策应为 `OBSERVE`、`DE_ESCALATE` 或 `EXIT`，而不是为了进度强行推进。

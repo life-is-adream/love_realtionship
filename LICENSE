@@ -1,0 +1,9 @@
+Copyright (c) 2026 life-is-adream and contributors.
+
+No blanket open-source license is granted by this file.
+
+The repository contains third-party references, local course transformations, and
+materials with unclear redistribution status. Those materials remain subject to
+their respective copyright and license terms. See THIRD_PARTY_NOTICES.md and
+sources/registry.yaml. Do not assume that public visibility grants permission to
+copy, modify, redistribute, or use any third-party material.

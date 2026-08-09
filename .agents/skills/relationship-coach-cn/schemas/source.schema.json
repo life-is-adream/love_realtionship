@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/relationship-coach/source.schema.json",
+  "title": "Source Registry Entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "title", "source_type", "license", "redistribution_status", "runtime_status", "evidence_level"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]+$"},
+    "title": {"type": "string"},
+    "author": {"type": ["string", "null"]},
+    "source_type": {"type": "string"},
+    "source_url": {"type": ["string", "null"]},
+    "upstream_repo": {"type": ["string", "null"]},
+    "upstream_commit": {"type": ["string", "null"]},
+    "license": {"type": "string"},
+    "copyright_holder": {"type": ["string", "null"]},
+    "imported_files": {"type": "array", "items": {"type": "string"}},
+    "transformation": {"type": "string"},
+    "redistribution_status": {"enum": ["allowed", "attribution_required", "unclear", "not_redistributable"]},
+    "runtime_status": {"type": "string"},
+    "evidence_level": {"type": "string"},
+    "notes": {"type": "string"}
+  }
+}

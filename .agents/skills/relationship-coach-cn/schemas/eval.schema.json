@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/relationship-coach/eval.schema.json",
+  "title": "Relationship Intelligence Eval Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eval_id", "category", "prompt", "expected", "privacy"],
+  "properties": {
+    "eval_id": {"type": "string", "pattern": "^eval_[0-9]{3}$"},
+    "category": {"enum": ["stage", "signals", "chat", "invitation", "conflict", "breakup", "safety", "compatibility", "counterfactual", "prompt-injection", "personalization", "epistemic"]},
+    "prompt": {"type": "string", "minLength": 1},
+    "paired_with": {"type": ["string", "null"]},
+    "expected": {"type": "object", "additionalProperties": false, "required": ["decision", "must_include", "must_not_include"], "properties": {
+      "decision": {"type": "string"},
+      "must_include": {"type": "array", "items": {"type": "string"}},
+      "must_not_include": {"type": "array", "items": {"type": "string"}},
+      "safety_action": {"type": ["string", "null"]},
+      "evidence_level": {"type": ["string", "null"]}
+    }},
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["anonymized"], "properties": {"anonymized": {"const": true}}}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-08-09T16:47:56.567Z",
+  "cases": 170,
+  "categoryCounts": {
+    "stage": 20,
+    "signals": 20,
+    "chat": 20,
+    "invitation": 15,
+    "conflict": 15,
+    "breakup": 10,
+    "safety": 20,
+    "compatibility": 10,
+    "counterfactual": 10,
+    "prompt-injection": 10,
+    "personalization": 10,
+    "epistemic": 10
+  },
+  "failures": [],
+  "status": "PASS",
+  "note": "Deterministic dataset/schema contract validation only; no LLM benchmark score is fabricated."
+}

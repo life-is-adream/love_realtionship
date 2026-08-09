@@ -97,12 +97,12 @@ Invoke-RestMethod 'http://localhost:3000/api/health' | ConvertTo-Json -Compress
 
 ## 5. 当前已知问题（交接重点）
 
-### `build:index` 目前是坏的
+### `build:index` 路径契约已修复
 
-`relationship-simulator\scripts\build-long-index.mjs` 的 `outputPath` 仍指向：
+`relationship-simulator\scripts\build-long-index.mjs` 的 `outputPath` 现在指向：
 
 ```text
-public/js/long-content-index.js
+public/modules/content/long-content-index.js
 ```
 
 但当前实际前端入口和生成文件位于：
@@ -111,16 +111,11 @@ public/js/long-content-index.js
 public/modules/content/long-content-index.js
 ```
 
-现场执行 `npm run build:index` 已确认失败，错误为 `ENOENT`，找不到 `public\js\long-content-index.js`。因此：
-
-- 不要把当前 `npm run build:index` 当作通过。
-- 不要手动编辑 `public\modules\content\long-content-index.js`，它是生成产物。
-- 后续代码维护应先统一脚本输出路径，再运行生成、测试和循环依赖检查。
-- 同时修正 `README.md`、`docs\部署与构建说明.md`、脚本注释中仍写 `public/js` 的旧路径。
+2026-08-10 已现场执行 `npm run build:index`：10 章、123 个复盘点成功生成，无 `ENOENT`。后续修改长篇原文后仍需重新运行该命令；不要手动编辑生成文件。
 
 其他状态注意事项：
 
-- 项目根目录和 `relationship-simulator` 当前都不是可用 Git 仓库；虽然根目录有 `.git` 目录，但现场 `git status` 报 `not a git repository`，没有可依赖的分支、提交或 diff。修改前自行备份目标文件或建立外部版本记录。
+- 项目根目录已初始化为 Git 仓库；当前重构在分支 `refactor/relationship-intelligence-v1`，并已保留远端 `main` 快照。`relationship-simulator` 不是独立 Git 仓库。注意：前端改动、调研报告和 `_demo_*.png` 在本轮开始前已存在，未自动加入重构提交。
 - `Code-Wiki.md` 仍是 2026-07-31 基线，且包含旧的 `public/js` 描述；本文件的 2026-08-09 现场审计优先。
 - `node validate-long-simulation.mjs` 会刷新 `long-simulation\validation-summary.json` 的 `generatedAt`；这是预期的生成文件变化。
 
@@ -128,7 +123,7 @@ public/modules/content/long-content-index.js
 
 1. 先读取本文件、`课程总纲.md`、当前日期匹配课件和 Automation 15 配置/日志。
 2. 如果目标是日常发送，只做唯一日期匹配和完整读取，不触碰课程内容。
-3. 如果目标是 HeartFlow 代码维护，先修复 `build:index` 路径契约，再运行：
+3. 如果目标是 HeartFlow 代码维护，长篇原文有变更时先运行 `build:index`，再运行：
 
 ```powershell
 npm run build:index
@@ -142,5 +137,10 @@ node validate-long-simulation.mjs
 
 ## 7. 可直接粘给下一位 AI 的短交接
 
-> 你接手的是 `E:\一门给年轻人的恋爱成长课`。这是“160 课预生成恋爱课程 + Codex Automation 15 + HeartFlow 本地关系模拟器”的组合项目。先读 `AI_HANDOFF.md`、`恋爱15分钟学习\课程总纲.md`、当天课程文件和 `C:\Users\lenovo\.codex\automations\15\automation.toml`/`memory.md`。课程当前 160/160、日期 2026-07-18—2026-12-24 连续；2026-08-09 唯一课件是第 23 课，Automation 15 已记录发送。课程只允许按日期读取已有完整文件，不得生成、改写未来课程或临时补课。HeartFlow 在 `relationship-simulator`：333/333 tests、46 modules/0 circular、长篇验证通过，Node >=18；`.env` 含敏感模型配置，禁止回显或复制。已知阻塞：`npm run build:index` 仍写入不存在的 `public/js/long-content-index.js`，实际路径是 `public/modules/content/long-content-index.js`，现场执行确认为 ENOENT；先修脚本和旧文档路径，再重建索引并跑全量验证。根目录不是可用 Git 仓库，不能依赖 git diff。所有维护都以现场文件为准、最小修改、保留安全/同意/隐私边界，并报告可复现的验证结果。>
+> 你接手的是 `E:\一门给年轻人的恋爱成长课`。这是“160 课预生成恋爱课程 + Codex Automation 15 + HeartFlow 本地关系模拟器”的组合项目。先读 `AI_HANDOFF.md`、`恋爱15分钟学习\课程总纲.md`、当天课程文件和 `C:\Users\lenovo\.codex\automations\15\automation.toml`/`memory.md`。课程当前 160/160、日期 2026-07-18—2026-12-24 连续；2026-08-09 唯一课件是第 23 课，Automation 15 已记录发送。课程只允许按日期读取已有完整文件，不得生成、改写未来课程或临时补课。HeartFlow 在 `relationship-simulator`：333/333 tests、46 modules/0 circular、长篇验证通过，Node >=18；`.env` 含敏感模型配置，禁止回显或复制。`npm run build:index` 已修复并现场通过，输出为 `public/modules/content/long-content-index.js`；长篇原文变更后需重建索引。根目录 Git 当前使用 `refactor/relationship-intelligence-v1`，请保留既有未提交前端改动，不要把它们自动加入重构提交。所有维护都以现场文件为准、最小修改、保留安全/同意/隐私边界，并报告可复现的验证结果。>
 
+## 2026-08-10 Relationship Intelligence System v1
+
+已在分支 `refactor/relationship-intelligence-v1` 开始分阶段重构，实施计划位于 `docs/superpowers/plans/2026-08-10-relationship-intelligence-system-v1.md`。新增了 Profile/Locale 解耦、来源/版权/隐私治理、Evidence/Epistemic/Decision Core、curated/upstream 边界、0–12 阶段、场景 modules、Case/Source/Eval schemas、170 条匿名静态 Evals 和根目录架构文档。静态 Evals 运行结果应以 `.agents/skills/relationship-coach-cn/evals/results/static-validation.json` 为准。
+
+接手时不要把 `relationship-simulator/` 当前未提交的前端改动、`AI恋爱应用调研报告-2026-08-10.md` 或 `_demo_*.png` 自动加入本次重构提交；它们在 Phase 0 时已存在，需由原作者单独确认范围。

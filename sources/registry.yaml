@@ -1,0 +1,91 @@
+version: 1
+generated_at: 2026-08-10
+sources:
+  - id: local-course-synthesis
+    title: "恋爱新手 15 分钟训练课"
+    author: "本项目维护者/本地综合材料"
+    source_type: local_course
+    source_url: null
+    upstream_repo: null
+    upstream_commit: null
+    license: unclear
+    copyright_holder: unclear
+    imported_files:
+      - "恋爱15分钟学习/课程总纲.md"
+      - "恋爱15分钟学习/每日课程/*.md"
+    transformation: "原创结构化改写与安全边界综合"
+    redistribution_status: unclear
+    runtime_status: curated
+    evidence_level: heuristic
+    notes: "不得把课程经验当作医疗、法律或已验证科学事实。"
+
+  - id: relationship-coach-cn
+    title: "relationship-coach-cn"
+    author: "本项目维护者"
+    source_type: local_skill
+    source_url: null
+    upstream_repo: null
+    upstream_commit: null
+    license: unclear
+    copyright_holder: unclear
+    imported_files:
+      - ".agents/skills/relationship-coach-cn/**"
+    transformation: "安全、证据和路由层重构"
+    redistribution_status: unclear
+    runtime_status: curated
+    evidence_level: mixed
+    notes: "公开仓库不授予未明确来源材料的额外许可证。"
+
+  - id: upstream-skill-bundles
+    title: "guanxi / match-maker / qingsheng / dating-skills reference bundles"
+    author: "各上游作者/仓库，待核验"
+    source_type: upstream_reference
+    source_url: null
+    upstream_repo: unknown
+    upstream_commit: unknown
+    license: unclear
+    copyright_holder: unknown
+    imported_files:
+      - ".agents/skills/relationship-coach-cn/references/upstream/**"
+    transformation: "保留 archive/provenance；不作为默认运行时指令"
+    redistribution_status: unclear
+    runtime_status: archive_only
+    evidence_level: low_or_disputed
+    notes: "包含商业方法论、PUA 和争议性心理学表述，必须先审计再转译。"
+
+  - id: local-books-and-videos
+    title: "本地书籍、视频和转录材料"
+    author: "各原作者/出版方，待核验"
+    source_type: local_copyrighted_material
+    source_url: null
+    upstream_repo: null
+    upstream_commit: null
+    license: unclear
+    copyright_holder: unknown
+    imported_files:
+      - "书籍/**（未纳入公开 Git 快照）"
+      - "*.mp4（未纳入公开 Git 快照）"
+      - "_learned_relationship_course/transcripts/**"
+    transformation: "仅保留必要的高层综合，不公开原始媒体"
+    redistribution_status: not_redistributable
+    runtime_status: curated_summary_only
+    evidence_level: heuristic_or_unknown
+    notes: "书籍/视频原始文件由根 .gitignore 排除；逐页/逐句引用需单独核验。"
+
+  - id: current-official-health-and-law
+    title: "当前官方医疗与法律来源"
+    author: "对应政府、公共卫生机构或临床机构"
+    source_type: official_current_source
+    source_url: needs_current_verification
+    upstream_repo: null
+    upstream_commit: null
+    license: source_specific
+    copyright_holder: source_specific
+    imported_files:
+      - ".agents/skills/relationship-coach-cn/references/curated/health/**"
+      - ".agents/skills/relationship-coach-cn/references/curated/legal/**"
+    transformation: "保留来源、辖区、核验日期和教育性摘要"
+    redistribution_status: attribution_required
+    runtime_status: current_verification_required
+    evidence_level: high_when_verified
+    notes: "不能使用仓库内静态文字替代当前核验。"

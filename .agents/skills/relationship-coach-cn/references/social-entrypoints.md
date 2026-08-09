@@ -1,85 +1,32 @@
-# Social entrypoints for Wuhan/university context
+# Social Entrypoints
 
-## Strategy
+目标是建立稳定、合法、可退出的社会参与，不是把人当作“目标”或追求数量 KPI。
 
-The user should not rely on isolated cold approach. Build repeated, legitimate social exposure.
+## 通用入口
 
-Default weekly plan:
+- 公开讲座、展览、图书馆/博物馆活动；
+- 兴趣社团、运动、志愿服务和有明确任务的工作坊；
+- 朋友组织的聚会、桌游、生日或群体活动；
+- 学校、工作场所或社区的公开活动（遵守组织规则）。
 
-- One fixed campus/social activity.
-- One physical activity.
-- One monthly public cultural/volunteer event.
-- Talk to several people without forcing romantic outcomes.
+## 开场
 
-## Best channels
-
-1. **School and graduate organizations**
-   - Graduate student association, college研会, academic salons, new-student meetups, employment talks.
-   - Advantage: same stage, repeated contact, low risk.
-
-2. **Clubs and student activities**
-   - Culture/art, sports, volunteering, reading, photography, debate, music, dance trial classes.
-   - Choose activities the user can keep attending.
-
-3. **Volunteering**
-   - China Volunteer app/system, school volunteer groups, city events, museums, libraries, marathons.
-   - Advantage: structured cooperation and good reputation.
-
-4. **Public cultural spaces**
-   - Hubei Provincial Library, museums, exhibitions, lectures, city cultural centers.
-   - Advantage: shared topic and lower pressure.
-
-5. **Sports**
-   - Badminton, running, frisbee, hiking, gym classes.
-   - Advantage: repeated contact and visible energy.
-
-6. **Friends-of-friends**
-   - Meals, board games, birthdays, group outings.
-   - The user should ask to be included in normal group activities, not demand introductions.
-
-## Opening rule
-
-Open on shared context:
-
-- Activity.
-- Task.
-- Location.
-- Process.
-- Common difficulty.
-
-Then build light familiarity before asking for WeChat.
-
-WeChat ask:
+从活动、任务、地点、流程或共同困难开始：
 
 ```text
-之后有类似活动可以互相叫一下，方便加个微信吗？
+你也是第一次参加这个活动吗？我刚才看流程表，感觉今天可能会有点忙。
 ```
 
-If refused:
+先建立正常互动，再在对方愿意时交换联系方式：
 
 ```text
-没事，活动里见。
+之后有类似活动可以互相叫一下，方便加个联系方式吗？不方便也没关系。
 ```
 
-## Local caution
+## 停止条件
 
-Avoid:
+避免宿舍、夜间道路、交通工具、自习空间等难以退出的场景打扰陌生人。被拒绝、明显不舒服、持续不回应或多次低投入时停止追加；不尾随、不定位、不连续发消息。
 
-- Dormitory areas.
-- Night roads.
-- Subway/bus pressure.
-- Library/self-study room interruptions.
-- Following someone after a brief exchange.
-- Repeated messages after no response.
-- Asking for private information early.
+## 衡量
 
-## Metrics
-
-For a low-exposure graduate student:
-
-- 3 months: 20–40 new acquaintances.
-- 5–10 decent WeChat contacts.
-- 2–4 low-pressure one-on-one meetings.
-- 0 harassment incidents.
-
-The goal is not maximum numbers; it is a stable social pipeline.
+记录稳定参与、互动质量、互惠、边界和拒绝处理，而不是搭讪数量、联系方式数量或“成功率”。城市、学校和活动信息需要显式 locale 或当前查询。
