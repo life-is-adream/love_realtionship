@@ -1,0 +1,337 @@
+{
+  "created_at": "2026-07-10 21:22:11",
+  "model": "faster-whisper/base cpu int8 beam1 vad",
+  "items": [
+    {
+      "video": "00.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\00.txt",
+      "srt": "_learned_relationship_course\\srt\\00.srt",
+      "segments": "_learned_relationship_course\\transcripts\\00.segments.json",
+      "segment_count": 150,
+      "duration_seconds": 325.23,
+      "elapsed_seconds": 23.4,
+      "status": "done"
+    },
+    {
+      "video": "01.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\01.txt",
+      "srt": "_learned_relationship_course\\srt\\01.srt",
+      "segments": "_learned_relationship_course\\transcripts\\01.segments.json",
+      "segment_count": 934,
+      "duration_seconds": 1573.82,
+      "elapsed_seconds": 107.9,
+      "status": "done"
+    },
+    {
+      "video": "02.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\02.txt",
+      "srt": "_learned_relationship_course\\srt\\02.srt",
+      "segments": "_learned_relationship_course\\transcripts\\02.segments.json",
+      "segment_count": 887,
+      "duration_seconds": 1472.41,
+      "elapsed_seconds": 104.2,
+      "status": "done"
+    },
+    {
+      "video": "10-伴侣之间如何“谈钱”？.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\10-伴侣之间如何“谈钱”？.txt",
+      "srt": "_learned_relationship_course\\srt\\10-伴侣之间如何“谈钱”？.srt",
+      "segments": "_learned_relationship_course\\transcripts\\10-伴侣之间如何“谈钱”？.segments.json",
+      "segment_count": 941,
+      "duration_seconds": 1729.7,
+      "elapsed_seconds": 125.8,
+      "status": "done"
+    },
+    {
+      "video": "11-避免吵架！如何正确的表达意见和情绪？.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\11-避免吵架！如何正确的表达意见和情绪？.txt",
+      "srt": "_learned_relationship_course\\srt\\11-避免吵架！如何正确的表达意见和情绪？.srt",
+      "segments": "_learned_relationship_course\\transcripts\\11-避免吵架！如何正确的表达意见和情绪？.segments.json",
+      "segment_count": 865,
+      "duration_seconds": 1403.21,
+      "elapsed_seconds": 107.2,
+      "status": "done"
+    },
+    {
+      "video": "12-如何避免在恋爱里单方面付出？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\12-如何避免在恋爱里单方面付出？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\12-如何避免在恋爱里单方面付出？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\12-如何避免在恋爱里单方面付出？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 825,
+      "duration_seconds": 1562.69,
+      "elapsed_seconds": 109.6,
+      "status": "done"
+    },
+    {
+      "video": "13异地恋怎么谈才香？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\13异地恋怎么谈才香？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\13异地恋怎么谈才香？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\13异地恋怎么谈才香？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 949,
+      "duration_seconds": 1700.69,
+      "elapsed_seconds": 125.7,
+      "status": "done"
+    },
+    {
+      "video": "14-稳定的关系=稳定的输出情绪-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\14-稳定的关系=稳定的输出情绪-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\14-稳定的关系=稳定的输出情绪-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\14-稳定的关系=稳定的输出情绪-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 836,
+      "duration_seconds": 1556.31,
+      "elapsed_seconds": 103.8,
+      "status": "done"
+    },
+    {
+      "video": "15-如何在恋爱中建立安全感？避免猜疑-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\15-如何在恋爱中建立安全感？避免猜疑-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\15-如何在恋爱中建立安全感？避免猜疑-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\15-如何在恋爱中建立安全感？避免猜疑-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 943,
+      "duration_seconds": 1592.62,
+      "elapsed_seconds": 114.0,
+      "status": "done"
+    },
+    {
+      "video": "16-边界感，如何避免恋人干预你的生活？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\16-边界感，如何避免恋人干预你的生活？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\16-边界感，如何避免恋人干预你的生活？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\16-边界感，如何避免恋人干预你的生活？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 754,
+      "duration_seconds": 1362.07,
+      "elapsed_seconds": 92.8,
+      "status": "done"
+    },
+    {
+      "video": "17 如何识别虚假的“坏情人”？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\17 如何识别虚假的“坏情人”？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\17 如何识别虚假的“坏情人”？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\17 如何识别虚假的“坏情人”？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 936,
+      "duration_seconds": 1539.05,
+      "elapsed_seconds": 123.1,
+      "status": "done"
+    },
+    {
+      "video": "18-如何应对伴侣出轨？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\18-如何应对伴侣出轨？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\18-如何应对伴侣出轨？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\18-如何应对伴侣出轨？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 946,
+      "duration_seconds": 1671.14,
+      "elapsed_seconds": 122.1,
+      "status": "done"
+    },
+    {
+      "video": "19-如何应对冷暴力？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\19-如何应对冷暴力？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\19-如何应对冷暴力？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\19-如何应对冷暴力？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 889,
+      "duration_seconds": 1505.24,
+      "elapsed_seconds": 95.3,
+      "status": "done"
+    },
+    {
+      "video": "20-如何友善和平的分手？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\20-如何友善和平的分手？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\20-如何友善和平的分手？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\20-如何友善和平的分手？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 854,
+      "duration_seconds": 1440.66,
+      "elapsed_seconds": 91.8,
+      "status": "done"
+    },
+    {
+      "video": "21-如何挽回一段破裂的关系？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\21-如何挽回一段破裂的关系？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\21-如何挽回一段破裂的关系？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\21-如何挽回一段破裂的关系？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 845,
+      "duration_seconds": 1477.18,
+      "elapsed_seconds": 104.9,
+      "status": "done"
+    },
+    {
+      "video": "22-矛盾和裂痕产生后，如何重建信任？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\22-矛盾和裂痕产生后，如何重建信任？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\22-矛盾和裂痕产生后，如何重建信任？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\22-矛盾和裂痕产生后，如何重建信任？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 764,
+      "duration_seconds": 1369.16,
+      "elapsed_seconds": 94.6,
+      "status": "done"
+    },
+    {
+      "video": "23-恋爱中太过于卑微，如何降低依赖和需求感？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\23-恋爱中太过于卑微，如何降低依赖和需求感？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\23-恋爱中太过于卑微，如何降低依赖和需求感？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\23-恋爱中太过于卑微，如何降低依赖和需求感？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 810,
+      "duration_seconds": 1244.61,
+      "elapsed_seconds": 88.6,
+      "status": "done"
+    },
+    {
+      "video": "24-囚徒困境：如何走出恋爱中的博弈，避免互相损耗-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\24-囚徒困境：如何走出恋爱中的博弈，避免互相损耗-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\24-囚徒困境：如何走出恋爱中的博弈，避免互相损耗-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\24-囚徒困境：如何走出恋爱中的博弈，避免互相损耗-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 1034,
+      "duration_seconds": 1597.05,
+      "elapsed_seconds": 108.2,
+      "status": "done"
+    },
+    {
+      "video": "25-年轻人如何建立正确的恋爱观？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\25-年轻人如何建立正确的恋爱观？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\25-年轻人如何建立正确的恋爱观？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\25-年轻人如何建立正确的恋爱观？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 834,
+      "duration_seconds": 1474.43,
+      "elapsed_seconds": 99.3,
+      "status": "done"
+    },
+    {
+      "video": "26-如何有拥有高质量的社交圈？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\26-如何有拥有高质量的社交圈？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\26-如何有拥有高质量的社交圈？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\26-如何有拥有高质量的社交圈？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 831,
+      "duration_seconds": 1414.78,
+      "elapsed_seconds": 93.2,
+      "status": "done"
+    },
+    {
+      "video": "27-如何克服“颜值焦虑”？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\27-如何克服“颜值焦虑”？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\27-如何克服“颜值焦虑”？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\27-如何克服“颜值焦虑”？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 837,
+      "duration_seconds": 1472.8,
+      "elapsed_seconds": 97.0,
+      "status": "done"
+    },
+    {
+      "video": "28-如何制定真正有效的择偶标准，找到适合的人？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\28-如何制定真正有效的择偶标准，找到适合的人？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\28-如何制定真正有效的择偶标准，找到适合的人？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\28-如何制定真正有效的择偶标准，找到适合的人？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 874,
+      "duration_seconds": 1334.19,
+      "elapsed_seconds": 95.0,
+      "status": "done"
+    },
+    {
+      "video": "29 如何克服凭感觉谈恋爱，保持理性？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\29 如何克服凭感觉谈恋爱，保持理性？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\29 如何克服凭感觉谈恋爱，保持理性？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\29 如何克服凭感觉谈恋爱，保持理性？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 1285,
+      "duration_seconds": 1779.37,
+      "elapsed_seconds": 122.5,
+      "status": "done"
+    },
+    {
+      "video": "3 告别微信尬聊，把每一次聊天变得“有用”.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\3 告别微信尬聊，把每一次聊天变得“有用”.txt",
+      "srt": "_learned_relationship_course\\srt\\3 告别微信尬聊，把每一次聊天变得“有用”.srt",
+      "segments": "_learned_relationship_course\\transcripts\\3 告别微信尬聊，把每一次聊天变得“有用”.segments.json",
+      "segment_count": 827,
+      "duration_seconds": 1360.23,
+      "elapsed_seconds": 86.2,
+      "status": "done"
+    },
+    {
+      "video": "30：吸渣体质如何自救？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\30：吸渣体质如何自救？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\30：吸渣体质如何自救？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\30：吸渣体质如何自救？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 701,
+      "duration_seconds": 1180.42,
+      "elapsed_seconds": 78.7,
+      "status": "done"
+    },
+    {
+      "video": "31：如何告别“恋爱脑”？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\31：如何告别“恋爱脑”？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\31：如何告别“恋爱脑”？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\31：如何告别“恋爱脑”？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 771,
+      "duration_seconds": 1243.61,
+      "elapsed_seconds": 82.1,
+      "status": "done"
+    },
+    {
+      "video": "32：戒掉取悦症：拒绝无底线的对一个人好-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\32：戒掉取悦症：拒绝无底线的对一个人好-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\32：戒掉取悦症：拒绝无底线的对一个人好-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\32：戒掉取悦症：拒绝无底线的对一个人好-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 827,
+      "duration_seconds": 1499.22,
+      "elapsed_seconds": 84.0,
+      "status": "done"
+    },
+    {
+      "video": "4如何和对方走心，进行深度对话？.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\4如何和对方走心，进行深度对话？.txt",
+      "srt": "_learned_relationship_course\\srt\\4如何和对方走心，进行深度对话？.srt",
+      "segments": "_learned_relationship_course\\transcripts\\4如何和对方走心，进行深度对话？.segments.json",
+      "segment_count": 1342,
+      "duration_seconds": 2151.81,
+      "elapsed_seconds": 117.3,
+      "status": "done"
+    },
+    {
+      "video": "5. 7个要素，给你们一场完美的面对面约会.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\5. 7个要素，给你们一场完美的面对面约会.txt",
+      "srt": "_learned_relationship_course\\srt\\5. 7个要素，给你们一场完美的面对面约会.srt",
+      "segments": "_learned_relationship_course\\transcripts\\5. 7个要素，给你们一场完美的面对面约会.segments.json",
+      "segment_count": 1036,
+      "duration_seconds": 1889.34,
+      "elapsed_seconds": 108.0,
+      "status": "done"
+    },
+    {
+      "video": "6．如何突破“友谊区”，日久生情？.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\6．如何突破“友谊区”，日久生情？.txt",
+      "srt": "_learned_relationship_course\\srt\\6．如何突破“友谊区”，日久生情？.srt",
+      "segments": "_learned_relationship_course\\transcripts\\6．如何突破“友谊区”，日久生情？.segments.json",
+      "segment_count": 923,
+      "duration_seconds": 1652.74,
+      "elapsed_seconds": 90.8,
+      "status": "done"
+    },
+    {
+      "video": "8 7．你真的会表白吗？如何正确的主动出击？.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\8 7．你真的会表白吗？如何正确的主动出击？.txt",
+      "srt": "_learned_relationship_course\\srt\\8 7．你真的会表白吗？如何正确的主动出击？.srt",
+      "segments": "_learned_relationship_course\\transcripts\\8 7．你真的会表白吗？如何正确的主动出击？.segments.json",
+      "segment_count": 1062,
+      "duration_seconds": 1864.58,
+      "elapsed_seconds": 98.3,
+      "status": "done"
+    },
+    {
+      "video": "8 如何判断一个人是不是真的喜欢你？-1080P .代找课程gysjbl8888.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\8 如何判断一个人是不是真的喜欢你？-1080P .代找课程gysjbl8888.txt",
+      "srt": "_learned_relationship_course\\srt\\8 如何判断一个人是不是真的喜欢你？-1080P .代找课程gysjbl8888.srt",
+      "segments": "_learned_relationship_course\\transcripts\\8 如何判断一个人是不是真的喜欢你？-1080P .代找课程gysjbl8888.segments.json",
+      "segment_count": 943,
+      "duration_seconds": 1774.36,
+      "elapsed_seconds": 94.9,
+      "status": "done"
+    },
+    {
+      "video": "9 如何打败“新鲜感魔咒”，越久越相爱？.mp4",
+      "txt": "_learned_relationship_course\\transcripts\\9 如何打败“新鲜感魔咒”，越久越相爱？.txt",
+      "srt": "_learned_relationship_course\\srt\\9 如何打败“新鲜感魔咒”，越久越相爱？.srt",
+      "segments": "_learned_relationship_course\\transcripts\\9 如何打败“新鲜感魔咒”，越久越相爱？.segments.json",
+      "segment_count": 1155,
+      "duration_seconds": 1891.97,
+      "elapsed_seconds": 101.7,
+      "status": "done"
+    }
+  ],
+  "updated_at": "2026-07-10 22:17:06"
+}

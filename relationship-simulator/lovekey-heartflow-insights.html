@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lovekey × HeartFlow 启示看板 · 从恋爱输入法到恋爱训练器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f7f4f6;
+    --surface: #ffffff;
+    --surface-2: #fbf7f9;
+    --ink: #2b2230;
+    --ink-soft: #6a5f6e;
+    --line: #ece4e9;
+    --rose: #e04e7a;
+    --rose-soft: #fbe7ef;
+    --plum: #5b3a6b;
+    --plum-soft: #efe7f3;
+    --green: #2f9e6f;
+    --green-soft: #e4f5ec;
+    --amber: #c8881f;
+    --amber-soft: #fbf0d8;
+    --red: #d2483f;
+    --red-soft: #fbe3e1;
+    --radius: 16px;
+    --shadow: 0 1px 2px rgba(43, 34, 48, .04), 0 8px 24px rgba(43, 34, 48, .06);
+    --font: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: var(--font);
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 600px at 12% -8%, #fbe7ef 0%, rgba(251,231,239,0) 55%),
+      radial-gradient(1000px 520px at 100% 0%, #efe7f3 0%, rgba(239,231,243,0) 50%),
+      var(--bg);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 24px 96px; }
+
+  /* Header */
+  header { margin-bottom: 8px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700; letter-spacing: .12em;
+    color: var(--rose); background: var(--rose-soft);
+    padding: 6px 14px; border-radius: 999px; text-transform: uppercase;
+  }
+  h1 {
+    font-size: 40px; font-weight: 900; line-height: 1.2; margin: 18px 0 10px;
+    letter-spacing: -.01em;
+  }
+  .sub { color: var(--ink-soft); font-size: 17px; max-width: 760px; margin: 0; }
+
+  /* TL;DR */
+  .tldr {
+    margin-top: 28px; padding: 22px 24px; border-radius: var(--radius);
+    background: linear-gradient(180deg, #fff, var(--surface-2));
+    border: 1px solid var(--line); box-shadow: var(--shadow);
+    border-left: 5px solid var(--rose);
+  }
+  .tldr b { color: var(--rose); }
+  .tldr p { margin: 0; font-size: 15.5px; }
+
+  /* Sections */
+  section { margin-top: 56px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; }
+  .sec-num {
+    font-size: 14px; font-weight: 900; color: #fff; background: var(--rose);
+    width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+    flex: none; transform: translateY(2px);
+  }
+  .sec-head h2 { font-size: 25px; font-weight: 900; margin: 0; letter-spacing: -.01em; }
+  .sec-head .en { color: var(--ink-soft); font-size: 13px; font-weight: 500; }
+
+  /* Cards grid */
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow);
+  }
+  .card h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 14.5px; }
+  .tag {
+    display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px;
+    border-radius: 999px; margin-bottom: 10px;
+  }
+  .tag.green { background: var(--green-soft); color: var(--green); }
+  .tag.amber { background: var(--amber-soft); color: var(--amber); }
+  .tag.rose { background: var(--rose-soft); color: var(--rose); }
+  .tag.plum { background: var(--plum-soft); color: var(--plum); }
+
+  /* Mapping table */
+  .tbl { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .tbl th, .tbl td { text-align: left; padding: 15px 18px; border-bottom: 1px solid var(--line); font-size: 14.5px; vertical-align: top; }
+  .tbl thead th { background: var(--surface-2); font-weight: 700; color: var(--plum); font-size: 13px; letter-spacing: .04em; }
+  .tbl tbody tr:last-child td { border-bottom: none; }
+  .tbl td b { color: var(--ink); }
+  .tbl .from { color: var(--rose); font-weight: 700; }
+  .tbl .to { color: var(--plum); font-weight: 700; }
+  .pill { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill.now { background: var(--green-soft); color: var(--green); }
+  .pill.later { background: var(--amber-soft); color: var(--amber); }
+  .pill.concept { background: var(--plum-soft); color: var(--plum); }
+
+  /* Two-column compare */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .col { border-radius: var(--radius); padding: 4px 4px 8px; }
+  .col.good { background: var(--green-soft); }
+  .col.warn { background: var(--amber-soft); }
+  .col-head { font-weight: 900; font-size: 16px; padding: 14px 18px; display: flex; align-items: center; gap: 8px; }
+  .col.good .col-head { color: var(--green); }
+  .col.warn .col-head { color: var(--amber); }
+  .col ul { margin: 6px 0 8px; padding: 0 18px 0 34px; }
+  .col li { font-size: 14.5px; margin: 8px 0; color: var(--ink); }
+
+  /* Architecture diagram */
+  .arch { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 26px 22px; box-shadow: var(--shadow); overflow-x: auto; }
+  .flow { display: flex; align-items: stretch; gap: 0; min-width: 720px; }
+  .node { flex: 1; background: var(--surface-2); border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 14px 12px; text-align: center; }
+  .node .t { font-weight: 800; font-size: 14px; color: var(--ink); }
+  .node .d { font-size: 11.5px; color: var(--ink-soft); margin-top: 4px; }
+  .node.cache { background: var(--rose-soft); border-color: #f3c4d5; }
+  .node.retrieval { background: var(--plum-soft); border-color: #d8c6e3; }
+  .node.verify { background: var(--amber-soft); border-color: #ecd29a; }
+  .node.gen { background: #e9f3ff; border-color: #b9d6f5; }
+  .arrow { align-self: center; color: var(--rose); font-size: 22px; font-weight: 900; padding: 0 6px; }
+  .arch-note { margin-top: 16px; font-size: 13.5px; color: var(--ink-soft); }
+  .arch-note b { color: var(--plum); }
+
+  /* Privacy callout */
+  .privacy { border-radius: var(--radius); padding: 22px 24px; background: var(--green-soft);
+    border: 1px solid #cfe9da; box-shadow: var(--shadow); }
+  .privacy h3 { margin: 0 0 10px; color: var(--green); font-size: 18px; }
+  .privacy ul { margin: 0; padding-left: 20px; }
+  .privacy li { font-size: 14.5px; margin: 7px 0; }
+
+  /* Priority list */
+  .prio { display: grid; gap: 12px; }
+  .pr { display: grid; grid-template-columns: 64px 1fr; gap: 16px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .pr .lvl { font-weight: 900; font-size: 13px; padding: 6px 0; border-radius: 8px; text-align: center; }
+  .pr .p0 { background: var(--rose); color: #fff; }
+  .pr .p1 { background: var(--amber); color: #fff; }
+  .pr .p2 { background: var(--plum); color: #fff; }
+  .pr .body h4 { margin: 0 0 4px; font-size: 15.5px; }
+  .pr .body p { margin: 0; font-size: 14px; color: var(--ink-soft); }
+
+  footer { margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--line);
+    color: var(--ink-soft); font-size: 12.5px; }
+  footer a { color: var(--rose); text-decoration: none; }
+  footer .src { margin-top: 8px; font-size: 12px; }
+
+  @media (max-width: 760px) {
+    .grid-2, .grid-3, .compare { grid-template-columns: 1fr; }
+    h1 { font-size: 30px; }
+    .flow { min-width: 620px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="kicker">设计 × 技术启示看板</span>
+    <h1>从恋爱输入法到恋爱训练器<br/>Lovekey 能给 HeartFlow 什么</h1>
+    <p class="sub">把 Lovekey键盘（恋爱聊天输入法）的产品/设计拆解，翻译成你这个 <b>HeartFlow 恋爱模拟器</b> 可直接落地的设计借鉴与技术路线。重点新增一节：联网搜索 / RAG 检索增强如何补强你已有的本地教材检索。</p>
+
+    <div class="tldr">
+      <p><b>一句话结论：</b>Lovekey 用「悬浮球 + 亲密度可视化 + 人设即 Prompt」验证了 Z 世代恋爱社交刚需确实能跑通商业化（年营收 ¥3100 万、月活 200 万+）；但它踩的三个坑——<b>油腻不真诚、隐私信任、续费摩擦</b>——恰好是你 HeartFlow「本地优先、训练真实沟通能力」路线可以直接反击的差异化卖点。把它的好交互借来，把它的坏账做成你的信任设计，再用 RAG / 联网搜索把现有的本地关键词检索升级成语义检索。</p>
+    </div>
+  </header>
+
+  <!-- 1. 定位对照 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <div><h2>两条路线，一个赛道</h2><div class="en">Positioning contrast</div></div>
+    </div>
+    <div class="compare">
+      <div class="col warn">
+        <div class="col-head">🟠 Lovekey：帮你「说」</div>
+        <ul>
+          <li><b>产品本质：</b>输入法插件，复制对话 → AI 生成 3–5 条回复 → 粘回。替用户把话说了。</li>
+          <li><b>价值主张：</b>降低恋爱社交焦虑，让回复「高情商、不冷场」。</li>
+          <li><b>商业模式：</b>高客单订阅（¥48/月）+ 终身锚定（约 ¥128），付费墙是核心转化手段。</li>
+          <li><b>核心风险：</b>把恋爱变成可量化数据游戏，话术油腻、隐私存疑、续费投诉多。</li>
+        </ul>
+      </div>
+      <div class="col good">
+        <div class="col-head">🟢 HeartFlow：教你「会」</div>
+        <ul>
+          <li><b>产品本质：</b>本地运行的对话训练器，仿微信界面 + 教练层，练的是真实沟通能力。</li>
+          <li><b>价值主张：</b>感觉提供动力，理性负责方向/边界/长期经营——不教 PUA 套路。</li>
+          <li><b>商业模式：</b>本地免费、零依赖、隐私优先，无订阅墙；需要模型时走用户自有 Key。</li>
+          <li><b>核心优势：</b>已内置 A/B/C 回复建议、四维评分、发送前风险测验、7 阶段训练、本地教材检索。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. 设计映射 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <div><h2>Lovekey 功能 → HeartFlow 落地映射</h2><div class="en">Feature transfer map</div></div>
+    </div>
+    <table class="tbl">
+      <thead>
+        <tr><th style="width:22%">Lovekey 的做法</th><th style="width:30%">HeartFlow 可借鉴 / 改造</th><th style="width:14%">状态</th><th>落地建议</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="from">悬浮球三步流<br/><span style="font-weight:400;color:var(--ink-soft)">一键呼出 → 智能推荐 → 滑动选择</span></td>
+          <td class="to">教练快速呼出（Coach Quick-Recall）</td>
+          <td><span class="pill now">已有雏形</span></td>
+          <td>右侧教练层已存在；可加<b>悬浮态按钮</b>，聊天中长按消息即呼出 A/B/C 与评分，减少面板切换。</td>
+        </tr>
+        <tr>
+          <td class="from">亲密度五级滑块<br/><span style="font-weight:400;color:var(--ink-soft)">陌生→熟悉→暧昧→恋人→灵魂伴侣</span></td>
+          <td class="to">训练阶段进度条升级为关系进度</td>
+          <td><span class="pill now">已有</span></td>
+          <td>你已有 <b>7 训练阶段</b>；把它做成<b>可视化关系进度条 + 解锁动画</b>，让成长可感知（这正是 Lovekey 的情感化范式）。</td>
+        </tr>
+        <tr>
+          <td class="from">人设即 Prompt 市场<br/><span style="font-weight:400;color:var(--ink-soft)">20+ 模板 + 自定义标签训练逻辑</span></td>
+          <td class="to">角色市场（Role Market）</td>
+          <td><span class="pill later">可扩展</span></td>
+          <td>你已有 3 内置角色 + 自定义角色；可封装成<b>可分享的角色卡</b>（人设即 Prompt），社区化分发。</td>
+        </tr>
+        <tr>
+          <td class="from">AI 情绪配色系统<br/><span style="font-weight:400;color:var(--ink-soft)">按输入内容自动匹配情感色调</span></td>
+          <td class="to">教练反馈情绪化着色</td>
+          <td><span class="pill concept">概念</span></td>
+          <td>用色温映射<b>四维评分</b>与阶段氛围：高分暖色、风险琥珀、越界红，让反馈更直觉。</td>
+        </tr>
+        <tr>
+          <td class="from">付费墙紧迫感<br/><span style="font-weight:400;color:var(--ink-soft)">锚定 + 即将下架 + 广告解锁</span></td>
+          <td class="to">反做：透明免费 + 信任设计</td>
+          <td><span class="pill now">已有理念</span></td>
+          <td>把 Lovekey 的续费痛点反向做成卖点——<b>无订阅、本地优先、数据不出端</b>，直接写进首屏信任条。</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. 设计启示双栏 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <div><h2>设计启示：该借的借，该改的改</h2><div class="en">Design takeaways</div></div>
+    </div>
+    <div class="compare">
+      <div class="col good">
+        <div class="col-head">✅ 可直接借鉴</div>
+        <ul>
+          <li><b>悬浮球三步流</b>：聊天内零切换呼出教练，降低使用摩擦。</li>
+          <li><b>亲密度/关系进度可视化</b>：把抽象「关系进展」做成可滑动、带解锁进度的控件。</li>
+          <li><b>人设即 Prompt 的市场化封装</b>：角色卡 = 可分享、可组合的人设配置。</li>
+          <li><b>情绪化配色体系</b>：用色温传达教练反馈的情绪强度。</li>
+        </ul>
+      </div>
+      <div class="col warn">
+        <div class="col-head">⚠️ 必须改进 / 反向设计</div>
+        <ul>
+          <li><b>加「真诚度 / 语气强度」独立滑块</b>，对抗油腻——让用户主动调弱套路感，呼应你「真实沟通」理念。</li>
+          <li><b>可验证的信任设计</b>：数据流向提示、本地处理状态徽标，补 Lovekey 最弱的隐私一环。</li>
+          <li><b>付费墙更克制透明</b>：你本就本地免费，把这点做成首屏信任声明。</li>
+          <li><b>差异化记忆点</b>：Lovekey 与蜜小语视觉雷同；你用「训练器」定位 + 浪漫暖色 + 理性结构做出区隔。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 联网搜索 / RAG 技术落地 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <div><h2>联网搜索 / RAG 检索增强：怎么落到你项目</h2><div class="en">Web search &amp; RAG for HeartFlow</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <span class="tag plum">现状盘点</span>
+      <h3>你已经有的：本地关键词检索</h3>
+      <p>HeartFlow 当前用 <code>textbook-search.js</code> + 构建索引 <code>long-content-index.js</code> 做<b>本地关键词检索</b>（BM25 类），只发脱敏摘要、不上传整篇教材。这是很好的隐私基底，但只能「字面匹配」，做不到「语义理解」——比如用户问「她半天没回我要不要主动」，检索不到教材里「冷却期 / 投入度」相关段落。</p>
+    </div>
+
+    <div class="arch">
+      <div class="flow">
+        <div class="node cache">
+          <div class="t">① 缓存层</div>
+          <div class="d">高频教材片段 / 心理学依据缓存，命中即返，降成本降延迟</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="node retrieval">
+          <div class="t">② 检索层（混合）</div>
+          <div class="d">BM25 关键词 + 向量语义；教材库 + 可选联网白名单源并行</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="node verify">
+          <div class="t">③ 验证 / 重排</div>
+          <div class="d">重排序精筛 + 置信度评估 + 引用溯源；不足则触发拒答/联网</div>
+        </div>
+        <div class="arrow">→</div>
+        <div class="node gen">
+          <div class="t">④ 生成层</div>
+          <div class="d">把检索片段作为上下文喂给教练层 / 角色，带「依据来源」输出</div>
+        </div>
+      </div>
+      <div class="arch-note"><b>建议路线：</b>先把 ①+②+③ 做成本地版（FAISS/Qdrant 本地向量库 + BGE 等中文 embedding），④ 沿用现有模型代理。联网搜索（白名单 .gov/.edu/权威机构）作为<b>可选增强</b>，默认关闭。</div>
+    </div>
+
+    <div class="grid grid-2" style="margin-top:16px">
+      <div class="card">
+        <span class="tag green">本地优先（P0）</span>
+        <h3>语义检索升级（RAG 内核）</h3>
+        <p>把 17.4 万字教材 + 10 章课程做<b>动态分块 → embedding → 本地向量库</b>。混合检索（BM25 + 向量）替代纯关键词，让教练引用更准。沿用你「只发脱敏摘要」的边界，<b>向量索引留在本地</b>，不外发。</p>
+      </div>
+      <div class="card">
+        <span class="tag amber">谨慎可选（P1）</span>
+        <h3>联网搜索增强（Web Search）</h3>
+        <p>用 <code>web_search_options</code> 或模型后缀 <code>:surfing</code> 接入实时检索，<b>仅限白名单权威源</b>（心理学机构 / 学术站 / 官方指南），给教练层提供「最新沟通研究」背书。注意：联网=上下文可能外发，与你隐私优先冲突，<b>必须默认关、需用户显式开启、只检索公开通用知识、不发送对话原文</b>。</p>
+      </div>
+      <div class="card">
+        <span class="tag plum">架构（P1）</span>
+        <h3>Agentic RAG：让教练自己决定查不查</h3>
+        <p>把检索作为教练层（Coach Layer）可自主调用的工具：当某句回复需要教材依据或心理学支撑时，由教练判断触发检索、评估信息是否充分后再生成——多步、可控、可追溯。</p>
+      </div>
+      <div class="card">
+        <span class="tag rose">成本 / 风险护栏</span>
+        <h3>缓存 · 限流 · 延迟 · 幻觉</h3>
+        <p>高频教材片段缓存 + QPS 限流控成本；向量检索 + LLM 用<b>异步 / 渐进式响应</b>（先给摘要再补依据）控延迟；RAG 减少但不消除幻觉，需<b>置信度评估 + 引用溯源</b>，不足时明确「依据不足」。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 隐私与信任 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <div><h2>把 Lovekey 的短板，做成你的信任设计</h2><div class="en">Privacy as differentiator</div></div>
+    </section>
+    <div class="privacy">
+      <h3>🔒 HeartFlow 已有的隐私基底（直接用作卖点）</h3>
+      <ul>
+        <li><b>本地优先：</b>核心训练（分析 / 评分 / 教材检索）不需要 API Key 也能跑，模型生成才走用户自有 Key。</li>
+        <li><b>脱敏外发：</b>真实聊天回放只在浏览器内存处理；发往模型前必须点按钮，且仅发脱敏摘要 + 最多两条短摘录，<b>原始回放不写入学习状态</b>。</li>
+        <li><b>可验证：</b>「联网搜索」若上线，默认关闭 + 白名单 + 审计日志，让数据流向对用户可见、可关。</li>
+      </ul>
+      <p style="margin:12px 0 0;font-size:14px;color:var(--ink-soft)">对比 Lovekey「宣传本地生成、实际联网 AI 输入法、隐私协议说法不一」——你这套正好补上它最弱的一环，建议在首屏用一条信任声明把它讲明白。</p>
+    </div>
+  </section>
+
+  <!-- 6. 落地优先级 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <div><h2>落地优先级清单</h2><div class="en">Implementation priority</div></div>
+    </div>
+    <div class="prio">
+      <div class="pr">
+        <div class="lvl p0">P0</div>
+        <div class="body"><h4>本地语义检索升级（RAG 内核）</h4><p>把关键词检索升级为 BM25 + 向量混合检索，教材/课程本地 embedding、本地向量库。直接提升教练引用准确率，且不触碰隐私边界。</p></div>
+      </div>
+      <div class="pr">
+        <div class="lvl p0">P0</div>
+        <div class="body"><h4>关系进度可视化</h4><p>把现有 7 训练阶段做成可感知的关系进度条 + 解锁动画，借鉴 Lovekey 的情感化范式，强化「成长感」。</p></div>
+      </div>
+      <div class="pr">
+        <div class="lvl p1">P1</div>
+        <div class="body"><h4>教练悬浮快速呼出</h4><p>聊天内长按消息即呼出 A/B/C 与四维评分，减少面板切换，借 Lovekey 悬浮球三步流但贴你的训练场景。</p></div>
+      </div>
+      <div class="pr">
+        <div class="lvl p1">P1</div>
+        <div class="body"><h4>「真诚度 / 语气强度」独立滑块</h4><p>让用户主动调弱套路感，正面回应 Lovekey「油腻」争议，强化你「真实沟通」的差异化定位。</p></div>
+      </div>
+      <div class="pr">
+        <div class="lvl p1">P1</div>
+        <div class="body"><h4>联网搜索（谨慎可选）</h4><p>白名单权威源 + 默认关闭 + 审计日志，仅给教练层提供实时心理学依据背书；明确不发送对话原文。</p></div>
+      </div>
+      <div class="pr">
+        <div class="lvl p2">P2</div>
+        <div class="body"><h4>角色市场 / 角色卡分享</h4><p>把人设即 Prompt 封装成可分享角色卡，社区化分发，做 Lovekey「人设市场」的开放版。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>本看板为 HeartFlow 恋爱模拟器内部评审用启示材料，由 Lovekey键盘 产品/设计调研提炼而来。</div>
+    <div class="src">
+      数据来源：Lovekey键盘（lovekeyboard.com，苏州猜猜看科技）公开资料与产品说明；HeartFlow 项目 README.md / 产品说明.md（本地检索现状：<code>textbook-search.js</code>、<code>long-content-index.js</code>）；RAG / 联网搜索技术参考 Baidu Cloud 技术专栏、Dev.to RAG 2026 指南、Techment RAG 2026、Character AI 架构解析等公开技术资料（检索于 2026-08-03）。
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

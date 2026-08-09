@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant User as 用户
+    participant App as app.js
+    participant Index as long-content-index.js
+    participant Server as server.js
+    participant FS as 文件系统
+
+    User->>App: 点击"长篇教材"入口
+    App->>Index: import longContentIndex
+    Index-->>App: 返回章节元信息列表(10章)
+    App-->>User: 渲染章节目录(标题+简介+已读状态)
+
+    User->>App: 选择第1章
+    App->>Server: GET /api/long-content/1
+    Server->>FS: readFile(long-simulation/03_第1章...md)
+    FS-->>Server: 返回原始markdown文本
+    Server-->>App: 200 + 章节原文(text/plain)
+    App->>App: parseChapterContent(text, index) 解析对话行/叙述段/复盘点
+    App-->>User: 渲染气泡(我右/夏紫桐左) + 叙述块 + 复盘折叠卡片
+
+    User->>App: 点击复盘点"介入练习"
+    App->>App: 构建InterventionContext(从索引取前文定位+复盘四要素)
+    App-->>User: 展开介入练习模态(前文 + 输入框 + 对照区)

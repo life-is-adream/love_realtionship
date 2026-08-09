@@ -1,0 +1,33 @@
+# Local credentials and runtime configuration
+**/.env
+**/.env.*
+!**/.env.example
+
+# Large raw media and local source scans (GitHub file-size / redistribution risk)
+*.mp4
+*.mov
+*.mkv
+*.avi
+书籍/
+_learned_relationship_course/ocr_pkg/
+_learned_relationship_course/*.png
+
+# Local staging copies and editor/tool metadata
+_relationship_coach_cn_backup_*/
+_relationship_coach_cn_merged_*/
+_relationship_skills_incoming_*/
+.trae/
+.codex/
+**/.workbuddy/
+**/.workbuddy-*
+
+# Generated dependency/runtime artifacts
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+__pycache__/
+*.py[cod]
+

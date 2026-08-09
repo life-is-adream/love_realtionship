@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HeartFlow 恋爱模拟器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="noise"></div>
+
+  <main class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.6-7-9.3A3.7 3.7 0 0 1 12 7.4 3.7 3.7 0 0 1 19 10.7C19 15.4 12 20 12 20Z" fill="#2a141d" stroke="#2a141d" stroke-width="1.4"/></svg>
+        </span>
+        <span class="brand-name"><b>Heart</b><span>Flow</span></span>
+      </div>
+      <div class="topbar-right">
+        <span class="status-pill"><span class="live"></span> 模型在线 · mimo-v2.5</span>
+      </div>
+    </div>
+
+    <header class="hero">
+      <div>
+        <p class="eyebrow">HeartFlow · Relationship Simulator</p>
+        <h1>恋爱对话训练台</h1>
+        <p class="hero-copy">隐藏意图分析、A/B/C 神级回复、MiMo 本地代理。练真实互动，不练油腻套路。</p>
+      </div>
+      <div class="hero-actions">
+        <button class="btn ghost" id="healthBtn">检查模型</button>
+        <button class="btn ghost" id="longContentBtn">长篇教材</button>
+        <button class="btn ghost" id="exportBtn">导出</button>
+        <button class="btn danger" id="resetBtn">重置</button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel persona-panel" data-panel="persona">
+        <div class="persona-top">
+          <div class="avatar" id="personaAvatar">林</div>
+          <div>
+            <h2 id="personaName">林知夏</h2>
+            <p id="personaMeta">23 岁 · 研一 · 慢热知性型</p>
+          </div>
+        </div>
+
+        <div class="chips" id="personaChips"></div>
+
+        <div class="insight-card">
+          <strong>角色逻辑</strong>
+          <p id="personaLogic">她不会因一句话上头。她持续观察：你是否自然、稳定、有分寸、有生活内容。</p>
+        </div>
+
+        <label class="field">
+          <span>切换女方角色</span>
+          <select id="personaSelect"></select>
+        </label>
+
+        <section class="avatar-editor" aria-label="头像设置">
+          <div class="avatar-editor-head">
+            <strong>角色头像</strong>
+            <span>仅保存到本机浏览器</span>
+          </div>
+          <div class="avatar-editor-actions">
+            <label class="btn small avatar-upload-btn">
+              上传头像
+              <input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" />
+            </label>
+            <button class="btn small ghost" id="resetAvatarBtn" type="button">还原默认</button>
+          </div>
+          <p class="avatar-hint">上传后可直接拖动圆形头像调整取景，或用滑杆微调。</p>
+          <label class="avatar-range"><span>水平位置</span><input id="avatarPosX" type="range" min="0" max="100" value="50" /></label>
+          <label class="avatar-range"><span>垂直位置</span><input id="avatarPosY" type="range" min="0" max="100" value="50" /></label>
+        </section>
+
+        <details class="custom-role">
+          <summary>自定义角色</summary>
+          <div class="custom-role-grid">
+            <label class="field">
+              <span>姓名</span>
+              <input id="customName" placeholder="例如：周予宁" />
+            </label>
+            <label class="field">
+              <span>身份标签</span>
+              <input id="customMeta" placeholder="例如：24 岁 · 研二 · 外冷内热" />
+            </label>
+            <label class="field">
+              <span>性格标签（用逗号分隔）</span>
+              <input id="customTags" placeholder="慢热, 有边界, 爱阅读, 讨厌油腻" />
+            </label>
+            <label class="field">
+              <span>角色逻辑</span>
+              <textarea id="customLogic" placeholder="她如何判断一个男生？她喜欢什么互动，不喜欢什么越界？"></textarea>
+            </label>
+            <label class="field">
+              <span>开场第一句</span>
+              <textarea id="customOpening" placeholder="例如：今天活动还挺有意思的，就是最后有点赶。"></textarea>
+            </label>
+            <div class="custom-role-actions">
+              <button class="btn primary" id="savePersonaBtn" type="button">保存并切换</button>
+              <button class="btn danger" id="deletePersonaBtn" type="button">删除当前自定义</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="scenario-box">
+          <summary>情境剧本</summary>
+          <div id="scenarioList"></div>
+          <button class="btn small" id="loadScenarioBtn">加载剧本</button>
+        </details>
+
+        <div class="stage-auto-row">
+          <span id="stageBadge" class="stage-badge"></span>
+          <button class="btn small ghost" id="autoStageBtn">🤖 自动判断</button>
+        </div>
+
+        <label class="field">
+          <span>训练阶段</span>
+          <select id="stage">
+            <option>刚加微信后的第一晚</option>
+            <option>隔天轻联系</option>
+            <option>第一次邀约</option>
+            <option>第一次约会后</option>
+            <option>暧昧推进</option>
+            <option>表达好感</option>
+            <option>确定关系</option>
+          </select>
+        </label>
+        <div id="stageProgress" class="stage-progress-wrap" aria-live="polite"></div>
+
+        <label class="field">
+          <span>你的风格</span>
+          <select id="styleBias">
+            <option value="A">A：温柔高情商</option>
+            <option value="B">B：幽默风趣</option>
+            <option value="C">C：拉扯试探</option>
+            <option value="mix">混合推荐</option>
+          </select>
+        </label>
+
+        <div class="tone-controls">
+          <label class="tone-slider">
+            <span>真诚度 <em id="sincerityValue">70</em></span>
+            <input id="sincerity" type="range" min="0" max="100" value="70" />
+            <small>越高越克制套路感、更像本人真实表达</small>
+          </label>
+          <label class="tone-slider">
+            <span>语气强度 <em id="toneIntensityValue">50</em></span>
+            <input id="toneIntensity" type="range" min="0" max="100" value="50" />
+            <small>越高越有推进感，但仍尊重边界</small>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>当前目标</span>
+          <textarea id="goal">保持自然微信初聊，从活动话题过渡到了解她本人，避免尬聊和需求感。</textarea>
+        </label>
+
+        <details class="memory-box" open>
+          <summary>场景 / 角色记忆</summary>
+          <div class="memory-grid">
+            <label class="field">
+              <span>关系背景</span>
+              <textarea id="memoryBackground" placeholder="例如：刚在志愿活动认识，已加微信，还不熟。"></textarea>
+            </label>
+            <label class="field">
+              <span>她的兴趣</span>
+              <textarea id="memoryInterests" placeholder="例如：阅读、徒步、电影、志愿活动。"></textarea>
+            </label>
+            <label class="field">
+              <span>雷区 / 禁忌</span>
+              <textarea id="memoryBoundaries" placeholder="例如：不接受过早暧昧、查户口、施压邀约。"></textarea>
+            </label>
+            <button class="btn ghost" id="saveMemoryBtn" type="button">保存记忆</button>
+          </div>
+        </details>
+
+        <div class="api-box">
+          <div class="api-head">
+            <span class="dot"></span>
+            <strong>OpenAI / 兼容代理</strong>
+          </div>
+          <p id="apiStatus">请求本地 /api/chat。密钥在服务端 .env。</p>
+          <p id="privacyNotice" class="privacy-notice hidden" aria-live="polite"></p>
+          <div class="api-actions">
+            <button class="btn small ghost" id="retryModelBtn" type="button">重试 MiMo</button>
+          </div>
+          <input id="endpoint" type="hidden" value="/api/chat" />
+          <input id="apiKey" type="hidden" value="" />
+        </div>
+      </aside>
+
+      <section class="panel chat-panel" data-panel="chat">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Live Scene</p>
+            <h2>当前对话</h2>
+          </div>
+          <button class="btn small" id="nextBtn">然后</button>
+        </div>
+
+        <div class="chat" id="chat"></div>
+        <div class="coach-float" id="coachFloat">
+          <button class="coach-float-fab" id="coachFloatBtn" type="button" aria-label="打开教练建议" title="教练建议">✦</button>
+          <div class="coach-float-panel hidden" id="coachFloatPanel"></div>
+        </div>
+
+        <div class="composer">
+          <label class="field">
+            <span>你的回复</span>
+            <textarea id="userInput" placeholder="在这里输入你想回复她的话，然后点“发送我的回复”。">那你装得还挺成功的，至少我完全没看出来。其实第一次参加能这样已经挺好了。</textarea>
+          </label>
+          <div class="composer-actions">
+            <button class="btn primary" id="sendMineBtn">发送我的回复</button>
+            <button class="btn ghost" id="preflightBtn">发送前测验</button>
+            <button class="btn" id="generateHerBtn">生成女方对话</button>
+          </div>
+          <div class="timing-panel" id="timingPanel" aria-live="polite"></div>
+          <div class="preflight-panel" id="preflightPanel"></div>
+        </div>
+      </section>
+
+      <aside class="panel coach-panel" data-panel="coach">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Coach Layer</p>
+            <h2>隐藏意图</h2>
+          </div>
+        </div>
+        <div class="analysis-grid" id="analysis"></div>
+        <div class="signal-panel" id="signalPanel" aria-live="polite"></div>
+        <div class="learning-tools">
+          <div class="section-title compact-section-title">
+            <div><p class="eyebrow">Practice Loop</p><h2>训练闭环</h2></div>
+            <button class="btn small" id="openReplayBtn" type="button">分析真实对话</button>
+          </div>
+          <div id="dailyTrainingPanel"></div>
+          <div id="growthPanel"></div>
+          <div id="textbookPanel"></div>
+        </div>
+
+        <div class="section-title choices-title">
+          <div>
+            <p class="eyebrow">Reply Options</p>
+            <h2>A / B / C 回复</h2>
+          </div>
+        </div>
+        <div class="choices" id="choices"></div>
+
+        <div class="section-title plan-title">
+          <div>
+            <p class="eyebrow">Long-term Route</p>
+            <h2>长期对话路线</h2>
+          </div>
+          <button class="btn small" id="planBtn">生成计划</button>
+        </div>
+        <div class="plan-panel" id="planPanel"></div>
+
+        <div class="section-title progress-title">
+          <div>
+            <p class="eyebrow">Training Score</p>
+            <h2>教练评分 / 成长日志</h2>
+          </div>
+        </div>
+        <div class="progress-panel" id="progressPanel"></div>
+      </aside>
+    </section>
+
+    <nav class="mobile-tabs" id="mobileTabs">
+      <button class="tab active" data-tab="chat"><span>💬</span> 聊天</button>
+      <button class="tab" data-tab="coach"><span>📋</span> 教练<span class="unread-dot hidden"></span></button>
+      <button class="tab" data-tab="persona"><span>👤</span> 角色</button>
+    </nav>
+  </main>
+
+  <!-- 长篇阅读视图 -->
+  <section id="longReader" class="long-reader hidden">
+    <div class="long-reader-header">
+      <button class="btn small ghost" id="closeLongReaderBtn">← 返回训练台</button>
+      <h2>长篇教材 · 夏紫桐系列</h2>
+    </div>
+    <div class="long-reader-body">
+      <aside class="chapter-list" id="chapterList"></aside>
+      <div class="chapter-content" id="chapterContent">
+        <p class="long-reader-hint">选择左侧章节开始阅读</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 介入练习模态 -->
+  <div id="interventionModal" class="modal hidden">
+    <div class="modal-overlay" id="interventionOverlay"></div>
+    <div class="modal-body intervention-panel">
+      <div class="modal-header">
+        <h3 id="interventionTitle">介入练习</h3>
+        <button class="btn small ghost" id="closeInterventionBtn">✕</button>
+      </div>
+      <div class="intervention-content" id="interventionContent"></div>
+    </div>
+  </div>
+
+  <!-- 对话回放分析模态 -->
+  <div id="replayModal" class="modal hidden">
+    <div class="modal-overlay" id="replayOverlay"></div>
+    <div class="modal-body replay-panel">
+      <div class="modal-header">
+        <div><h3>对话回放分析</h3><small>默认只在本机分析，不保存原文</small></div>
+        <button class="btn small ghost" id="closeReplayBtn" type="button">✕</button>
+      </div>
+      <p class="privacy-note">建议先删除姓名、电话、学校、单位和地址。支持“我：/她：”或加粗说话人格式，无法识别的行会保留并提醒。</p>
+      <textarea id="replayInput" rows="10" placeholder="我：最近工作怎么样？
+她：还行吧，最近有点忙。
+我：你是不是不高兴？"></textarea>
+      <div class="replay-actions">
+        <button class="btn primary" id="analyzeReplayBtn" type="button">仅本地分析</button>
+      </div>
+      <div id="replayResult" class="replay-result"></div>
+    </div>
+  </div>
+
+  <input id="fileImport" type="file" accept="application/json" hidden />
+  <script type="module" src="/app.js?v=20260803-1"></script>
+</body>
+</html>

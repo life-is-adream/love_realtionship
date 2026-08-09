@@ -1,0 +1,89 @@
+classDiagram
+    class LongContentIndex {
+        +Array~ChapterMeta~ chapters
+    }
+
+    class ChapterMeta {
+        +number id
+        +string title
+        +string file
+        +string summary
+        +Array~SectionMeta~ sections
+        +Array~ReviewPoint~ reviewPoints
+    }
+
+    class SectionMeta {
+        +string id
+        +string title
+        +number lineStart
+        +number lineEnd
+        +number dialogueCount
+    }
+
+    class ReviewPoint {
+        +string id
+        +string sectionId
+        +string title
+        +string intent
+        +string benefit
+        +string risk
+        +string correction
+        +string originalMaleReply
+        +string originalFemaleFollowup
+    }
+
+    class Scenario {
+        +string id
+        +string title
+        +string description
+        +Array~object~ openingMessages
+        +string recommendedStage
+        +string recommendedPersona
+        +Array~string~ coachFocus
+    }
+
+    class Persona {
+        +string id
+        +string name
+        +string avatar
+        +string meta
+        +Array~string~ tags
+        +string logic
+        +string systemRole
+        +Array~object~ starterMessages
+        +string defaultGoal
+        +string localHerReply
+    }
+
+    class StageConstants {
+        +Array~StageItem~ STAGES
+        +Array~string~ STAGE_VALUES
+    }
+
+    class StageItem {
+        +string value
+        +string label
+    }
+
+    class InterventionContext {
+        +string chapterId
+        +string reviewPointId
+        +string sectionId
+        +Array~object~ precedingDialogue
+        +string originalMaleReply
+        +string originalFemaleFollowup
+        +ReviewPoint reviewPoint
+    }
+
+    class StageDetectionResult {
+        +string stage
+        +string reason
+        +string confidence
+        +boolean isAuto
+    }
+
+    LongContentIndex "1" --> "*" ChapterMeta
+    ChapterMeta "1" --> "*" SectionMeta
+    ChapterMeta "1" --> "*" ReviewPoint
+    ReviewPoint --> InterventionContext : feeds into
+    StageConstants --> StageItem

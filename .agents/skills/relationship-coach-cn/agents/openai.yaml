@@ -1,0 +1,7 @@
+interface:
+  display_name: "恋爱成长教练 CN（融合版）"
+  short_description: "中文恋爱聊天、相亲匹配与关系成长分析"
+  default_prompt: "Use $relationship-coach-cn to analyze my relationship situation, distinguish facts from assumptions, and suggest a safe next move."
+
+policy:
+  allow_implicit_invocation: true

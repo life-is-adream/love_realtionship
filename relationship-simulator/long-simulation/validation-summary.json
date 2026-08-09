@@ -1,0 +1,125 @@
+{
+  "summary": {
+    "generatedAt": "2026-08-09T15:54:43.235Z",
+    "files": 10,
+    "totalCharacters": 297159,
+    "dialogueCharacters": 197141,
+    "dialogueHanCharacters": 174850,
+    "dialogueMessages": 6147,
+    "duplicateRatio": 0.0094,
+    "mojibakeHits": 0,
+    "requirementMet": true
+  },
+  "chapters": [
+    {
+      "file": "03_第1章_重新联系与重新认识.md",
+      "totalCharacters": 26620,
+      "dialogueCharacters": 14187,
+      "dialogueHanCharacters": 12598,
+      "dialogueMessages": 608,
+      "maleMessages": 300,
+      "xiaMessages": 308,
+      "duplicateRatio": 0.0033,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "04_第2章_稳定联系与日常靠近.md",
+      "totalCharacters": 28869,
+      "dialogueCharacters": 19620,
+      "dialogueHanCharacters": 17160,
+      "dialogueMessages": 829,
+      "maleMessages": 406,
+      "xiaMessages": 423,
+      "duplicateRatio": 0.006,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "05_第3章_低谷边界与信任考验.md",
+      "totalCharacters": 23571,
+      "dialogueCharacters": 15099,
+      "dialogueHanCharacters": 13599,
+      "dialogueMessages": 640,
+      "maleMessages": 320,
+      "xiaMessages": 320,
+      "duplicateRatio": 0,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "06_第4章_喜欢出现但不急着命名.md",
+      "totalCharacters": 33716,
+      "dialogueCharacters": 20429,
+      "dialogueHanCharacters": 18028,
+      "dialogueMessages": 772,
+      "maleMessages": 386,
+      "xiaMessages": 386,
+      "duplicateRatio": 0,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "07_第5章_确认关系与第一轮磨合.md",
+      "totalCharacters": 30450,
+      "dialogueCharacters": 22714,
+      "dialogueHanCharacters": 19499,
+      "dialogueMessages": 533,
+      "maleMessages": 266,
+      "xiaMessages": 267,
+      "duplicateRatio": 0,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "08_第6章_亲密之后的普通日子.md",
+      "totalCharacters": 28750,
+      "dialogueCharacters": 17280,
+      "dialogueHanCharacters": 15094,
+      "dialogueMessages": 740,
+      "maleMessages": 370,
+      "xiaMessages": 370,
+      "duplicateRatio": 0,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "09_第7章_现实冲突与关系修复.md",
+      "totalCharacters": 23901,
+      "dialogueCharacters": 12322,
+      "dialogueHanCharacters": 10670,
+      "dialogueMessages": 485,
+      "maleMessages": 244,
+      "xiaMessages": 241,
+      "duplicateRatio": 0.0165,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "10_第8章_家庭朋友与外部目光.md",
+      "totalCharacters": 30953,
+      "dialogueCharacters": 21033,
+      "dialogueHanCharacters": 19312,
+      "dialogueMessages": 560,
+      "maleMessages": 280,
+      "xiaMessages": 280,
+      "duplicateRatio": 0.0482,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "11_第9章_金钱时间与未来选择.md",
+      "totalCharacters": 38364,
+      "dialogueCharacters": 30117,
+      "dialogueHanCharacters": 26723,
+      "dialogueMessages": 456,
+      "maleMessages": 228,
+      "xiaMessages": 228,
+      "duplicateRatio": 0,
+      "mojibakeHits": 0
+    },
+    {
+      "file": "12_第10章_继续练习而不是童话结尾.md",
+      "totalCharacters": 31965,
+      "dialogueCharacters": 24340,
+      "dialogueHanCharacters": 22167,
+      "dialogueMessages": 524,
+      "maleMessages": 262,
+      "xiaMessages": 262,
+      "duplicateRatio": 0,
+      "mojibakeHits": 0
+    }
+  ]
+}

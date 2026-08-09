@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>恋爱模拟器 · A/B/C 回复训练</title>
+  <style>
+    :root {
+      --bg: #f6f2ea;
+      --panel: #fffaf2;
+      --panel2: #ffffff;
+      --text: #261d18;
+      --muted: #7b6b60;
+      --line: #eadfcc;
+      --accent: #c96f4a;
+      --accent2: #355c7d;
+      --good: #2f7d5c;
+      --warn: #a86d1d;
+      --danger: #a33d3d;
+      --shadow: 0 20px 50px rgba(46, 31, 20, 0.10);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 15% 5%, rgba(201, 111, 74, .18), transparent 34%),
+        radial-gradient(circle at 85% 0%, rgba(53, 92, 125, .14), transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 330px 1fr 390px;
+      gap: 18px;
+    }
+
+    header {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-end;
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .card {
+      background: rgba(255, 250, 242, 0.88);
+      border: 1px solid rgba(234, 223, 204, .9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(12px);
+    }
+
+    .card.white { background: rgba(255,255,255,0.86); }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .stack { display: grid; gap: 14px; align-content: start; }
+
+    .profile {
+      display: grid;
+      gap: 10px;
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      background: linear-gradient(135deg, #f6d7c4, #d7e4ef);
+      border: 1px solid var(--line);
+    }
+
+    .name-line {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .name-line strong { font-size: 20px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #f1e7d9;
+      color: #6d5547;
+      font-size: 12px;
+      margin: 3px 4px 3px 0;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: rgba(255,255,255,.88);
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: rgba(201, 111, 74, .8);
+      box-shadow: 0 0 0 3px rgba(201, 111, 74, .12);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 10px 13px;
+      cursor: pointer;
+      background: #efe3d4;
+      color: var(--text);
+      font: inherit;
+      transition: transform .08s ease, filter .15s ease;
+    }
+
+    button:hover { filter: brightness(.98); }
+    button:active { transform: translateY(1px); }
+    button.primary {
+      background: var(--accent);
+      color: white;
+    }
+    button.blue {
+      background: var(--accent2);
+      color: white;
+    }
+    button.ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+    }
+    button.danger {
+      background: #f1d7d7;
+      color: var(--danger);
+    }
+
+    .chat {
+      min-height: 520px;
+      max-height: 68vh;
+      overflow: auto;
+      display: grid;
+      gap: 12px;
+      padding-right: 4px;
+    }
+
+    .msg {
+      max-width: 82%;
+      padding: 12px 14px;
+      border-radius: 18px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .msg .who {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .msg.her {
+      justify-self: start;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-bottom-left-radius: 6px;
+    }
+    .msg.me {
+      justify-self: end;
+      background: #dfeaf2;
+      border: 1px solid #cbdbe7;
+      border-bottom-right-radius: 6px;
+    }
+    .msg.coach {
+      max-width: 100%;
+      justify-self: stretch;
+      background: #fff8e9;
+      border: 1px dashed #dbbf8d;
+      color: #4f3b22;
+    }
+
+    .analysis {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini {
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.68);
+      border-radius: 16px;
+      line-height: 1.55;
+    }
+    .mini h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      color: var(--accent2);
+    }
+
+    .choice {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.75);
+      border-radius: 18px;
+      padding: 13px;
+      display: grid;
+      gap: 8px;
+    }
+    .choice-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .choice strong { color: var(--accent2); }
+    .choice p { margin: 0; line-height: 1.6; }
+
+    .api-status {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      background: rgba(255,255,255,.55);
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      border-radius: 14px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.56);
+    }
+    summary { cursor: pointer; color: var(--accent2); font-weight: 600; }
+    code {
+      background: #f2eadf;
+      padding: 2px 5px;
+      border-radius: 6px;
+    }
+    pre {
+      overflow: auto;
+      background: #2b2520;
+      color: #fff4e6;
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      header { align-items: flex-start; flex-direction: column; }
+      .chat { max-height: none; }
+      .msg { max-width: 94%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>恋爱模拟器 · 隐藏意图 + A/B/C 回复</h1>
+        <p class="subtitle">基于当前“林知夏”模拟线：志愿活动认识 → 加微信 → 微信初聊。页面已预留中国大模型 API 接口。</p>
+      </div>
+      <div class="btn-row">
+        <button class="ghost" id="exportBtn">导出会话</button>
+        <button class="ghost" id="importBtn">导入会话</button>
+        <button class="danger" id="resetBtn">重置</button>
+      </div>
+    </header>
+
+    <section class="stack">
+      <div class="card">
+        <div class="profile">
+          <div class="name-line">
+            <div class="avatar">🌿</div>
+            <div>
+              <strong id="roleName">林知夏</strong>
+              <div style="color: var(--muted); margin-top: 4px;">23 岁 · 研一 · 慢热知性型</div>
+            </div>
+          </div>
+          <div>
+            <span class="tag">边界感强</span>
+            <span class="tag">慢热</span>
+            <span class="tag">喜欢有意义活动</span>
+            <span class="tag">讨厌油腻和压迫</span>
+          </div>
+          <div class="note">
+            角色逻辑：她不会因为一句话突然爱上你。她会持续观察你是否自然、稳定、有分寸、有生活内容。
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>当前训练目标</h2>
+        <div class="field">
+          <label>阶段</label>
+          <select id="stage">
+            <option>刚加微信后的第一晚</option>
+            <option>隔天轻联系</option>
+            <option>第一次邀约</option>
+            <option>第一次约会后</option>
+            <option>暧昧推进</option>
+            <option>表达好感</option>
+            <option>确定关系</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>你的风格偏好</label>
+          <select id="styleBias">
+            <option value="A">偏 A：温柔高情商</option>
+            <option value="B">偏 B：幽默风趣</option>
+            <option value="C">偏 C：拉扯试探</option>
+            <option value="mix">混合，根据局势推荐</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>你的目标</label>
+          <textarea id="goal">保持自然微信初聊，从活动话题过渡到了解她本人，避免尬聊和需求感。</textarea>
+        </div>
+      </div>
+
+      <div class="card white">
+        <h2>API 配置</h2>
+        <div class="field">
+          <label>接口模式</label>
+          <select id="apiMode">
+            <option value="mock">本地模拟，不调用 API</option>
+            <option value="openai">OpenAI-compatible / 中国大模型兼容接口</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Endpoint</label>
+          <input id="endpoint" value="https://api.deepseek.com/chat/completions" />
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <input id="model" value="deepseek-chat" />
+        </div>
+        <div class="field">
+          <label>API Key（浏览器直连会暴露密钥，建议改成本地代理）</label>
+          <input id="apiKey" type="password" placeholder="sk-..." />
+        </div>
+        <div class="btn-row">
+          <button class="blue" id="testApiBtn">测试接口</button>
+          <button class="ghost" id="fillProviderBtn">常见模型示例</button>
+        </div>
+        <p class="api-status" id="apiStatus">状态：未调用。</p>
+      </div>
+    </section>
+
+    <section class="card white">
+      <h2>对话现场</h2>
+      <div class="chat" id="chat"></div>
+
+      <div style="height: 14px;"></div>
+      <div class="field">
+        <label>她最新说的话</label>
+        <textarea id="herInput">哈哈谢谢，其实我一开始也有点懵，只是装得比较淡定。</textarea>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="analyzeBtn">生成隐藏意图 + A/B/C</button>
+        <button class="blue" id="askAiBtn">调用大模型生成</button>
+        <button class="ghost" id="appendHerBtn">只加入她的话</button>
+      </div>
+    </section>
+
+    <aside class="stack">
+      <div class="card">
+        <h2>隐藏意图分析</h2>
+        <div class="analysis" id="analysis"></div>
+      </div>
+
+      <div class="card">
+        <h2>A/B/C 回复选项</h2>
+        <div class="analysis" id="choices"></div>
+      </div>
+
+      <div class="card white">
+        <h2>接口说明</h2>
+        <details open>
+          <summary>可调用对象</summary>
+          <p class="note">页面暴露 <code>window.RelationshipLLM.call()</code> 和 <code>window.RelationshipLLM.buildMessages()</code>。默认按 OpenAI Chat Completions 兼容格式请求。</p>
+        </details>
+        <details>
+          <summary>本地代理建议</summary>
+          <pre>POST /api/chat
+{
+  "model": "deepseek-chat",
+  "messages": [...]
+}</pre>
+          <p class="note">生产使用建议让后端保存 API Key，浏览器只请求你自己的本地代理，避免密钥泄露和 CORS 问题。</p>
+        </details>
+      </div>
+    </aside>
+  </main>
+
+  <input id="fileImport" type="file" accept="application/json" style="display:none" />
+
+  <script>
+    const defaultState = {
+      messages: [
+        { who: "我", type: "me", text: "今天辛苦了，副本队友。我们这组居然没翻车，算是顺利通关了。" },
+        { who: "林知夏", type: "her", text: "哈哈哈，确实，今天还挺顺利的。" },
+        { who: "我", type: "me", text: "是啊，而且你今天状态挺稳的。刚开始我还以为会比较乱，结果配合下来还挺舒服。" }
+      ],
+      lastAnalysis: null
+    };
+
+    let state = loadState();
+
+    const $ = (id) => document.getElementById(id);
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem("relationship-sim-state")) || structuredClone(defaultState);
+      } catch {
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem("relationship-sim-state", JSON.stringify(state));
+    }
+
+    function renderChat() {
+      const chat = $("chat");
+      chat.innerHTML = "";
+      state.messages.forEach(m => {
+        const div = document.createElement("div");
+        div.className = `msg ${m.type}`;
+        div.innerHTML = `<span class="who">${escapeHtml(m.who)}</span>${escapeHtml(m.text)}`;
+        chat.appendChild(div);
+      });
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      }[ch]));
+    }
+
+    function renderAnalysis(data) {
+      const analysis = $("analysis");
+      const choices = $("choices");
+      analysis.innerHTML = "";
+      choices.innerHTML = "";
+
+      if (!data) {
+        analysis.innerHTML = `<div class="mini"><h3>等待分析</h3><div>点击“生成隐藏意图 + A/B/C”。</div></div>`;
+        return;
+      }
+
+      [
+        ["她的隐藏意图", data.herIntent],
+        ["你的隐藏目标", data.yourGoal],
+        ["当前判断", data.judgement],
+        ["风险提醒", data.risk]
+      ].forEach(([h, t]) => {
+        const div = document.createElement("div");
+        div.className = "mini";
+        div.innerHTML = `<h3>${escapeHtml(h)}</h3><div>${escapeHtml(t)}</div>`;
+        analysis.appendChild(div);
+      });
+
+      data.choices.forEach(choice => {
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.innerHTML = `
+          <div class="choice-head">
+            <strong>${escapeHtml(choice.label)}</strong>
+            <button data-choice="${escapeHtml(choice.key)}">采用</button>
+          </div>
+          <p>${escapeHtml(choice.text)}</p>
+          <div class="note">${escapeHtml(choice.effect)}</div>
+        `;
+        choices.appendChild(div);
+      });
+
+      choices.querySelectorAll("button[data-choice]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const key = btn.getAttribute("data-choice");
+          const picked = data.choices.find(c => c.key === key);
+          if (!picked) return;
+          state.messages.push({ who: "我", type: "me", text: picked.text });
+          saveState();
+          renderChat();
+        });
+      });
+
+      const rec = document.createElement("div");
+      rec.className = "mini";
+      rec.innerHTML = `<h3>推荐</h3><div>${escapeHtml(data.recommendation)}</div>`;
+      choices.appendChild(rec);
+    }
+
+    function localAnalyze() {
+      const her = $("herInput").value.trim();
+      const stage = $("stage").value;
+      const bias = $("styleBias").value;
+      const goal = $("goal").value.trim();
+
+      const data = {
+        herIntent: "她接住了你的正向评价，并暴露了一点真实状态：“其实我也懵，只是装淡定”。这说明她没有关闭对话，并愿意让你看到一点不完美。属于轻度开放信号。",
+        yourGoal: goal || "接住她的真实感，继续保持轻松自然；从活动话题过渡到她的性格/习惯，不要急着约或暧昧。",
+        judgement: `阶段：${stage}。当前不是强兴趣，但有可延展窗口。优先保持舒适、具体、低压力。`,
+        risk: "不要连续夸奖、不要查户口、不要马上问感情状态。此处如果过度拉扯，会显得用力。",
+        choices: [
+          {
+            key: "A",
+            label: "A 温柔高情商",
+            text: "那你装得还挺成功的，至少我完全没看出来。其实第一次参加能这样已经挺好了。",
+            effect: "稳、真诚、接住她的自我暴露。适合你偏温柔可靠的路线。"
+          },
+          {
+            key: "B",
+            label: "B 幽默风趣",
+            text: "那你这属于“表面淡定，内心加载中”。不过效果不错，成功骗过了队友。",
+            effect: "轻松、有画面感，能让聊天更有记忆点。"
+          },
+          {
+            key: "C",
+            label: "C 拉扯试探",
+            text: "原来是装的，那我刚才的靠谱评价要先打个八折，等下次活动再复核。",
+            effect: "轻微调侃，有互动感；但慢热型女生可能觉得稍皮。"
+          }
+        ],
+        recommendation: bias === "A"
+          ? "推荐 A。你偏稳健风格，这句能维持可靠感，也不会显得油。下一步等她回复后，再用一个轻幽默或轻开放问题转向她平时是否参加类似活动。"
+          : "推荐 B。她已经给了“装淡定”的可玩点，幽默承接能提升聊天温度。但如果你想稳，A 也完全合理。"
+      };
+
+      state.lastAnalysis = data;
+      saveState();
+      renderAnalysis(data);
+    }
+
+    function buildSystemPrompt() {
+      return `你是中文恋爱模拟教练。请基于当前对话，分析双方隐藏意图，并生成三个回复选项：
+A 温柔高情商，B 幽默风趣，C 拉扯试探。
+原则：不操控、不欺骗、不性骚扰、不越界；主导是主动和稳定，不是控制。输出必须是 JSON，不要 Markdown。字段：
+{
+  "herIntent": "...",
+  "yourGoal": "...",
+  "judgement": "...",
+  "risk": "...",
+  "choices": [
+    {"key":"A","label":"A 温柔高情商","text":"...","effect":"..."},
+    {"key":"B","label":"B 幽默风趣","text":"...","effect":"..."},
+    {"key":"C","label":"C 拉扯试探","text":"...","effect":"..."}
+  ],
+  "recommendation": "..."
+}`;
+    }
+
+    function buildMessages() {
+      const transcript = state.messages.map(m => `${m.who}：${m.text}`).join("\n");
+      return [
+        { role: "system", content: buildSystemPrompt() },
+        { role: "user", content:
+`阶段：${$("stage").value}
+我的风格偏好：${$("styleBias").value}
+我的目标：${$("goal").value}
+
+已有对话：
+${transcript}
+
+她最新说：
+${$("herInput").value.trim()}`
+        }
+      ];
+    }
+
+    async function callLLM({ endpoint, apiKey, model, messages, temperature = 0.7 }) {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { "Authorization": `Bearer ${apiKey}` } : {})
+        },
+        body: JSON.stringify({ model, messages, temperature })
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`HTTP ${res.status}: ${txt.slice(0, 500)}`);
+      }
+      const json = await res.json();
+      const content = json?.choices?.[0]?.message?.content || json?.choices?.[0]?.text || "";
+      return { raw: json, content };
+    }
+
+    async function askAi() {
+      if ($("apiMode").value === "mock") {
+        $("apiStatus").textContent = "状态：当前是本地模拟模式，未调用 API。已生成本地建议。";
+        localAnalyze();
+        return;
+      }
+
+      $("apiStatus").textContent = "状态：调用中...";
+      try {
+        const result = await callLLM({
+          endpoint: $("endpoint").value.trim(),
+          apiKey: $("apiKey").value.trim(),
+          model: $("model").value.trim(),
+          messages: buildMessages()
+        });
+        let parsed;
+        try {
+          const cleaned = result.content.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+          parsed = JSON.parse(cleaned);
+        } catch {
+          parsed = {
+            herIntent: "模型返回了非 JSON 内容。",
+            yourGoal: "请检查提示词或模型输出格式。",
+            judgement: result.content,
+            risk: "未能结构化解析。",
+            choices: [],
+            recommendation: "可先查看原始返回，或切换本地模拟。"
+          };
+        }
+        state.lastAnalysis = parsed;
+        saveState();
+        renderAnalysis(parsed);
+        $("apiStatus").textContent = "状态：调用成功。";
+      } catch (e) {
+        $("apiStatus").textContent = `状态：调用失败。\n${e.message}\n\n常见原因：CORS、API Key 错误、Endpoint 不兼容。建议改用本地代理。`;
+      }
+    }
+
+    function appendHer() {
+      const text = $("herInput").value.trim();
+      if (!text) return;
+      state.messages.push({ who: "林知夏", type: "her", text });
+      saveState();
+      renderChat();
+    }
+
+    function exportSession() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "relationship-sim-session.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importSession(file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          state = JSON.parse(reader.result);
+          saveState();
+          renderChat();
+          renderAnalysis(state.lastAnalysis);
+        } catch {
+          alert("导入失败：不是合法 JSON。");
+        }
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function fillProviderExamples() {
+      const examples = [
+        "DeepSeek: endpoint=https://api.deepseek.com/chat/completions model=deepseek-chat",
+        "通义千问兼容模式: endpoint=https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions model=qwen-plus",
+        "Moonshot/Kimi: endpoint=https://api.moonshot.cn/v1/chat/completions model=moonshot-v1-8k",
+        "智谱 GLM: endpoint=https://open.bigmodel.cn/api/paas/v4/chat/completions model=glm-4-plus",
+        "本地代理: endpoint=http://localhost:3000/api/chat model=任意"
+      ];
+      $("apiStatus").textContent = "常见 OpenAI-compatible 示例：\n" + examples.join("\n");
+    }
+
+    $("analyzeBtn").addEventListener("click", localAnalyze);
+    $("askAiBtn").addEventListener("click", askAi);
+    $("appendHerBtn").addEventListener("click", appendHer);
+    $("exportBtn").addEventListener("click", exportSession);
+    $("importBtn").addEventListener("click", () => $("fileImport").click());
+    $("fileImport").addEventListener("change", e => {
+      const file = e.target.files?.[0];
+      if (file) importSession(file);
+    });
+    $("resetBtn").addEventListener("click", () => {
+      if (!confirm("确定重置当前模拟会话？")) return;
+      state = structuredClone(defaultState);
+      saveState();
+      renderChat();
+      renderAnalysis(null);
+    });
+    $("testApiBtn").addEventListener("click", async () => {
+      const old = $("herInput").value;
+      $("herInput").value = "接口测试：请返回一次 A/B/C 回复。";
+      await askAi();
+      $("herInput").value = old;
+    });
+    $("fillProviderBtn").addEventListener("click", fillProviderExamples);
+
+    window.RelationshipLLM = {
+      buildMessages,
+      call: callLLM,
+      getState: () => structuredClone(state),
+      setState: (next) => { state = next; saveState(); renderChat(); renderAnalysis(state.lastAnalysis); }
+    };
+
+    renderChat();
+    renderAnalysis(state.lastAnalysis);
+  </script>
+</body>
+</html>

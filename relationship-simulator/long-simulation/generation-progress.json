@@ -1,0 +1,26 @@
+[
+  {
+    "file": "05_第3章_低谷边界与信任考验.md",
+    "segment": 1,
+    "totalCharacters": 4965,
+    "dialogueCharacters": 2652,
+    "dialogueLines": 185,
+    "duplicateRatio": 0.0865
+  },
+  {
+    "file": "05_第3章_低谷边界与信任考验.md",
+    "segment": 2,
+    "totalCharacters": 11230,
+    "dialogueCharacters": 5673,
+    "dialogueLines": 500,
+    "duplicateRatio": 0.116
+  },
+  {
+    "file": "05_第3章_低谷边界与信任考验.md",
+    "segment": 3,
+    "totalCharacters": 17482,
+    "dialogueCharacters": 8553,
+    "dialogueLines": 830,
+    "duplicateRatio": 0.141
+  }
+]

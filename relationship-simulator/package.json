@@ -1,0 +1,17 @@
+{
+  "name": "relationship-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "start:bg": "start /B node server/index.js",
+    "dev": "node server/index.js",
+    "check:circular": "node scripts/check-circular.mjs",
+    "build:index": "node scripts/build-long-index.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
