@@ -36,3 +36,8 @@ pnpm-debug.log*
 *.log
 __pycache__/
 *.py[cod]
+
+# HeartFlow 启动器运行时产物
+**/.heartflow.pid
+**/heartflow.out.log
+**/heartflow.err.log

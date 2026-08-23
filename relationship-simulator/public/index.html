@@ -34,12 +34,18 @@
         <p class="hero-copy">隐藏意图分析、A/B/C 神级回复、MiMo 本地代理。练真实互动，不练油腻套路。</p>
       </div>
       <div class="hero-actions">
+        <div class="mode-switch" id="modeSwitch" role="group" aria-label="训练模式切换">
+          <button class="mode-btn is-active" id="modeBtnAnti" type="button" data-mode="anti">🛡️ 反PUA 训练</button>
+          <button class="mode-btn" id="modeBtnPua" type="button" data-mode="pua">🔍 PUA 识别</button>
+        </div>
         <button class="btn ghost" id="healthBtn">检查模型</button>
         <button class="btn ghost" id="longContentBtn">长篇教材</button>
         <button class="btn ghost" id="exportBtn">导出</button>
         <button class="btn danger" id="resetBtn">重置</button>
       </div>
     </header>
+
+    <div class="mode-banner hidden" id="modeBanner" role="status" aria-live="polite"></div>
 
     <section class="layout">
       <aside class="panel persona-panel" data-panel="persona">
@@ -228,6 +234,21 @@
       </section>
 
       <aside class="panel coach-panel" data-panel="coach">
+        <section class="relationship-intelligence-card" aria-labelledby="relationshipIntelligenceTitle">
+          <div class="ri-head">
+            <div>
+              <p class="eyebrow">Local Intelligence</p>
+              <h2 id="relationshipIntelligenceTitle">证据与决策</h2>
+            </div>
+            <button class="btn small ghost" id="refreshRelationshipIntelligenceBtn" type="button">重新分析</button>
+          </div>
+          <label class="ri-consent-control">
+            <input id="relationshipIntelligenceConsent" type="checkbox" />
+            <span><b>允许保存匿名结构化记忆</b><small>不保存原始聊天，可随时关闭并清除。</small></span>
+          </label>
+          <div id="relationshipIntelligencePanel" aria-live="polite"></div>
+        </section>
+
         <div class="section-title">
           <div>
             <p class="eyebrow">Coach Layer</p>

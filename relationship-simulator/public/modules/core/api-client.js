@@ -12,12 +12,13 @@ import { sanitizeOutboundMessages } from "./privacy.js";
  * @param {string} [uiValues.styleBias] - 风格偏好
  * @param {string} [uiValues.goal] - 当前目标
  * @param {Object} [uiValues.tone] - 真诚度/语气强度调节 {sincerity, toneIntensity}
+ * @param {string} [uiValues.mode] - 训练模式："anti"（反PUA 训练）｜"pua"（PUA 识别训练）
  * @param {Object} [uiValues.textbookContext] - 教材上下文
  * @returns {Array<{role: string, content: string}>}
  */
 export function buildMessages(persona, memory, messages, uiValues = {}) {
   const conversation = (Array.isArray(messages) ? messages : []).filter((item) => item && item.text);
-  const result = [{ role: "system", content: buildSystemPrompt(persona, memory, { tone: uiValues.tone }) }];
+  const result = [{ role: "system", content: buildSystemPrompt(persona, memory, { tone: uiValues.tone, mode: uiValues.mode }) }];
   for (const message of conversation) {
     if (message.type === "her") {
       result.push({ role: "assistant", content: `${message.who || persona.name}：${message.text}` });

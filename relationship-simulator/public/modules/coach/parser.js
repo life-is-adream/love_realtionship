@@ -1,6 +1,7 @@
 import { buildCoachScore, clampScore } from "./coach.js";
 import { buildReplyOptionsForHer, isUsableModelReplyOptions } from "./replies.js";
 import { buildLocalHerReply, getCurrentPersona, getPersonaMemory, getLatestMineText, getState } from "../core/state.js";
+import { selectLocalPuaReply } from "../training/pua-awareness.js";
 
 /** 取对话中最近一条女方消息文本（供个人校准检测"理性回应情绪"） */
 function getPreviousHerText() {
@@ -122,8 +123,26 @@ export function localAnalyze(modelError = "", uiValues = {}) {
   const previousHer = [...state.messages].reverse().find((message) => message.type === "her")?.text || "";
   const style = uiValues.styleBias || "mix";
   const stage = uiValues.stage || "";
-  const herReply = buildLocalHerReply(persona, memory, latestMine, previousHer, uiValues);
+  const mode = state.trainingMode === "pua" ? "pua" : "anti";
+  const herReply = mode === "pua"
+    ? selectLocalPuaReply({ latestMine, previousHer, messageCount: state.messages.length })
+    : buildLocalHerReply(persona, memory, latestMine, previousHer, uiValues);
   const background = String(memory.background || "").replace(/[。！？\s]+$/, "");
+  if (mode === "pua") {
+    return {
+      source: "local",
+      generationSource: "local",
+      modelError,
+      herIntent: "PUA 识别训练（本地演示）：女方本轮使用了可识别的操控手法。",
+      yourGoal: String(uiValues.goal || "").trim() || "练习识别操控手法，保持自己的边界，不接对方的操控框架。",
+      judgement: "当前处于 PUA 识别训练模式。这不是真实关系判断，而是手法识别练习：看清话术背后的操控结构，而不是被话术带节奏。",
+      risk: "识别信号见 herIntent 与下方手法提示。核心防御：不接‘证明自己’的框架，不追赶忽冷忽热，不把愧疚当作服从的理由。",
+      herReply,
+      replyOptions: buildLocalReplyOptions(style, latestMine, herReply),
+      recommendation: "防御回应优先：先点出手法（如‘这话听着像在贬我抬你’），再给出健康替代（如直接表达自己的感受）。健康做法见每日课程（第22课边界、第23课非暴力沟通、第29课识别危险关系）。",
+      coachScore: buildCoachScore(latestMine, { risk: memory.boundaries, judgement: background || stage, herLastMessage: previousHer })
+    };
+  }
   return {
     source: "local",
     generationSource: "local",

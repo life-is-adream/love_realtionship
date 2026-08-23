@@ -12,6 +12,9 @@
 
 import { STAGE_VALUES } from "../core/stages.js";
 import { buildWeaknessAwarenessPrompt } from "../core/user-profile.js";
+import { buildPuaAwarenessPrompt } from "../training/pua-awareness.js";
+
+export { buildPuaAwarenessPrompt };
 
 /** Prompt 版本号，供训练日志可选记录 */
 export const PROMPT_VERSION = "1.0.0";
@@ -19,15 +22,18 @@ export const PROMPT_VERSION = "1.0.0";
 /**
  * 恋爱沟通教练技能契约
  * 替代 app.js 原 buildRelationshipCoachSkillPrompt()
+ * @param {boolean} [isPuaMode=false] - 是否处于 PUA 识别训练模式
  * @returns {string}
  */
-export function buildRelationshipCoachSkillPrompt() {
+export function buildRelationshipCoachSkillPrompt(isPuaMode = false) {
   return [
     "恋爱沟通教练技能契约（每轮必须执行）：",
     "- 先判断阶段、她的投入程度、情绪语气、用户错误、机会与风险；不要把礼貌回复误判为暧昧或高投入。",
     "- 输出分析要覆盖：场景、她的隐藏意图、你的隐藏目标、A/B/C、推荐、原因、下一步。",
     "- A 是温柔高情商：接住情绪或事实，给空间，低压力；B 是幽默风趣：轻松但不嘲讽、不油腻；C 是深入了解：只问一个具体问题，建立在她刚说的话上。",
-    "- 不连续追问、不查户口、不制造焦虑、不操控、不 PUA；她表达疲惫、拒绝、边界或结束聊天时，优先尊重并收尾。",
+    isPuaMode
+      ? "- PUA 识别训练模式：用户正在练习识别与防御操控手法。教练不输出任何实施操控的建议；识别到手法时，把识别信号写进 risk，把防御回应写进 recommendation。"
+      : "- 不连续追问、不查户口、不制造焦虑、不操控、不 PUA；她表达疲惫、拒绝、边界或结束聊天时，优先尊重并收尾。",
     "- A/B/C 必须是男方对本轮新生成 herReply 的直接回复，不能回复更早的旧消息，也不能把男方已经发过的话原样当成建议。",
     "- A/B/C 是用户可以直接发送给她的话，不是教练对用户的点评；禁止使用‘我听到你说’、‘我先记下’、‘不急着抢答’等元话语，也不要整段复述 herReply。",
     "- 如果 herReply 含有问题，A/B/C 应先直接回应她的问题，再按各自风格自然延伸；每项控制在 1—2 句。",
@@ -38,16 +44,18 @@ export function buildRelationshipCoachSkillPrompt() {
 /**
  * 生成任务指令
  * 替代 app.js 原 buildGenerationTaskPrompt()
- * @returns {string}
+ * @param {boolean} [isPuaMode=false] - 是否处于 PUA 识别训练模式
  */
-export function buildGenerationTaskPrompt() {
+export function buildGenerationTaskPrompt(isPuaMode = false) {
   return [
     "请基于上面的对话继续生成下一句女方回复。",
     "只输出一个合法 JSON 对象，不要 Markdown，不要代码块，不要解释。",
     "要求：",
     "1. 女方回复要短、自然、像真人微信，不要生硬复述上下文。",
     "2. 回复必须延续刚才的话题，不能突然失忆或跑题。",
-    "3. 保持尊重、同意与边界，不要操控、PUA、暗示施压。",
+    isPuaMode
+      ? "3. PUA 识别训练模式下：女方按手法清单演示一种可识别手法；herIntent 标注手法名称，risk 给出识别信号，recommendation 给出防御回应。"
+      : "3. 保持尊重、同意与边界，不要操控、PUA、暗示施压。",
     "4. 如果信息不足，也要给出一个能承接当前话题的自然回复。",
     "JSON 字段：herReply, herIntent, yourGoal, judgement, risk, replyOptions, recommendation, coachScore。",
     "replyOptions 只保留 A/B/C 三项，并且每一项都必须是男方对本次 herReply 的直接回复，不能继续回应生成 herReply 之前的旧消息。",
@@ -61,13 +69,17 @@ export function buildGenerationTaskPrompt() {
  *
  * @param {Object} persona - 当前角色对象（getCurrentPersona() 返回值）
  * @param {Object} memory - 角色记忆（getPersonaMemory() 返回值）
+ * @param {Object} [options] - 附加选项
+ * @param {string} [options.mode] - 训练模式："anti"（反PUA 训练，默认）｜"pua"（PUA 识别训练）
+ * @param {{sincerity?: number, toneIntensity?: number}} [options.tone] - 真诚度 / 语气强度调节
  * @returns {string} 系统提示词
- * @version 1.0.0
+ * @version 1.1.0
  */
 export function buildSystemPrompt(persona, memory, options = {}) {
+  const isPuaMode = options.mode === "pua";
   const parts = [
     "你是中文恋爱沟通教练与女方角色模拟器。",
-    buildRelationshipCoachSkillPrompt(),
+    buildRelationshipCoachSkillPrompt(isPuaMode),
     buildWeaknessAwarenessPrompt(),
     "你的角色设定：" + (persona.systemRole || persona.logic),
     "角色标签：" + (persona.tags || []).join("、"),
@@ -76,6 +88,12 @@ export function buildSystemPrompt(persona, memory, options = {}) {
     "边界/禁忌：" + memory.boundaries,
     ""
   ];
+
+  // PUA 识别训练模式：注入可识别手法演示指令（仅防御研究用途）
+  if (isPuaMode) {
+    parts.push(buildPuaAwarenessPrompt());
+    parts.push("");
+  }
 
   // 注入增强记忆（自动提取的对话洞察）
   if (memory._enhancedInjection) {
@@ -94,11 +112,13 @@ export function buildSystemPrompt(persona, memory, options = {}) {
     "1. 女方回复要自然、短、像真人微信。",
     "2. 同时给出 A/B/C 三种不同风格的男方回复建议。",
     "3. 分析女方的隐藏意图、男方的目标、当前判断、风险提醒。",
-    "4. 不要操控、不要 PUA、不要制造焦虑、尊重边界。",
+    isPuaMode
+      ? "4. PUA 识别训练模式下：herIntent 必须标注女方本轮使用的可识别手法名称；risk 给出识别信号；recommendation 给出防御回应与健康替代做法。"
+      : "4. 不要操控、不要 PUA、不要制造焦虑、尊重边界。",
     "5. 必须按指定 JSON 字段输出，不要 Markdown，不要解释。",
     "",
     "JSON 字段：",
-    buildGenerationTaskPrompt()
+    buildGenerationTaskPrompt(isPuaMode)
   );
 
   return parts.join("\n");

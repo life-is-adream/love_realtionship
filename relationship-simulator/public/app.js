@@ -23,12 +23,13 @@ import {
 } from "./modules/core/state.js";
 import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, buildConversationSummary, migrateMemory, analyzeLongTermPatterns, buildPatternInjection } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
-import { buildMessages as buildMessagesPure, callLLM as callLLMPure, checkHealth as checkHealthApi, searchWeb as searchWebApi } from "./modules/core/api-client.js";
+import { buildMessages as buildMessagesPure, callLLM as callLLMPure, checkHealth as checkHealthApi } from "./modules/core/api-client.js";
 import { emit, Events } from "./modules/core/events.js";
 import { appendHerIfNeeded, appendMine, appendMineIfNew, recallMine, renderChat } from "./modules/render/render-chat.js";
 import { renderPersonaControls, savePersonaMemory, switchPersona as switchPersonaView, saveCustomPersona as saveCustomPersonaView, deleteCurrentPersona as deleteCurrentPersonaView, uploadAvatar, resetAvatar, setAvatarPosition, beginAvatarDrag, moveAvatarDrag, endAvatarDrag } from "./modules/render/render-persona.js";
 import { card, renderActionPlan, renderAnalysis as renderCoachAnalysis, renderPlanCard, buildActionPlan } from "./modules/render/render-coach.js";
 import { buildCoachFloatData, buildCoachFloatHtml } from "./modules/render/coach-float.js";
+import { runCoachFloatSearch as runCoachFloatSearchView } from "./modules/render/coach-float-search.js";
 import { renderTiming, renderSignalPractice, renderDailyTraining, renderGrowthProfile, renderTextbookEvidence } from "./modules/render/render-learning.js";
 import { openLongReader as openLongReaderView, closeLongReader, renderChapterList, loadChapter } from "./modules/render/render-longContent.js";
 import { openIntervention, closeIntervention } from "./modules/render/render-intervention.js";
@@ -36,11 +37,28 @@ import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCur
 import { renderScenarioList, loadScenario as loadScenarioView, REVIEW_MAPPING } from "./modules/render/render-scenario.js";
 import { initMobileTabs, markCoachUnread } from "./modules/render/mobile-tabs.js";
 import { init as initDropdowns } from "./modules/render/dropdown.js";
+import { createRelationshipIntelligenceController } from "./modules/intelligence/controller.js";
+import { renderRelationshipIntelligence } from "./modules/render/render-intelligence.js";
+import { createTrainingModeController } from "./modules/training/training-mode-controller.js";
 
 let state = loadState();
 const MIMO_MODEL = DEFAULT_MODEL;
 const textbookSearchIndex = getSharedTextbookIndex();
 let isGenerating = false;
+
+const intelligenceController = createRelationshipIntelligenceController({
+  getAppState: () => state,
+  saveAppState: saveState,
+  getGoal: () => $("goal")?.value || "",
+  render: renderIntelligencePanel
+});
+
+const trainingModeController = createTrainingModeController({
+  getAppState: () => state,
+  saveAppState: saveState,
+  getElement: $,
+  setStatus: (message) => { if ($("apiStatus")) $("apiStatus").textContent = message; }
+});
 
 // Compatibility facade: DOM, persistence, parsing and rendering now live in modules.
 function escapeHtml(value) { return escapeHtmlShared(value); }
@@ -51,6 +69,7 @@ function uiValues() {
     styleBias: $("styleBias")?.value || "mix",
     goal: $("goal")?.value || "",
     typedInput: $("userInput")?.value || "",
+    mode: state.trainingMode === "pua" ? "pua" : "anti",
     tone: {
       sincerity: Number($("sincerity")?.value ?? 70),
       toneIntensity: Number($("toneIntensity")?.value ?? 50)
@@ -83,6 +102,12 @@ function renderLearningPanels() {
   renderTextbookEvidence(state.lastAnalysis, { openLongReader });
 }
 
+function renderIntelligencePanel(value = state.relationshipIntelligence) {
+  renderRelationshipIntelligence(value);
+  const consent = $("relationshipIntelligenceConsent");
+  if (consent) consent.checked = value?.consent === true;
+}
+
 function renderCoachFloat() {
   const panel = $("coachFloatPanel");
   if (!panel) return;
@@ -98,27 +123,10 @@ function toggleCoachFloat() {
 }
 
 async function runCoachFloatSearch() {
-  const resultBox = $("coachFloatSearchResult");
-  if (!resultBox) return;
-  // 只构造脱敏查询词（阶段 + 短板维度），绝不发送对话原文。
-  const analysis = state.lastAnalysis || {};
-  const score = analysis.coachScore || {};
-  const weakest = score.weakestDim || "boundary";
-  const query = `${$("stage")?.value || "恋爱沟通"} ${weakest} 沟通建议`;
-  resultBox.innerHTML = "检索中（只发送查询词，不发送对话）…";
-  try {
-    const result = await searchWebApi(query);
-    if (!result.results.length) {
-      resultBox.innerHTML = result.filtered
-        ? "搜索完成，但结果均非白名单权威来源，已过滤。"
-        : "未找到权威来源结果。";
-      return;
-    }
-    resultBox.innerHTML = `<div class="coach-float-search-head">权威来源 ${result.results.length} 条${result.filtered ? `（过滤 ${result.filtered} 条）` : ""}</div>` +
-      result.results.map((item) => `<a class="coach-float-search-item" href="${escapeHtmlShared(item.url)}" target="_blank" rel="noopener noreferrer"><b>${escapeHtmlShared(item.title || "未命名来源")}</b><small>${escapeHtmlShared(item.snippet || "")}</small></a>`).join("");
-  } catch (error) {
-    resultBox.innerHTML = `联网搜索不可用：${escapeHtmlShared(error.message)}`;
-  }
+  return runCoachFloatSearchView({
+    analysis: state.lastAnalysis || {},
+    stage: $("stage")?.value || ""
+  });
 }
 
 function renderAll() {
@@ -136,6 +144,7 @@ function renderAll() {
   });
   renderActionPlan();
   renderScenarioList();
+  renderIntelligencePanel();
 }
 
 function addTrainingLog(data) {
@@ -172,22 +181,25 @@ function commitAnalysis(data, source) {
   addTrainingLog(state.lastAnalysis);
   state.lastGenerationMeta = { source, error: "" };
 
-  // 增强记忆：从对话中提取记忆并更新
-  const persona = getCurrentPersona();
-  const memoryUpdates = extractMemoryFromConversation(state.messages, state.lastAnalysis);
-  if (Object.keys(memoryUpdates).length > 0) {
-    if (!state.personaMemory[persona.id]) state.personaMemory[persona.id] = {};
-    const currentEnhanced = state.personaMemory[persona.id]._enhanced || null;
-    state.personaMemory[persona.id]._enhanced = updateMemoryState(
-      migrateMemory(currentEnhanced),
-      memoryUpdates,
-      state.messages
-    );
+  // 旧版增强记忆与新 runtime 共用同一显式同意开关；默认不持久化。
+  if (state.relationshipIntelligence?.consent === true) {
+    const persona = getCurrentPersona();
+    const memoryUpdates = extractMemoryFromConversation(state.messages, state.lastAnalysis);
+    if (Object.keys(memoryUpdates).length > 0) {
+      if (!state.personaMemory[persona.id]) state.personaMemory[persona.id] = {};
+      const currentEnhanced = state.personaMemory[persona.id]._enhanced || null;
+      state.personaMemory[persona.id]._enhanced = updateMemoryState(
+        migrateMemory(currentEnhanced),
+        memoryUpdates,
+        state.messages
+      );
+    }
   }
 
   saveState();
   renderAll();
   emit(Events.ANALYSIS_COMMITTED, { source, score: data.coachScore });
+  void intelligenceController.refresh();
   return state.lastAnalysis;
 }
 
@@ -204,7 +216,9 @@ function buildMessages() {
   const textbookContext = buildTextbookCoachContext({ summary: evidence.message || buildReplaySummary({ observations: [], suggestions: [] }), results: evidence.results || [] });
 
   // 注入增强记忆 + 长期模式分析
-  const enhanced = state.personaMemory?.[persona.id]?._enhanced;
+  const enhanced = state.relationshipIntelligence?.consent === true
+    ? state.personaMemory?.[persona.id]?._enhanced
+    : null;
   let enhancedInjection = "";
   if (enhanced) {
     const memoryInjection = buildMemoryInjection(enhanced);
@@ -371,11 +385,14 @@ function exportSession() {
 }
 
 function resetSession() {
-  state = setStateStore({ ...structuredClone(defaultState), personaId: state.personaId, customPersonas: state.customPersonas, personaMemory: state.personaMemory, avatarOverrides: state.avatarOverrides });
+  const previousIntelligence = state.relationshipIntelligence;
+  state = setStateStore({ ...structuredClone(defaultState), personaId: state.personaId, customPersonas: state.customPersonas, personaMemory: state.personaMemory, avatarOverrides: state.avatarOverrides, relationshipIntelligence: previousIntelligence });
+  intelligenceController.reset();
   $("userInput").value = getCurrentPersona().sampleReply || "";
   renderAll();
   $("apiStatus").textContent = "当前对话已重置。";
   emit(Events.STATE_RESET, {});
+  void intelligenceController.refresh();
 }
 
 function handleRecall(index) {
@@ -391,11 +408,16 @@ function handleRecall(index) {
   renderAll();
   $("userInput").focus();
   $("apiStatus").textContent = "已撤回这条消息，可以修改后重新发送。";
+  void intelligenceController.refresh();
 }
 
 function switchPersona(personaId, resetConversation = true) {
   switchPersonaView(personaId, resetConversation, { onChanged: renderAll });
   state = getState();
+  if (resetConversation) {
+    intelligenceController.reset();
+    void intelligenceController.refresh();
+  }
   emit(Events.PERSONA_SWITCHED, { personaId });
 }
 
@@ -405,6 +427,23 @@ function deleteCurrentPersona() { deleteCurrentPersonaView({ onChanged: renderAl
 function loadScenario(scenarioId) {
   loadScenarioView(scenarioId, { switchPersona, onChanged: renderAll });
   persistCurrentStage();
+  intelligenceController.reset();
+  void intelligenceController.refresh();
+}
+
+function sendMine() {
+  if (appendMine({ afterRender: afterChatRender })) void intelligenceController.refresh();
+}
+
+function setRelationshipIntelligenceConsentFromUi() {
+  const granted = $("relationshipIntelligenceConsent")?.checked === true;
+  if (!granted) {
+    for (const memory of Object.values(state.personaMemory || {})) {
+      if (memory && typeof memory === "object") delete memory._enhanced;
+    }
+  }
+  intelligenceController.setConsent(granted);
+  if (granted) void intelligenceController.refresh();
 }
 
 function openReplayModal() { $("replayModal")?.classList.remove("hidden"); }
@@ -450,7 +489,9 @@ window.RelationshipLLM = {
 
 $("retryModelBtn")?.addEventListener("click", () => generateHerDialogue({ allowLocalFallback: false }));
 $("generateHerBtn")?.addEventListener("click", () => generateHerDialogue());
-$("sendMineBtn")?.addEventListener("click", () => appendMine({ afterRender: afterChatRender }));
+$("sendMineBtn")?.addEventListener("click", sendMine);
+$("modeBtnAnti")?.addEventListener("click", () => trainingModeController.setMode("anti"));
+$("modeBtnPua")?.addEventListener("click", () => trainingModeController.setMode("pua", { ask: true }));
 $("chat")?.addEventListener("click", (event) => {
   const button = event.target.closest("[data-recall-index]");
   if (button) handleRecall(button.dataset.recallIndex);
@@ -489,12 +530,16 @@ $("closeReplayBtn")?.addEventListener("click", closeReplayModal);
 $("replayOverlay")?.addEventListener("click", closeReplayModal);
 $("analyzeReplayBtn")?.addEventListener("click", runReplayAnalysis);
 $("coachFloatBtn")?.addEventListener("click", toggleCoachFloat);
+$("relationshipIntelligenceConsent")?.addEventListener("change", setRelationshipIntelligenceConsentFromUi);
+$("refreshRelationshipIntelligenceBtn")?.addEventListener("click", () => void intelligenceController.refresh());
 // 悬浮面板内按钮用事件委托，避免每次打开面板重复绑定。
 $("coachFloatPanel")?.addEventListener("click", (event) => {
   if (event.target.closest("#coachFloatSearchBtn")) runCoachFloatSearch();
 });
 
 renderAll();
+trainingModeController.render();
 initMobileTabs();
 restoreStageState();
 checkHealth();
+void intelligenceController.refresh();

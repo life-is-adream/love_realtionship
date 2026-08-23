@@ -45,7 +45,24 @@ Reflection → Memory Patch
 
 ### HeartFlow simulator
 
-`relationship-simulator/` 是本地 Node.js ESM 应用：`public/modules/` 为前端分层模块，`server/` 为静态服务/API/模型代理，`long-simulation/` 为教材原文，`test/` 为 333 条现有测试。该应用的 `.env`、原始视频和本地书籍不应进入公开 Git 快照。
+`relationship-simulator/` 是本地 Node.js ESM 应用：`public/modules/` 为前端分层模块，`server/` 为静态服务/API/模型代理与 runtime 适配器，`long-simulation/` 为教材原文，`test/` 为自动化测试。该应用的 `.env`、原始视频和本地书籍不应进入公开 Git 快照。
+
+产品到 runtime 的真实调用链：
+
+```text
+HeartFlow messages
+  ↓ public/modules/intelligence/state.js（裁剪与同意状态）
+  ↓ public/modules/intelligence/client.js
+POST /api/relationship-intelligence
+  ↓ server/relationshipIntelligence.js（输入校验与匿名 Memory 重建）
+  ↓ .agents/skills/relationship-coach-cn/runtime/runRelationshipLoop
+Bounded analysis / evidence / state / decision / action
+  ↓ public/modules/intelligence/controller.js（竞态保护与持久化边界）
+  ↓ public/modules/render/render-intelligence.js
+Local Intelligence panel
+```
+
+`public/app.js` 只组合现有聊天、教练、课程和 Relationship Intelligence 控制器。Runtime 失败只影响本地分析面板，不阻断聊天、回放、教材或模型代理。
 
 ## Decision model
 
@@ -61,8 +78,12 @@ Reflection → Memory Patch
 
 ## Data flow and privacy
 
-真实回放默认本地处理；先由 `runtime/conversation/analyzer.mjs` 提取观察特征，出站到模型前要脱敏并限制摘要/摘录。`runtime/memory/memory-store.mjs` 只有在用户同意后才写入匿名事实，原始聊天不进入长期记忆。Case ID 使用匿名标识，第三方敏感信息默认不持久化。医疗和法律信息带辖区、来源和核验日期。
+真实回放默认本地处理；先由 `runtime/conversation/analyzer.mjs` 提取观察特征，出站到模型前要脱敏并限制摘要/摘录。`runtime/memory/memory-store.mjs` 只有在用户同意后才写入匿名事实，原始聊天不进入长期记忆。Case ID 使用匿名标识，第三方敏感信息默认不持久化。未同意时，Relationship Intelligence 的 `lastResult` 只存在于当前页面内存，`saveState()` 会从 localStorage 副本中移除它。
+
+HeartFlow 原有的手工角色记忆仍服务于角色模拟；自动提取的 `_enhanced` 记忆已与 runtime 共用同一显式同意开关。两者用途不同，不应把角色设定当作 runtime 的关系事实。医疗和法律信息带辖区、来源和核验日期。
 
 ## Known boundary
 
 HeartFlow 的 `scripts/build-long-index.mjs` 已将输出路径对齐到 `public/modules/content/`；该索引只能通过构建脚本生成，不能手动编辑。
+
+Runtime 状态与 HeartFlow 七个训练阶段目前并列展示，系统不会自动替用户改写手动阶段。角色模拟场景和 runtime Role-play 仍是不同入口；测试通过证明调用与隐私契约成立，不等于真实关系建议效果已被临床或实证验证。

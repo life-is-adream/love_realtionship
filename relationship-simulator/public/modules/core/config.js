@@ -124,9 +124,20 @@ export const defaultState = {
   personaId: "lin",
   customPersonas: {},
   personaMemory: {},
+  trainingMode: "anti", // "anti" = 反PUA 训练（默认）｜"pua" = PUA 识别训练（防御研究）
   messages: structuredClone(builtInPersonas.lin.starterMessages),
   trainingLog: [],
   lastAnalysis: null,
+  relationshipIntelligence: {
+    schemaVersion: 1,
+    consent: false,
+    caseId: "",
+    memory: null,
+    lastResult: null,
+    lastError: "",
+    status: "idle",
+    updatedAt: null
+  },
   learning: {
     schemaVersion: 2,
     events: [],
@@ -139,9 +150,30 @@ export const defaultState = {
   }
 };
 
-// ============================================================
-// 硬编码配置提取 — 集中管理
-// ============================================================
+// 防御训练目录由 training/pua-awareness.js 统一维护；保留 re-export 兼容旧导入。
+export { PUA_TECHNIQUES } from "../training/pua-awareness.js";
+
+export const TRAINING_MODES = {
+  anti: {
+    key: "anti",
+    label: "反PUA 训练",
+    short: "🛡️",
+    desc: "健康、尊重、可拒绝、可退出的关系训练（默认）。"
+  },
+  pua: {
+    key: "pua",
+    label: "PUA 识别训练",
+    short: "🔍",
+    desc: "女方演示可识别的典型操控手法，教练拆解识别信号与防御回应。仅用于识别与防御研究，禁止用于操控他人。"
+  }
+};
+
+/** 返回当前训练模式的配置对象（非法值回退 anti） */
+export function getTrainingModeConfig(mode) {
+  return TRAINING_MODES[mode === "pua" ? "pua" : "anti"] || TRAINING_MODES.anti;
+}
+
+
 
 /** 默认模型名称（与服务端 .env 的 LLM_MODEL 保持一致；前端仅作默认回退） */
 export const DEFAULT_MODEL = "mimo-v2.5-pro";

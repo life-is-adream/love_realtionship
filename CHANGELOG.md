@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-20 — HeartFlow runtime integration refactor
+
+- 新增 `POST /api/relationship-intelligence`，让 HeartFlow 产品正式调用共享 `runRelationshipLoop`。
+- 新增浏览器 Client、匿名记忆状态、竞态安全控制器和独立的证据/决策面板。
+- 匿名结构化长期记忆改为默认关闭；未同意时结果不写入 localStorage，关闭同意时清除 runtime memory。
+- 原有自动增强记忆与 runtime 共用显式同意开关；手工角色设定仍保持独立用途。
+- 新增服务端、Client、状态、控制器、渲染、静态接线和 HTTP 端到端测试；不新增 npm 依赖。
+- 新增初学者开发指南和真实产品调用链文档。
+
 ## 2026-08-10 — Relationship Intelligence System v1
 
 - 将通用 Skill 与个人 Profile/Locale 解耦；武汉/高校上下文改为显式可选。

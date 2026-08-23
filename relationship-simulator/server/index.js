@@ -4,6 +4,7 @@ import { handleChat } from "./llmProxy.js";
 import { PORT, LLM_API_KEY, LLM_ENDPOINT, LLM_MODEL, maskEndpoint } from "./config.js";
 import { handleLongContent } from "./routes-longContent.js";
 import { handleSearch } from "./searchProxy.js";
+import { handleRelationshipIntelligence } from "./relationshipIntelligence.js";
 import { sendJson, sendText, serveStatic } from "./staticServer.js";
 
 export const server = createServer(async (req, res) => {
@@ -12,6 +13,7 @@ export const server = createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/api/health") return handleHealth(res);
     if (req.method === "POST" && url.pathname === "/api/chat") return handleChat(req, res);
     if (req.method === "POST" && url.pathname === "/api/search") return handleSearch(req, res);
+    if (req.method === "POST" && url.pathname === "/api/relationship-intelligence") return handleRelationshipIntelligence(req, res);
     if (req.method === "GET" && url.pathname.startsWith("/api/long-content/")) return handleLongContent(url.pathname, res);
     if (req.method !== "GET" && req.method !== "HEAD") return sendText(res, 405, "Method Not Allowed");
     return serveStatic(url.pathname, res);

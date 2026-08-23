@@ -1,5 +1,9 @@
 import { builtInPersonas, defaultState, STORAGE_KEYS } from "./config.js";
 import { normalizeLearningState } from "./learning-state.js";
+import {
+  normalizeRelationshipIntelligenceState,
+  toPersistedRelationshipIntelligenceState
+} from "../intelligence/state.js";
 
 /**
  * @typedef {Object} AppState
@@ -84,6 +88,7 @@ export function normalizeState(next) {
     normalized.messages = clone(all[normalized.personaId].starterMessages);
   }
   if (!Array.isArray(normalized.trainingLog)) normalized.trainingLog = [];
+  normalized.relationshipIntelligence = normalizeRelationshipIntelligenceState(normalized.relationshipIntelligence);
   normalized.learning = normalizeLearningState(normalized);
   normalized.messages = normalizeMessages(normalized.messages).map((message) => {
     if (message?.type === "me" && (!message.who || message.who === "?")) return { ...message, who: "我" };
@@ -118,8 +123,27 @@ export function saveState() {
   if (!state.personaMemory || typeof state.personaMemory !== "object") state.personaMemory = {};
   if (!state.avatarOverrides || typeof state.avatarOverrides !== "object") state.avatarOverrides = {};
   state.learning = normalizeLearningState(state.learning);
-  if (typeof localStorage !== "undefined") localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(state));
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(serializeStateForStorage(state)));
+  }
   return state;
+}
+
+/**
+ * Build a storage-safe copy without mutating the live page state.
+ * Stateless Relationship Intelligence results remain session-only.
+ */
+export function serializeStateForStorage(state) {
+  const persisted = clone(state);
+  persisted.relationshipIntelligence = toPersistedRelationshipIntelligenceState(
+    persisted.relationshipIntelligence
+  );
+  if (!persisted.relationshipIntelligence.consent) {
+    for (const memory of Object.values(persisted.personaMemory || {})) {
+      if (memory && typeof memory === "object") delete memory._enhanced;
+    }
+  }
+  return persisted;
 }
 
 /**

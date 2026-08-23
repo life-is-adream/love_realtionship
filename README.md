@@ -36,6 +36,12 @@ npm start
 
 `npm run build:index` 已对齐到 `public/modules/content/long-content-index.js`，长篇原文变更后重新运行即可。
 
+### HeartFlow 与 Runtime 的连接
+
+HeartFlow 现在通过本地 `POST /api/relationship-intelligence` 调用同一套 `runRelationshipLoop`，不再只是拥有两套互不相连的实现。浏览器会展示有界的证据、工作状态、五分类决策和下一步；该接口是确定性本地分析，不调用远程模型，也不会返回原始聊天。
+
+匿名结构化长期记忆默认关闭。用户在界面明确开启后，产品才会保存 `case_` 匿名标识和经过校验的观察摘要；关闭时会清除该结构化记忆。`POST /api/chat` 与它是两条不同的边界：只有前者可能根据 `.env` 调用模型服务。
+
 ## 课程自动化
 
 Codex Automation 15 每天按 Asia/Shanghai 日期读取唯一匹配的已有课程文件，不生成、改写未来课程或临时补课。详见 `AI_HANDOFF.md` 和 `C:\Users\lenovo\.codex\automations\15\automation.toml`。
@@ -46,6 +52,7 @@ Codex Automation 15 每天按 Asia/Shanghai 日期读取唯一匹配的已有课
 - 隐私：`PRIVACY.md` 和 `.agents/skills/relationship-coach-cn/core/privacy-policy.md`。
 - Evals：`.agents/skills/relationship-coach-cn/evals/`，运行 `node .agents/skills/relationship-coach-cn/evals/run-static-evals.mjs`。
 - Runtime 测试：`node --test .agents/skills/relationship-coach-cn/runtime/**/*.test.mjs`。
+- HeartFlow 测试：进入 `relationship-simulator/` 后运行 `npm test`；循环依赖检查运行 `npm run check:circular`。
 - 当前静态数据集为 190 条匿名案例；静态 PASS 和本地单元测试不等于已完成 LLM 效果 benchmark。
 
 ## Agent loop 示例
