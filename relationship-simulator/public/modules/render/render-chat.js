@@ -1,5 +1,5 @@
 import { $, escapeHtml, getMessageSourceLabel } from "../core/dom.js";
-import { getCurrentPersona, getState, saveState } from "../core/state.js";
+import { getCurrentPersona, getState, mutate } from "../core/state.js";
 
 export function renderChat({ afterRender = () => {} } = {}) {
   const chat = $("chat");
@@ -43,16 +43,14 @@ export function recallMine(index) {
     removed.push(state.messages[nextIndex]);
     nextIndex += 1;
   }
-  state.messages.splice(messageIndex, removed.length);
-  saveState();
+  mutate((s) => { s.messages.splice(messageIndex, removed.length); });
   return { ok: true, message, removed };
 }
 
 export function appendMine({ afterRender = () => {} } = {}) {
   const text = $("userInput")?.value.trim();
   if (!text) return false;
-  getState().messages.push({ who: "我", type: "me", text, source: "user", createdAt: new Date().toISOString() });
-  saveState();
+  mutate((state) => { state.messages.push({ who: "我", type: "me", text, source: "user", createdAt: new Date().toISOString() }); });
   renderChat({ afterRender });
   return true;
 }
@@ -63,8 +61,7 @@ export function appendMineIfNew({ afterRender = () => {} } = {}) {
   const state = getState();
   const last = state.messages[state.messages.length - 1];
   if (last?.type === "me" && last.text === text) return false;
-  state.messages.push({ who: "我", type: "me", text, source: "user", createdAt: new Date().toISOString() });
-  saveState();
+  mutate((s) => { s.messages.push({ who: "我", type: "me", text, source: "user", createdAt: new Date().toISOString() }); });
   renderChat({ afterRender });
   return true;
 }
@@ -75,8 +72,7 @@ export function appendHerIfNeeded(text, source = "model", { afterRender = () => 
   const state = getState();
   const last = state.messages[state.messages.length - 1];
   if (last?.type === "her" && last.text === reply) return false;
-  state.messages.push({ who: getCurrentPersona().name, type: "her", text: reply, source, createdAt: new Date().toISOString() });
-  saveState();
+  mutate((s) => { s.messages.push({ who: getCurrentPersona().name, type: "her", text: reply, source, createdAt: new Date().toISOString() }); });
   renderChat({ afterRender });
   return true;
 }

@@ -1,6 +1,6 @@
 import { $, escapeHtml } from "../core/dom.js";
 import { scenarios } from "../content/scenarios.js";
-import { getState, saveState } from "../core/state.js";
+import { mutate } from "../core/state.js";
 
 let selectedScenarioId = null;
 export const REVIEW_MAPPING = {
@@ -26,11 +26,11 @@ export function loadScenario(scenarioId, { switchPersona = () => {}, onChanged =
   if (scenario.recommendedStage && $("stage")) $("stage").value = scenario.recommendedStage;
   if (scenario.recommendedPersona) switchPersona(scenario.recommendedPersona, false);
   if (scenario.openingMessages?.length) {
-    const state = getState();
-    state.messages = [...scenario.openingMessages];
-    state.lastAnalysis = null;
-    state.lastGenerationMeta = null;
-    saveState();
+    mutate((state) => {
+      state.messages = [...scenario.openingMessages];
+      state.lastAnalysis = null;
+      state.lastGenerationMeta = null;
+    });
     onChanged();
   }
   if (scenario.contextHint && $("goal")) { $("goal").value = scenario.contextHint; $("goal").dataset.personaSynced = "false"; }

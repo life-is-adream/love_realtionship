@@ -6,7 +6,7 @@ import { aggregateGrowth, buildRadarData, getMastery, buildGrowthSummary, GROWTH
 import { buildCoachTextbookEvidence, buildTextbookCoachContext } from "../content/textbook-search.js";
 import { getSharedTextbookIndex } from "../content/textbook-index.js";
 import { recordTrainingEvent } from "../core/learning-state.js";
-import { getState, getCurrentPersona, getPersonaMemory, saveState } from "../core/state.js";
+import { getState, mutate } from "../core/state.js";
 
 // 教材检索索引自拆包后为异步构建；用序号 guard 保证并发渲染时后到的旧渲染不覆盖新渲染。
 let textbookRenderSeq = 0;
@@ -40,10 +40,11 @@ export function renderSignalPractice() {
     const selected = $("signalGuessSelect")?.value;
     const feedback = $("signalFeedback");
     const result = evaluateSignalGuess(analysis, selected);
+    mutate((state) => {
+      state.learning.signalAttempts = [...(state.learning.signalAttempts || []), { createdAt: new Date().toISOString(), correct: Boolean(result.correct), labels: analysis.labels }].slice(-30);
+    });
+    // mutate 触发的渲染回调会重建信号面板，反馈文本需在其后写入（与迁移前最终 DOM 一致）。
     if (feedback) feedback.textContent = result.message || (result.correct ? "判断方向基本准确。" : "再结合上下文观察，不要急着下结论。");
-    const state = getState();
-    state.learning.signalAttempts = [...(state.learning.signalAttempts || []), { createdAt: new Date().toISOString(), correct: Boolean(result.correct), labels: analysis.labels }].slice(-30);
-    saveState();
   });
 }
 
@@ -56,8 +57,9 @@ export function renderDailyTraining() {
   $("submitDailyTaskBtn")?.addEventListener("click", () => {
     const answer = $("dailyTaskInput")?.value.trim() || "";
     const grade = gradeMicroTask(task, answer, { context: task.context || "" });
-    state.learning = recordTrainingEvent(state.learning, { id: `micro-${Date.now()}`, type: "micro-training", source: "micro-training", dimension: grade.dimension, score: grade.score, createdAt: new Date().toISOString(), metadata: { taskType: task.type } });
-    saveState();
+    mutate((state) => {
+      state.learning = recordTrainingEvent(state.learning, { id: `micro-${Date.now()}`, type: "micro-training", source: "micro-training", dimension: grade.dimension, score: grade.score, createdAt: new Date().toISOString(), metadata: { taskType: task.type } });
+    });
     $("dailyTaskFeedback").textContent = `${grade.score} 分：${grade.nextAction || grade.feedback || "继续保持可观察、低压力的表达。"}`;
   });
 }

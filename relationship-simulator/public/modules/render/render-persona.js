@@ -6,7 +6,7 @@ import {
   getCurrentPersona,
   getPersonaMemory,
   getState,
-  saveState
+  mutate
 } from "../core/state.js";
 
 export function renderPersonaControls() {
@@ -66,30 +66,32 @@ export function renderMemoryControls() {
 }
 
 export function savePersonaMemory(showStatus = true) {
-  const state = getState();
   const persona = getCurrentPersona();
-  state.personaMemory[persona.id] = {
-    background: $("memoryBackground").value.trim(),
-    interests: $("memoryInterests").value.trim(),
-    boundaries: $("memoryBoundaries").value.trim()
-  };
-  saveState();
+  mutate((state) => {
+    state.personaMemory[persona.id] = {
+      background: $("memoryBackground").value.trim(),
+      interests: $("memoryInterests").value.trim(),
+      boundaries: $("memoryBoundaries").value.trim()
+    };
+  });
   if (showStatus) $("apiStatus").textContent = `已保存${persona.name}的场景记忆。`;
 }
 
 export function switchPersona(personaId, resetConversation = true, { onChanged = () => {} } = {}) {
-  const state = getState();
-  const persona = getAllPersonas(state.customPersonas)[personaId];
+  const persona = getAllPersonas(getState().customPersonas)[personaId];
   if (!persona) return;
-  state.personaId = personaId;
+  mutate((state) => {
+    state.personaId = personaId;
+    if (resetConversation) {
+      state.messages = structuredClone(persona.starterMessages);
+      state.lastAnalysis = null;
+    }
+  });
   if (resetConversation) {
-    state.messages = structuredClone(persona.starterMessages);
-    state.lastAnalysis = null;
     $("userInput").value = persona.sampleReply || "";
     $("goal").value = persona.defaultGoal || "";
     $("goal").dataset.personaSynced = "true";
   }
-  saveState();
   renderPersonaControls();
   onChanged();
 }
@@ -120,13 +122,13 @@ export function buildCustomPersona() {
 
 export function saveCustomPersona({ onChanged = () => {} } = {}) {
   try {
-    const state = getState();
     const persona = buildCustomPersona();
-    state.customPersonas[persona.id] = persona;
-    state.personaId = persona.id;
-    state.messages = structuredClone(persona.starterMessages);
-    state.lastAnalysis = null;
-    saveState();
+    mutate((state) => {
+      state.customPersonas[persona.id] = persona;
+      state.personaId = persona.id;
+      state.messages = structuredClone(persona.starterMessages);
+      state.lastAnalysis = null;
+    });
     renderPersonaControls();
     onChanged();
     $("apiStatus").textContent = `已保存并切换到${persona.name}。`;
@@ -136,14 +138,14 @@ export function saveCustomPersona({ onChanged = () => {} } = {}) {
 }
 
 export function deleteCurrentPersona({ onChanged = () => {} } = {}) {
-  const state = getState();
   const persona = getCurrentPersona();
   if (!String(persona.id).startsWith("custom-")) return;
-  delete state.customPersonas[persona.id];
-  state.personaId = "lin";
-  state.messages = structuredClone(getAllPersonas(state.customPersonas).lin.starterMessages);
-  state.lastAnalysis = null;
-  saveState();
+  mutate((state) => {
+    delete state.customPersonas[persona.id];
+    state.personaId = "lin";
+    state.messages = structuredClone(getAllPersonas(state.customPersonas).lin.starterMessages);
+    state.lastAnalysis = null;
+  });
   renderPersonaControls();
   onChanged();
 }
@@ -174,10 +176,11 @@ export async function uploadAvatar(event) {
   const file = event.target.files?.[0];
   if (!file) return;
   try {
-    const state = getState();
     const persona = getCurrentPersona();
-    state.avatarOverrides[persona.id] = { ...(state.avatarOverrides[persona.id] || {}), src: await resizeAvatarImage(file) };
-    saveState();
+    const src = await resizeAvatarImage(file);
+    mutate((state) => {
+      state.avatarOverrides[persona.id] = { ...(state.avatarOverrides[persona.id] || {}), src };
+    });
     renderPersonaControls();
     $("apiStatus").textContent = "头像已保存到本机。";
   } catch (error) {
@@ -188,10 +191,8 @@ export async function uploadAvatar(event) {
 }
 
 export function resetAvatar() {
-  const state = getState();
   const persona = getCurrentPersona();
-  delete state.avatarOverrides[persona.id];
-  saveState();
+  mutate((state) => { delete state.avatarOverrides[persona.id]; });
   renderPersonaControls();
 }
 
@@ -213,11 +214,11 @@ export function endAvatarDrag() {
 }
 
 export function setAvatarPosition(x, y, render = true) {
-  const state = getState();
   const persona = getCurrentPersona();
   const settings = getAvatarSettings(persona);
   if (!settings.src) return;
-  state.avatarOverrides[persona.id] = { ...(state.avatarOverrides[persona.id] || {}), x: clampAvatarPosition(x), y: clampAvatarPosition(y) };
-  saveState();
+  mutate((state) => {
+    state.avatarOverrides[persona.id] = { ...(state.avatarOverrides[persona.id] || {}), x: clampAvatarPosition(x), y: clampAvatarPosition(y) };
+  });
   if (render) renderPersonaControls();
 }

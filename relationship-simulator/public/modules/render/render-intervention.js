@@ -5,7 +5,7 @@ import { buildInterventionPrompt } from "../coach/prompts.js";
 import { callLLM } from "../core/api-client.js";
 import { loadChapterIndex } from "../content/long-content-loader.js";
 import { getCurrentChapterContext } from "./render-longContent.js";
-import { getState, saveState } from "../core/state.js";
+import { mutate } from "../core/state.js";
 
 let interventionContext = null;
 
@@ -105,10 +105,10 @@ export function renderInterventionComparison() {
 export function saveInterventionAsLog() {
   const ctx = interventionContext;
   if (!ctx) return;
-  const state = getState();
-  state.trainingLog.unshift({ time: new Date().toLocaleString("zh-CN", { hour12: false }), stage: "介入练习", mine: ctx.userReply, herReply: ctx.aiGeneratedReply, source: "intervention", score: buildCoachScore(ctx.userReply, { risk: ctx.reviewPoint.risk, judgement: ctx.reviewPoint.intent }), baseline: "calibrated", sourceChapter: ctx.chapterId, sourceReviewPoint: ctx.reviewPointId });
-  state.trainingLog = state.trainingLog.slice(0, 12);
-  saveState();
+  mutate((state) => {
+    state.trainingLog.unshift({ time: new Date().toLocaleString("zh-CN", { hour12: false }), stage: "介入练习", mine: ctx.userReply, herReply: ctx.aiGeneratedReply, source: "intervention", score: buildCoachScore(ctx.userReply, { risk: ctx.reviewPoint.risk, judgement: ctx.reviewPoint.intent }), baseline: "calibrated", sourceChapter: ctx.chapterId, sourceReviewPoint: ctx.reviewPointId });
+    state.trainingLog = state.trainingLog.slice(0, 12);
+  });
   $("apiStatus").textContent = "介入练习已保存为训练日志。";
   closeIntervention();
 }
