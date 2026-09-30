@@ -181,27 +181,27 @@ function addTrainingLog(data) {
 }
 
 function commitAnalysis(data, source) {
-  state.lastAnalysis = { ...data, source, generationSource: source };
-  appendHerIfNeeded(state.lastAnalysis.herReply, source, { afterRender: afterChatRender });
-  addTrainingLog(state.lastAnalysis);
-  state.lastGenerationMeta = { source, error: "" };
+  mutate((state) => {
+    state.lastAnalysis = { ...data, source, generationSource: source };
+    appendHerIfNeeded(state.lastAnalysis.herReply, source, { afterRender: afterChatRender });
+    addTrainingLog(state.lastAnalysis);
+    state.lastGenerationMeta = { source, error: "" };
 
-  // 旧版增强记忆与新 runtime 共用同一显式同意开关；默认不持久化。
-  if (state.relationshipIntelligence?.consent === true) {
-    const persona = getCurrentPersona();
-    const memoryUpdates = extractMemoryFromConversation(state.messages, state.lastAnalysis);
-    if (Object.keys(memoryUpdates).length > 0) {
-      if (!state.personaMemory[persona.id]) state.personaMemory[persona.id] = {};
-      const currentEnhanced = state.personaMemory[persona.id]._enhanced || null;
-      state.personaMemory[persona.id]._enhanced = updateMemoryState(
-        migrateMemory(currentEnhanced),
-        memoryUpdates,
-        state.messages
-      );
+    // 旧版增强记忆与新 runtime 共用同一显式同意开关；默认不持久化。
+    if (state.relationshipIntelligence?.consent === true) {
+      const persona = getCurrentPersona();
+      const memoryUpdates = extractMemoryFromConversation(state.messages, state.lastAnalysis);
+      if (Object.keys(memoryUpdates).length > 0) {
+        if (!state.personaMemory[persona.id]) state.personaMemory[persona.id] = {};
+        const currentEnhanced = state.personaMemory[persona.id]._enhanced || null;
+        state.personaMemory[persona.id]._enhanced = updateMemoryState(
+          migrateMemory(currentEnhanced),
+          memoryUpdates,
+          state.messages
+        );
+      }
     }
-  }
-
-  saveState();
+  });
   renderAll();
   emit(Events.ANALYSIS_COMMITTED, { source, score: data.coachScore });
   void intelligenceController.refresh();
@@ -266,8 +266,7 @@ async function askAi({ silent = false } = {}) {
     $("apiStatus").textContent = "模型调用成功。";
     return commitAnalysis(parsed, "model");
   } catch (error) {
-    state.lastGenerationMeta = { source: "model", error: error.message || String(error) };
-    saveState();
+    mutate((state) => { state.lastGenerationMeta = { source: "model", error: error.message || String(error) }; });
     $("apiStatus").textContent = "模型调用失败：" + error.message;
     if (!silent) throw error;
     return null;
@@ -406,9 +405,7 @@ function handleRecall(index) {
   if (!result.ok) return;
   const removedReply = result.removed.find((message) => message.type === "her");
   if (removedReply && state.lastAnalysis?.herReply === removedReply.text) {
-    state.lastAnalysis = null;
-    state.lastGenerationMeta = null;
-    saveState();
+    mutate((s) => { s.lastAnalysis = null; s.lastGenerationMeta = null; });
   }
   $("userInput").value = result.message.text;
   renderAll();
@@ -462,8 +459,9 @@ function runReplayAnalysis() {
   const result = $("replayResult");
   if (!result) return;
   result.innerHTML = `<div class="mini"><h4>本地回放结果</h4><p>${escapeHtml(buildReplaySummary(analysis))}</p>${(analysis.observations || []).slice(0, 4).map((item) => `<p>· ${escapeHtml(item.text || item.observation || "")}</p>`).join("")}</div>`;
-  state.learning.replayAnalyses = [...(state.learning.replayAnalyses || []), { createdAt: new Date().toISOString(), summary: buildReplaySummary(analysis), observations: (analysis.observations || []).slice(0, 4).map((item) => item.text || item.observation || "") }].slice(-12);
-  saveState();
+  mutate((state) => {
+    state.learning.replayAnalyses = [...(state.learning.replayAnalyses || []), { createdAt: new Date().toISOString(), summary: buildReplaySummary(analysis), observations: (analysis.observations || []).slice(0, 4).map((item) => item.text || item.observation || "") }].slice(-12);
+  });
 }
 
 async function enhanceReplayWithMiMo() {
@@ -490,6 +488,7 @@ window.RelationshipLLM = {
   preflightReply,
   getPersonaMemory,
   getState: () => structuredClone(getState()),
+  // 兼容契约：对外集成/调试入口（P2-6 收口时经用户批准保留 setState 写路径，不迁移到 mutate）。
   setState: (next) => { state = setStateStore(next); renderAll(); }
 };
 
