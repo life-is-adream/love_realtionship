@@ -38,7 +38,12 @@ export async function fetchWithRetry(endpoint, options, { attempts = MAX_ATTEMPT
   throw lastError || new Error("upstream request failed");
 }
 
-export async function handleChat(req, res) {
+/**
+ * 处理 POST /api/chat。
+ * @param {object} options.serverApiKey 服务端 .env 密钥；默认取 config 的 LLM_API_KEY。
+ *   测试可通过该参数模拟"服务端未配置密钥"分支（.env 存在时 import 期即固化，无法从环境改）。
+ */
+export async function handleChat(req, res, { serverApiKey = LLM_API_KEY } = {}) {
   const clientIp = req.socket?.remoteAddress || "unknown";
   if (!checkRateLimit(clientIp)) return sendJson(res, 429, { error: "rate_limited", message: "请求过于频繁，请稍后再试。" });
 
@@ -55,11 +60,11 @@ export async function handleChat(req, res) {
   const messages = body.messages;
   if (!Array.isArray(messages) || messages.length === 0) return sendJson(res, 400, { error: "bad_request", message: "`messages` 必须是非空数组。" });
   if (messages.length > 200) return sendJson(res, 400, { error: "bad_request", message: "`messages` 最多 200 条。" });
-  if (!LLM_API_KEY && !body.apiKey) {
+  if (!serverApiKey && !body.apiKey) {
     return sendJson(res, 400, { error: "missing_api_key", message: "请在 .env 中配置 LLM_API_KEY，或在请求体中传 apiKey。建议使用 .env。" });
   }
 
-  const apiKey = body.apiKey || LLM_API_KEY;
+  const apiKey = body.apiKey || serverApiKey;
   const clampNum = (value, min, max, fallback) => {
     const n = Number(value);
     if (!Number.isFinite(n)) return fallback;

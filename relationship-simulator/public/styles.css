@@ -178,6 +178,17 @@ h1 em{ font-style:italic; color:var(--rose); }
 .mode-banner.is-pua u{ text-decoration-style:dotted; }
 .mode-banner.hidden{ display:none; }
 
+/* ---------- AI 模拟合规横幅（琥珀色，沿用 PUA 横幅视觉语言） ---------- */
+.compliance-banner{
+  margin-bottom:18px; padding:13px 18px; border-radius:var(--r-md);
+  border:1px solid oklch(72% 0.14 60 / .55);
+  background:linear-gradient(180deg, oklch(30% 0.06 55 / .5), oklch(26% 0.05 55 / .6));
+  color:oklch(93% 0.05 85); font-size:13px; line-height:1.65;
+  display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+}
+.compliance-banner b{ color:oklch(88% 0.13 70); }
+.compliance-banner.hidden{ display:none; }
+
 /* ---------- 本地 Relationship Intelligence ---------- */
 .relationship-intelligence-card{
   margin-bottom:22px; padding:16px; border:1px solid var(--line-strong);

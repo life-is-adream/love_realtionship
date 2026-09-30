@@ -5,11 +5,21 @@ import { PORT, LLM_API_KEY, LLM_ENDPOINT, LLM_MODEL, maskEndpoint } from "./conf
 import { handleLongContent } from "./routes-longContent.js";
 import { handleSearch } from "./searchProxy.js";
 import { handleRelationshipIntelligence } from "./relationshipIntelligence.js";
-import { sendJson, sendText, serveStatic } from "./staticServer.js";
+import { resolveCorsOrigin, sendJson, sendText, serveStatic } from "./staticServer.js";
 
 export const server = createServer(async (req, res) => {
   try {
     const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
+    // 跨源 POST application/json 的预检请求：统一返回 204 + 预检头，仅限 /api/*。
+    if (req.method === "OPTIONS" && url.pathname.startsWith("/api/")) {
+      res.writeHead(204, {
+        "Access-Control-Allow-Origin": resolveCorsOrigin(req.headers.origin),
+        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Max-Age": "86400"
+      });
+      return res.end();
+    }
     if (req.method === "GET" && url.pathname === "/api/health") return handleHealth(res);
     if (req.method === "POST" && url.pathname === "/api/chat") return handleChat(req, res);
     if (req.method === "POST" && url.pathname === "/api/search") return handleSearch(req, res);

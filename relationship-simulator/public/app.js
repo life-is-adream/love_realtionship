@@ -40,6 +40,7 @@ import { init as initDropdowns } from "./modules/render/dropdown.js";
 import { createRelationshipIntelligenceController } from "./modules/intelligence/controller.js";
 import { renderRelationshipIntelligence } from "./modules/render/render-intelligence.js";
 import { createTrainingModeController } from "./modules/training/training-mode-controller.js";
+import { initComplianceBanner } from "./modules/render/compliance-banner.js";
 
 let state = loadState();
 const MIMO_MODEL = DEFAULT_MODEL;
@@ -59,6 +60,9 @@ const trainingModeController = createTrainingModeController({
   getElement: $,
   setStatus: (message) => { if ($("apiStatus")) $("apiStatus").textContent = message; }
 });
+
+// 合规横幅：首访明示角色为 AI 模拟，用户确认后不再显示。
+initComplianceBanner({ getElement: $ });
 
 // Compatibility facade: DOM, persistence, parsing and rendering now live in modules.
 function escapeHtml(value) { return escapeHtmlShared(value); }

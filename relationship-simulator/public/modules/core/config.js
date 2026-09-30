@@ -198,7 +198,8 @@ export const STORAGE_KEYS = {
   longReadProgress: "heartflow-long-read-progress",
   stageOverride: "heartflow-stage-override",
   stageAutoResult: "heartflow-stage-auto-result",
-  stageValue: "heartflow-stage-value"
+  stageValue: "heartflow-stage-value",
+  complianceAck: "heartflow-ai-compliance-ack"
 };
 
 /** 记忆系统配置 */

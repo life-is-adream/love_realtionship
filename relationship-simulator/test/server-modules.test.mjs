@@ -1,8 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { EventEmitter } from "node:events";
-import { extractModelContent, fetchWithRetry, normalizeProxyResponse } from "../server/llmProxy.js";
-import { readRequestJson, resolveCorsOrigin, RequestBodyTooLargeError, sendJson } from "../server/staticServer.js";
+import { extractModelContent, fetchWithRetry, handleChat, normalizeProxyResponse } from "../server/llmProxy.js";
+import { readRequestJson, resolveCorsOrigin, RequestBodyTooLargeError, sendJson, serveStatic } from "../server/staticServer.js";
+import { handleLongContent } from "../server/routes-longContent.js";
 import { checkRateLimit, rateBuckets } from "../server/rateLimit.js";
 import { inferApiMode, maskEndpoint, normalizeApiMode } from "../server/config.js";
 import { isAllowedSearchSource, normalizeSearchResults } from "../server/searchProxy.js";
@@ -52,6 +53,22 @@ test("resolveCorsOrigin 放行 localhost 与 127.0.0.1 任意端口", () => {
 test("resolveCorsOrigin 外部来源回落到默认源", () => {
   assert.equal(resolveCorsOrigin("http://evil.example.com"), "http://localhost:3000");
   assert.equal(resolveCorsOrigin(""), "http://localhost:3000");
+});
+
+test("resolveCorsOrigin 放行 RFC1918 私有网段（局域网访问场景）", () => {
+  assert.equal(resolveCorsOrigin("http://192.168.1.5:3000"), "http://192.168.1.5:3000");
+  assert.equal(resolveCorsOrigin("http://10.0.0.2:8080"), "http://10.0.0.2:8080");
+  assert.equal(resolveCorsOrigin("http://172.16.0.9:3000"), "http://172.16.0.9:3000");
+  assert.equal(resolveCorsOrigin("http://172.31.255.1:3000"), "http://172.31.255.1:3000");
+  assert.equal(resolveCorsOrigin("http://nas.local:3000"), "http://nas.local:3000");
+});
+
+test("resolveCorsOrigin 拒绝非私有网段与边界外地址", () => {
+  assert.equal(resolveCorsOrigin("http://172.15.0.1:3000"), "http://localhost:3000");
+  assert.equal(resolveCorsOrigin("http://172.32.0.1:3000"), "http://localhost:3000");
+  assert.equal(resolveCorsOrigin("http://11.0.0.1:3000"), "http://localhost:3000");
+  assert.equal(resolveCorsOrigin("http://193.168.1.5:3000"), "http://localhost:3000");
+  assert.equal(resolveCorsOrigin("http://localhost.evil.com:3000"), "http://localhost:3000");
 });
 
 test("resolveCorsOrigin 支持自定义端口参数", () => {
@@ -216,4 +233,230 @@ test("normalizeSearchResults 处理空/异常输入", () => {
   assert.deepEqual(normalizeSearchResults(null), []);
   assert.deepEqual(normalizeSearchResults({}), []);
   assert.deepEqual(normalizeSearchResults({ results: [{ title: "无链接" }] }), []);
+});
+
+// ── staticServer: sendJson 统一注入 CORS 头 ───────────────────────────────────
+
+function mockRes({ reqHeaders } = {}) {
+  const headers = {};
+  return {
+    status: 0,
+    body: "",
+    req: reqHeaders === undefined ? undefined : { headers: reqHeaders },
+    writeHead(status, head) { this.status = status; Object.assign(headers, head); },
+    end(body) { this.body = body ?? ""; },
+    get headers() { return headers; }
+  };
+}
+
+test("sendJson 从 res.req 的 Origin 注入 CORS 头（私有网段回显）", () => {
+  const res = mockRes({ reqHeaders: { origin: "http://192.168.1.5:3000" } });
+  sendJson(res, 200, { ok: true });
+  assert.equal(res.headers["Access-Control-Allow-Origin"], "http://192.168.1.5:3000");
+});
+
+test("sendJson 外部 Origin 回落默认源而非回显", () => {
+  const res = mockRes({ reqHeaders: { origin: "http://evil.example.com" } });
+  sendJson(res, 200, { ok: true });
+  assert.equal(res.headers["Access-Control-Allow-Origin"], "http://localhost:3000");
+});
+
+test("sendJson 无请求上下文（mock res）时不注入 CORS 头", () => {
+  const res = mockRes();
+  sendJson(res, 200, { ok: true });
+  assert.equal(res.headers["Access-Control-Allow-Origin"], undefined);
+});
+
+test("sendJson 的 extraHeaders 可覆盖默认 CORS 注入", () => {
+  const res = mockRes({ reqHeaders: { origin: "http://192.168.1.5:3000" } });
+  sendJson(res, 200, { ok: true }, { "Access-Control-Allow-Origin": "http://custom" });
+  assert.equal(res.headers["Access-Control-Allow-Origin"], "http://custom");
+});
+
+// ── staticServer: serveStatic 404/SPA 回退/缓存分级/403 ───────────────────────
+
+test("serveStatic 带扩展名且文件不存在返回真 404（不再把 HTML 当 JS）", async () => {
+  const res = mockRes();
+  await serveStatic("/missing.js", res);
+  assert.equal(res.status, 404);
+  await serveStatic("/missing.css", res);
+  assert.equal(res.status, 404);
+});
+
+test("serveStatic 无扩展名路径保持 SPA 回退 index.html 且 no-cache", async () => {
+  const res = mockRes();
+  await serveStatic("/some/spa-route", res);
+  assert.equal(res.status, 200);
+  assert.match(String(res.headers["Content-Type"]), /^text\/html/);
+  assert.equal(res.headers["Cache-Control"], "no-cache");
+});
+
+test("serveStatic 首页 index.html 缓存为 no-cache（发布即失效）", async () => {
+  const res = mockRes();
+  await serveStatic("/", res);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers["Cache-Control"], "no-cache");
+});
+
+test("serveStatic js/css 缓存 max-age=3600", async () => {
+  const res = mockRes();
+  await serveStatic("/app.js", res);
+  assert.equal(res.status, 200);
+  assert.match(String(res.headers["Content-Type"]), /javascript/);
+  assert.equal(res.headers["Cache-Control"], "public, max-age=3600");
+});
+
+test("serveStatic 其它静态资源（图片/文本类）缓存 max-age=86400", async () => {
+  const res = mockRes();
+  await serveStatic("/love-learning/books/rational-male-positive.txt", res);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers["Cache-Control"], "public, max-age=86400");
+});
+
+test("serveStatic 路径穿越 ../ 与编码变体全部 403", async () => {
+  for (const attack of ["/../package.json", "/../server/config.js", "/%2e%2e/package.json", "/..%2f..%2fpackage.json"]) {
+    const res = mockRes();
+    await serveStatic(attack, res);
+    assert.equal(res.status, 403, `expected 403 for ${attack}`);
+  }
+});
+
+// ── routes-longContent: 非法章号与路径遍历防护 ────────────────────────────────
+
+test("handleLongContent 非法章号返回 400（0/11/小数/前导零/非数字）", async () => {
+  for (const chapter of ["/api/long-content/0", "/api/long-content/11", "/api/long-content/1.5", "/api/long-content/01", "/api/long-content/abc", "/api/long-content/"]) {
+    const res = mockRes();
+    await handleLongContent(chapter, res);
+    assert.equal(res.status, 400, `expected 400 for ${chapter}`);
+  }
+});
+
+test("handleLongContent ../ 路径遍历变体全拦（不泄漏任何盘上文件）", async () => {
+  for (const attack of [
+    "/api/long-content/../server/config.js",
+    "/api/long-content/../../../.env",
+    "/api/long-content/%2e%2e%2fserver%2fconfig.js",
+    "/api/long-content/..%2F..%2Fserver%2Fconfig.js"
+  ]) {
+    const res = mockRes();
+    await handleLongContent(attack, res);
+    assert.ok(res.status >= 400 && res.status < 500, `expected 4xx for ${attack}, got ${res.status}`);
+    assert.ok(!String(res.body).includes("LLM_ENDPOINT"), `${attack} 泄漏了文件内容`);
+  }
+  // 带合法章号前缀的嵌套遍历（"1/../.."）会命中章 1 数据（白名单内、无泄漏），仅断言不泄漏文件内容。
+  const nested = mockRes();
+  await handleLongContent("/api/long-content/1/../../../server/config.js", nested);
+  assert.ok(!String(nested.body).includes("LLM_ENDPOINT"), "嵌套遍历泄漏了文件内容");
+});
+
+test("handleLongContent 合法章号返回章节文本", async () => {
+  const res = mockRes();
+  await handleLongContent("/api/long-content/1", res);
+  assert.equal(res.status, 200);
+  assert.match(String(res.headers["Content-Type"]), /text\/plain/);
+});
+
+// ── llmProxy: handleChat 主分支（mock fetch，不发真实网络请求） ───────────────
+
+function chatReq(chunks, ip = "10.1.1.1") {
+  const req = fakeReq(chunks);
+  req.socket = { remoteAddress: ip };
+  return req;
+}
+
+function chatBody(overrides = {}) {
+  return JSON.stringify({ messages: [{ role: "user", content: "你好" }], ...overrides });
+}
+
+test("handleChat 服务端缺 key 且请求未带 apiKey 返回 400 missing_api_key", async () => {
+  rateBuckets.clear();
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+  globalThis.fetch = async () => { fetchCalls += 1; return { status: 200, text: async () => "{}", headers: { get: () => "" } }; };
+  try {
+    const res = mockRes();
+    await handleChat(chatReq([chatBody()]), res, { serverApiKey: "" });
+    assert.equal(res.status, 400);
+    assert.equal(JSON.parse(res.body).error, "missing_api_key");
+    assert.equal(fetchCalls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+    rateBuckets.clear();
+  }
+});
+
+test("handleChat 请求体超 2MB 返回 413", async () => {
+  rateBuckets.clear();
+  const big = JSON.stringify({ messages: [{ role: "user", content: "x".repeat(2_100_000) }] });
+  const res = mockRes();
+  await handleChat(chatReq([big.slice(0, 1_100_000), big.slice(1_100_000)]), res, { serverApiKey: "k" });
+  assert.equal(res.status, 413);
+  assert.equal(JSON.parse(res.body).error, "payload_too_large");
+  rateBuckets.clear();
+});
+
+test("handleChat 上游 5xx 重试用尽后返回 502 upstream_unreachable（含一次重试）", async () => {
+  rateBuckets.clear();
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    return { status: 500, text: async () => "boom", headers: { get: () => "application/json" } };
+  };
+  try {
+    const res = mockRes();
+    await handleChat(chatReq([chatBody()]), res, { serverApiKey: "test-key" });
+    assert.equal(res.status, 502);
+    const payload = JSON.parse(res.body);
+    assert.equal(payload.error, "upstream_unreachable");
+    assert.equal(fetchCalls, 2);
+  } finally {
+    globalThis.fetch = originalFetch;
+    rateBuckets.clear();
+  }
+});
+
+test("handleChat 上游 4xx 不重试并透传状态码为 502 upstream_error", async () => {
+  rateBuckets.clear();
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    return { status: 401, text: async () => JSON.stringify({ error: { message: "bad key" } }), headers: { get: () => "application/json" } };
+  };
+  try {
+    const res = mockRes();
+    await handleChat(chatReq([chatBody()]), res, { serverApiKey: "bad-key" });
+    assert.equal(res.status, 502);
+    const payload = JSON.parse(res.body);
+    assert.equal(payload.error, "upstream_error");
+    assert.equal(payload.upstreamStatus, 401);
+    assert.match(payload.message, /bad key/);
+    assert.equal(fetchCalls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    rateBuckets.clear();
+  }
+});
+
+test("handleChat 成功路径回显上游响应并对私有网段 Origin 注入 CORS", async () => {
+  rateBuckets.clear();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    status: 200,
+    text: async () => JSON.stringify({ choices: [{ message: { content: "回复" } }] }),
+    headers: { get: () => "application/json" }
+  });
+  try {
+    const req = chatReq([chatBody()]);
+    req.headers = { origin: "http://192.168.1.5:3000" };
+    const res = mockRes();
+    await handleChat(req, res, { serverApiKey: "test-key" });
+    assert.equal(res.status, 200);
+    assert.match(res.body, /回复/);
+    assert.equal(res.headers["Access-Control-Allow-Origin"], "http://192.168.1.5:3000");
+  } finally {
+    globalThis.fetch = originalFetch;
+    rateBuckets.clear();
+  }
 });
