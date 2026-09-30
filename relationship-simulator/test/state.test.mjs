@@ -5,7 +5,7 @@ import { builtInPersonas } from "../public/modules/core/config.js";
 // ── 纯函数测试（不依赖 localStorage）──────────────────────────────────────────
 
 // Import pure functions only after setting up mocks
-let getAllPersonas, normalizeState, defaultMemoryFor, normalizeMessages, buildConversationSummary, getLatestMineText, defaultMemoryForFn;
+let getAllPersonas, normalizeState, defaultMemoryFor, normalizeMessages, buildConversationSummary, getLatestMineText, defaultMemoryForFn, mutate, onStateChange, getState, saveState, loadState;
 
 // We need to mock localStorage before importing state.js
 const mockStorage = new Map();
@@ -28,6 +28,11 @@ defaultMemoryFor = stateModule.defaultMemoryFor;
 normalizeMessages = stateModule.normalizeMessages;
 buildConversationSummary = stateModule.buildConversationSummary;
 getLatestMineText = stateModule.getLatestMineText;
+mutate = stateModule.mutate;
+onStateChange = stateModule.onStateChange;
+getState = stateModule.getState;
+saveState = stateModule.saveState;
+loadState = stateModule.loadState;
 
 // ── getAllPersonas ─────────────────────────────────────────────────────────────
 
@@ -151,4 +156,52 @@ test("getLatestMineText 无 typed 输入时不报错", () => {
   // Should return empty string or whatever is in state
   const result = getLatestMineText("");
   assert.equal(typeof result, "string");
+});
+
+// ── mutate / onStateChange（P2-6 store 收敛）─────────────────────────────────
+
+test("mutate 修改后自动写入 localStorage 并返回 fn 结果", () => {
+  loadState();
+  const returned = mutate((state) => {
+    state.personaId = "xu";
+    return "ok";
+  });
+  assert.equal(returned, "ok");
+  const stored = JSON.parse(mockStorage.get("heartflow-state") ?? "null");
+  assert.ok(stored, "localStorage 应有状态快照");
+  assert.equal(stored.personaId, "xu");
+});
+
+test("mutate 后触发 onStateChange 回调恰好一次并携带状态", () => {
+  loadState();
+  let calls = 0;
+  let observed = null;
+  onStateChange((state) => { calls += 1; observed = state; });
+  try {
+    const returned = mutate((state) => { state.personaId = "tang"; });
+    assert.equal(returned, undefined);
+    assert.equal(calls, 1);
+    assert.equal(observed.personaId, "tang");
+    assert.equal(observed, getState());
+  } finally {
+    onStateChange(null);
+  }
+});
+
+test("mutate 中 fn 抛错时不保存不通知", () => {
+  loadState();
+  mutate((state) => { state.personaId = "lin"; });
+  const snapshotBefore = mockStorage.get("heartflow-state");
+  let calls = 0;
+  onStateChange(() => { calls += 1; });
+  try {
+    assert.throws(() => mutate((state) => {
+      state.personaId = "xu";
+      throw new Error("boom");
+    }), /boom/);
+    assert.equal(calls, 0, "fn 抛错时不应通知渲染回调");
+    assert.equal(mockStorage.get("heartflow-state"), snapshotBefore, "fn 抛错时 localStorage 不应更新");
+  } finally {
+    onStateChange(null);
+  }
 });

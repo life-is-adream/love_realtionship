@@ -19,7 +19,7 @@ import { formatRedactionNotice } from "./modules/core/privacy.js";
 import { $, escapeHtml as escapeHtmlShared } from "./modules/core/dom.js";
 import {
   getAllPersonas, getCurrentPersona, getLatestMineText, getPersonaMemory, getState,
-  loadState, saveState, setState as setStateStore
+  loadState, saveState, setState as setStateStore, mutate, onStateChange
 } from "./modules/core/state.js";
 import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, buildConversationSummary, migrateMemory, analyzeLongTermPatterns, buildPatternInjection } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
@@ -549,6 +549,8 @@ try {
 } catch {
   manifestChapters = [];
 }
+// P2-6 store 收敛：mutate 写路径的渲染回调由此注入（core 层不 import render 层）。
+onStateChange(renderAll);
 renderAll();
 trainingModeController.render();
 initMobileTabs();

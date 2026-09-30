@@ -166,6 +166,33 @@ export function setState(next) {
   return currentState;
 }
 
+// ── mutate：唯一推荐写路径（P2-6 store 收敛） ─────────────────────────────────
+
+let changeListener = null;
+
+/**
+ * 注册状态变更回调（由 app.js 装配时注入渲染函数，core 层不 import render 层）。
+ * @param {((state: AppState) => void)|null} cb - 状态变更回调，传 null 取消订阅
+ */
+export function onStateChange(cb) {
+  changeListener = typeof cb === "function" ? cb : null;
+}
+
+/**
+ * 唯一推荐写路径：fn(state) 内同步修改，返回后自动 saveState 并通知渲染回调。
+ * fn 抛错时不保存、不通知（异常原样向上抛出）。
+ * @template T
+ * @param {(state: AppState) => T} fn - 同步变更函数
+ * @returns {T} fn 的返回值
+ */
+export function mutate(fn) {
+  const state = getState();
+  const result = fn(state);
+  saveState();
+  changeListener?.(state);
+  return result;
+}
+
 /**
  * 获取当前角色对象
  * @returns {PersonaObject}
