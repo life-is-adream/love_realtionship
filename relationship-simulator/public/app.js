@@ -5,7 +5,7 @@ import { buildReplyOptionsForHer, isUsableModelReplyOptions } from "./modules/co
 import { buildOptimizerPrompt, buildInterventionPrompt, buildStageDetectionPrompt, buildActionPlanPrompt, PROMPT_VERSION } from "./modules/coach/prompts.js";
 import { isValidStage } from "./modules/core/stages.js";
 import { scenarios } from "./modules/content/scenarios.js";
-import { longContentIndex } from "./modules/content/long-content-index.js";
+import { loadManifest } from "./modules/content/long-content-loader.js";
 import { normalizeLearningState, recordTrainingEvent } from "./modules/core/learning-state.js";
 import { buildLocalOptimizations, normalizeOptimizationResult, diffText } from "./modules/training/optimizer.js";
 import { buildSignalExercise, classifySocialSignals, evaluateSignalGuess } from "./modules/training/signals.js";
@@ -44,7 +44,8 @@ import { initComplianceBanner } from "./modules/render/compliance-banner.js";
 
 let state = loadState();
 const MIMO_MODEL = DEFAULT_MODEL;
-const textbookSearchIndex = getSharedTextbookIndex();
+// 长篇索引自拆包（P2-13）后为懒加载；manifest 预取用于"对照长篇复盘"链接的章节标题。
+let manifestChapters = [];
 let isGenerating = false;
 
 const intelligenceController = createRelationshipIntelligenceController({
@@ -89,7 +90,7 @@ function afterChatRender() {
 function showReviewComparison(stage) {
   const mapping = REVIEW_MAPPING[stage];
   if (!mapping) return "";
-  const chapter = longContentIndex.chapters.find((item) => item.id === mapping.chapter);
+  const chapter = manifestChapters.find((item) => item.id === mapping.chapter);
   if (!chapter) return "";
   return `<div class="review-comparison-link" data-chapter="${mapping.chapter}">📖 对照长篇第${mapping.chapter}章「${escapeHtml(chapter.title)}」的复盘要点</div>`;
 }
@@ -103,7 +104,7 @@ function renderLearningPanels() {
   renderSignalPractice();
   renderDailyTraining();
   renderGrowthProfile();
-  renderTextbookEvidence(state.lastAnalysis, { openLongReader });
+  void renderTextbookEvidence(state.lastAnalysis, { openLongReader });
 }
 
 function renderIntelligencePanel(value = state.relationshipIntelligence) {
@@ -213,9 +214,10 @@ function localFallback(modelError = "") {
   return commitAnalysis(data, "local");
 }
 
-function buildMessages() {
+async function buildMessages() {
   const persona = getCurrentPersona();
   const memory = getPersonaMemory(persona);
+  const textbookSearchIndex = await getSharedTextbookIndex();
   const evidence = buildCoachTextbookEvidence({ ...(state.lastAnalysis || {}), stage: $("stage")?.value || "" }, textbookSearchIndex);
   const textbookContext = buildTextbookCoachContext({ summary: evidence.message || buildReplaySummary({ observations: [], suggestions: [] }), results: evidence.results || [] });
 
@@ -258,7 +260,7 @@ async function askAi({ silent = false } = {}) {
   try {
     savePersonaMemory(false);
     appendMineIfNew({ afterRender: afterChatRender });
-    const result = await callLLM({ endpoint: $("endpoint").value, apiKey: $("apiKey").value, model: MIMO_MODEL, messages: buildMessages() });
+    const result = await callLLM({ endpoint: $("endpoint").value, apiKey: $("apiKey").value, model: MIMO_MODEL, messages: await buildMessages() });
     const parsed = parseModelContent(result.content, uiValues());
     if (!parsed.herReply) throw new Error("模型未返回女方对话。");
     $("apiStatus").textContent = "模型调用成功。";
@@ -541,6 +543,12 @@ $("coachFloatPanel")?.addEventListener("click", (event) => {
   if (event.target.closest("#coachFloatSearchBtn")) runCoachFloatSearch();
 });
 
+// 启动：先取长篇 manifest（~2.7KB，chunk 全部懒加载），失败时降级为空列表（对照链接不展示标题）。
+try {
+  manifestChapters = (await loadManifest()).chapters;
+} catch {
+  manifestChapters = [];
+}
 renderAll();
 trainingModeController.render();
 initMobileTabs();

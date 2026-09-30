@@ -1,12 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { longContentIndex } from "../public/modules/content/long-content-index.js";
+import { loadAllChapters } from "../public/modules/content/long-content-loader.js";
 
 /**
  * 长篇解析规则验证测试
  *
- * 验证构建脚本生成的 long-content-index.js 结构完整性和解析正确性。
+ * 验证构建脚本生成的长篇索引（manifest + 按章 chunk，P2-13 拆包格式）
+ * 结构完整性和解析正确性。经 loader 聚合出与旧单体 longContentIndex 等价的对象，
+ * 全部行为断言保持不变。
  */
+
+// 聚合全部章 chunk（等价于迁移前的 longContentIndex.chapters）
+const chapters = await loadAllChapters();
+const longContentIndex = {
+  generatedAt: "aggregated",
+  totalChapters: chapters.length,
+  chapters
+};
 
 // ── 索引整体结构 ──────────────────────────────────────────────────────────────
 

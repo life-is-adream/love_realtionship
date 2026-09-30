@@ -1,5 +1,5 @@
 import { $, escapeHtml } from "../core/dom.js";
-import { longContentIndex } from "../content/long-content-index.js";
+import { loadManifest, loadChapterIndex } from "../content/long-content-loader.js";
 import { parseChapterContent } from "../coach/parser.js";
 
 const LONG_READ_PROGRESS_KEY = "heartflow-long-read-progress";
@@ -7,13 +7,13 @@ let currentChapterId = null;
 let currentChapterUnits = [];
 let longReaderLoaded = false;
 
-export function openLongReader(chapterId = null, reviewPointId = null, { openIntervention = () => {} } = {}) {
+export async function openLongReader(chapterId = null, reviewPointId = null, { openIntervention = () => {} } = {}) {
   document.querySelector(".layout")?.classList.add("hidden");
   $("longReader").classList.remove("hidden");
-  if (!longReaderLoaded) { renderChapterList({ openIntervention }); longReaderLoaded = true; }
+  if (!longReaderLoaded) { await renderChapterList({ openIntervention }); longReaderLoaded = true; }
   const progress = loadReadProgress();
-  if (chapterId) loadChapter(chapterId, reviewPointId, { openIntervention });
-  else if (progress.chapterId) loadChapter(progress.chapterId, null, { openIntervention });
+  if (chapterId) await loadChapter(chapterId, reviewPointId, { openIntervention });
+  else if (progress.chapterId) await loadChapter(progress.chapterId, null, { openIntervention });
 }
 
 export function closeLongReader() {
@@ -21,11 +21,12 @@ export function closeLongReader() {
   document.querySelector(".layout")?.classList.remove("hidden");
 }
 
-export function renderChapterList({ openIntervention = () => {} } = {}) {
+export async function renderChapterList({ openIntervention = () => {} } = {}) {
   const list = $("chapterList");
   if (!list) return;
+  const manifest = await loadManifest();
   const progress = loadReadProgress();
-  list.innerHTML = longContentIndex.chapters.map((chapter) => `<div class="chapter-item ${progress.readChapters?.includes(chapter.id) ? "read" : ""}" data-chapter="${chapter.id}"><span class="chapter-num">第${chapter.id}章</span><span class="chapter-title">${escapeHtml(chapter.title)}</span>${progress.readChapters?.includes(chapter.id) ? '<span class="chapter-check">✓</span>' : ""}<span class="chapter-reviews">${chapter.reviewPoints.length} 复盘</span></div>`).join("");
+  list.innerHTML = manifest.chapters.map((chapter) => `<div class="chapter-item ${progress.readChapters?.includes(chapter.id) ? "read" : ""}" data-chapter="${chapter.id}"><span class="chapter-num">第${chapter.id}章</span><span class="chapter-title">${escapeHtml(chapter.title)}</span>${progress.readChapters?.includes(chapter.id) ? '<span class="chapter-check">✓</span>' : ""}<span class="chapter-reviews">${chapter.reviewCount} 复盘</span></div>`).join("");
   list.querySelectorAll(".chapter-item").forEach((item) => item.addEventListener("click", () => loadChapter(Number(item.dataset.chapter), null, { openIntervention })));
 }
 
@@ -37,7 +38,7 @@ export async function loadChapter(chapterId, reviewPointId = null, { openInterve
   try {
     const response = await fetch(`/api/long-content/${chapterId}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const chapter = longContentIndex.chapters.find((item) => item.id === chapterId);
+    const chapter = await loadChapterIndex(chapterId);
     if (!chapter) throw new Error("章节索引未找到");
     currentChapterUnits = parseChapterContent(await response.text(), chapter);
     renderChapterContent(chapter, currentChapterUnits, { openIntervention });

@@ -1,10 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildTextbookSearchIndex, buildCoachTextbookEvidence } from "../public/modules/content/textbook-search.js";
-import { longContentIndex } from "../public/modules/content/long-content-index.js";
+import { loadAllChapters } from "../public/modules/content/long-content-loader.js";
 import { readFile } from "node:fs/promises";
 
 const appSource = await readFile(new URL("../public/app.js", import.meta.url), "utf8");
+
+// 聚合全部章 chunk（等价于迁移前的 longContentIndex）
+const longContentIndex = { chapters: await loadAllChapters() };
 
 test("coach evidence points to a real chapter and review point", () => {
   const index = buildTextbookSearchIndex(longContentIndex);

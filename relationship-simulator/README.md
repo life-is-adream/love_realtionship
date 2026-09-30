@@ -114,7 +114,7 @@ http://localhost:3000
 
 ## 开发命令
 
-长篇原文位于 `long-simulation/`。修改章节后必须重新生成前端索引；生成文件 `public/modules/content/long-content-index.js` 不要手动编辑：
+长篇原文位于 `long-simulation/`。修改章节后必须重新生成前端索引；生成文件 `public/modules/content/long-content-manifest.js` 与 `public/modules/content/long-content/chapter-XX.js`（按章拆分）不要手动编辑：
 
 ```powershell
 npm run build:index
@@ -174,7 +174,7 @@ node --test
 - `public/modules/render/`：`render-*.js`：角色、聊天、教练、学习、教材、介入、阶段、剧本和移动端渲染模块。
 - `public/modules/training/`：`replay.js`、`micro-training.js`、`growth.js`：回放分析、每日任务和成长聚合的本地纯函数。
 - `public/modules/content/`：`textbook-search.js`（基于构建索引的本地关键词检索，不上传整篇教材）、`scenarios.js`、`textbook-index.js`。
-- `public/modules/content/long-content-index.js`：由构建脚本生成的长篇索引，不要手动编辑。
+- `public/modules/content/long-content-manifest.js` 与 `public/modules/content/long-content/chapter-XX.js`：由构建脚本生成的长篇索引（manifest + 按章 chunk），不要手动编辑；消费方统一走 `long-content-loader.js`。
 - `server/index.js`：后端装配入口；`relationshipIntelligence.js` 调用共享 runtime，`config.js`、`llmProxy.js`、`staticServer.js`、路由和限流模块按职责拆分。
 - `docs/`：增量 PRD、设计文档、类图、时序图和评分校准基准。
 - `test/`：评分基准、Prompt、长篇索引、剧本和回复建议回归测试。

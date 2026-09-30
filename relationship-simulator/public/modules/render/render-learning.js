@@ -8,7 +8,8 @@ import { getSharedTextbookIndex } from "../content/textbook-index.js";
 import { recordTrainingEvent } from "../core/learning-state.js";
 import { getState, getCurrentPersona, getPersonaMemory, saveState } from "../core/state.js";
 
-const textbookSearchIndex = getSharedTextbookIndex();
+// 教材检索索引自拆包后为异步构建；用序号 guard 保证并发渲染时后到的旧渲染不覆盖新渲染。
+let textbookRenderSeq = 0;
 
 function shortenText(value, maxLength = 132) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
@@ -70,9 +71,19 @@ export function renderGrowthProfile() {
   panel.innerHTML = `<div class="growth-card"><div class="daily-head"><strong>成长画像</strong><span>${escapeHtml(growth.headline)}</span></div><div class="growth-grid">${radar.map((item) => { const mastery = getMastery(summary, item.key); return `<div><b>${escapeHtml(item.label)}</b><span>${item.value == null ? "—" : item.value} · ${escapeHtml(mastery.label)}</span></div>`; }).join("")}</div>${growth.focus ? `<p class="note">当前重点：${escapeHtml(growth.focus.label)}。${escapeHtml(growth.focus.reason)}</p>` : ""}</div>`;
 }
 
-export function renderTextbookEvidence(analysis = getState().lastAnalysis, { openLongReader = () => {} } = {}) {
+export async function renderTextbookEvidence(analysis = getState().lastAnalysis, { openLongReader = () => {} } = {}) {
   const panel = $("textbookPanel");
   if (!panel) return;
+  const seq = ++textbookRenderSeq;
+  let textbookSearchIndex;
+  try {
+    textbookSearchIndex = await getSharedTextbookIndex();
+  } catch (error) {
+    if (seq !== textbookRenderSeq) return;
+    panel.innerHTML = `<section class="textbook-card" aria-label="教材依据"><div class="textbook-card-head"><span class="textbook-mark" aria-hidden="true">✦</span><div class="textbook-heading"><span class="textbook-kicker">FIELD NOTES / OFFLINE</span><strong>教材依据</strong><p>教材索引暂不可用：${escapeHtml(error.message)}</p></div><span class="textbook-count">00</span></div></section>`;
+    return;
+  }
+  if (seq !== textbookRenderSeq) return;
   const evidence = buildCoachTextbookEvidence({ ...(analysis || {}), stage: $("stage")?.value || "" }, textbookSearchIndex);
   const context = buildTextbookCoachContext({ summary: evidence.message, results: evidence.results });
   const resultCount = evidence.results.length;

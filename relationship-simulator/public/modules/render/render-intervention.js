@@ -3,15 +3,21 @@ import { builtInPersonas, DEFAULT_MODEL } from "../core/config.js";
 import { buildCoachScore } from "../coach/coach.js";
 import { buildInterventionPrompt } from "../coach/prompts.js";
 import { callLLM } from "../core/api-client.js";
-import { longContentIndex } from "../content/long-content-index.js";
+import { loadChapterIndex } from "../content/long-content-loader.js";
 import { getCurrentChapterContext } from "./render-longContent.js";
 import { getState, saveState } from "../core/state.js";
 
 let interventionContext = null;
 
-export function openIntervention(reviewPointId) {
+export async function openIntervention(reviewPointId) {
   const { currentChapterId, currentChapterUnits } = getCurrentChapterContext();
-  const chapter = longContentIndex.chapters.find((item) => item.id === currentChapterId);
+  if (!currentChapterId) return;
+  let chapter;
+  try {
+    chapter = await loadChapterIndex(currentChapterId);
+  } catch {
+    return;
+  }
   if (!chapter) return;
   const reviewPoint = chapter.reviewPoints.find((item) => item.id === reviewPointId);
   if (!reviewPoint) return;

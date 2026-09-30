@@ -2,7 +2,12 @@
  * 长篇章节索引构建脚本
  *
  * 解析 long-simulation/ 目录下的 10 章 markdown 原文，
- * 生成 public/modules/content/long-content-index.js（ES Module 数据模块）。
+ * 按章拆分生成（P2-13 A 方案）：
+ *   - public/modules/content/long-content-manifest.js  章节元信息 + chunk 映射（首屏加载）
+ *   - public/modules/content/long-content/chapter-XX.js  单章完整数据（懒加载 chunk）
+ *
+ * 消费方通过 public/modules/content/long-content-loader.js 取数，
+ * 不要直接 import 生成的 manifest / chunk 文件。
  *
  * 解析规则与 validate-long-simulation.mjs 的 extractDialogue 保持一致。
  * 不引入任何 npm 依赖，仅使用 node:fs / node:path 原生模块。
@@ -14,12 +19,14 @@
  * 运行方式：node scripts/build-long-index.mjs
  */
 
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
 const longSimulationDir = path.join(projectRoot, "long-simulation");
-const outputPath = path.join(projectRoot, "public", "modules", "content", "long-content-index.js");
+const contentDir = path.join(projectRoot, "public", "modules", "content");
+const manifestPath = path.join(contentDir, "long-content-manifest.js");
+const chunkDir = path.join(contentDir, "long-content");
 
 // ── 正则规则 ─────────────────────────────────────────────────────────────────
 
@@ -338,6 +345,48 @@ function inferSearchTags(value) {
   return ["复盘", ...rules.filter(([, pattern]) => pattern.test(text)).map(([tag]) => tag)];
 }
 
+// ── 输出：manifest + 按章 chunk ──────────────────────────────────────────────
+
+/**
+ * 章节序号 → 两位文件名编号（1 → "01"）
+ * @param {number} chapterId
+ * @returns {string}
+ */
+function chunkNumber(chapterId) {
+  return String(chapterId).padStart(2, "0");
+}
+
+async function writeOutputs(chapters) {
+  // 生成前清空 chunk 目录，避免旧章节文件残留
+  await rm(chunkDir, { recursive: true, force: true });
+  await mkdir(chunkDir, { recursive: true });
+
+  const header = "// 此文件由 scripts/build-long-index.mjs 自动生成，请勿手动编辑。\n// 运行 npm run build:index 重新生成。消费方请使用 long-content-loader.js。\n\n";
+
+  // 每章一个 chunk（compact JSON，无缩进）
+  for (const chapter of chapters) {
+    const chunkFile = path.join(chunkDir, `chapter-${chunkNumber(chapter.id)}.js`);
+    await writeFile(chunkFile, `${header}export const chapter = ${JSON.stringify(chapter)};\n`, "utf8");
+  }
+
+  // manifest：仅章元信息 + chunk 映射（首屏唯一加载的长篇数据）
+  const manifest = {
+    generatedAt: new Date().toISOString().slice(0, 10),
+    source: "scripts/build-long-index.mjs",
+    totalChapters: chapters.length,
+    chapters: chapters.map((chapter) => ({
+      id: chapter.id,
+      title: chapter.title,
+      file: chapter.file,
+      summary: chapter.summary,
+      reviewCount: chapter.reviewPoints.length,
+      sectionCount: chapter.sections.length,
+      chunk: `long-content/chapter-${chunkNumber(chapter.id)}.js`
+    }))
+  };
+  await writeFile(manifestPath, `${header}export const longContentManifest = ${JSON.stringify(manifest)};\n`, "utf8");
+}
+
 // ── 主流程 ───────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -361,17 +410,9 @@ async function main() {
     console.log(`  第${chapterId}章 "${chapter.title}"：${chapter.reviewPoints.length} 个复盘点，${chapter.sections.length} 个小节`);
   }
 
-  const index = {
-    generatedAt: new Date().toISOString().slice(0, 10),
-    totalChapters: chapters.length,
-    chapters
-  };
-
-  const output = `// 此文件由 scripts/build-long-index.mjs 自动生成，请勿手动编辑。\n// 运行 npm run build:index 重新生成。\n\nexport const longContentIndex = ${JSON.stringify(index, null, 2)};\n`;
-
-  await writeFile(outputPath, output, "utf8");
-  console.log(`\n索引已生成：${outputPath}`);
-  console.log(`共 ${chapters.length} 章，${chapters.reduce((n, c) => n + c.reviewPoints.length, 0)} 个复盘点。`);
+  await writeOutputs(chapters);
+  console.log(`\n索引已生成：${manifestPath}`);
+  console.log(`共 ${chapters.length} 章 chunk（${chunkDir}），${chapters.reduce((n, c) => n + c.reviewPoints.length, 0)} 个复盘点。`);
 }
 
 main().catch((err) => {
