@@ -7,15 +7,11 @@ const TOO_INTENSE_PATTERN = /爱你|想你|喜欢你|离不开|女朋友|在一�
 const RETURN_POINT_PATTERN = /有空(?:再聊|时)|改天|明天|下次|周末|到时候|等你方便|你忙完|回头|晚点/;
 const INVITATION_PATTERN = /一起|约|见面|咖啡|散步|吃饭|看电影|周末|有空/;
 
-const STAGE_VALUES = new Set([
-  "刚加微信后的第一晚",
-  "隔天轻联系",
-  "第一次邀约",
-  "第一次约会后",
-  "暧昧推进",
-  "表达好感",
-  "确定关系"
-]);
+// P2-11：7 阶段枚举复用 stages.js 的共享常量（原此处硬编码 Set，两处枚举值已比对一致）。
+import { STAGE_VALUES } from "../core/stages.js";
+
+// stages.js 导出为数组；本模块用 Set 保持 O(1) 命中判断。
+const STAGE_SET = new Set(STAGE_VALUES);
 
 function cleanText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
@@ -128,7 +124,7 @@ function isLowPressure(text) {
 
 function getStageFit(text, stage) {
   const value = cleanText(stage);
-  if (!value || !STAGE_VALUES.has(value)) return { score: 0, reason: "" };
+  if (!value || !STAGE_SET.has(value)) return { score: 0, reason: "" };
 
   if ((value === "刚加微信后的第一晚" || value === "隔天轻联系") && TOO_INTENSE_PATTERN.test(text)) {
     return { score: -16, reason: "当前阶段适合轻量建立熟悉感，草稿里的关系推进偏快。" };

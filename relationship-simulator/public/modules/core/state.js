@@ -262,22 +262,6 @@ export function getConversationWindow(limit = 12) {
 }
 
 /**
- * 构建对话摘要文本
- * @param {Array<MessageObject>} messages - 消息列表
- * @returns {string}
- */
-export function buildConversationSummary(messages) {
-  if (!messages.length) return "";
-  const parts = messages.map((message) => {
-    const speaker = message.type === "her" ? `她${message.who ? `（${message.who}）` : ""}` : "我";
-    const snippet = String(message.text || "").replace(/\s+/g, " ").trim().slice(0, 32);
-    return `${speaker}：${snippet}`;
-  });
-  const summary = parts.join("；");
-  return summary.length > 520 ? `${summary.slice(0, 520)}…` : summary;
-}
-
-/**
  * 本地构建她的回复（离线 AI 回复模板）
  * @param {PersonaObject} persona - 角色对象
  * @param {MemoryObject} memory - 角色记忆

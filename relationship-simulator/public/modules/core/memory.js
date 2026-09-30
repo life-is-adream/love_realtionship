@@ -248,6 +248,24 @@ export function buildConversationSummary(messages, analysis = null) {
 // ── 内部工具函数 ───────────────────────────────────────────────────────────────
 
 /**
+ * 构建对话逐句摘要文本（P2-10：自 state.js 收敛至本模块，消除与
+ * buildConversationSummary 的同名冲突；函数体逐行等价迁移，行为不变）
+ *
+ * @param {Array<{type: string, text: string, who?: string}>} messages - 对话消息
+ * @returns {string} "我：xxx；她（谁）：yyy" 形式的摘要，超 520 字符截断
+ */
+export function buildConversationTranscript(messages) {
+  if (!messages.length) return "";
+  const parts = messages.map((message) => {
+    const speaker = message.type === "her" ? `她${message.who ? `（${message.who}）` : ""}` : "我";
+    const snippet = String(message.text || "").replace(/\s+/g, " ").trim().slice(0, 32);
+    return `${speaker}：${snippet}`;
+  });
+  const summary = parts.join("；");
+  return summary.length > 520 ? `${summary.slice(0, 520)}…` : summary;
+}
+
+/**
  * 从消息中提取话题关键词
  * @param {Array<{text: string}>} messages
  * @returns {Array<string>}

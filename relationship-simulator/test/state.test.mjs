@@ -5,7 +5,7 @@ import { builtInPersonas } from "../public/modules/core/config.js";
 // ── 纯函数测试（不依赖 localStorage）──────────────────────────────────────────
 
 // Import pure functions only after setting up mocks
-let getAllPersonas, normalizeState, defaultMemoryFor, normalizeMessages, buildConversationSummary, getLatestMineText, defaultMemoryForFn, mutate, onStateChange, getState, saveState, loadState;
+let getAllPersonas, normalizeState, defaultMemoryFor, normalizeMessages, buildConversationTranscript, getLatestMineText, defaultMemoryForFn, mutate, onStateChange, getState, saveState, loadState;
 
 // We need to mock localStorage before importing state.js
 const mockStorage = new Map();
@@ -22,11 +22,12 @@ if (typeof global.structuredClone !== "function") {
 }
 
 const stateModule = await import("../public/modules/core/state.js");
+const memoryModule = await import("../public/modules/core/memory.js");
+buildConversationTranscript = memoryModule.buildConversationTranscript;
 getAllPersonas = stateModule.getAllPersonas;
 normalizeState = stateModule.normalizeState;
 defaultMemoryFor = stateModule.defaultMemoryFor;
 normalizeMessages = stateModule.normalizeMessages;
-buildConversationSummary = stateModule.buildConversationSummary;
 getLatestMineText = stateModule.getLatestMineText;
 mutate = stateModule.mutate;
 onStateChange = stateModule.onStateChange;
@@ -128,21 +129,21 @@ test("normalizeMessages 非数组返回空数组", () => {
   assert.deepEqual(normalizeMessages(undefined), []);
 });
 
-// ── buildConversationSummary ───────────────────────────────────────────────────
+// ── buildConversationTranscript（P2-10：自 state.js 收敛至 memory.js）─────────
 
-test("buildConversationSummary 构建对话摘要", () => {
+test("buildConversationTranscript 构建对话摘要", () => {
   const messages = [
     { type: "me", text: "你好", who: "我" },
     { type: "her", text: "嗨", who: "林知夏" }
   ];
-  const summary = buildConversationSummary(messages);
+  const summary = buildConversationTranscript(messages);
   assert.ok(summary.includes("我"));
   assert.ok(summary.includes("她"));
   assert.ok(summary.includes("林知夏"));
 });
 
-test("buildConversationSummary 空消息返回空字符串", () => {
-  assert.equal(buildConversationSummary([]), "");
+test("buildConversationTranscript 空消息返回空字符串", () => {
+  assert.equal(buildConversationTranscript([]), "");
 });
 
 // ── getLatestMineText ─────────────────────────────────────────────────────────
