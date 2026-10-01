@@ -21,7 +21,7 @@ import {
   getAllPersonas, getCurrentPersona, getLatestMineText, getPersonaMemory, getState,
   loadState, saveState, setState as setStateStore, mutate, onStateChange
 } from "./modules/core/state.js";
-import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, buildConversationSummary, migrateMemory, analyzeLongTermPatterns, buildPatternInjection } from "./modules/core/memory.js";
+import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, migrateMemory, analyzeLongTermPatterns, buildPatternInjection } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
 import { buildMessages as buildMessagesPure, callLLM as callLLMPure, checkHealth as checkHealthApi } from "./modules/core/api-client.js";
 import { emit, Events } from "./modules/core/events.js";
@@ -508,7 +508,12 @@ $("planBtn")?.addEventListener("click", generateActionPlan);
 $("nextBtn")?.addEventListener("click", nextTurn);
 $("healthBtn")?.addEventListener("click", checkHealth);
 $("exportBtn")?.addEventListener("click", exportSession);
-$("resetBtn")?.addEventListener("click", resetSession);
+// 重置防误触：与 PUA 模式伦理确认同一模式（confirm 弹窗，确认后才执行）。
+const RESET_CONFIRMATION = "确认重置当前对话？\n\n消息记录、训练日志与成长事件将全部清空，且不可恢复。\n\n继续？";
+
+$("resetBtn")?.addEventListener("click", () => {
+  if (globalThis.confirm?.(RESET_CONFIRMATION) === true) resetSession();
+});
 $("personaSelect")?.addEventListener("change", (event) => switchPersona(event.target.value, true));
 $("savePersonaBtn")?.addEventListener("click", saveCustomPersona);
 $("deletePersonaBtn")?.addEventListener("click", deleteCurrentPersona);
