@@ -30,7 +30,7 @@ import { renderPersonaControls, savePersonaMemory, switchPersona as switchPerson
 import { card, renderActionPlan, renderAnalysis as renderCoachAnalysis, renderPlanCard, buildActionPlan } from "./modules/render/render-coach.js";
 import { buildCoachFloatData, buildCoachFloatHtml } from "./modules/render/coach-float.js";
 import { runCoachFloatSearch as runCoachFloatSearchView } from "./modules/render/coach-float-search.js";
-import { renderTiming, renderSignalPractice, renderDailyTraining, renderGrowthProfile, renderTextbookEvidence } from "./modules/render/render-learning.js";
+import { renderTiming, renderSignalPractice, renderDailyTraining, renderGrowthProfile, renderTextbookEvidence, enableTextbookIndexLoad } from "./modules/render/render-learning.js";
 import { openLongReader as openLongReaderView, closeLongReader, renderChapterList, loadChapter } from "./modules/render/render-longContent.js";
 import { openIntervention, closeIntervention } from "./modules/render/render-intervention.js";
 import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCurrentStage, renderStageProgress, restoreStageState } from "./modules/render/render-stage.js";
@@ -202,6 +202,8 @@ function commitAnalysis(data, source) {
       }
     }
   });
+  // B2 懒加载：提交一轮分析即真实触发教材证据路径，此后允许构建全章检索索引。
+  enableTextbookIndexLoad();
   renderAll();
   emit(Events.ANALYSIS_COMMITTED, { source, score: data.coachScore });
   void intelligenceController.refresh();

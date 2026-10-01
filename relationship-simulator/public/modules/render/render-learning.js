@@ -3,13 +3,21 @@ import { buildSignalExercise, classifySocialSignals, evaluateSignalGuess } from 
 import { scoreTiming } from "../training/timing.js";
 import { selectDailyTask, gradeMicroTask, getTrainingStreak } from "../training/micro-training.js";
 import { aggregateGrowth, buildRadarData, getMastery, buildGrowthSummary, GROWTH_DIMENSION_LABELS } from "../training/growth.js";
-import { buildCoachTextbookEvidence, buildTextbookCoachContext } from "../content/textbook-search.js";
+import { buildCoachTextbookEvidence, buildTextbookCoachContext, buildAnalysisQuery } from "../content/textbook-search.js";
 import { getSharedTextbookIndex } from "../content/textbook-index.js";
+import { loadManifest } from "../content/long-content-loader.js";
 import { recordTrainingEvent } from "../core/learning-state.js";
 import { getState, mutate } from "../core/state.js";
 
 // 教材检索索引自拆包后为异步构建；用序号 guard 保证并发渲染时后到的旧渲染不覆盖新渲染。
 let textbookRenderSeq = 0;
+// B2 懒加载：首屏渲染只展示基于 manifest 的占位卡，不拉取全章 chunk（~709KB）；
+// 用户真实触发教材路径（提交一轮分析 / 手动点击载入按钮）后才允许构建全章检索索引。
+let textbookIndexLoadEnabled = false;
+
+export function enableTextbookIndexLoad() {
+  textbookIndexLoadEnabled = true;
+}
 
 function shortenText(value, maxLength = 132) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
@@ -77,16 +85,51 @@ export async function renderTextbookEvidence(analysis = getState().lastAnalysis,
   const panel = $("textbookPanel");
   if (!panel) return;
   const seq = ++textbookRenderSeq;
+  const analysisWithStage = { ...(analysis || {}), stage: $("stage")?.value || "" };
+  const query = buildAnalysisQuery(analysisWithStage);
+
+  // B2 懒加载三态：
+  // ① 索引未触发（首屏/会话恢复）→ 只用 manifest 元信息渲染占位卡，零 chunk 载荷；
+  // ② 空 query → 检索结果恒为空，空索引即可渲染出与全量索引一致的等待卡；
+  // ③ 有 query 且已触发 → 拉取/复用全章索引（loader 有 Promise 缓存，二次调用零开销）。
+  if (!textbookIndexLoadEnabled) {
+    await renderTextbookStandby(panel, seq, analysisWithStage, openLongReader);
+    return;
+  }
   let textbookSearchIndex;
   try {
-    textbookSearchIndex = await getSharedTextbookIndex();
+    textbookSearchIndex = query ? await getSharedTextbookIndex() : { entries: [] };
   } catch (error) {
     if (seq !== textbookRenderSeq) return;
     panel.innerHTML = `<section class="textbook-card" aria-label="教材依据"><div class="textbook-card-head"><span class="textbook-mark" aria-hidden="true">✦</span><div class="textbook-heading"><span class="textbook-kicker">FIELD NOTES / OFFLINE</span><strong>教材依据</strong><p>教材索引暂不可用：${escapeHtml(error.message)}</p></div><span class="textbook-count">00</span></div></section>`;
     return;
   }
   if (seq !== textbookRenderSeq) return;
-  const evidence = buildCoachTextbookEvidence({ ...(analysis || {}), stage: $("stage")?.value || "" }, textbookSearchIndex);
+  renderTextbookEvidenceView(panel, buildCoachTextbookEvidence(analysisWithStage, textbookSearchIndex), openLongReader);
+}
+
+// 占位卡：只用 manifest（~2.8KB，启动时已预取缓存）的章数/复盘点计数渲染，
+// 不触发任何 chunk 请求；提供手动载入按钮，保证已保存分析的证据仍然可达。
+async function renderTextbookStandby(panel, seq, analysisWithStage, openLongReader) {
+  const manifest = await loadManifest().catch(() => null);
+  if (seq !== textbookRenderSeq) return;
+  const chapters = Array.isArray(manifest?.chapters) ? manifest.chapters : [];
+  const reviewCount = chapters.reduce((sum, chapter) => sum + (Number(chapter?.reviewCount) || 0), 0);
+  panel.innerHTML = `<section class="textbook-card" aria-label="教材依据">
+    <div class="textbook-card-head">
+      <span class="textbook-mark" aria-hidden="true">✦</span>
+      <div class="textbook-heading"><span class="textbook-kicker">FIELD NOTES / STANDBY</span><strong>教材依据</strong><p>教材索引待加载：${escapeHtml(String(chapters.length))} 章 · ${escapeHtml(String(reviewCount))} 个复盘点。发起一轮分析后自动对照，或点击下方按钮立即载入。</p></div>
+      <span class="textbook-count">${escapeHtml(String(chapters.length).padStart(2, "0"))}</span>
+    </div>
+    <div class="textbook-empty"><span>◎</span><p><button class="btn small" id="textbookLoadIndexBtn">载入教材索引并对照</button></p></div>
+  </section>`;
+  panel.querySelector("#textbookLoadIndexBtn")?.addEventListener("click", () => {
+    enableTextbookIndexLoad();
+    void renderTextbookEvidence(analysisWithStage, { openLongReader });
+  });
+}
+
+function renderTextbookEvidenceView(panel, evidence, openLongReader) {
   const context = buildTextbookCoachContext({ summary: evidence.message, results: evidence.results });
   const resultCount = evidence.results.length;
   const resultLabel = resultCount ? `这轮对话命中 ${resultCount} 个可复盘片段` : "先完成一轮分析，再把对话放回教材里看";

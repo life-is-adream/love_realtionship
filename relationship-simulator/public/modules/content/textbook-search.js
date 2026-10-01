@@ -338,7 +338,12 @@ export function buildTextbookCoachContext(input = {}) {
   return { summary, excerpts };
 }
 
-function buildAnalysisQuery(analysis) {
+/**
+ * Compute the raw search query a coach analysis would produce.
+ * Exported so lazy-load gates (render-learning) can decide whether a real
+ * retrieval is pending without touching the chapter index.
+ */
+export function buildAnalysisQuery(analysis) {
   if (!isRecord(analysis)) return "";
   const parts = [];
   const add = (value) => {
