@@ -1104,3 +1104,18 @@ input:focus, select:focus, textarea:focus{
 .intake-baseline{ margin:0; font-size:11.5px; color:var(--ink); line-height:1.6; }
 .intake-actions{ display:flex; gap:6px; flex-wrap:wrap; }
 .radar-baseline{ font-size:11.5px; color:var(--ink-subtle); line-height:1.55; border-top:1px dashed var(--line); padding-top:6px; }
+
+/* ---------- F4 会话复盘报告 ---------- */
+.session-report-box{ border-color:oklch(70% 0.1 200 / .35); }
+.session-report-head{ margin-top:8px; }
+.session-report-dims{ display:flex; flex-direction:column; gap:4px; margin:8px 0; }
+.session-report-dim{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-muted); }
+.session-report-dim b{ width:52px; text-align:right; color:var(--ink); font-weight:600; flex:none; }
+.session-report-dim em{ font-style:normal; color:var(--accent); font-weight:600; min-width:26px; text-align:right; }
+.session-report-bar{ flex:1; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden; }
+.session-report-bar i{ display:block; height:100%; background:oklch(72% 0.11 200); border-radius:3px; }
+.session-report-card{ border:1px solid var(--line); border-radius:8px; padding:8px 10px; margin:6px 0; display:flex; flex-direction:column; gap:6px; background:var(--surface-2); }
+.session-report-card.is-best{ border-color:oklch(70% 0.1 160 / .4); }
+.session-report-card.is-worst{ border-color:oklch(70% 0.1 45 / .4); }
+.session-report-textbook{ margin:8px 0; display:flex; flex-direction:column; gap:6px; }
+.session-report-textbook > b{ font-size:12.5px; color:var(--ink); }

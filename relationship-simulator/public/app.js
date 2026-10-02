@@ -39,6 +39,7 @@ import { renderTiming, renderSignalPractice, renderDailyTraining, renderGrowthPr
 import { openLongReader as openLongReaderView, closeLongReader, renderChapterList, loadChapter } from "./modules/render/render-longContent.js";
 import { openIntervention, closeIntervention } from "./modules/render/render-intervention.js";
 import { renderMistakes, closeMistakePractice } from "./modules/render/render-mistakes.js";
+import { renderSessionReport, generateSessionReport } from "./modules/render/render-session-report.js";
 import { renderIntake } from "./modules/render/render-intake.js";
 import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCurrentStage, renderStageProgress, restoreStageState } from "./modules/render/render-stage.js";
 import { renderScenarioList, loadScenario as loadScenarioView, REVIEW_MAPPING } from "./modules/render/render-scenario.js";
@@ -112,6 +113,7 @@ function renderLearningPanels() {
   renderDailyTraining();
   renderGrowthProfile();
   renderMistakes();
+  renderSessionReport();
   renderIntake();
   void renderTextbookEvidence(state.lastAnalysis, { openLongReader });
 }
@@ -663,6 +665,8 @@ $("mistakePracticeOverlay")?.addEventListener("click", closeMistakePractice);
 $("autoStageBtn")?.addEventListener("click", () => autoDetectStageView({ model: MIMO_MODEL, endpoint: $("endpoint").value, apiKey: $("apiKey").value, onStatus: (message) => { $("apiStatus").textContent = message; } }));
 $("loadScenarioBtn")?.addEventListener("click", () => loadScenario());
 $("openReplayBtn")?.addEventListener("click", openReplayModal);
+// F4 会话复盘：按钮点击属真实触发（render 模块内先 enableTextbookIndexLoad 再取索引）。
+$("sessionReportBtn")?.addEventListener("click", () => void generateSessionReport({ openLongReader }));
 $("closeReplayBtn")?.addEventListener("click", closeReplayModal);
 $("replayOverlay")?.addEventListener("click", closeReplayModal);
 $("analyzeReplayBtn")?.addEventListener("click", runReplayAnalysis);
