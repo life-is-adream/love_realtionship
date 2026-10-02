@@ -1119,3 +1119,38 @@ input:focus, select:focus, textarea:focus{
 .session-report-card.is-worst{ border-color:oklch(70% 0.1 45 / .4); }
 .session-report-textbook{ margin:8px 0; display:flex; flex-direction:column; gap:6px; }
 .session-report-textbook > b{ font-size:12.5px; color:var(--ink); }
+
+/* ── F5 生活管理（健身卡） ─────────────────────────────────────────────── */
+.lifestyle-box .lifestyle-fitness{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+.lifestyle-rhythm{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.lifestyle-rhythm-status{ font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; border:1px solid var(--line); background:var(--surface-2); }
+.lifestyle-rhythm-status.is-train{ color:oklch(80% 0.1 160); border-color:oklch(70% 0.1 160 / .4); }
+.lifestyle-rhythm-status.is-rest{ color:var(--ink-faint); }
+.lifestyle-rhythm-status.is-done{ color:oklch(80% 0.1 260); border-color:oklch(70% 0.1 260 / .4); }
+.lifestyle-rhythm-message{ font-size:12px; color:var(--ink-subtle); flex:1; min-width:120px; }
+.lifestyle-streak{ font-size:12px; color:var(--ink-subtle); }
+.lifestyle-streak b{ color:var(--ink); }
+.lifestyle-recent{ margin-left:8px; font-size:11px; color:var(--ink-faint); }
+.lifestyle-weight{ display:flex; flex-direction:column; gap:6px; }
+.lifestyle-weight-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; }
+.lifestyle-weight-row input{ width:130px; padding:5px 8px; font-size:12.5px; border:1px solid var(--line); border-radius:6px; background:var(--surface-2); color:var(--ink); }
+.lifestyle-trend{ font-size:12px; margin:0; color:var(--ink-faint); }
+.lifestyle-trend.is-plateau{ color:oklch(80% 0.1 80); }
+.lifestyle-trend.is-fast{ color:oklch(78% 0.12 22); }
+.lifestyle-trend.is-normal{ color:oklch(80% 0.1 160); }
+.lifestyle-weight-table{ width:100%; border-collapse:collapse; font-size:12px; }
+.lifestyle-weight-table th, .lifestyle-weight-table td{ border:1px solid var(--line); padding:4px 8px; text-align:left; }
+.lifestyle-weight-table th{ font-weight:600; color:var(--ink-subtle); background:var(--surface-2); }
+.lifestyle-plan{ border:1px solid var(--line); border-radius:8px; padding:6px 10px; background:var(--surface-2); }
+.lifestyle-plan summary{ cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink); }
+.lifestyle-plan-body{ font-size:12px; color:var(--ink-subtle); display:flex; flex-direction:column; gap:4px; margin-top:6px; }
+.lifestyle-plan-body b{ color:var(--ink); font-size:12.5px; }
+.lifestyle-plan-body ul{ margin:2px 0 6px 18px; padding:0; }
+.lifestyle-plan-body li{ margin:2px 0; }
+.lifestyle-safety{ border:1px solid oklch(70% 0.1 45 / .4); border-radius:8px; padding:8px 10px; background:oklch(30% 0.04 45 / .2); font-size:12px; color:var(--ink-subtle); display:flex; flex-direction:column; gap:4px; }
+.lifestyle-safety b{ color:var(--ink); font-size:12.5px; }
+.lifestyle-safety ul{ margin:2px 0 4px 18px; padding:0; }
+.lifestyle-safety li{ margin:2px 0; }
+.lifestyle-redline{ margin:0; font-weight:700; color:oklch(78% 0.12 22); }
+.lifestyle-placeholder{ display:flex; align-items:center; gap:10px; justify-content:space-between; border-top:1px dashed var(--line); padding:8px 2px 2px; margin-top:6px; font-size:12.5px; }
+.lifestyle-placeholder .mistake-empty{ margin:0; }

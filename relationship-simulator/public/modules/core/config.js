@@ -148,6 +148,12 @@ export const defaultState = {
     replayAnalyses: [],
     textbookProgress: {},
     settings: {}
+  },
+  // F5 生活管理：fitness 本批实现；skincare/grooming 为 F6/F7 占位（normalize 容忍任意坏数据）
+  lifestyle: {
+    fitness: { trainings: [], weights: [] },
+    skincare: { days: [] },
+    grooming: { days: [] }
   }
 };
 

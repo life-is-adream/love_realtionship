@@ -5,6 +5,7 @@ import {
   normalizeRelationshipIntelligenceState,
   toPersistedRelationshipIntelligenceState
 } from "../intelligence/state.js";
+import { normalizeLifestyle } from "../training/lifestyle.js";
 
 /**
  * @typedef {Object} AppState
@@ -93,6 +94,7 @@ export function normalizeState(next) {
   normalized.mistakes = normalizeMistakes(normalized.mistakes); // F2 错题本：载入时标准化 + 上限裁剪
   normalized.relationshipIntelligence = normalizeRelationshipIntelligenceState(normalized.relationshipIntelligence);
   normalized.learning = normalizeLearningState(normalized);
+  normalized.lifestyle = normalizeLifestyle(normalized.lifestyle); // F5 生活管理：健身记录规范化（skincare/grooming 占位容忍）
   normalized.messages = normalizeMessages(normalized.messages).map((message) => {
     if (message?.type === "me" && (!message.who || message.who === "?")) return { ...message, who: "我" };
     return message;
@@ -127,6 +129,7 @@ export function saveState() {
   if (!state.personaMemory || typeof state.personaMemory !== "object") state.personaMemory = {};
   if (!state.avatarOverrides || typeof state.avatarOverrides !== "object") state.avatarOverrides = {};
   state.learning = normalizeLearningState(state.learning);
+  state.lifestyle = normalizeLifestyle(state.lifestyle);
   if (typeof localStorage !== "undefined") {
     localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(serializeStateForStorage(state)));
   }
