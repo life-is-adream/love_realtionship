@@ -1154,3 +1154,12 @@ input:focus, select:focus, textarea:focus{
 .lifestyle-redline{ margin:0; font-weight:700; color:oklch(78% 0.12 22); }
 .lifestyle-placeholder{ display:flex; align-items:center; gap:10px; justify-content:space-between; border-top:1px dashed var(--line); padding:8px 2px 2px; margin-top:6px; font-size:12.5px; }
 .lifestyle-placeholder .mistake-empty{ margin:0; }
+/* F6 护肤卡 */
+.lifestyle-skincare{ display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--line); margin-top:8px; padding-top:8px; font-size:12px; color:var(--ink-subtle); }
+.lifestyle-skincare > b{ color:var(--ink); font-size:12.5px; }
+.lifestyle-skincare-today{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.lifestyle-skincare-session{ font-weight:600; color:var(--ink); }
+.lifestyle-skincare-item{ display:inline-flex; align-items:center; gap:4px; cursor:pointer; }
+.lifestyle-skincare-item input{ accent-color:var(--ink); }
+.lifestyle-skincare-notice{ margin:0; font-weight:700; color:oklch(78% 0.12 60); }
+.lifestyle-skincare-table td{ padding:3px 8px; }

@@ -1,8 +1,9 @@
 /**
- * F5 生活管理 UI：成长面板区域的「生活管理」可折叠 section。
+ * F5/F6 生活管理 UI：成长面板区域的「生活管理」可折叠 section。
  *
- * 本批实现健身卡（训练节奏打卡 / 连续记录 / 体重与复查趋势 / 计划卡 / 安全约束卡）；
- * 护肤、穿搭为 F6/F7 占位行（仅静态文案）。
+ * F5 实现健身卡（训练节奏打卡 / 连续记录 / 体重与复查趋势 / 计划卡 / 安全约束卡）；
+ * F6 实现护肤卡（今日 AM/PM 复选框 / 连续记录 / 最近 7 天完成度 / 警示行 / 异维A酸护理要点卡）；
+ * 穿搭为 F7 占位行（仅静态文案）。
  *
  * 惯例对齐：
  * - 布局对齐 render-mistakes 的 mistakes-box 可折叠先例；全部插值过 escapeHtml；
@@ -16,16 +17,27 @@ import {
   computeTrainingRhythm,
   computeWeightReview,
   computeStreak,
+  computeSkincareCompleteness,
+  computeSkincareStreak,
+  buildSkincareNotice,
   recordTrainingDay,
   recordWeightEntry,
+  setSkincareItem,
   WEIGHT_KG_MIN,
   WEIGHT_KG_MAX
 } from "../training/lifestyle.js";
 
 const RHYTHM_LABELS = { start: "开始", train: "训练日", rest: "休息日", done: "已完成" };
 const PLACEHOLDER_ROWS = [
-  { label: "护肤管理", desc: "护肤记录与提醒——下一批上线" },
   { label: "穿搭管理", desc: "穿搭记录与建议——下一批上线" }
+];
+const SKINCARE_RECENT_WINDOW = 7;
+const SKINCARE_CHECKBOXES = [
+  { session: "am", item: "cleanser", label: "温和洁面" },
+  { session: "am", item: "moisturizer", label: "保湿" },
+  { session: "am", item: "sunscreen", label: "防晒（强制）" },
+  { session: "pm", item: "cleanser", label: "温和洁面" },
+  { session: "pm", item: "moisturizer", label: "保湿修复" }
 ];
 
 export function renderLifestyle() {
@@ -43,6 +55,16 @@ export function renderLifestyle() {
   const recentTrainings = [...trainings].slice(-5).reverse();
   const recentWeights = [...weights].slice(-10).reverse();
   const trainedToday = rhythm.status === "done";
+
+  const skincareDays = Array.isArray(lifestyle?.skincare?.days) ? lifestyle.skincare.days : [];
+  const todayEntry = skincareDays.find((day) => day?.date === todayStr) || null;
+  const skincareStreak = computeSkincareStreak(skincareDays, todayStr);
+  const skincareNotices = buildSkincareNotice(todayEntry);
+  const recentSkincareDays = Array.from({ length: SKINCARE_RECENT_WINDOW }, (_, i) => {
+    const date = shiftDate(todayStr, -(SKINCARE_RECENT_WINDOW - 1 - i));
+    const entry = skincareDays.find((day) => day?.date === date) || { date };
+    return { date, ...computeSkincareCompleteness(entry) };
+  }).reverse();
 
   panel.innerHTML = `<details class="mistakes-box lifestyle-box" open>
     <summary>生活管理<span class="mistake-count">健身 · 护肤 · 穿搭</span></summary>
@@ -101,12 +123,66 @@ export function renderLifestyle() {
         <p class="note">既定安全约束提醒，以医生与正式计划文档为准。</p>
       </div>
     </div>
+    <div class="lifestyle-skincare">
+      <b>护肤管理</b>
+      <div class="lifestyle-skincare-today">
+        <span class="lifestyle-skincare-session">早间</span>
+        ${renderSkincareCheckbox(todayEntry, "am", "cleanser")}
+        ${renderSkincareCheckbox(todayEntry, "am", "moisturizer")}
+        ${renderSkincareCheckbox(todayEntry, "am", "sunscreen")}
+        <span class="lifestyle-skincare-session">晚间</span>
+        ${renderSkincareCheckbox(todayEntry, "pm", "cleanser")}
+        ${renderSkincareCheckbox(todayEntry, "pm", "moisturizer")}
+      </div>
+      ${skincareNotices.map((notice) => `<p class="lifestyle-skincare-notice">⚠ ${escapeHtml(notice)}</p>`).join("")}
+      <div class="lifestyle-streak">连续护肤 <b>${escapeHtml(String(skincareStreak))}</b> 天</div>
+      <table class="lifestyle-weight-table lifestyle-skincare-table">
+        <thead><tr><th>日期</th><th>早</th><th>晚</th><th>防晒</th></tr></thead>
+        <tbody>
+          ${recentSkincareDays.map((day) => `<tr><td>${escapeHtml(day.date)}</td><td>${day.amDone ? "AM✓" : "—"}</td><td>${day.pmDone ? "PM✓" : "—"}</td><td>${day.sunscreenDone ? "防晒★" : "—"}</td></tr>`).join("")}
+        </tbody>
+      </table>
+      <details class="lifestyle-plan">
+        <summary>异维A酸护理要点（既定安全约束）</summary>
+        <div class="lifestyle-plan-body">
+          <ul>
+            <li>防晒为强制项：每日早间防晒必须记录，漏记会在上方持续警示</li>
+            <li>温和洁面 + 保湿修复，避免去角质 / 磨砂 / 蜡疗类项目</li>
+            <li>禁用维A类补充剂；服药期间禁酒</li>
+            <li>补水 3L 以上；复查血脂 / 肝功时主动交代饮食背景</li>
+          </ul>
+        </div>
+      </details>
+      <p class="lifestyle-redline">⚠ 红线信号：严重皲裂 / 异常肌痛 / 酱油色尿——立即停用并就医。</p>
+      <p class="note">既定安全约束提醒，以医嘱为准。</p>
+    </div>
     ${PLACEHOLDER_ROWS.map((row) => `<div class="lifestyle-placeholder"><span>${escapeHtml(row.label)}</span><span class="mistake-empty">${escapeHtml(row.desc)}</span></div>`).join("")}
   </details>`;
 
   panel.querySelectorAll("button[data-lifestyle-action]").forEach((button) => {
     button.addEventListener("click", () => handleLifestyleAction(button.dataset.lifestyleAction));
   });
+  panel.querySelectorAll("input[data-skincare-item]").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => handleSkincareToggle(checkbox));
+  });
+}
+
+/** 单个护肤复选框：按当日记录状态渲染勾选态 */
+function renderSkincareCheckbox(dayEntry, session, item) {
+  const sessionFlags = dayEntry && typeof dayEntry[session] === "object" ? dayEntry[session] : {};
+  const checked = sessionFlags[item] === true ? " checked" : "";
+  const meta = SKINCARE_CHECKBOXES.find((entry) => entry.session === session && entry.item === item);
+  return `<label class="lifestyle-skincare-item"><input type="checkbox" data-skincare-item="${session}:${item}"${checked}>${escapeHtml(meta?.label || item)}</label>`;
+}
+
+/** 复选框切换 → mutate 写当日记录（同日覆盖）；mutate 回调触发整卡重渲染 */
+function handleSkincareToggle(checkbox) {
+  const [session, item] = String(checkbox.dataset.skincareItem || "").split(":");
+  const checked = checkbox.checked === true;
+  mutate((state) => {
+    state.lifestyle = setSkincareItem(state.lifestyle, todayKey(), session, item, checked);
+  });
+  $("apiStatus").textContent = checked ? "护肤记录已保存。" : "护肤记录已取消。";
 }
 
 function handleLifestyleAction(action) {
@@ -145,4 +221,12 @@ function formatKg(kg) {
 function todayKey() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+/** 本地日期字符串加减天数（跨月安全，UTC 日序号换算不受时区偏移影响） */
+function shiftDate(base, deltaDays) {
+  const [year, month, day] = String(base).split("-").map(Number);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return base;
+  const date = new Date(Date.UTC(year, month - 1, day + deltaDays));
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
 }

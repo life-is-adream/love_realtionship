@@ -149,7 +149,7 @@ export const defaultState = {
     textbookProgress: {},
     settings: {}
   },
-  // F5 生活管理：fitness 本批实现；skincare/grooming 为 F6/F7 占位（normalize 容忍任意坏数据）
+  // F5/F6 生活管理：fitness+skincare 已实现；grooming 为 F7 占位（normalize 容忍任意坏数据）
   lifestyle: {
     fitness: { trainings: [], weights: [] },
     skincare: { days: [] },

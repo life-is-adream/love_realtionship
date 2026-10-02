@@ -11,7 +11,8 @@
 
 export const LIFESTYLE_LIMITS = Object.freeze({
   trainings: 400,
-  weights: 365
+  weights: 365,
+  skincare: 180
 });
 
 // computeWeightReview 阈值常量（导出便于测试对齐边界）
@@ -69,7 +70,7 @@ function normalizeId(value, prefix) {
 
 /**
  * 规范化 state.lifestyle 切片。坏数据剔除、同日去重/覆盖、超限丢最旧。
- * skincare/grooming 为 F6/F7 占位（只保留 days 字符串数组，不做任何逻辑）。
+ * grooming 为 F7 占位（只保留 days 字符串数组，不做任何逻辑）。
  * @param {object|null|undefined} value
  * @returns {object}
  */
@@ -81,7 +82,7 @@ export function normalizeLifestyle(value) {
       trainings: normalizeTrainings(fitness.trainings),
       weights: normalizeWeights(fitness.weights)
     },
-    skincare: { days: normalizePlaceholderDays(input.skincare) },
+    skincare: { days: normalizeSkincareDays(input.skincare) },
     grooming: { days: normalizePlaceholderDays(input.grooming) }
   };
 }
@@ -89,6 +90,29 @@ export function normalizeLifestyle(value) {
 function normalizePlaceholderDays(value) {
   const days = isRecord(value) ? value.days : null;
   return Array.isArray(days) ? days.filter((day) => typeof day === "string") : [];
+}
+
+/** 护肤日条目 {id, date, am:{cleanser,moisturizer,sunscreen}, pm:{cleanser,moisturizer}}：坏数据剔除、同 date 覆盖、上限 180 丢最旧 */
+function normalizeSkincareDays(value) {
+  const days = isRecord(value) ? value.days : null;
+  if (!Array.isArray(days)) return [];
+  const byDate = new Map();
+  for (const item of days) {
+    if (!isRecord(item)) continue;
+    const date = normalizeDateString(item.date);
+    if (!date) continue;
+    const am = isRecord(item.am) ? item.am : {};
+    const pm = isRecord(item.pm) ? item.pm : {};
+    byDate.set(date, {
+      id: normalizeId(item.id, "sk"),
+      date,
+      am: { cleanser: am.cleanser === true, moisturizer: am.moisturizer === true, sunscreen: am.sunscreen === true },
+      pm: { cleanser: pm.cleanser === true, moisturizer: pm.moisturizer === true }
+    });
+  }
+  return [...byDate.values()]
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+    .slice(-LIFESTYLE_LIMITS.skincare);
 }
 
 /** 训练打卡条目 {id, date(YYYY-MM-DD), note?}：坏数据剔除、按 date 去重（一天一条）、上限 400 丢最旧 */
@@ -179,7 +203,99 @@ export function recordWeightEntry(lifestyle, dateStr, kg) {
   };
 }
 
-// ── 训练节奏（练一天休一天） ─────────────────────────────────────────────────
+// ── 护肤打卡（F6：异维A酸护理） ─────────────────────────────────────────────
+
+const SKINCARE_SESSIONS = { am: ["cleanser", "moisturizer", "sunscreen"], pm: ["cleanser", "moisturizer"] };
+
+/**
+ * 设置某天某时段某项的勾选状态（同日覆盖更新，保留既有条目 id）。
+ * session/item 非法或日期无效时原样返回。
+ * @param {object|null|undefined} lifestyle
+ * @param {string} dateStr - YYYY-MM-DD
+ * @param {'am'|'pm'} session
+ * @param {'cleanser'|'moisturizer'|'sunscreen'} item
+ * @param {boolean} checked
+ * @returns {object}
+ */
+export function setSkincareItem(lifestyle, dateStr, session, item, checked) {
+  const base = normalizeLifestyle(lifestyle);
+  const date = normalizeDateString(dateStr);
+  const allowedItems = SKINCARE_SESSIONS[session];
+  if (!date || !Array.isArray(allowedItems) || !allowedItems.includes(item)) return base;
+  const flag = checked === true;
+  const existing = base.skincare.days.find((day) => day.date === date);
+  const entry = existing
+    ? { ...existing, [session]: { ...existing[session], [item]: flag } }
+    : {
+        id: makeId("sk"),
+        date,
+        am: session === "am" ? { cleanser: false, moisturizer: false, sunscreen: false, [item]: flag } : { cleanser: false, moisturizer: false, sunscreen: false },
+        pm: session === "pm" ? { cleanser: false, moisturizer: false, [item]: flag } : { cleanser: false, moisturizer: false }
+      };
+  return {
+    ...base,
+    skincare: {
+      days: [...base.skincare.days.filter((day) => day.date !== date), entry]
+        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+        .slice(-LIFESTYLE_LIMITS.skincare)
+    }
+  };
+}
+
+/**
+ * 单日护肤完成度：AM 完成=洁面+保湿+防晒全勾；PM 完成=洁面+保湿全勾。
+ * @param {object|null|undefined} day - skincare.days 条目
+ * @returns {{amDone: boolean, pmDone: boolean, sunscreenDone: boolean, allDone: boolean}}
+ */
+export function computeSkincareCompleteness(day) {
+  const am = isRecord(day?.am) ? day.am : {};
+  const pm = isRecord(day?.pm) ? day.pm : {};
+  const amDone = am.cleanser === true && am.moisturizer === true && am.sunscreen === true;
+  const pmDone = pm.cleanser === true && pm.moisturizer === true;
+  return { amDone, pmDone, sunscreenDone: am.sunscreen === true, allDone: amDone && pmDone };
+}
+
+/**
+ * 计算连续护肤天数（口径与 computeStreak 一致）：只有当天 AM+PM 都完成才计 1 天；
+ * 今天未完成则从昨天回溯（当天尚未完成不打断既有连续记录）。
+ * @param {Array<object>} days - skincare.days 条目数组（可含乱序/重复日期）
+ * @param {string} todayStr - YYYY-MM-DD
+ * @returns {number}
+ */
+export function computeSkincareStreak(days, todayStr) {
+  const today = dayNumber(todayStr);
+  if (today === null) return 0;
+  const complete = new Set(
+    (Array.isArray(days) ? days : [])
+      .map((day) => (computeSkincareCompleteness(day).allDone ? dayNumber(day?.date) : null))
+      .filter((day) => day !== null && day <= today)
+  );
+  if (!complete.size) return 0;
+
+  let anchor = today;
+  if (!complete.has(today)) anchor -= 1;
+  if (!complete.has(anchor)) return 0;
+
+  let streak = 0;
+  while (complete.has(anchor - streak)) streak += 1;
+  return streak;
+}
+
+/**
+ * 单日护肤警示（异维A酸既定安全约束提醒，以医嘱为准）：
+ * - AM 有记录但防晒未勾 → 防晒强制提醒；AM/PM 全无记录 → 尚未开始；否则空数组。
+ * @param {object|null|undefined} day - skincare.days 条目
+ * @returns {string[]}
+ */
+export function buildSkincareNotice(day) {
+  const am = isRecord(day?.am) ? day.am : {};
+  const pm = isRecord(day?.pm) ? day.pm : {};
+  const amAny = am.cleanser === true || am.moisturizer === true || am.sunscreen === true;
+  const pmAny = pm.cleanser === true || pm.moisturizer === true;
+  if (!amAny && !pmAny) return ["今日护肤尚未开始"];
+  if (amAny && am.sunscreen !== true) return ["今日防晒未记录——异维A酸期间防晒为强制项"];
+  return [];
+}
 
 /**
  * 按最近一次训练日期与 todayStr 的本地日期差推导今日节奏。

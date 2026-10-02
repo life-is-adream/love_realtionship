@@ -1,5 +1,6 @@
-// F5 生活管理（健身切片）：normalizeLifestyle 边界 + 三个纯函数全分支 +
+// F5/F6 生活管理：normalizeLifestyle 边界 + 三个纯函数全分支 +
 // micro-training 口径一致性 + state mutate 往返 + UI 接线源码级断言。
+// F6 新增：护肤切片规范化（真实条目）+ completeness/streak/notice + setSkincareItem 写路径。
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -11,9 +12,13 @@ import {
   normalizeLifestyle,
   recordTrainingDay,
   recordWeightEntry,
+  setSkincareItem,
   computeTrainingRhythm,
   computeWeightReview,
   computeStreak,
+  computeSkincareCompleteness,
+  computeSkincareStreak,
+  buildSkincareNotice,
   dateDiffDays
 } from "../public/modules/training/lifestyle.js";
 
@@ -51,13 +56,11 @@ test("normalizeLifestyle：空/坏输入返回完整默认结构（skincare/groo
   }
 });
 
-test("normalizeLifestyle：skincare/grooming 占位保留字符串 days，剔除坏元素", () => {
+test("normalizeLifestyle：grooming 占位保留字符串 days，剔除坏元素", () => {
   const result = normalizeLifestyle({
-    skincare: { days: ["2026-10-01", 42, null, "2026-10-02"] },
-    grooming: { days: "not-array" }
+    grooming: { days: ["2026-10-01", 42, null, "2026-10-02"] }
   });
-  assert.deepEqual(result.skincare.days, ["2026-10-01", "2026-10-02"]);
-  assert.deepEqual(result.grooming.days, []);
+  assert.deepEqual(result.grooming.days, ["2026-10-01", "2026-10-02"]);
 });
 
 test("normalizeLifestyle：trainings 剔除坏数据（缺日期/坏日期/非对象），补 id", () => {
@@ -290,6 +293,160 @@ test("computeStreak 与 micro-training getTrainingStreak 口径一致", async ()
   }
 });
 
+// ── F6 护肤：normalizeSkincareDays（真实条目，占位转实） ─────────────────────
+
+test("normalizeLifestyle：skincare 坏日期/非对象/占位字符串剔除，布尔严格归一，补 id", () => {
+  const result = normalizeLifestyle({
+    skincare: {
+      days: [
+        "2026-10-01", // F5 时期占位字符串 → 剔除
+        null,
+        42,
+        { date: "2026-02-30" }, // 格式合法但日历不存在 → 剔除
+        { date: "nope" },
+        { id: "sk-1", date: TODAY, am: { cleanser: 1, moisturizer: "yes" }, pm: "bad" },
+        { date: TODAY, am: { cleanser: true, moisturizer: true, sunscreen: true }, pm: { cleanser: true, moisturizer: true } }
+      ]
+    }
+  });
+  assert.equal(result.skincare.days.length, 1); // 同日覆盖，后到覆盖
+  const day = result.skincare.days[0];
+  assert.ok(typeof day.id === "string" && day.id.length > 0); // 覆盖条目无 id → 补新 id
+  assert.notEqual(day.id, "sk-1"); // sk-1 属于被覆盖的旧条目
+  assert.deepEqual(day.am, { cleanser: true, moisturizer: true, sunscreen: true });
+  assert.deepEqual(day.pm, { cleanser: true, moisturizer: true });
+});
+
+test("normalizeLifestyle：skincare 同日覆盖（后到覆盖），上限 180 丢最旧", () => {
+  const dup = normalizeLifestyle({
+    skincare: {
+      days: [
+        { id: "a", date: TODAY, am: { sunscreen: true } },
+        { id: "b", date: TODAY, am: { cleanser: true } }
+      ]
+    }
+  });
+  assert.equal(dup.skincare.days.length, 1);
+  assert.equal(dup.skincare.days[0].id, "b");
+  assert.deepEqual(dup.skincare.days[0].am, { cleanser: true, moisturizer: false, sunscreen: false });
+
+  const many = Array.from({ length: LIFESTYLE_LIMITS.skincare + 5 }, (_, i) => ({
+    id: `s${i}`,
+    date: shiftDate("2020-01-01", i)
+  }));
+  const trimmed = normalizeLifestyle({ skincare: { days: many } });
+  assert.equal(trimmed.skincare.days.length, LIFESTYLE_LIMITS.skincare);
+  assert.equal(trimmed.skincare.days[0].id, "s5"); // 最旧 5 条被丢
+  assert.equal(trimmed.skincare.days.at(-1).id, `s${LIFESTYLE_LIMITS.skincare + 4}`);
+});
+
+// ── F6 护肤：computeSkincareCompleteness 全组合 ──────────────────────────────
+
+test("computeSkincareCompleteness：AM=洁面+保湿+防晒全勾，PM=洁面+保湿全勾，防晒独立标记", () => {
+  assert.deepEqual(computeSkincareCompleteness(null), { amDone: false, pmDone: false, sunscreenDone: false, allDone: false });
+  assert.deepEqual(computeSkincareCompleteness({}), { amDone: false, pmDone: false, sunscreenDone: false, allDone: false });
+
+  const full = { am: { cleanser: true, moisturizer: true, sunscreen: true }, pm: { cleanser: true, moisturizer: true } };
+  assert.deepEqual(computeSkincareCompleteness(full), { amDone: true, pmDone: true, sunscreenDone: true, allDone: true });
+
+  // AM 缺防晒 → AM 不完成
+  const missingSun = computeSkincareCompleteness({ ...full, am: { cleanser: true, moisturizer: true, sunscreen: false } });
+  assert.equal(missingSun.amDone, false);
+  assert.equal(missingSun.sunscreenDone, false);
+  assert.equal(missingSun.allDone, false);
+
+  // PM 缺保湿 → PM 不完成
+  const missingMoist = computeSkincareCompleteness({ ...full, pm: { cleanser: true, moisturizer: false } });
+  assert.equal(missingMoist.pmDone, false);
+  assert.equal(missingMoist.allDone, false);
+
+  // 只勾防晒：sunscreenDone 独立为 true，AM 仍不完成
+  const onlySun = computeSkincareCompleteness({ am: { cleanser: false, moisturizer: false, sunscreen: true }, pm: {} });
+  assert.deepEqual(onlySun, { amDone: false, pmDone: false, sunscreenDone: true, allDone: false });
+});
+
+// ── F6 护肤：computeSkincareStreak（回溯语义对齐 computeStreak） ─────────────
+
+test("computeSkincareStreak：只有 AM+PM 全完成计 1 天；今天未完成从昨天回溯；断档归零", () => {
+  const fullDay = (date) => ({ date, am: { cleanser: true, moisturizer: true, sunscreen: true }, pm: { cleanser: true, moisturizer: true } });
+  const amOnlyDay = (date) => ({ date, am: { cleanser: true, moisturizer: true, sunscreen: true }, pm: { cleanser: true, moisturizer: false } });
+
+  assert.equal(computeSkincareStreak([], TODAY), 0);
+  assert.equal(computeSkincareStreak(null, TODAY), 0);
+  // 只完成 AM 不算完成
+  assert.equal(computeSkincareStreak([amOnlyDay(TODAY)], TODAY), 0);
+  // 今天全完成 → 1
+  assert.equal(computeSkincareStreak([fullDay(TODAY)], TODAY), 1);
+  // 连续 3 天（更早的 AM-only 不计）
+  assert.equal(computeSkincareStreak([fullDay(TODAY), fullDay(daysAgo(1)), fullDay(daysAgo(2)), amOnlyDay(daysAgo(3))], TODAY), 3);
+  // 今天未完成：从昨天回溯 2 天
+  assert.equal(computeSkincareStreak([fullDay(daysAgo(1)), fullDay(daysAgo(2))], TODAY), 2);
+  // 今天完成但昨天断档 → 1
+  assert.equal(computeSkincareStreak([fullDay(TODAY), amOnlyDay(daysAgo(1))], TODAY), 1);
+  // 乱序 / 重复不影响
+  assert.equal(computeSkincareStreak([fullDay(daysAgo(1)), fullDay(TODAY), fullDay(daysAgo(1))], TODAY), 2);
+});
+
+// ── F6 护肤：buildSkincareNotice 三分支 ──────────────────────────────────────
+
+test("buildSkincareNotice：尚未开始 / 防晒强制 / 无警示 三分支", () => {
+  const SUNSCREEN_NOTICE = "今日防晒未记录——异维A酸期间防晒为强制项";
+  const NOT_STARTED = "今日护肤尚未开始";
+
+  assert.deepEqual(buildSkincareNotice(null), [NOT_STARTED]);
+  assert.deepEqual(buildSkincareNotice({}), [NOT_STARTED]);
+  assert.deepEqual(
+    buildSkincareNotice({ am: { cleanser: false, moisturizer: false, sunscreen: false }, pm: { cleanser: false, moisturizer: false } }),
+    [NOT_STARTED]
+  );
+  // AM 有记录但防晒未勾 → 强制项警示（即使 PM 完成）
+  assert.deepEqual(
+    buildSkincareNotice({ am: { cleanser: true, moisturizer: true, sunscreen: false }, pm: { cleanser: true, moisturizer: true } }),
+    [SUNSCREEN_NOTICE]
+  );
+  // 只勾了防晒也视为 AM 有记录，但防晒已完成 → 无警示
+  assert.deepEqual(buildSkincareNotice({ am: { cleanser: false, moisturizer: false, sunscreen: true }, pm: {} }), []);
+  // PM 有记录、AM 全无：不触发防晒警示（防晒属早间），也不算尚未开始
+  assert.deepEqual(buildSkincareNotice({ am: { cleanser: false, moisturizer: false, sunscreen: false }, pm: { cleanser: true, moisturizer: true } }), []);
+});
+
+// ── F6 护肤：setSkincareItem（mutate 写路径辅助） ────────────────────────────
+
+test("setSkincareItem：新增；同日覆盖保留 id 与既有勾选；取消勾选；非法入参原样返回", () => {
+  const base = normalizeLifestyle(null);
+
+  const on = setSkincareItem(base, TODAY, "am", "sunscreen", true);
+  assert.equal(on.skincare.days.length, 1);
+  assert.equal(on.skincare.days[0].am.sunscreen, true);
+  assert.equal(on.skincare.days[0].am.cleanser, false);
+
+  const id = on.skincare.days[0].id;
+  const more = setSkincareItem(on, TODAY, "am", "cleanser", true);
+  assert.equal(more.skincare.days.length, 1); // 同日覆盖
+  assert.equal(more.skincare.days[0].id, id); // id 保留
+  assert.equal(more.skincare.days[0].am.sunscreen, true); // 既有勾选保留
+  assert.equal(more.skincare.days[0].am.cleanser, true);
+
+  const off = setSkincareItem(more, TODAY, "am", "sunscreen", false);
+  assert.equal(off.skincare.days[0].am.sunscreen, false);
+  assert.equal(off.skincare.days[0].am.cleanser, true);
+
+  const pm = setSkincareItem(off, TODAY, "pm", "moisturizer", true);
+  assert.equal(pm.skincare.days[0].pm.moisturizer, true);
+  assert.equal(pm.skincare.days[0].am.cleanser, true); // AM 不受影响
+
+  // 非法：坏日期 / 未知时段 / pm 无防晒项 / am 无未知项
+  for (const [date, session, item] of [
+    ["2026-13-99", "am", "cleanser"],
+    ["bad", "pm", "cleanser"],
+    [TODAY, "noon", "cleanser"],
+    [TODAY, "pm", "sunscreen"],
+    [TODAY, "am", "shave"]
+  ]) {
+    assert.equal(setSkincareItem(base, date, session, item, true).skincare.days.length, 0, `${date} ${session} ${item} 应被拒绝`);
+  }
+});
+
 // ── state 集成（mutate 单一写路径 + 持久化往返） ─────────────────────────────
 
 test("state 集成：mutate 写 lifestyle → 持久化 → loadState 往返一致", async () => {
@@ -331,6 +488,46 @@ test("state 集成：mutate 写 lifestyle → 持久化 → loadState 往返一�
   assert.deepEqual(badReload.lifestyle.skincare, { days: [] });
 });
 
+test("state 集成：护肤复选框切换走 mutate 写路径 → 持久化 → loadState 往返一致", async () => {
+  const mockStorage = new Map();
+  globalThis.localStorage = {
+    getItem: (key) => mockStorage.get(key) ?? null,
+    setItem: (key, value) => mockStorage.set(key, value),
+    removeItem: (key) => mockStorage.delete(key),
+    clear: () => mockStorage.clear()
+  };
+  const stateModule = await import("../public/modules/core/state.js");
+
+  // 模拟 UI 复选框逐项点击：今天 AM 三项 + PM 两项
+  const saved = stateModule.mutate((state) => {
+    state.lifestyle = setSkincareItem(state.lifestyle, TODAY, "am", "sunscreen", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, TODAY, "am", "cleanser", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, TODAY, "am", "moisturizer", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, TODAY, "pm", "cleanser", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, TODAY, "pm", "moisturizer", true);
+    return state.lifestyle;
+  });
+  assert.equal(saved.skincare.days.length, 1);
+  assert.deepEqual(computeSkincareCompleteness(saved.skincare.days[0]), { amDone: true, pmDone: true, sunscreenDone: true, allDone: true });
+  assert.equal(computeSkincareStreak(saved.skincare.days, TODAY), 1);
+  assert.deepEqual(buildSkincareNotice(saved.skincare.days[0]), []);
+
+  // 再勾一项昨日 → 连续 2 天；today 完成后 notice 为空
+  stateModule.mutate((state) => {
+    state.lifestyle = setSkincareItem(state.lifestyle, daysAgo(1), "am", "cleanser", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, daysAgo(1), "am", "moisturizer", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, daysAgo(1), "am", "sunscreen", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, daysAgo(1), "pm", "cleanser", true);
+    state.lifestyle = setSkincareItem(state.lifestyle, daysAgo(1), "pm", "moisturizer", true);
+    return state.lifestyle;
+  });
+  const reloaded = stateModule.loadState();
+  assert.equal(reloaded.lifestyle.skincare.days.length, 2);
+  assert.equal(computeSkincareStreak(reloaded.lifestyle.skincare.days, TODAY), 2);
+  // 空状态（无记录日）警示：尚未开始
+  assert.deepEqual(buildSkincareNotice(reloaded.lifestyle.skincare.days.find((day) => day.date === daysAgo(2)) || null), ["今日护肤尚未开始"]);
+});
+
 // ── UI 接线源码断言 ──────────────────────────────────────────────────────────
 
 test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePanel 容器", async () => {
@@ -354,7 +551,34 @@ test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePan
     assert.ok(renderSource.includes(text), `缺少内容：${text}`);
   }
 
-  // 护肤/穿搭占位不接逻辑：index.html 容器仍存在，但 F6/F7 无独立实现文件
-  assert.match(renderSource, /护肤管理/);
+  // F6 护肤卡接线：复选框 → setSkincareItem（mutate）、警示行、连续记录、7 天小表、要点卡
+  assert.match(renderSource, /data-skincare-item="/);
+  assert.match(renderSource, /setSkincareItem\(state\.lifestyle, todayKey\(\)/);
+  assert.match(renderSource, /buildSkincareNotice\(/);
+  assert.match(renderSource, /computeSkincareStreak\(/);
+  assert.match(renderSource, /computeSkincareCompleteness\(/);
+  for (const text of [
+    "护肤管理",
+    "温和洁面",
+    "保湿修复",
+    "防晒（强制）",
+    "连续护肤",
+    "防晒★",
+    "异维A酸护理要点",
+    "去角质",
+    "磨砂",
+    "蜡疗",
+    "维A类补充剂",
+    "禁酒",
+    "血脂 / 肝功",
+    "严重皲裂",
+    "酱油色尿",
+    "立即停用并就医",
+    "以医嘱为准"
+  ]) {
+    assert.ok(renderSource.includes(text), `缺少护肤卡内容：${text}`);
+  }
+
+  // 穿搭占位保留（F7 不实现）
   assert.match(renderSource, /穿搭管理/);
 });
