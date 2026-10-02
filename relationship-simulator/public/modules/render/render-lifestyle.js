@@ -3,7 +3,8 @@
  *
  * F5 实现健身卡（训练节奏打卡 / 连续记录 / 体重与复查趋势 / 计划卡 / 安全约束卡）；
  * F6 实现护肤卡（今日 AM/PM 复选框 / 连续记录 / 最近 7 天完成度 / 警示行 / 异维A酸护理要点卡）；
- * 穿搭为 F7 占位行（仅静态文案）。
+ * F7 实现穿搭卡（出门快速检查五项复选框 / 连续整理 / 最近 7 天完成度 / 轻提示 /
+ *   场景穿搭卡库（日常·约会·正式）+ 偏瘦体型要点卡）。
  *
  * 惯例对齐：
  * - 布局对齐 render-mistakes 的 mistakes-box 可折叠先例；全部插值过 escapeHtml；
@@ -20,18 +21,21 @@ import {
   computeSkincareCompleteness,
   computeSkincareStreak,
   buildSkincareNotice,
+  computeGroomingCompleteness,
+  computeGroomingStreak,
+  buildGroomingNotice,
   recordTrainingDay,
   recordWeightEntry,
   setSkincareItem,
+  setGroomingItem,
+  GROOMING_ITEMS,
   WEIGHT_KG_MIN,
   WEIGHT_KG_MAX
 } from "../training/lifestyle.js";
 
 const RHYTHM_LABELS = { start: "开始", train: "训练日", rest: "休息日", done: "已完成" };
-const PLACEHOLDER_ROWS = [
-  { label: "穿搭管理", desc: "穿搭记录与建议——下一批上线" }
-];
 const SKINCARE_RECENT_WINDOW = 7;
+const GROOMING_RECENT_WINDOW = 7;
 const SKINCARE_CHECKBOXES = [
   { session: "am", item: "cleanser", label: "温和洁面" },
   { session: "am", item: "moisturizer", label: "保湿" },
@@ -39,6 +43,13 @@ const SKINCARE_CHECKBOXES = [
   { session: "pm", item: "cleanser", label: "温和洁面" },
   { session: "pm", item: "moisturizer", label: "保湿修复" }
 ];
+const GROOMING_CHECKBOX_LABELS = {
+  pressed: "衣服平整无渍",
+  shoes: "鞋子干净",
+  nails: "指甲修剪",
+  hair: "发型整齐",
+  breath: "口气清新"
+};
 
 export function renderLifestyle() {
   const panel = $("lifestylePanel");
@@ -64,6 +75,16 @@ export function renderLifestyle() {
     const date = shiftDate(todayStr, -(SKINCARE_RECENT_WINDOW - 1 - i));
     const entry = skincareDays.find((day) => day?.date === date) || { date };
     return { date, ...computeSkincareCompleteness(entry) };
+  }).reverse();
+
+  const groomingDays = Array.isArray(lifestyle?.grooming?.days) ? lifestyle.grooming.days : [];
+  const todayGrooming = groomingDays.find((day) => day?.date === todayStr) || null;
+  const groomingStreak = computeGroomingStreak(groomingDays, todayStr);
+  const groomingNotices = buildGroomingNotice(todayGrooming, new Date());
+  const recentGroomingDays = Array.from({ length: GROOMING_RECENT_WINDOW }, (_, i) => {
+    const date = shiftDate(todayStr, -(GROOMING_RECENT_WINDOW - 1 - i));
+    const entry = groomingDays.find((day) => day?.date === date) || { date };
+    return { date, ...computeGroomingCompleteness(entry) };
   }).reverse();
 
   panel.innerHTML = `<details class="mistakes-box lifestyle-box" open>
@@ -156,7 +177,66 @@ export function renderLifestyle() {
       <p class="lifestyle-redline">⚠ 红线信号：严重皲裂 / 异常肌痛 / 酱油色尿——立即停用并就医。</p>
       <p class="note">既定安全约束提醒，以医嘱为准。</p>
     </div>
-    ${PLACEHOLDER_ROWS.map((row) => `<div class="lifestyle-placeholder"><span>${escapeHtml(row.label)}</span><span class="mistake-empty">${escapeHtml(row.desc)}</span></div>`).join("")}
+    <div class="lifestyle-grooming">
+      <b>穿搭管理</b>
+      <div class="lifestyle-skincare-today">
+        <span class="lifestyle-skincare-session">出门快速检查</span>
+        ${GROOMING_ITEMS.map((item) => renderGroomingCheckbox(todayGrooming, item)).join("")}
+      </div>
+      ${groomingNotices.map((notice) => `<p class="lifestyle-grooming-notice">· ${escapeHtml(notice)}</p>`).join("")}
+      <div class="lifestyle-streak">连续整理 <b>${escapeHtml(String(groomingStreak))}</b> 天</div>
+      <table class="lifestyle-weight-table lifestyle-skincare-table">
+        <thead><tr><th>日期</th><th>完成度</th></tr></thead>
+        <tbody>
+          ${recentGroomingDays.map((day) => `<tr><td>${escapeHtml(day.date)}</td><td>${day.allDone ? "全过✓" : `${escapeHtml(String(day.doneCount))}/5`}</td></tr>`).join("")}
+        </tbody>
+      </table>
+      <details class="lifestyle-plan">
+        <summary>场景穿搭卡 · 日常</summary>
+        <div class="lifestyle-plan-body">
+          <ul>
+            <li>合身上衣：肩线落在肩点，衣长盖住腰带，不紧绷不堆布</li>
+            <li>干净鞋：鞋面无污渍，鞋型完整——鞋子是第一眼细节</li>
+            <li>简洁配色：全身不超过三种颜色，先做减法再做加法</li>
+          </ul>
+        </div>
+      </details>
+      <details class="lifestyle-plan">
+        <summary>场景穿搭卡 · 约会</summary>
+        <div class="lifestyle-plan-body">
+          <ul>
+            <li>挺括衬衫或质感针织：面料平整比款式新更重要</li>
+            <li>九分裤露脚踝：拉长比例，显利落</li>
+            <li>清淡香气或无：若有若有优于浓烈</li>
+            <li>整体整洁度 &gt; 单品价格：协调干净就是高级感</li>
+          </ul>
+        </div>
+      </details>
+      <details class="lifestyle-plan">
+        <summary>场景穿搭卡 · 正式</summary>
+        <div class="lifestyle-plan-body">
+          <ul>
+            <li>合身深色套装 / 衬衫熨烫：平整挺括是正式感的基本盘</li>
+            <li>皮带、鞋、袜同色系：细节统一显章法</li>
+            <li>极简配饰：一块表或一副眼镜足矣，宁缺毋滥</li>
+          </ul>
+        </div>
+      </details>
+      <details class="lifestyle-plan">
+        <summary>体型要点（偏瘦体型参考）</summary>
+        <div class="lifestyle-plan-body">
+          <ul>
+            <li>合身优先：选修身剪裁，避免大 oversize 吞掉体量</li>
+            <li>层次感：内搭 + 衬衫 + 外套叠穿，视觉上增加厚度</li>
+            <li>竖向线条与同色系：拉长身形比例</li>
+            <li>面料挺括：避免软塌贴身，暴露单薄感</li>
+            <li>腰带定位：分割上下身比例，优化身形</li>
+            <li>干净整洁永远大于复杂花哨</li>
+          </ul>
+          <p class="note">通用造型参考，按自己喜好调整。</p>
+        </div>
+      </details>
+    </div>
   </details>`;
 
   panel.querySelectorAll("button[data-lifestyle-action]").forEach((button) => {
@@ -165,6 +245,26 @@ export function renderLifestyle() {
   panel.querySelectorAll("input[data-skincare-item]").forEach((checkbox) => {
     checkbox.addEventListener("change", () => handleSkincareToggle(checkbox));
   });
+  panel.querySelectorAll("input[data-grooming-item]").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => handleGroomingToggle(checkbox));
+  });
+}
+
+/** 单个穿搭复选框：按当日记录状态渲染勾选态 */
+function renderGroomingCheckbox(dayEntry, item) {
+  const flags = dayEntry && typeof dayEntry.items === "object" ? dayEntry.items : {};
+  const checked = flags[item] === true ? " checked" : "";
+  return `<label class="lifestyle-skincare-item"><input type="checkbox" data-grooming-item="${escapeHtml(item)}"${checked}>${escapeHtml(GROOMING_CHECKBOX_LABELS[item] || item)}</label>`;
+}
+
+/** 复选框切换 → mutate 写当日记录（同日覆盖）；mutate 回调触发整卡重渲染 */
+function handleGroomingToggle(checkbox) {
+  const item = String(checkbox.dataset.groomingItem || "");
+  const checked = checkbox.checked === true;
+  mutate((state) => {
+    state.lifestyle = setGroomingItem(state.lifestyle, todayKey(), item, checked);
+  });
+  $("apiStatus").textContent = checked ? "穿搭检查已保存。" : "穿搭检查已取消。";
 }
 
 /** 单个护肤复选框：按当日记录状态渲染勾选态 */

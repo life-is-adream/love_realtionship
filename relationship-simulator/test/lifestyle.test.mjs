@@ -1,6 +1,7 @@
-// F5/F6 生活管理：normalizeLifestyle 边界 + 三个纯函数全分支 +
+// F5/F6/F7 生活管理：normalizeLifestyle 边界 + 纯函数全分支 +
 // micro-training 口径一致性 + state mutate 往返 + UI 接线源码级断言。
 // F6 新增：护肤切片规范化（真实条目）+ completeness/streak/notice + setSkincareItem 写路径。
+// F7 新增：grooming 切片规范化（占位转实）+ completeness/streak/notice（时间注入）+ setGroomingItem 写路径。
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -13,12 +14,16 @@ import {
   recordTrainingDay,
   recordWeightEntry,
   setSkincareItem,
+  setGroomingItem,
   computeTrainingRhythm,
   computeWeightReview,
   computeStreak,
   computeSkincareCompleteness,
   computeSkincareStreak,
   buildSkincareNotice,
+  computeGroomingCompleteness,
+  computeGroomingStreak,
+  buildGroomingNotice,
   dateDiffDays
 } from "../public/modules/training/lifestyle.js";
 
@@ -56,11 +61,51 @@ test("normalizeLifestyle：空/坏输入返回完整默认结构（skincare/groo
   }
 });
 
-test("normalizeLifestyle：grooming 占位保留字符串 days，剔除坏元素", () => {
+// ── F7 穿搭：normalizeGroomingDays（占位转实） ───────────────────────────────
+
+test("normalizeLifestyle：grooming 坏日期/非对象/F5 占位字符串剔除，布尔严格归一，补 id", () => {
   const result = normalizeLifestyle({
-    grooming: { days: ["2026-10-01", 42, null, "2026-10-02"] }
+    grooming: {
+      days: [
+        "2026-10-01", // F5-F6 时期占位字符串 → 剔除
+        null,
+        42,
+        { date: "2026-02-30" }, // 格式合法但日历不存在 → 剔除
+        { date: "nope" },
+        { id: "gr-1", date: TODAY, items: { pressed: 1, shoes: "yes" } },
+        { date: TODAY, items: { pressed: true, shoes: true, nails: true, hair: true, breath: true } }
+      ]
+    }
   });
-  assert.deepEqual(result.grooming.days, ["2026-10-01", "2026-10-02"]);
+  assert.equal(result.grooming.days.length, 1); // 同日覆盖，后到覆盖
+  const day = result.grooming.days[0];
+  assert.ok(typeof day.id === "string" && day.id.length > 0); // 覆盖条目无 id → 补新 id
+  assert.notEqual(day.id, "gr-1"); // gr-1 属于被覆盖的旧条目
+  assert.deepEqual(day.items, { pressed: true, shoes: true, nails: true, hair: true, breath: true });
+});
+
+test("normalizeLifestyle：grooming 同日覆盖（后到覆盖），上限 180 丢最旧", () => {
+  assert.equal(LIFESTYLE_LIMITS.grooming, 180);
+  const dup = normalizeLifestyle({
+    grooming: {
+      days: [
+        { id: "a", date: TODAY, items: { pressed: true } },
+        { id: "b", date: TODAY, items: { shoes: true } }
+      ]
+    }
+  });
+  assert.equal(dup.grooming.days.length, 1);
+  assert.equal(dup.grooming.days[0].id, "b");
+  assert.deepEqual(dup.grooming.days[0].items, { pressed: false, shoes: true, nails: false, hair: false, breath: false });
+
+  const many = Array.from({ length: LIFESTYLE_LIMITS.grooming + 5 }, (_, i) => ({
+    id: `g${i}`,
+    date: shiftDate("2020-01-01", i)
+  }));
+  const trimmed = normalizeLifestyle({ grooming: { days: many } });
+  assert.equal(trimmed.grooming.days.length, LIFESTYLE_LIMITS.grooming);
+  assert.equal(trimmed.grooming.days[0].id, "g5"); // 最旧 5 条被丢
+  assert.equal(trimmed.grooming.days.at(-1).id, `g${LIFESTYLE_LIMITS.grooming + 4}`);
 });
 
 test("normalizeLifestyle：trainings 剔除坏数据（缺日期/坏日期/非对象），补 id", () => {
@@ -447,6 +492,102 @@ test("setSkincareItem：新增；同日覆盖保留 id 与既有勾选；取消�
   }
 });
 
+// ── F7 穿搭：computeGroomingCompleteness 全分支 ──────────────────────────────
+
+test("computeGroomingCompleteness：五项全勾才算完成，doneCount 逐项累计", () => {
+  assert.deepEqual(computeGroomingCompleteness(null), { doneCount: 0, allDone: false });
+  assert.deepEqual(computeGroomingCompleteness({}), { doneCount: 0, allDone: false });
+  // 布尔严格归一：1 / "yes" 不算勾选
+  assert.deepEqual(computeGroomingCompleteness({ items: { pressed: 1, shoes: "yes", nails: true, hair: true, breath: true } }), { doneCount: 3, allDone: false });
+  assert.deepEqual(
+    computeGroomingCompleteness({ items: { pressed: true, shoes: true, nails: true, hair: true, breath: true } }),
+    { doneCount: 5, allDone: true }
+  );
+});
+
+// ── F7 穿搭：computeGroomingStreak（回溯语义对齐 computeSkincareStreak） ─────
+
+test("computeGroomingStreak：只有五项全勾计 1 天；今天未完成从昨天回溯；断档归零", () => {
+  const fullDay = (date) => ({ date, items: { pressed: true, shoes: true, nails: true, hair: true, breath: true } });
+  const partialDay = (date, count) => ({
+    date,
+    items: { pressed: count > 0, shoes: count > 1, nails: count > 2, hair: count > 3, breath: count > 4 }
+  });
+
+  assert.equal(computeGroomingStreak([], TODAY), 0);
+  assert.equal(computeGroomingStreak(null, TODAY), 0);
+  // 只勾部分不算完成
+  assert.equal(computeGroomingStreak([partialDay(TODAY, 4)], TODAY), 0);
+  // 今天全完成 → 1
+  assert.equal(computeGroomingStreak([fullDay(TODAY)], TODAY), 1);
+  // 连续 3 天（更早的部分勾选不计）
+  assert.equal(computeGroomingStreak([fullDay(TODAY), fullDay(daysAgo(1)), fullDay(daysAgo(2)), partialDay(daysAgo(3), 2)], TODAY), 3);
+  // 今天未完成：从昨天回溯 2 天
+  assert.equal(computeGroomingStreak([fullDay(daysAgo(1)), fullDay(daysAgo(2))], TODAY), 2);
+  // 今天完成但昨天断档 → 1
+  assert.equal(computeGroomingStreak([fullDay(TODAY), partialDay(daysAgo(1), 3)], TODAY), 1);
+  // 乱序 / 重复不影响
+  assert.equal(computeGroomingStreak([fullDay(daysAgo(1)), fullDay(TODAY), fullDay(daysAgo(1))], TODAY), 2);
+});
+
+// ── F7 穿搭：buildGroomingNotice 按时间分支（时间参数注入，不依赖真实时钟） ──
+
+test("buildGroomingNotice：已完成 / 午后无记录轻提示 / 上午不催 / 部分勾选不催", () => {
+  const NOON = new Date("2026-10-02T12:00:00");
+  const AFTERNOON = new Date("2026-10-02T15:30:00");
+  const MORNING = new Date("2026-10-02T09:00:00");
+  const fullItems = { pressed: true, shoes: true, nails: true, hair: true, breath: true };
+  const emptyItems = { pressed: false, shoes: false, nails: false, hair: false, breath: false };
+
+  // 五项全勾 → 已完成（与时间无关）
+  assert.deepEqual(buildGroomingNotice({ items: fullItems }, MORNING), ["今日检查已完成"]);
+  assert.deepEqual(buildGroomingNotice({ items: fullItems }, AFTERNOON), ["今日检查已完成"]);
+  // 今天全无记录（条目缺省）且 ≥12:00 → 轻提示
+  assert.deepEqual(buildGroomingNotice(null, AFTERNOON), ["出门前 30 秒过一遍快速检查"]);
+  assert.deepEqual(buildGroomingNotice({ items: emptyItems }, NOON), ["出门前 30 秒过一遍快速检查"]);
+  // 上午不催
+  assert.deepEqual(buildGroomingNotice(null, MORNING), []);
+  assert.deepEqual(buildGroomingNotice({ items: emptyItems }, MORNING), []);
+  // 部分勾选不催（既非已完成也非全无记录）
+  assert.deepEqual(buildGroomingNotice({ items: { ...emptyItems, pressed: true } }, AFTERNOON), []);
+  // 边界：11 点不提示，12 点整提示
+  assert.deepEqual(buildGroomingNotice(null, new Date("2026-10-02T11:59:00")), []);
+  assert.deepEqual(buildGroomingNotice(null, new Date("2026-10-02T12:00:00")), ["出门前 30 秒过一遍快速检查"]);
+});
+
+// ── F7 穿搭：setGroomingItem（mutate 写路径辅助） ────────────────────────────
+
+test("setGroomingItem：新增；同日覆盖保留 id 与既有勾选；取消勾选；非法入参原样返回", () => {
+  const base = normalizeLifestyle(null);
+
+  const on = setGroomingItem(base, TODAY, "shoes", true);
+  assert.equal(on.grooming.days.length, 1);
+  assert.equal(on.grooming.days[0].items.shoes, true);
+  assert.equal(on.grooming.days[0].items.pressed, false);
+
+  const id = on.grooming.days[0].id;
+  const more = setGroomingItem(on, TODAY, "pressed", true);
+  assert.equal(more.grooming.days.length, 1); // 同日覆盖
+  assert.equal(more.grooming.days[0].id, id); // id 保留
+  assert.equal(more.grooming.days[0].items.shoes, true); // 既有勾选保留
+  assert.equal(more.grooming.days[0].items.pressed, true);
+
+  const off = setGroomingItem(more, TODAY, "shoes", false);
+  assert.equal(off.grooming.days[0].items.shoes, false);
+  assert.equal(off.grooming.days[0].items.pressed, true);
+
+  // 非法：坏日期 / 未知项 / 非字符串
+  for (const [date, item] of [
+    ["2026-13-99", "pressed"],
+    ["bad", "shoes"],
+    [TODAY, "perfume"],
+    [TODAY, ""],
+    [TODAY, null]
+  ]) {
+    assert.equal(setGroomingItem(base, date, item, true).grooming.days.length, 0, `${date} ${item} 应被拒绝`);
+  }
+});
+
 // ── state 集成（mutate 单一写路径 + 持久化往返） ─────────────────────────────
 
 test("state 集成：mutate 写 lifestyle → 持久化 → loadState 往返一致", async () => {
@@ -528,6 +669,49 @@ test("state 集成：护肤复选框切换走 mutate 写路径 → 持久化 →
   assert.deepEqual(buildSkincareNotice(reloaded.lifestyle.skincare.days.find((day) => day.date === daysAgo(2)) || null), ["今日护肤尚未开始"]);
 });
 
+test("state 集成：穿搭复选框切换走 mutate 写路径 → 持久化 → loadState 往返一致", async () => {
+  const mockStorage = new Map();
+  globalThis.localStorage = {
+    getItem: (key) => mockStorage.get(key) ?? null,
+    setItem: (key, value) => mockStorage.set(key, value),
+    removeItem: (key) => mockStorage.delete(key),
+    clear: () => mockStorage.clear()
+  };
+  const stateModule = await import("../public/modules/core/state.js");
+
+  // 模拟 UI 复选框逐项点击：今天五项全勾
+  const saved = stateModule.mutate((state) => {
+    for (const item of ["pressed", "shoes", "nails", "hair", "breath"]) {
+      state.lifestyle = setGroomingItem(state.lifestyle, TODAY, item, true);
+    }
+    return state.lifestyle;
+  });
+  assert.equal(saved.grooming.days.length, 1);
+  assert.deepEqual(computeGroomingCompleteness(saved.grooming.days[0]), { doneCount: 5, allDone: true });
+  assert.equal(computeGroomingStreak(saved.grooming.days, TODAY), 1);
+
+  // 昨天只勾三项 → 今天完成后连续 1 天（昨天不算完成）
+  stateModule.mutate((state) => {
+    state.lifestyle = setGroomingItem(state.lifestyle, daysAgo(1), "pressed", true);
+    state.lifestyle = setGroomingItem(state.lifestyle, daysAgo(1), "shoes", true);
+    state.lifestyle = setGroomingItem(state.lifestyle, daysAgo(1), "nails", true);
+    return state.lifestyle;
+  });
+  const reloaded = stateModule.loadState();
+  assert.equal(reloaded.lifestyle.grooming.days.length, 2);
+  assert.equal(computeGroomingStreak(reloaded.lifestyle.grooming.days, TODAY), 1);
+
+  // 昨天补齐两项 → 连续 2 天；午后全无记录轻提示命中
+  stateModule.mutate((state) => {
+    state.lifestyle = setGroomingItem(state.lifestyle, daysAgo(1), "hair", true);
+    state.lifestyle = setGroomingItem(state.lifestyle, daysAgo(1), "breath", true);
+    return state.lifestyle;
+  });
+  const final = stateModule.loadState();
+  assert.equal(computeGroomingStreak(final.lifestyle.grooming.days, TODAY), 2);
+  assert.deepEqual(buildGroomingNotice(final.lifestyle.grooming.days.find((day) => day.date === daysAgo(4)) || null, new Date("2026-10-02T15:00:00")), ["出门前 30 秒过一遍快速检查"]);
+});
+
 // ── UI 接线源码断言 ──────────────────────────────────────────────────────────
 
 test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePanel 容器", async () => {
@@ -547,7 +731,7 @@ test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePan
   assert.match(renderSource, /data-lifestyle-action="record-weight"/);
 
   // 计划卡与安全约束卡内容齐全（来自既定计划文档与安全约束）
-  for (const text of ["训练日 A · 下肢 + 推", "训练日 B · 髋铰链 + 拉", "罗马尼亚硬拉 3×8", "RPE 6–7", "助力带", "补水 3L", "横纹肌溶解", "以医生与正式计划文档为准", "下一批上线"]) {
+  for (const text of ["训练日 A · 下肢 + 推", "训练日 B · 髋铰链 + 拉", "罗马尼亚硬拉 3×8", "RPE 6–7", "助力带", "补水 3L", "横纹肌溶解", "以医生与正式计划文档为准"]) {
     assert.ok(renderSource.includes(text), `缺少内容：${text}`);
   }
 
@@ -579,6 +763,38 @@ test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePan
     assert.ok(renderSource.includes(text), `缺少护肤卡内容：${text}`);
   }
 
-  // 穿搭占位保留（F7 不实现）
-  assert.match(renderSource, /穿搭管理/);
+  // F7 穿搭卡接线：复选框 → setGroomingItem（mutate）、轻提示、连续整理、7 天小表、场景卡与体型卡
+  assert.match(renderSource, /data-grooming-item="/);
+  assert.match(renderSource, /setGroomingItem\(state\.lifestyle, todayKey\(\)/);
+  assert.match(renderSource, /buildGroomingNotice\(/);
+  assert.match(renderSource, /computeGroomingStreak\(/);
+  assert.match(renderSource, /computeGroomingCompleteness\(/);
+  for (const text of [
+    "穿搭管理",
+    "出门快速检查",
+    "衣服平整无渍",
+    "鞋子干净",
+    "指甲修剪",
+    "发型整齐",
+    "口气清新",
+    "连续整理",
+    "场景穿搭卡 · 日常",
+    "场景穿搭卡 · 约会",
+    "场景穿搭卡 · 正式",
+    "简洁配色",
+    "九分裤露脚踝",
+    "整体整洁度 &gt; 单品价格",
+    "衬衫熨烫",
+    "极简配饰",
+    "体型要点",
+    "修身剪裁",
+    "层次感",
+    "竖向线条与同色系",
+    "面料挺括",
+    "腰带定位",
+    "干净整洁永远大于复杂花哨",
+    "通用造型参考，按自己喜好调整"
+  ]) {
+    assert.ok(renderSource.includes(text), `缺少穿搭卡内容：${text}`);
+  }
 });

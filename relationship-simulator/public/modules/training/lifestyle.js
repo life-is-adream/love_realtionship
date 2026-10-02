@@ -12,7 +12,8 @@
 export const LIFESTYLE_LIMITS = Object.freeze({
   trainings: 400,
   weights: 365,
-  skincare: 180
+  skincare: 180,
+  grooming: 180
 });
 
 // computeWeightReview 阈值常量（导出便于测试对齐边界）
@@ -70,7 +71,6 @@ function normalizeId(value, prefix) {
 
 /**
  * 规范化 state.lifestyle 切片。坏数据剔除、同日去重/覆盖、超限丢最旧。
- * grooming 为 F7 占位（只保留 days 字符串数组，不做任何逻辑）。
  * @param {object|null|undefined} value
  * @returns {object}
  */
@@ -83,13 +83,8 @@ export function normalizeLifestyle(value) {
       weights: normalizeWeights(fitness.weights)
     },
     skincare: { days: normalizeSkincareDays(input.skincare) },
-    grooming: { days: normalizePlaceholderDays(input.grooming) }
+    grooming: { days: normalizeGroomingDays(input.grooming) }
   };
-}
-
-function normalizePlaceholderDays(value) {
-  const days = isRecord(value) ? value.days : null;
-  return Array.isArray(days) ? days.filter((day) => typeof day === "string") : [];
 }
 
 /** 护肤日条目 {id, date, am:{cleanser,moisturizer,sunscreen}, pm:{cleanser,moisturizer}}：坏数据剔除、同 date 覆盖、上限 180 丢最旧 */
@@ -294,6 +289,120 @@ export function buildSkincareNotice(day) {
   const pmAny = pm.cleanser === true || pm.moisturizer === true;
   if (!amAny && !pmAny) return ["今日护肤尚未开始"];
   if (amAny && am.sunscreen !== true) return ["今日防晒未记录——异维A酸期间防晒为强制项"];
+  return [];
+}
+
+// ── 穿搭管理（F7：出门快速检查五项） ─────────────────────────────────────────
+
+export const GROOMING_ITEMS = Object.freeze(["pressed", "shoes", "nails", "hair", "breath"]);
+const GROOMING_LABELS = { pressed: "衣服平整无渍", shoes: "鞋子干净", nails: "指甲修剪", hair: "发型整齐", breath: "口气清新" };
+
+/**
+ * 规范化 grooming.days（条目 {id, date, items:{pressed,shoes,nails,hair,breath}}）：
+ * F7 之前该切片为字符串占位数组 → 占位字符串直接剔除；坏日期/非对象剔除；
+ * 布尔严格归一（=== true）、同 date 覆盖、上限 180 丢最旧。
+ */
+function normalizeGroomingDays(value) {
+  const days = isRecord(value) ? value.days : null;
+  if (!Array.isArray(days)) return [];
+  const byDate = new Map();
+  for (const item of days) {
+    if (!isRecord(item)) continue;
+    const date = normalizeDateString(item.date);
+    if (!date) continue;
+    const flags = isRecord(item.items) ? item.items : {};
+    const items = {};
+    for (const key of GROOMING_ITEMS) items[key] = flags[key] === true;
+    byDate.set(date, { id: normalizeId(item.id, "gr"), date, items });
+  }
+  return [...byDate.values()]
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+    .slice(-LIFESTYLE_LIMITS.grooming);
+}
+
+/**
+ * 设置某天某项的勾选状态（同日覆盖更新，保留既有条目 id）。
+ * item 非法或日期无效时原样返回。
+ * @param {object|null|undefined} lifestyle
+ * @param {string} dateStr - YYYY-MM-DD
+ * @param {'pressed'|'shoes'|'nails'|'hair'|'breath'} item
+ * @param {boolean} checked
+ * @returns {object}
+ */
+export function setGroomingItem(lifestyle, dateStr, item, checked) {
+  const base = normalizeLifestyle(lifestyle);
+  const date = normalizeDateString(dateStr);
+  if (!date || !GROOMING_ITEMS.includes(item)) return base;
+  const flag = checked === true;
+  const existing = base.grooming.days.find((day) => day.date === date);
+  const entry = existing
+    ? { ...existing, items: { ...existing.items, [item]: flag } }
+    : {
+        id: makeId("gr"),
+        date,
+        items: Object.fromEntries(GROOMING_ITEMS.map((key) => [key, key === item ? flag : false]))
+      };
+  return {
+    ...base,
+    grooming: {
+      days: [...base.grooming.days.filter((day) => day.date !== date), entry]
+        .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+        .slice(-LIFESTYLE_LIMITS.grooming)
+    }
+  };
+}
+
+/**
+ * 单日穿搭快速检查完成度：五项全勾 = 完成。
+ * @param {object|null|undefined} day - grooming.days 条目
+ * @returns {{doneCount: number, allDone: boolean}}
+ */
+export function computeGroomingCompleteness(day) {
+  const items = isRecord(day?.items) ? day.items : {};
+  const doneCount = GROOMING_ITEMS.filter((item) => items[item] === true).length;
+  return { doneCount, allDone: doneCount === GROOMING_ITEMS.length };
+}
+
+/**
+ * 计算连续整理天数（口径与 computeSkincareStreak 一致）：当天五项全勾才计 1 天；
+ * 今天未完成则从昨天回溯（当天尚未完成不打断既有连续记录）。
+ * @param {Array<object>} days - grooming.days 条目数组（可含乱序/重复日期）
+ * @param {string} todayStr - YYYY-MM-DD
+ * @returns {number}
+ */
+export function computeGroomingStreak(days, todayStr) {
+  const today = dayNumber(todayStr);
+  if (today === null) return 0;
+  const complete = new Set(
+    (Array.isArray(days) ? days : [])
+      .map((day) => (computeGroomingCompleteness(day).allDone ? dayNumber(day?.date) : null))
+      .filter((day) => day !== null && day <= today)
+  );
+  if (!complete.size) return 0;
+
+  let anchor = today;
+  if (!complete.has(today)) anchor -= 1;
+  if (!complete.has(anchor)) return 0;
+
+  let streak = 0;
+  while (complete.has(anchor - streak)) streak += 1;
+  return streak;
+}
+
+/**
+ * 单日穿搭轻提示（非警示，上午不催）：
+ * - 五项全勾 → 「今日检查已完成」；
+ * - 今天全无记录且当前时间 ≥12:00 → 出门前快速检查轻提示；
+ * - 其余（上午未开始 / 部分勾选）→ 空。
+ * @param {object|null|undefined} day - grooming.days 条目
+ * @param {Date} [now] - 可注入时间（测试不依赖真实时钟）
+ * @returns {string[]}
+ */
+export function buildGroomingNotice(day, now = new Date()) {
+  if (computeGroomingCompleteness(day).allDone) return ["今日检查已完成"];
+  const hour = now instanceof Date && Number.isFinite(now.getTime()) ? now.getHours() : null;
+  const anyChecked = isRecord(day?.items) && GROOMING_ITEMS.some((item) => day.items[item] === true);
+  if (!anyChecked && hour !== null && hour >= 12) return ["出门前 30 秒过一遍快速检查"];
   return [];
 }
 
