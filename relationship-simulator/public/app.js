@@ -19,8 +19,9 @@ import { formatRedactionNotice } from "./modules/core/privacy.js";
 import { $, escapeHtml as escapeHtmlShared } from "./modules/core/dom.js";
 import {
   getAllPersonas, getCurrentPersona, getLatestMineText, getPersonaMemory, getState,
-  loadState, saveState, setState as setStateStore, mutate, onStateChange
+  loadState, saveState, setState as setStateStore, mutate, onStateChange, serializeStateForStorage
 } from "./modules/core/state.js";
+import { buildBackup, buildBackupFilename, validateBackup, applyBackup } from "./modules/core/backup.js";
 import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, migrateMemory, analyzeLongTermPatterns, buildPatternInjection } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
 import { buildMessages as buildMessagesPure, callLLM as callLLMPure, checkHealth as checkHealthApi } from "./modules/core/api-client.js";
@@ -391,6 +392,60 @@ function exportSession() {
   anchor.href = url; anchor.download = "heartflow-session.json"; anchor.click(); URL.revokeObjectURL(url);
 }
 
+// ── F1 全量档案备份/恢复 ──────────────────────────────────────────────────────
+
+function exportBackup() {
+  const filename = buildBackupFilename();
+  const backup = buildBackup(serializeStateForStorage(state));
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url; anchor.download = filename; anchor.click(); URL.revokeObjectURL(url);
+  $("apiStatus").textContent = `已导出全量档案备份：${filename}`;
+}
+
+function startRestoreBackup() {
+  const input = $("backupFileInput");
+  if (!input) return;
+  input.value = "";
+  input.click();
+}
+
+async function handleRestoreFileChange(event) {
+  const file = event.target?.files?.[0];
+  if (!file) return;
+  try {
+    const parsed = JSON.parse(await file.text());
+    const validation = validateBackup(parsed);
+    if (!validation.ok) {
+      $("apiStatus").textContent = `备份文件校验失败：${validation.errors.join("；")}`;
+      return;
+    }
+    const includedCount = Math.max(0, Object.keys(parsed.data || {}).length - validation.ignoredKeys.length);
+    const ignoredNote = validation.ignoredKeys.length ? `\n忽略未知键：${validation.ignoredKeys.length} 项（向前兼容，已跳过）` : "";
+    const exportedAtLabel = typeof parsed.exportedAt === "string" && !Number.isNaN(Date.parse(parsed.exportedAt)) ? parsed.exportedAt : "未知";
+    // 防误触：与重置确认同一模式（confirm 弹窗，确认后才执行）。
+    const RESTORE_CONFIRMATION = `确认恢复这份备份？\n\n将覆盖当前全部本地档案（对话、成长档案、学习状态、角色卡、剧本、设置），不可撤销。\n\n备份时间：${exportedAtLabel}\n包含 ${includedCount} 个数据键${ignoredNote}\n\n继续？`;
+    if (globalThis.confirm?.(RESTORE_CONFIRMATION) !== true) {
+      $("apiStatus").textContent = "已取消恢复。";
+      return;
+    }
+    const result = applyBackup(parsed, localStorage);
+    if (!result.ok) {
+      $("apiStatus").textContent = `恢复失败：${result.errors.join("；")}`;
+      return;
+    }
+    state = loadState();
+    renderAll();
+    // 键名来自外部备份文件，插入 DOM 前必须过 escapeHtml（XSS 纪律）。
+    $("apiStatus").innerHTML = validation.ignoredKeys.length
+      ? `档案已恢复（忽略 ${escapeHtml(String(validation.ignoredKeys.length))} 个未知键：${validation.ignoredKeys.map((key) => escapeHtml(key)).join("、")}）`
+      : "档案已恢复。";
+  } catch (error) {
+    $("apiStatus").textContent = `恢复失败：${error.message}`;
+  }
+}
+
 function resetSession() {
   const previousIntelligence = state.relationshipIntelligence;
   state = setStateStore({ ...structuredClone(defaultState), personaId: state.personaId, customPersonas: state.customPersonas, personaMemory: state.personaMemory, avatarOverrides: state.avatarOverrides, relationshipIntelligence: previousIntelligence });
@@ -508,6 +563,9 @@ $("planBtn")?.addEventListener("click", generateActionPlan);
 $("nextBtn")?.addEventListener("click", nextTurn);
 $("healthBtn")?.addEventListener("click", checkHealth);
 $("exportBtn")?.addEventListener("click", exportSession);
+$("backupBtn")?.addEventListener("click", exportBackup);
+$("restoreBtn")?.addEventListener("click", startRestoreBackup);
+$("backupFileInput")?.addEventListener("change", handleRestoreFileChange);
 // 重置防误触：与 PUA 模式伦理确认同一模式（confirm 弹窗，确认后才执行）。
 const RESET_CONFIRMATION = "确认重置当前对话？\n\n消息记录、训练日志与成长事件将全部清空，且不可恢复。\n\n继续？";
 

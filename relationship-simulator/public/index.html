@@ -42,6 +42,8 @@
         <button class="btn ghost" id="healthBtn">检查模型</button>
         <button class="btn ghost" id="longContentBtn">长篇教材</button>
         <button class="btn ghost" id="exportBtn">导出</button>
+        <button class="btn ghost" id="backupBtn" type="button">备份档案</button>
+        <button class="btn ghost" id="restoreBtn" type="button">恢复档案</button>
         <button class="btn danger" id="resetBtn">重置</button>
       </div>
     </header>
@@ -349,6 +351,7 @@
   </div>
 
   <input id="fileImport" type="file" accept="application/json" hidden />
+  <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
   <script type="module" src="/app.js?v=20260803-1"></script>
 </body>
 </html>
