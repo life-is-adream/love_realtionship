@@ -14,6 +14,7 @@ import { resolveMistake, deleteMistake } from "../core/mistakes.js";
 import { findWeakestDim, buildRewriteComparison, aggregateMistakePatterns, MISTAKE_DIM_LABELS } from "../training/mistake-patterns.js";
 import { buildCoachScore, detectReplyFlags } from "../coach/coach.js";
 import { recordTrainingEvent } from "../core/learning-state.js";
+import { readIntakeProfile, buildIntakeSummary } from "../core/intake-profile.js";
 
 const SOURCE_LABELS = { preflight: "发送前测验", coach: "教练评分", manual: "手动" };
 /** 错题维度 → 学习档案维度（与 app.js addTrainingLog 的映射一致，drive 同 momentum） */
@@ -31,6 +32,7 @@ export function renderMistakes() {
   panel.innerHTML = `<details class="mistakes-box" open>
     <summary>错题本<span class="mistake-count">未解决 ${escapeHtml(String(unresolvedCount))} / 共 ${escapeHtml(String(mistakes.length))}</span></summary>
     ${renderRadarSummary(mistakes)}
+    ${renderIntakeBaselineLine()}
     <div class="mistake-list">${rows || '<p class="mistake-empty">暂无错题记录。发送前测验命中的高危表达、教练评分过低的回复，或点「加入错题本」，都会收集到这里。</p>'}</div>
   </details>`;
   panel.querySelectorAll("button[data-mistake-action]").forEach((button) => {
@@ -56,6 +58,13 @@ function renderRadarSummary(mistakes) {
     ${issueChips ? `<div class="radar-issues">${issueChips}</div>` : ""}
     ${patterns.insights.length ? `<div class="radar-insights">${patterns.insights.map((line) => `<p>· ${escapeHtml(line)}</p>`).join("")}</div>` : ""}
   </div>`;
+}
+
+/** F3 基线画像对照行：仅当入学测试画像存在时，显示在失误雷达摘要条下方（只展示，不改雷达算法）。 */
+function renderIntakeBaselineLine() {
+  const profile = readIntakeProfile();
+  if (!profile) return "";
+  return `<div class="radar-baseline">基线画像：${escapeHtml(buildIntakeSummary(profile))}（${escapeHtml(profile.testDate)}）</div>`;
 }
 
 function renderMistakeRow(mistake) {

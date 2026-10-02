@@ -39,6 +39,7 @@ import { renderTiming, renderSignalPractice, renderDailyTraining, renderGrowthPr
 import { openLongReader as openLongReaderView, closeLongReader, renderChapterList, loadChapter } from "./modules/render/render-longContent.js";
 import { openIntervention, closeIntervention } from "./modules/render/render-intervention.js";
 import { renderMistakes, closeMistakePractice } from "./modules/render/render-mistakes.js";
+import { renderIntake } from "./modules/render/render-intake.js";
 import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCurrentStage, renderStageProgress, restoreStageState } from "./modules/render/render-stage.js";
 import { renderScenarioList, loadScenario as loadScenarioView, REVIEW_MAPPING } from "./modules/render/render-scenario.js";
 import { initMobileTabs, markCoachUnread } from "./modules/render/mobile-tabs.js";
@@ -111,6 +112,7 @@ function renderLearningPanels() {
   renderDailyTraining();
   renderGrowthProfile();
   renderMistakes();
+  renderIntake();
   void renderTextbookEvidence(state.lastAnalysis, { openLongReader });
 }
 

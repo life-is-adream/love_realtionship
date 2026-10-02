@@ -200,7 +200,9 @@ export const STORAGE_KEYS = {
   stageOverride: "heartflow-stage-override",
   stageAutoResult: "heartflow-stage-auto-result",
   stageValue: "heartflow-stage-value",
-  complianceAck: "heartflow-ai-compliance-ack"
+  complianceAck: "heartflow-ai-compliance-ack",
+  /** F3 入学测试画像：quiz 独立页写入、主应用读取的独立键（主 state 之外，备份白名单自动纳入） */
+  intakeProfile: "heartflow-intake-profile"
 };
 
 /** 记忆系统配置 */
