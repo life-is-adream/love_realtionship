@@ -82,3 +82,13 @@ test("懒加载装配点：render-learning 在索引 gate 之后才调用共享�
   assert.ok(gateAt > -1 && indexCallAt > gateAt);
   assert.match(appSource, /enableTextbookIndexLoad\(\);[\s\S]*?renderAll\(\);/);
 });
+
+test("启动加固：app.js 无顶层 await loadManifest，manifest 预取为非阻塞 then/catch", () => {
+  // 防回归：顶层 await 在无头首载时可能静默悬挂（请求不发出也无报错），renderAll 永不执行 → 整屏空白。
+  assert.doesNotMatch(appSource, /await loadManifest\(\)/);
+  // 非阻塞结构：void loadManifest().then(...) 成功路径重渲染消费区 + .catch 既有降级（不展示对照链接）。
+  assert.match(appSource, /void loadManifest\(\)\.then\(\(manifest\) => \{[\s\S]*?renderAnalysisPanel\(\);[\s\S]*?\}\)\.catch\(\(\) => \{[\s\S]*?\}\);/);
+  // manifest 消费方（showReviewComparison → 教练分析区）重渲染挂点存在
+  assert.match(appSource, /function renderAnalysisPanel\(\)/);
+  assert.match(appSource, /manifestChapters = \[\];/);
+});

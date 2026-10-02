@@ -42,6 +42,8 @@ import { renderMistakes, closeMistakePractice } from "./modules/render/render-mi
 import { renderLifestyle } from "./modules/render/render-lifestyle.js";
 import { renderSessionReport, generateSessionReport } from "./modules/render/render-session-report.js";
 import { renderIntake } from "./modules/render/render-intake.js";
+import { renderRealPractice } from "./modules/render/render-real-practice.js";
+import { renderDateJourney } from "./modules/render/render-date-journey.js";
 import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCurrentStage, renderStageProgress, restoreStageState } from "./modules/render/render-stage.js";
 import { renderScenarioList, loadScenario as loadScenarioView, REVIEW_MAPPING } from "./modules/render/render-scenario.js";
 import { initMobileTabs, markCoachUnread } from "./modules/render/mobile-tabs.js";
@@ -112,6 +114,8 @@ function renderLearningPanels() {
   renderTiming();
   renderSignalPractice();
   renderDailyTraining();
+  renderRealPractice();
+  renderDateJourney();
   renderGrowthProfile();
   renderMistakes();
   renderSessionReport();
@@ -199,11 +203,7 @@ async function runCoachFloatSearch() {
   });
 }
 
-function renderAll() {
-  renderStageProgress($("stage")?.value || "");
-  renderPersonaControls();
-  renderCoachFloat();
-  renderChat({ afterRender: afterChatRender });
+function renderAnalysisPanel() {
   renderCoachAnalysis(state.lastAnalysis, {
     showReviewComparison,
     openLongReader,
@@ -212,6 +212,14 @@ function renderAll() {
       if (state.lastAnalysis) markCoachUnread();
     }
   });
+}
+
+function renderAll() {
+  renderStageProgress($("stage")?.value || "");
+  renderPersonaControls();
+  renderCoachFloat();
+  renderChat({ afterRender: afterChatRender });
+  renderAnalysisPanel();
   renderActionPlan();
   renderScenarioList();
   renderIntelligencePanel();
@@ -680,12 +688,15 @@ $("coachFloatPanel")?.addEventListener("click", (event) => {
   if (event.target.closest("#coachFloatSearchBtn")) runCoachFloatSearch();
 });
 
-// 启动：先取长篇 manifest（~2.7KB，chunk 全部懒加载），失败时降级为空列表（对照链接不展示标题）。
-try {
-  manifestChapters = (await loadManifest()).chapters;
-} catch {
+// 启动：manifest 预取为非阻塞（防无头首载时顶层 await 静默悬挂 → 整屏空白）。
+// 首屏渲染不依赖 manifest；manifest 就绪后仅重渲染消费它的教练分析区
+// （对照长篇复盘链接标题短暂占位可接受）。失败时保持既有降级：不展示对照链接。
+void loadManifest().then((manifest) => {
+  manifestChapters = Array.isArray(manifest?.chapters) ? manifest.chapters : [];
+  renderAnalysisPanel();
+}).catch(() => {
   manifestChapters = [];
-}
+});
 // P2-6 store 收敛：mutate 写路径的渲染回调由此注入（core 层不 import render 层）。
 onStateChange(renderAll);
 renderAll();
