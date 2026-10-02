@@ -383,7 +383,8 @@ export function detectReplyFlags(text, memory = {}) {
   const tooManyQuestions = (reply.match(/[？?]/g) || []).length >= 2;
 
   if (hit.length) {
-    return { level: "high", warning: `有明显越界或施压词：${hit.join("、")}。先删掉，再改成低压力表达。` };
+    // F2 错题本：附命中词列表，供 classifyPreflightIssues 归类风险标签（纯增量，不影响既有消费方）。
+    return { level: "high", warning: `有明显越界或施压词：${hit.join("、")}。先删掉，再改成低压力表达。`, words: hit };
   }
   if (tooManyQuestions) {
     return { level: "medium", warning: "问题偏多，容易像审问。保留一个开放问题即可。" };

@@ -1,6 +1,7 @@
 import { $, escapeHtml } from "../core/dom.js";
 import { clampScore } from "../coach/coach.js";
-import { getCurrentPersona, getLatestMineText, getPersonaMemory, getState } from "../core/state.js";
+import { getCurrentPersona, getLatestMineText, getPersonaMemory, getState, mutate } from "../core/state.js";
+import { collectMistake } from "../core/mistakes.js";
 
 export function card(title, text) {
   return `<div class="mini"><h3>${escapeHtml(title)}</h3><div>${escapeHtml(text || "")}</div></div>`;
@@ -47,7 +48,8 @@ export function renderTraining(currentScore = null) {
   const log = Array.isArray(getState().trainingLog) ? getState().trainingLog : [];
   const score = currentScore || log[0]?.score || null;
   if (!score && log.length === 0) {
-    panel.innerHTML = '<div class="mini"><h3>暂无评分</h3><div>完成一轮模型调用或本地生成后，这里会记录分数、短板和下一步训练。</div></div>';
+    panel.innerHTML = '<div class="mini"><h3>暂无评分</h3><div>完成一轮模型调用或本地生成后，这里会记录分数、短板和下一步训练。</div></div><div class="mini mistake-manual-row"><button class="btn small ghost" id="addMistakeBtn" type="button">✚ 加入错题本</button><small>手动收集当前回复（无论分数），供错题本复盘。</small></div>';
+    $("addMistakeBtn")?.addEventListener("click", addCurrentMistake);
     return;
   }
   const isLatestInLog = log[0]?.score === score;
@@ -58,12 +60,42 @@ export function renderTraining(currentScore = null) {
   const strongestKey = score.strongestDim || "";
   const historyItems = log.slice(1, 6);
   panel.innerHTML = `
-    <div class="score-card"><div class="score-ring">${escapeHtml(score.total)}</div><div class="score-card-body"><h3>本轮总分 ${formatDelta(score.total, previousTotal)}</h3><p>${escapeHtml(score.summary || "保持自然、尊重和具体表达。")}</p></div></div>
+    <div class="score-card"><div class="score-ring">${escapeHtml(score.total)}</div><div class="score-card-body"><h3>本轮总分 ${formatDelta(score.total, previousTotal)}</h3><p>${escapeHtml(score.summary || "保持自然、尊重和具体表达。")}</p><button class="btn small ghost" id="addMistakeBtn" type="button">✚ 加入错题本</button></div></div>
     <div class="score-bars">${scoreBar("自然度", score.naturalness, { weakest: weakestKey === "naturalness", strongest: strongestKey === "naturalness" })}${scoreBar("共情", score.empathy, { weakest: weakestKey === "empathy", strongest: strongestKey === "empathy" })}${scoreBar("边界感", score.boundary, { weakest: weakestKey === "boundary", strongest: strongestKey === "boundary" })}${scoreBar("推进力", score.momentum, { weakest: weakestKey === "momentum", strongest: strongestKey === "momentum" })}</div>
     <div class="training-insights"><div class="insight insight-strength"><b>本轮亮点</b><p>${escapeHtml(score.strength || "表达基本自然，没有明显硬伤。")}</p></div><div class="insight insight-shortcoming"><b>核心短板</b><p>${escapeHtml(score.shortcoming || "继续观察自己的回复是否给对方留足接话空间。")}</p></div></div>
     <div class="mini next-practice"><h3>下一步训练</h3><div>${escapeHtml(score.nextPractice || "下一轮尝试：先回应她的问题，再补一个轻松的开放问题。")}</div></div>
     ${sparkTotals.length >= 2 ? `<div class="mini trend-mini"><h3>近 ${sparkTotals.length} 轮趋势</h3>${buildSparkline(sparkTotals)}</div>` : ""}
     ${historyItems.length ? `<div class="log-section"><h4>历史记录</h4><div class="log-list">${historyItems.map((item, index) => { const prev = log[index + 2]?.score?.total ?? null; const weak = item.score.weakestDim; const strong = item.score.strongestDim; const oneLiner = item.score.shortcoming || item.score.summary || ""; const mine = String(item.mine || ""); return `<div class="log-item"><div class="log-meta"><time>${escapeHtml(item.time)}</time>${item.stage ? `<span class="stage-badge">${escapeHtml(item.stage.slice(0, 8))}</span>` : ""}${sourceBadge(item.source)}${!item.baseline ? '<span class="baseline-tag">校准前</span>' : ""}</div><div class="log-body"><div class="log-score"><strong>${escapeHtml(item.score.total)}分</strong>${formatDelta(item.score.total, prev)}</div>${mine ? `<div class="log-mine">你：${escapeHtml(mine.slice(0, 28))}${mine.length > 28 ? "…" : ""}</div>` : ""}<div class="log-dims">${weak ? `<span class="dim-pill weak">${dimLabel(weak)} 低</span>` : ""}${strong ? `<span class="dim-pill strong">${dimLabel(strong)} 高</span>` : ""}</div><p>${escapeHtml(oneLiner)}</p></div></div>`; }).join("")}</div></div>` : ""}`;
+  $("addMistakeBtn")?.addEventListener("click", addCurrentMistake);
+}
+
+/** F2 手动收集：当前用户消息 + 当前评分（无论分数）收入错题本。 */
+function addCurrentMistake() {
+  const state = getState();
+  const score = state.lastAnalysis?.coachScore || state.trainingLog?.[0]?.score || null;
+  const text = getLatestMineText($("userInput")?.value || "");
+  if (!text) {
+    $("apiStatus").textContent = "没有可收集的用户消息，先输入或发送一条回复。";
+    return;
+  }
+  const collected = mutate((draft) => {
+    const outcome = collectMistake(draft.mistakes, {
+      ts: new Date().toISOString(),
+      source: "manual",
+      stage: $("stage")?.value || "",
+      mode: draft.trainingMode === "pua" ? "pua" : "anti",
+      text,
+      dims: score
+        ? { naturalness: score.naturalness, empathy: score.empathy, boundary: score.boundary, drive: score.momentum }
+        : null,
+      issues: []
+    });
+    draft.mistakes = outcome.mistakes;
+    return outcome.collected;
+  });
+  $("apiStatus").textContent = collected
+    ? "已加入错题本，可在「错题本」面板重写练习。"
+    : "这条消息已存在未解决的同文错题，未重复收集。";
 }
 
 export function renderAnalysis(data, { showReviewComparison = () => "", openLongReader = () => {}, onAfterRender = () => {} } = {}) {

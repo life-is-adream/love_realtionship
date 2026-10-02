@@ -268,6 +268,7 @@
           </div>
           <div id="dailyTrainingPanel"></div>
           <div id="growthPanel"></div>
+          <div id="mistakesPanel"></div>
           <div id="textbookPanel"></div>
         </div>
 
@@ -328,6 +329,18 @@
         <button class="btn small ghost" id="closeInterventionBtn">✕</button>
       </div>
       <div class="intervention-content" id="interventionContent"></div>
+    </div>
+  </div>
+
+  <!-- 错题本重写练习模态（F2） -->
+  <div id="mistakePracticeModal" class="modal hidden">
+    <div class="modal-overlay" id="mistakePracticeOverlay"></div>
+    <div class="modal-body intervention-panel">
+      <div class="modal-header">
+        <h3>重写练习</h3>
+        <button class="btn small ghost" id="closeMistakePracticeBtn" type="button">✕</button>
+      </div>
+      <div class="intervention-content" id="mistakePracticeContent"></div>
     </div>
   </div>
 

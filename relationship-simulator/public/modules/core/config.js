@@ -127,6 +127,7 @@ export const defaultState = {
   trainingMode: "anti", // "anti" = 反PUA 训练（默认）｜"pua" = PUA 识别训练（防御研究）
   messages: structuredClone(builtInPersonas.lin.starterMessages),
   trainingLog: [],
+  mistakes: [], // F2 错题本：条目契约见 core/mistakes.js（上限 200，超限丢最旧）
   lastAnalysis: null,
   relationshipIntelligence: {
     schemaVersion: 1,

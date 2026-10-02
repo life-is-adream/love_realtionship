@@ -1,5 +1,6 @@
 import { builtInPersonas, defaultState, STORAGE_KEYS } from "./config.js";
 import { normalizeLearningState } from "./learning-state.js";
+import { normalizeMistakes } from "./mistakes.js";
 import {
   normalizeRelationshipIntelligenceState,
   toPersistedRelationshipIntelligenceState
@@ -13,6 +14,7 @@ import {
  * @property {Object} avatarOverrides - 头像覆盖
  * @property {Array<Object>} messages - 消息列表
  * @property {Array<Object>} trainingLog - 训练日志
+ * @property {Array<Object>} mistakes - 错题本（F2，条目契约见 core/mistakes.js）
  * @property {Object|null} lastAnalysis - 最后一次分析结果
  * @property {Object} learning - 学习状态
  * @property {Object} lastGenerationMeta - 最后生成元数据
@@ -88,6 +90,7 @@ export function normalizeState(next) {
     normalized.messages = clone(all[normalized.personaId].starterMessages);
   }
   if (!Array.isArray(normalized.trainingLog)) normalized.trainingLog = [];
+  normalized.mistakes = normalizeMistakes(normalized.mistakes); // F2 错题本：载入时标准化 + 上限裁剪
   normalized.relationshipIntelligence = normalizeRelationshipIntelligenceState(normalized.relationshipIntelligence);
   normalized.learning = normalizeLearningState(normalized);
   normalized.messages = normalizeMessages(normalized.messages).map((message) => {
@@ -119,6 +122,7 @@ export function loadState() {
 export function saveState() {
   const state = getState();
   if (!Array.isArray(state.trainingLog)) state.trainingLog = [];
+  if (!Array.isArray(state.mistakes)) state.mistakes = [];
   if (!state.customPersonas || typeof state.customPersonas !== "object") state.customPersonas = {};
   if (!state.personaMemory || typeof state.personaMemory !== "object") state.personaMemory = {};
   if (!state.avatarOverrides || typeof state.avatarOverrides !== "object") state.avatarOverrides = {};

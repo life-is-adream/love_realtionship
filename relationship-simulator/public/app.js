@@ -7,6 +7,10 @@ import { isValidStage } from "./modules/core/stages.js";
 import { scenarios } from "./modules/content/scenarios.js";
 import { loadManifest } from "./modules/content/long-content-loader.js";
 import { normalizeLearningState, recordTrainingEvent } from "./modules/core/learning-state.js";
+import {
+  shouldCollectFromScore, shouldCollectFromPreflight, classifyPreflightIssues, collectMistake
+} from "./modules/core/mistakes.js";
+import { MISTAKE_DIM_LABELS } from "./modules/training/mistake-patterns.js";
 import { buildLocalOptimizations, normalizeOptimizationResult, diffText } from "./modules/training/optimizer.js";
 import { buildSignalExercise, classifySocialSignals, evaluateSignalGuess } from "./modules/training/signals.js";
 import { scoreTiming } from "./modules/training/timing.js";
@@ -34,6 +38,7 @@ import { runCoachFloatSearch as runCoachFloatSearchView } from "./modules/render
 import { renderTiming, renderSignalPractice, renderDailyTraining, renderGrowthProfile, renderTextbookEvidence, enableTextbookIndexLoad } from "./modules/render/render-learning.js";
 import { openLongReader as openLongReaderView, closeLongReader, renderChapterList, loadChapter } from "./modules/render/render-longContent.js";
 import { openIntervention, closeIntervention } from "./modules/render/render-intervention.js";
+import { renderMistakes, closeMistakePractice } from "./modules/render/render-mistakes.js";
 import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCurrentStage, renderStageProgress, restoreStageState } from "./modules/render/render-stage.js";
 import { renderScenarioList, loadScenario as loadScenarioView, REVIEW_MAPPING } from "./modules/render/render-scenario.js";
 import { initMobileTabs, markCoachUnread } from "./modules/render/mobile-tabs.js";
@@ -105,7 +110,60 @@ function renderLearningPanels() {
   renderSignalPractice();
   renderDailyTraining();
   renderGrowthProfile();
+  renderMistakes();
   void renderTextbookEvidence(state.lastAnalysis, { openLongReader });
+}
+
+// ── F2 错题本收集 ─────────────────────────────────────────────────────────────
+
+/** 统一收集入口：去重 + 上限裁剪都在 core/mistakes.js 纯函数内完成，写路径走 mutate。 */
+function collectMistakeEntry(entry) {
+  mutate((draft) => {
+    const outcome = collectMistake(draft.mistakes, {
+      ts: new Date().toISOString(),
+      stage: $("stage")?.value || "",
+      mode: draft.trainingMode === "pua" ? "pua" : "anti",
+      ...entry
+    });
+    draft.mistakes = outcome.mistakes;
+    return outcome.collected;
+  });
+}
+
+/** 收集点一：preflight 最高档（高危越界/施压词）自动收集；medium/low 不收集。 */
+function collectPreflightMistake({ text, score, flags }) {
+  if (!shouldCollectFromPreflight(flags)) return;
+  collectMistakeEntry({
+    source: "preflight",
+    text,
+    dims: {
+      naturalness: score?.naturalness ?? null,
+      empathy: score?.empathy ?? null,
+      boundary: score?.boundary ?? null,
+      drive: score?.momentum ?? null
+    },
+    issues: classifyPreflightIssues(flags.words)
+  });
+}
+
+/** 收集点二：教练评分后 overall < 65 或任一维度 < 55 自动收集（同文未解决去重）。 */
+function collectCoachMistake(draft, coachScore, text, stage, mode) {
+  if (!shouldCollectFromScore(coachScore)) return;
+  const outcome = collectMistake(draft.mistakes, {
+    ts: new Date().toISOString(),
+    source: "coach",
+    stage,
+    mode,
+    text,
+    dims: {
+      naturalness: coachScore.naturalness,
+      empathy: coachScore.empathy,
+      boundary: coachScore.boundary,
+      drive: coachScore.momentum
+    },
+    issues: [`${MISTAKE_DIM_LABELS[coachScore.weakestDim] || "综合"}短板`]
+  });
+  draft.mistakes = outcome.mistakes;
 }
 
 function renderIntelligencePanel(value = state.relationshipIntelligence) {
@@ -179,6 +237,8 @@ function addTrainingLog(data) {
     createdAt: new Date().toISOString(),
     metadata: { naturalness: data.coachScore.naturalness, empathy: data.coachScore.empathy, boundary: data.coachScore.boundary, momentum: data.coachScore.momentum, weakestDim: data.coachScore.weakestDim || null }
   });
+  // F2 收集点二：低分自动进错题本（在 mutate 回调内直接操作 state，禁止嵌套 mutate）
+  collectCoachMistake(state, data.coachScore, lastMine, $("stage")?.value || "", state.trainingMode === "pua" ? "pua" : "anti");
 }
 
 function commitAnalysis(data, source) {
@@ -325,6 +385,8 @@ async function preflightReply() {
   const lastHerMsg = [...state.messages].reverse().find((m) => m.type === "her")?.text || "";
   const score = buildCoachScore(original, { risk: memory.boundaries, judgement: memory.background, herLastMessage: lastHerMsg });
   const flags = detectReplyFlags(original, memory);
+  // F2 收集点一：preflight 最高档高危信号自动进错题本（保守收集，medium/low 不收集）。
+  collectPreflightMistake({ text: original, score, flags });
   const conversation = state.messages.slice(-6).map((message) => ({ speaker: message.type === "her" ? (message.who || persona.name) : "我", text: message.text }));
   let optimization = buildLocalOptimizations(original, { stage: $("stage")?.value || "", goal: $("goal")?.value || "", recentTopic: conversation.at(-1)?.text || "" });
   renderPreflightPanel({ panel, original, score, flags, optimization });
@@ -593,6 +655,9 @@ $("longContentBtn")?.addEventListener("click", () => openLongReader());
 $("closeLongReaderBtn")?.addEventListener("click", closeLongReader);
 $("closeInterventionBtn")?.addEventListener("click", closeIntervention);
 $("interventionOverlay")?.addEventListener("click", closeIntervention);
+// F2 重写练习模态关闭（与介入练习同一模式）
+$("closeMistakePracticeBtn")?.addEventListener("click", closeMistakePractice);
+$("mistakePracticeOverlay")?.addEventListener("click", closeMistakePractice);
 $("autoStageBtn")?.addEventListener("click", () => autoDetectStageView({ model: MIMO_MODEL, endpoint: $("endpoint").value, apiKey: $("apiKey").value, onStatus: (message) => { $("apiStatus").textContent = message; } }));
 $("loadScenarioBtn")?.addEventListener("click", () => loadScenario());
 $("openReplayBtn")?.addEventListener("click", openReplayModal);
