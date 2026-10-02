@@ -78,7 +78,7 @@ export function createTrainingEvent(input = {}) {
     type: normalizeString(input.type, "unknown"),
     source: normalizeString(input.source, "local"),
     dimension: normalizeNullableString(input.dimension),
-    score: normalizeScore(input.score),
+    score: normalizeNullableScore(input.score),
     createdAt: normalizeCreatedAt(input),
     metadata: copyRecord(input.metadata)
   };
@@ -249,11 +249,6 @@ function normalizeString(value, fallback) {
 function normalizeNullableString(value) {
   const text = normalizeString(value, "");
   return text || null;
-}
-
-function normalizeScore(value) {
-  const score = Number(value);
-  return Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : null;
 }
 
 function normalizeNullableScore(value) {

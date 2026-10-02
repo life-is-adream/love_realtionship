@@ -144,3 +144,28 @@ test("uses the newest timestamp when events are stored out of order", () => {
 
   assert.equal(buildLearningSummary(state).byDimension.timing.latestScore, 88);
 });
+
+test("keeps explicit null or empty score as null instead of coercing to 0", () => {
+  const nullEvent = createTrainingEvent({ id: "e-null", type: "session-report", score: null });
+  assert.equal(nullEvent.score, null);
+
+  const emptyEvent = createTrainingEvent({ id: "e-empty", type: "session-report", score: "" });
+  assert.equal(emptyEvent.score, null);
+
+  const missingEvent = createTrainingEvent({ id: "e-missing", type: "session-report" });
+  assert.equal(missingEvent.score, null);
+});
+
+test("does not pollute dimension averages with persisted null scores", () => {
+  const state = normalizeLearningState({
+    events: [
+      { id: "t1", type: "training", source: "local", dimension: "timing", score: 80, createdAt: "2026-07-15T00:00:00.000Z" },
+      { id: "rw1", type: "mistake-rewrite", source: "local", dimension: "timing", score: null, createdAt: "2026-07-16T00:00:00.000Z" }
+    ]
+  });
+  const summary = buildLearningSummary(state, "2026-07-16T12:00:00.000Z");
+
+  assert.equal(summary.byDimension.timing.count, 1);
+  assert.equal(summary.byDimension.timing.averageScore, 80);
+  assert.equal(summary.byDimension.timing.latestScore, 80);
+});
