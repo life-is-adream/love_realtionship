@@ -1,8 +1,9 @@
-# HeartFlow 启动器（健壮版）
+﻿# HeartFlow 启动器（健壮版）
 # - 单实例：端口已被本项目占用时直接打开浏览器；被其他程序占用时明确警告并退出
 # - 后台隐藏启动 node server/index.js，日志写入 scripts/heartflow.out.log / heartflow.err.log
 # - 20 秒就绪等待；Chrome/Edge 找不到时降级为系统默认浏览器
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot "process-identity.ps1")
 
 $projectDir = Split-Path -Parent $PSScriptRoot
 $defaultPort = 3000
@@ -43,7 +44,12 @@ $browser = $browserCandidates | Where-Object { $_ -and (Test-Path -LiteralPath $
 function Test-HeartFlowReady {
     try {
         $health = Invoke-RestMethod -Uri ($url + "/api/health") -Method Get -TimeoutSec 2
-        return $health.ok -eq $true
+        if (-not (Test-HeartFlowServiceResponse $health)) { return $false }
+        foreach ($listenerId in (Get-HeartFlowListenerProcessIds -Port $port)) {
+            $verified = Get-VerifiedHeartFlowProcess -ProcessId $listenerId -ProjectDir $projectDir
+            if ($verified) { return $true }
+        }
+        return $false
     } catch {
         return $false
     }
@@ -94,13 +100,28 @@ if (-not $nodePath) {
 }
 
 Write-Host "正在后台启动 HeartFlow 服务 (端口 $port)..."
+# --- Work around a PowerShell 5.1 defect: Start-Process throws
+# "ArgumentException: An item with the same key has already been added"
+# when the inherited environment contains case-duplicated keys (for
+# example HTTP_PROXY and http_proxy, injected by MSYS-style launchers or
+# some proxy agents). Drop every *_PROXY / NO_PROXY spelling from this
+# process so the child-process environment dictionary builds cleanly.
+# Safe for this local launcher: core training features run fully offline.
+$proxyEnvKeys = @([System.Environment]::GetEnvironmentVariables("Process").Keys) |
+    Where-Object { $_ -match "(?i)^(http|https|all|no)_proxy$" }
+foreach ($proxyKey in $proxyEnvKeys) {
+    [System.Environment]::SetEnvironmentVariable($proxyKey, $null, "Process")
+}
+
 $proc = Start-Process -FilePath $nodePath `
-    -ArgumentList "server/index.js" `
+    -ArgumentList ('"' + (Join-Path $projectDir "server\index.js") + '"') `
     -WorkingDirectory $projectDir `
     -WindowStyle Hidden `
     -RedirectStandardOutput $outLog `
     -RedirectStandardError $errLog `
     -PassThru
+
+$null = $proc.Handle
 
 Set-Content -LiteralPath $pidFile -Value $proc.Id -Encoding ASCII
 
@@ -116,13 +137,13 @@ for ($attempt = 1; $attempt -le 20; $attempt++) {
 
 if (-not $ready) {
     Write-Host ""
-    Write-Host "HeartFlow 未能在 20 秒内就绪，正在回滚本次启动的进程并清理 PID 文件。"
-    if (Test-Path -LiteralPath $pidFile) {
-        $savedPid = (Get-Content -LiteralPath $pidFile -Raw).Trim()
-        if ($savedPid -match '^\d+$') {
-            & taskkill /PID $savedPid /T /F 2>$null | Out-Null
-        }
-        Remove-Item -LiteralPath $pidFile -Force -ErrorAction SilentlyContinue
+    Write-Host "HeartFlow 未能在 20 秒内就绪，正在回滚本次启动。"
+    try {
+        # 只操作 Start-Process 返回的原始进程对象，不从共享 PID 文件选目标。
+        if (-not $proc.HasExited) { $proc.Kill(); $proc.WaitForExit(5000) | Out-Null }
+        if ($proc.HasExited) { Remove-HeartFlowPidFileIfOwned -Path $pidFile -ProcessId $proc.Id }
+    } catch {
+        Write-Host "本次进程回滚失败，已保留 PID 文件。"
     }
     Write-Host "请查看错误日志: $errLog"
     throw "HeartFlow 启动超时（20 秒未就绪）。请检查 $errLog"
