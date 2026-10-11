@@ -18,6 +18,7 @@ _relationship_coach_cn_merged_*/
 _relationship_skills_incoming_*/
 .trae/
 .codex/
+.learnings/
 **/.workbuddy/
 **/.workbuddy-*
 
@@ -41,3 +42,12 @@ __pycache__/
 **/.heartflow.pid
 **/heartflow.out.log
 **/heartflow.err.log
+
+# 外部收集资料与一次性粘贴稿（不入库）
+/外道.zip
+/外道/
+/pasted-text.txt
+relationship-simulator/snap0.txt
+
+# love-learning 构建产物（node scripts/build-love-learning.mjs 可重建；源数据在仓库根 scripts/ 与 恋爱15分钟学习/）
+relationship-simulator/public/love-learning/
