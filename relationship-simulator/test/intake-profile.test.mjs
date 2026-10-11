@@ -154,7 +154,7 @@ test("buildIntakeSummary 对固定画像产出确定性中文摘要", () => {
   const summary = buildIntakeSummary(normalizeIntakeProfile(sampleProfile()));
   assert.equal(
     summary,
-    "依恋倾向以焦虑型为主（焦虑 47% · 安全 33% · 回避 20%），沟通风格偏反刍型、追逐型、稳定型，行动模式偏犹豫不决、冲动行动，弱点模式重点关注查户口式追问、过度分析/犹豫"
+    "情境自检中焦虑型相关选项较多，沟通风格偏反刍型、追逐型、稳定型，行动模式偏犹豫不决、冲动行动，弱点模式重点关注查户口式追问、过度分析/犹豫；仅用于选择练习，不是心理诊断或经过校准的依恋测量"
   );
   // 确定性：同一输入两次调用输出一致
   assert.equal(summary, buildIntakeSummary(normalizeIntakeProfile(sampleProfile())));

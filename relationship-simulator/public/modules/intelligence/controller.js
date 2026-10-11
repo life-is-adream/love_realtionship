@@ -66,5 +66,10 @@ export function createRelationshipIntelligenceController({
     return replace(resetRelationshipIntelligenceSession(current, bytes), { persist: true });
   }
 
-  return { refresh, setConsent, reset };
+  // 恢复备份时只让旧回调失效，不读取、改写、保存或渲染已恢复的档案。
+  function cancelPending() {
+    requestSequence += 1;
+  }
+
+  return { refresh, setConsent, reset, cancelPending };
 }

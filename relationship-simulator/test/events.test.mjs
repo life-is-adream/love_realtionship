@@ -2,6 +2,36 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { on, emit, off, once, Events } from "../public/modules/core/events.js";
 
+test("同一回调跨事件订阅可以独立解除", () => {
+  const seen = [];
+  const handler = (value) => seen.push(value);
+  const a = on("multi:a", handler);
+  const b = on("multi:b", handler);
+  try {
+    off("multi:a", handler);
+    emit("multi:a", "unwanted");
+    emit("multi:b", "wanted");
+    assert.deepEqual(seen, ["wanted"]);
+  } finally { a(); b(); }
+});
+
+test("旧订阅取消函数不会取消同回调的新订阅，off 清理该事件的所有订阅", () => {
+  let calls = 0;
+  const handler = () => calls++;
+  const old = on("repeat", handler);
+  old();
+  const fresh = on("repeat", handler);
+  const duplicate = on("repeat", handler);
+  try {
+    old();
+    emit("repeat");
+    assert.equal(calls, 2);
+    off("repeat", handler);
+    emit("repeat");
+    assert.equal(calls, 2);
+  } finally { fresh(); duplicate(); }
+});
+
 test("Events 包含所有事件常量", () => {
   assert.ok(Events.MEMORY_UPDATED);
   assert.ok(Events.ANALYSIS_COMMITTED);

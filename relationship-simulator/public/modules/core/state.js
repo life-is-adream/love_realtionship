@@ -6,6 +6,7 @@ import {
   toPersistedRelationshipIntelligenceState
 } from "../intelligence/state.js";
 import { normalizeLifestyle } from "../training/lifestyle.js";
+import { normalizePracticeState, toPersistedPracticeState } from "../training/real-practice.js";
 
 /**
  * @typedef {Object} AppState
@@ -61,6 +62,7 @@ import { normalizeLifestyle } from "../training/lifestyle.js";
  */
 
 let currentState = null;
+let mutationInProgress = false;
 
 function clone(value) {
   return typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
@@ -72,7 +74,8 @@ function clone(value) {
  * @returns {Object<string, PersonaObject>}
  */
 export function getAllPersonas(custom = getState().customPersonas) {
-  return { ...builtInPersonas, ...(custom || {}) };
+  const valid = Object.fromEntries(Object.entries(custom || {}).filter(([, persona]) => persona && typeof persona === "object" && !Array.isArray(persona)));
+  return { ...builtInPersonas, ...valid };
 }
 
 /**
@@ -86,13 +89,14 @@ export function normalizeState(next) {
   if (!normalized.personaMemory || typeof normalized.personaMemory !== "object") normalized.personaMemory = {};
   if (!normalized.avatarOverrides || typeof normalized.avatarOverrides !== "object") normalized.avatarOverrides = {};
   const all = getAllPersonas(normalized.customPersonas);
-  if (!all[normalized.personaId]) normalized.personaId = "lin";
+  if (!Object.hasOwn(all, normalized.personaId)) normalized.personaId = "lin";
   if (!Array.isArray(normalized.messages) || normalized.messages.length === 0) {
     normalized.messages = clone(all[normalized.personaId].starterMessages);
   }
   if (!Array.isArray(normalized.trainingLog)) normalized.trainingLog = [];
   normalized.mistakes = normalizeMistakes(normalized.mistakes); // F2 错题本：载入时标准化 + 上限裁剪
   normalized.relationshipIntelligence = normalizeRelationshipIntelligenceState(normalized.relationshipIntelligence);
+  normalized.relationshipPractice = normalizePracticeState(normalized.relationshipPractice);
   normalized.learning = normalizeLearningState(normalized);
   normalized.lifestyle = normalizeLifestyle(normalized.lifestyle); // F5/F6 生活管理：健身+护肤记录规范化（grooming 占位容忍）
   normalized.messages = normalizeMessages(normalized.messages).map((message) => {
@@ -122,13 +126,17 @@ export function loadState() {
  * @returns {AppState}
  */
 export function saveState() {
-  const state = getState();
+  return persistState(getState());
+}
+
+function persistState(state) {
   if (!Array.isArray(state.trainingLog)) state.trainingLog = [];
   if (!Array.isArray(state.mistakes)) state.mistakes = [];
   if (!state.customPersonas || typeof state.customPersonas !== "object") state.customPersonas = {};
   if (!state.personaMemory || typeof state.personaMemory !== "object") state.personaMemory = {};
   if (!state.avatarOverrides || typeof state.avatarOverrides !== "object") state.avatarOverrides = {};
   state.learning = normalizeLearningState(state.learning);
+  state.relationshipPractice = normalizePracticeState(state.relationshipPractice);
   state.lifestyle = normalizeLifestyle(state.lifestyle);
   if (typeof localStorage !== "undefined") {
     localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(serializeStateForStorage(state)));
@@ -142,6 +150,7 @@ export function saveState() {
  */
 export function serializeStateForStorage(state) {
   const persisted = clone(state);
+  persisted.relationshipPractice = toPersistedPracticeState(persisted.relationshipPractice);
   persisted.relationshipIntelligence = toPersistedRelationshipIntelligenceState(
     persisted.relationshipIntelligence
   );
@@ -168,21 +177,25 @@ export function getState() {
  * @returns {AppState}
  */
 export function setState(next) {
-  currentState = normalizeState(next);
-  saveState();
+  if (mutationInProgress) throw new TypeError("Cannot replace state inside mutate");
+  const normalized = normalizeState(next);
+  persistState(normalized);
+  currentState = normalized;
   return currentState;
 }
 
 // ── mutate：唯一推荐写路径（P2-6 store 收敛） ─────────────────────────────────
 
 let changeListener = null;
+let changeErrorListener = null;
 
 /**
  * 注册状态变更回调（由 app.js 装配时注入渲染函数，core 层不 import render 层）。
  * @param {((state: AppState) => void)|null} cb - 状态变更回调，传 null 取消订阅
  */
-export function onStateChange(cb) {
+export function onStateChange(cb, { onError = null } = {}) {
   changeListener = typeof cb === "function" ? cb : null;
+  changeErrorListener = typeof onError === "function" ? onError : null;
 }
 
 /**
@@ -193,11 +206,38 @@ export function onStateChange(cb) {
  * @returns {T} fn 的返回值
  */
 export function mutate(fn) {
+  if (mutationInProgress) throw new TypeError("Nested mutate is not supported");
   const state = getState();
-  const result = fn(state);
-  saveState();
-  changeListener?.(state);
-  return result;
+  // 在隔离草稿上执行；回调或存储失败均不污染当前会话。
+  if (fn?.constructor?.name === "AsyncFunction") throw new TypeError("mutate requires a synchronous callback");
+  const draft = clone(state);
+  let result;
+  mutationInProgress = true;
+  try {
+    result = fn(draft);
+    if (result && typeof result.then === "function") {
+      Promise.resolve(result).catch(() => {});
+      throw new TypeError("mutate requires a synchronous callback");
+    }
+    persistState(draft);
+    // 装配层持有此对象，保持根对象身份；删除也必须提交。
+    for (const key of Object.keys(state)) if (!Object.hasOwn(draft, key)) delete state[key];
+    Object.assign(state, draft);
+  } finally {
+    mutationInProgress = false;
+  }
+  try {
+    changeListener?.(state);
+  } catch (error) {
+    // 数据已提交；展示失败不能变成业务提交失败而触发重复兜底。
+    try {
+      if (changeErrorListener) changeErrorListener(error);
+      else console.error("State observer failed after commit.");
+    } catch {
+      console.error("State error observer failed.");
+    }
+  }
+  return result === draft ? state : result;
 }
 
 /**
@@ -206,7 +246,8 @@ export function mutate(fn) {
  */
 export function getCurrentPersona() {
   const state = getState();
-  return getAllPersonas(state.customPersonas)[state.personaId] || builtInPersonas.lin;
+  const all = getAllPersonas(state.customPersonas);
+  return Object.hasOwn(all, state.personaId) ? all[state.personaId] : builtInPersonas.lin;
 }
 
 /**

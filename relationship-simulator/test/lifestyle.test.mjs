@@ -209,7 +209,7 @@ test("recordWeightEntry：新增；同日期覆盖更新；非法 kg 原样返�
 // ── computeTrainingRhythm 全分支 ─────────────────────────────────────────────
 
 test("computeTrainingRhythm：无有效记录 → start", () => {
-  assert.deepEqual(computeTrainingRhythm([], TODAY), { status: "start", message: "从今天开始第一次训练" });
+  assert.deepEqual(computeTrainingRhythm([], TODAY), { status: "start", message: "暂无训练记录，按自己的计划开始" });
   assert.equal(computeTrainingRhythm(null, TODAY).status, "start");
   // 未来日期与坏日期不算记录
   assert.equal(computeTrainingRhythm([{ date: shiftDate(TODAY, 1) }, { date: "bad" }], TODAY).status, "start");
@@ -224,10 +224,10 @@ test("computeTrainingRhythm：今天已练 → done", () => {
 test("computeTrainingRhythm：昨天练过 → rest", () => {
   const result = computeTrainingRhythm([{ date: daysAgo(1) }], TODAY);
   assert.equal(result.status, "rest");
-  assert.equal(result.message, "昨天练过，今天休息恢复");
+  assert.equal(result.message, "昨天有训练记录，今天按恢复情况安排");
 });
 
-test("computeTrainingRhythm：距今 ≥2 天 → train（漏练补上语义，含天数）", () => {
+test("computeTrainingRhythm：距今 ≥2 天 → train（仅描述记录间隔，含天数）", () => {
   const result = computeTrainingRhythm([{ date: daysAgo(3) }], TODAY);
   assert.equal(result.status, "train");
   assert.ok(result.message.includes("3 天"));
@@ -266,7 +266,8 @@ test("computeWeightReview：plateau（范围 == 0.1 边界命中，> 0.1 不命�
   ];
   const plateau = computeWeightReview(atLimit, TODAY);
   assert.equal(plateau.trend, "plateau");
-  assert.ok(plateau.suggestion.includes("+150 kcal"));
+  assert.ok(plateau.suggestion.includes("不据此自动调整热量"));
+  assert.doesNotMatch(plateau.suggestion, /[+−-]150\s*kcal/);
 
   // kg 以 1 位小数存储，用 46.2 拉开与下限的差距
   const overLimit = [
@@ -291,7 +292,9 @@ test("computeWeightReview：fast（涨幅 == 0.7 不命中，> 0.7 命中）", (
   ];
   const fast = computeWeightReview(over, TODAY);
   assert.equal(fast.trend, "fast");
-  assert.ok(fast.suggestion.includes("−150 kcal"));
+  assert.ok(fast.suggestion.includes("至少 7 天前"));
+  assert.ok(fast.suggestion.includes("不据此自动调整热量"));
+  assert.doesNotMatch(fast.suggestion, /[+−-]150\s*kcal/);
 });
 
 test("computeWeightReview：normal（有波动但未触阈值）", () => {
@@ -302,7 +305,7 @@ test("computeWeightReview：normal（有波动但未触阈值）", () => {
   ];
   const result = computeWeightReview(normal, TODAY);
   assert.equal(result.trend, "normal");
-  assert.equal(result.suggestion, "正常推进");
+  assert.equal(result.suggestion, "记录有变化；仅描述体重，不能判断增肌或健康状态");
 });
 
 // ── computeStreak（与 micro-training 口径一致性） ────────────────────────────
@@ -434,9 +437,9 @@ test("computeSkincareStreak：只有 AM+PM 全完成计 1 天；今天未完成�
 
 // ── F6 护肤：buildSkincareNotice 三分支 ──────────────────────────────────────
 
-test("buildSkincareNotice：尚未开始 / 防晒强制 / 无警示 三分支", () => {
-  const SUNSCREEN_NOTICE = "今日防晒未记录——异维A酸期间防晒为强制项";
-  const NOT_STARTED = "今日护肤尚未开始";
+test("buildSkincareNotice：未记录 / 按需防护 / 无提醒，不推断服药", () => {
+  const SUNSCREEN_NOTICE = "今日日晒防护未记录，按当天日晒情况安排";
+  const NOT_STARTED = "今日护理尚未记录，按需要填写";
 
   assert.deepEqual(buildSkincareNotice(null), [NOT_STARTED]);
   assert.deepEqual(buildSkincareNotice({}), [NOT_STARTED]);
@@ -444,7 +447,7 @@ test("buildSkincareNotice：尚未开始 / 防晒强制 / 无警示 三分支", 
     buildSkincareNotice({ am: { cleanser: false, moisturizer: false, sunscreen: false }, pm: { cleanser: false, moisturizer: false } }),
     [NOT_STARTED]
   );
-  // AM 有记录但防晒未勾 → 强制项警示（即使 PM 完成）
+  // AM 有记录但防护未勾 → 仅提示记录，不推断异维 A 酸用药（即使 PM 完成）
   assert.deepEqual(
     buildSkincareNotice({ am: { cleanser: true, moisturizer: true, sunscreen: false }, pm: { cleanser: true, moisturizer: true } }),
     [SUNSCREEN_NOTICE]
@@ -666,7 +669,7 @@ test("state 集成：护肤复选框切换走 mutate 写路径 → 持久化 →
   assert.equal(reloaded.lifestyle.skincare.days.length, 2);
   assert.equal(computeSkincareStreak(reloaded.lifestyle.skincare.days, TODAY), 2);
   // 空状态（无记录日）警示：尚未开始
-  assert.deepEqual(buildSkincareNotice(reloaded.lifestyle.skincare.days.find((day) => day.date === daysAgo(2)) || null), ["今日护肤尚未开始"]);
+  assert.deepEqual(buildSkincareNotice(reloaded.lifestyle.skincare.days.find((day) => day.date === daysAgo(2)) || null), ["今日护理尚未记录，按需要填写"]);
 });
 
 test("state 集成：穿搭复选框切换走 mutate 写路径 → 持久化 → loadState 往返一致", async () => {
@@ -730,10 +733,11 @@ test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePan
   assert.match(renderSource, /data-lifestyle-action="train-today"/);
   assert.match(renderSource, /data-lifestyle-action="record-weight"/);
 
-  // 计划卡与安全约束卡内容齐全（来自既定计划文档与安全约束）
-  for (const text of ["训练日 A · 下肢 + 推", "训练日 B · 髋铰链 + 拉", "罗马尼亚硬拉 3×8", "RPE 6–7", "助力带", "补水 3L", "横纹肌溶解", "以医生与正式计划文档为准"]) {
+  // 通用界面提供专业依据，避免把个体计划与医嘱普遍化。
+  for (const text of ["训练卡 · 基础依据", "cdc-activity", "nhs-strength", "体重趋势为记录摘要", "不是医学标准"]) {
     assert.ok(renderSource.includes(text), `缺少内容：${text}`);
   }
+  assert.doesNotMatch(renderSource, /补水 3L|每日 [＋+−-]150|防晒（强制）|立即停用并就医/);
 
   // F6 护肤卡接线：复选框 → setSkincareItem（mutate）、警示行、连续记录、7 天小表、要点卡
   assert.match(renderSource, /data-skincare-item="/);
@@ -745,25 +749,18 @@ test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePan
     "护肤管理",
     "温和洁面",
     "保湿修复",
-    "防晒（强制）",
+    "日晒防护",
     "连续护肤",
     "防晒★",
-    "异维A酸护理要点",
-    "去角质",
-    "磨砂",
-    "蜡疗",
-    "维A类补充剂",
-    "禁酒",
-    "血脂 / 肝功",
-    "严重皲裂",
-    "酱油色尿",
-    "立即停用并就医",
-    "以医嘱为准"
+    "异维 A 酸属于处方治疗",
+    "不推断用药",
+    "aad-basics",
+    "aad-isotretinoin"
   ]) {
     assert.ok(renderSource.includes(text), `缺少护肤卡内容：${text}`);
   }
 
-  // F7 穿搭卡接线：复选框 → setGroomingItem（mutate）、轻提示、连续整理、7 天小表、场景卡与体型卡
+  // 穿搭卡仍保留记录，并使用设计教育和牙科资料。
   assert.match(renderSource, /data-grooming-item="/);
   assert.match(renderSource, /setGroomingItem\(state\.lifestyle, todayKey\(\)/);
   assert.match(renderSource, /buildGroomingNotice\(/);
@@ -778,22 +775,10 @@ test("UI 接线：app.js 挂载 renderLifestyle，index.html 提供 lifestylePan
     "发型整齐",
     "口气清新",
     "连续整理",
-    "场景穿搭卡 · 日常",
-    "场景穿搭卡 · 约会",
-    "场景穿搭卡 · 正式",
-    "简洁配色",
-    "九分裤露脚踝",
-    "整体整洁度 &gt; 单品价格",
-    "衬衫熨烫",
-    "极简配饰",
-    "体型要点",
-    "修身剪裁",
-    "层次感",
-    "竖向线条与同色系",
-    "面料挺括",
-    "腰带定位",
-    "干净整洁永远大于复杂花哨",
-    "通用造型参考，按自己喜好调整"
+    "穿搭卡 · 场景选择与专业基础",
+    "审美与实践建议",
+    "usu-design",
+    "ada-breath"
   ]) {
     assert.ok(renderSource.includes(text), `缺少穿搭卡内容：${text}`);
   }

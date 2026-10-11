@@ -130,11 +130,13 @@ test("buildSystemPrompt 是纯函数：相同输入产生相同输出", () => {
   assert.equal(prompt1, prompt2);
 });
 
-test("prompt 抽离前后输出完全一致", () => {
-  assert.equal(
-    buildSystemPrompt(fixturePersona, fixtureMemory),
-    buildPreExtractionSystemPrompt(fixturePersona, fixtureMemory)
-  );
+test("教练升级为证据契约，旧读心快照不再是期望输出", () => {
+  const current = buildSystemPrompt(fixturePersona, fixtureMemory);
+  assert.notEqual(current, buildPreExtractionSystemPrompt(fixturePersona, fixtureMemory));
+  assert.doesNotMatch(current, /隐藏意图|隐藏目标/);
+  assert.match(current, /evidenceReasoning/);
+  assert.match(current, /反证和未知|支持与反证/);
+  assert.match(current, /模拟生成的回应.*不能充当现实结果/);
 });
 
 test("buildSystemPrompt 不依赖闭包（接受参数）", () => {
@@ -329,5 +331,5 @@ test("buildSystemPrompt 注入真诚度调节指令", () => {
 
 test("PROMPT_VERSION 已导出且为字符串", () => {
   assert.ok(typeof PROMPT_VERSION === "string");
-  assert.equal(PROMPT_VERSION, "1.0.0");
+  assert.equal(PROMPT_VERSION, "1.1.0");
 });

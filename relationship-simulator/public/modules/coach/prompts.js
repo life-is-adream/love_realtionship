@@ -17,7 +17,7 @@ import { buildPuaAwarenessPrompt } from "../training/pua-awareness.js";
 export { buildPuaAwarenessPrompt };
 
 /** Prompt 版本号，供训练日志可选记录 */
-export const PROMPT_VERSION = "1.0.0";
+export const PROMPT_VERSION = "1.1.0";
 
 /**
  * 恋爱沟通教练技能契约
@@ -29,7 +29,7 @@ export function buildRelationshipCoachSkillPrompt(isPuaMode = false) {
   return [
     "恋爱沟通教练技能契约（每轮必须执行）：",
     "- 先判断阶段、她的投入程度、情绪语气、用户错误、机会与风险；不要把礼貌回复误判为暧昧或高投入。",
-    "- 输出分析要覆盖：场景、她的隐藏意图、你的隐藏目标、A/B/C、推荐、原因、下一步。",
+    "- 输出分析要覆盖：可观察事实、至少一个替代解释、支持与反证、目前未知、用户明确目标、A/B/C、推荐、原因、下一步；不猜测隐藏心理，不输出喜欢概率。",
     "- A 是温柔高情商：接住情绪或事实，给空间，低压力；B 是幽默风趣：轻松但不嘲讽、不油腻；C 是深入了解：只问一个具体问题，建立在她刚说的话上。",
     isPuaMode
       ? "- PUA 识别训练模式：用户正在练习识别与防御操控手法。教练不输出任何实施操控的建议；识别到手法时，把识别信号写进 risk，把防御回应写进 recommendation。"
@@ -57,7 +57,9 @@ export function buildGenerationTaskPrompt(isPuaMode = false) {
       ? "3. PUA 识别训练模式下：女方按手法清单演示一种可识别手法；herIntent 标注手法名称，risk 给出识别信号，recommendation 给出防御回应。"
       : "3. 保持尊重、同意与边界，不要操控、PUA、暗示施压。",
     "4. 如果信息不足，也要给出一个能承接当前话题的自然回复。",
-    "JSON 字段：herReply, herIntent, yourGoal, judgement, risk, replyOptions, recommendation, coachScore。",
+    "JSON 字段：herReply, herIntent, yourGoal, judgement, risk, replyOptions, recommendation, coachScore, evidenceReasoning。",
+    "evidenceReasoning 必须包含 observations（行为事实字符串数组）、hypotheses（最多两个 {explanation,support:[],counter:[]}）、unknowns（未知字符串数组）；模拟生成的回应标明为虚构情境，不能充当现实结果。",
+    "herIntent 仅概述可观察回应或虚构演示手法；yourGoal 仅使用用户明确提供的目标。缺少证据时保持未知，不从回复速度、性别或单次信号断言心理。",
     "replyOptions 只保留 A/B/C 三项，并且每一项都必须是男方对本次 herReply 的直接回复，不能继续回应生成 herReply 之前的旧消息。",
     "A/B/C 必须是可直接发送的聊天文本，不要写教练点评，不要用‘我听到你说’、‘我先记下’、‘不急着抢答’，不要把 herReply 原文整段复制进建议。"
   ].join("\n");
@@ -111,7 +113,7 @@ export function buildSystemPrompt(persona, memory, options = {}) {
   parts.push("输出要求：",
     "1. 女方回复要自然、短、像真人微信。",
     "2. 同时给出 A/B/C 三种不同风格的男方回复建议。",
-    "3. 分析女方的隐藏意图、男方的目标、当前判断、风险提醒。",
+    "3. 区分行为事实、可能解释、反证和未知，使用用户明确目标；未经核实不判断真人内心。",
     isPuaMode
       ? "4. PUA 识别训练模式下：herIntent 必须标注女方本轮使用的可识别手法名称；risk 给出识别信号；recommendation 给出防御回应与健康替代做法。"
       : "4. 不要操控、不要 PUA、不要制造焦虑、尊重边界。",

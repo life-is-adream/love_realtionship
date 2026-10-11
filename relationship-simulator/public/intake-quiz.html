@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HeartFlow 入学测试 — 你的恋爱沟通画像</title>
+<title>HeartFlow 入学测试 — 沟通情境自检</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #ededed; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
@@ -72,7 +72,7 @@ body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
 <div class="container">
   <div class="header">
     <h1>HeartFlow 入学测试</h1>
-    <p>15 个微信聊天情境，测出你的沟通画像。<br>没有对错，选最像你的那个。</p>
+    <p>15 个微信聊天情境，回顾自己的回应选择。<br>选择最接近你当前做法的选项；结果仅供安排练习。</p>
   </div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   <div class="progress-text" id="progressText">0 / 15</div>
@@ -377,9 +377,9 @@ function showResult() {
   const wLabels = { interrogation: "查户口式追问", overthinking: "过度分析/犹豫", "rationalize-emotion": "理性回应情绪", "avoidant-withdrawal": "回避式撤退", "action-paralysis": "行动瘫痪", "impulsive-escalation": "冲动推进" };
 
   const attDesc = {
-    anxious: "你在关系中容易感到不确定，需要对方的回应来确认“她还在意我”。没收到回复时，大脑会自动开始推演最坏情况。你的感受是真实的，但解读往往比事实更悲观。",
-    secure: "你对关系的底层信任比较稳，能区分“她可能在忙”和“她不想理我”。你不靠对方的即时回应来确认自己的价值，也能在不确定中保持行动力。",
-    avoidant: "你倾向于在感到脆弱或不确定时先撤退。独立是你的安全区，靠近别人会让你本能地想保持距离。你不是不在意，而是不习惯把在意说出来。"
+    anxious: "本次选择中，寻求确认和反复分析的回应较多。可以选一个现实卡点，练习区分事实与猜测；是否适合你仍需实际观察。",
+    secure: "本次选择中，表达与接受不同回应的选项较多。可以用现实互动检验这些做法，而非把选择题结果当成已经掌握的能力。",
+    avoidant: "本次选择中，撤退或减少表达的选项较多。可以练习清楚说出自己的需要，也允许自己选择退出；这不构成人格或依恋类型判断。"
   };
 
   const recs = [];
@@ -387,7 +387,7 @@ function showResult() {
   if (weaknesses.includes("overthinking")) recs.push("发出去的消息不需要第二句解释。说完就说完，不需要对方批准");
   if (weaknesses.includes("rationalize-emotion")) recs.push("她表达情绪时，第一句永远是回应感受，不是分析原因或给方案");
   if (weaknesses.includes("avoidant-withdrawal")) recs.push("想撤退时多说一句“我现在有点不知道怎么表达”，而不是直接消失");
-  if (weaknesses.includes("action-paralysis")) recs.push("给自己一个“72小时规则”：想约就约，超过三天不发就默认放弃，别反复编辑");
+  if (weaknesses.includes("action-paralysis")) recs.push("已有互惠且情境适合时，准备一个具体、容易拒绝的邀请；没有合适机会时先陪练，不靠时间限制强行邀约");
   if (weaknesses.includes("impulsive-escalation")) recs.push("发消息前等 10 分钟。冲动时写的消息，冷静后大概率会想删");
   if (primary === "anxious" && !weaknesses.includes("overthinking")) recs.push("她没回消息时，设一个“2小时不看手机”的规则，打断反刍循环");
   if (primary === "avoidant" && !weaknesses.includes("avoidant-withdrawal")) recs.push("每周主动发起一次低压力的聊天或邀约，不等“想聊了再聊”");
@@ -395,7 +395,7 @@ function showResult() {
 
   const profile = {
     version: "1.0",
-    testDate: new Date().toISOString().slice(0, 10),
+    testDate: new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()),
     questions: SCENARIOS.length,
     attachment: { primary, distribution: pct },
     communicationStyle: topStyles,
@@ -405,8 +405,6 @@ function showResult() {
     trainingFocus: recs.slice(0, 4)
   };
 
-  const attName = { anxious: "焦虑型", secure: "安全型", avoidant: "回避型" };
-
   document.getElementById("quizArea").classList.add("hidden");
   document.getElementById("progressFill").style.width = "100%";
   document.getElementById("progressText").textContent = "完成";
@@ -414,21 +412,22 @@ function showResult() {
   ra.classList.remove("hidden");
   ra.innerHTML = `
     <div class="result-card">
-      <div class="result-title">你的恋爱沟通画像</div>
-      <div class="result-subtitle">基于 ${SCENARIOS.length} 个情境选择生成</div>
+      <div class="result-title">本次沟通情境自检</div>
+      <div class="result-subtitle">仅回顾 ${SCENARIOS.length} 个选择，不是心理诊断、依恋测量或现实能力评分</div>
       <div class="profile-section">
-        <h3>依恋倾向 · ${attName[primary]}</h3>
+        <h3>回应选项回顾</h3>
         <p>${attDesc[primary]}</p>
         <div style="margin-top:12px;">
-          <div class="score-bar"><span class="score-label">焦虑</span><div class="score-track"><div class="score-fill anxious" style="width:${pct.anxious}%"></div></div><span class="score-value">${pct.anxious}%</span></div>
-          <div class="score-bar"><span class="score-label">安全</span><div class="score-track"><div class="score-fill secure" style="width:${pct.secure}%"></div></div><span class="score-value">${pct.secure}%</span></div>
-          <div class="score-bar"><span class="score-label">回避</span><div class="score-track"><div class="score-fill avoidant" style="width:${pct.avoidant}%"></div></div><span class="score-value">${pct.avoidant}%</span></div>
+          <div class="score-bar"><span class="score-label">确认</span><div class="score-track"><div class="score-fill anxious" style="width:${pct.anxious}%"></div></div><span class="score-value">${D.att.anxious}题</span></div>
+          <div class="score-bar"><span class="score-label">接纳</span><div class="score-track"><div class="score-fill secure" style="width:${pct.secure}%"></div></div><span class="score-value">${D.att.secure}题</span></div>
+          <div class="score-bar"><span class="score-label">撤退</span><div class="score-track"><div class="score-fill avoidant" style="width:${pct.avoidant}%"></div></div><span class="score-value">${D.att.avoidant}题</span></div>
+          <p>数字仅表示这些情境中选中了多少个预设标签；不能据此给自己或他人定型。</p>
         </div>
       </div>
       <div class="profile-section"><h3>沟通风格</h3><div class="tag-row">${topStyles.map(s => `<span class="ptag">${s}</span>`).join("")}</div></div>
       <div class="profile-section"><h3>情绪处理方式</h3><div class="tag-row">${topEmotions.map(s => `<span class="ptag">${s}</span>`).join("")}</div></div>
       <div class="profile-section"><h3>行动模式</h3><div class="tag-row">${topActions.map(s => `<span class="ptag">${s}</span>`).join("")}</div></div>
-      <div class="profile-section"><h3>弱点模式</h3><div class="tag-row">${weaknesses.length ? weaknesses.map(w => `<span class="ptag warn">${wLabels[w] || w}</span>`).join("") : '<span class="ptag">暂未检测到明显模式</span>'}</div></div>
+      <div class="profile-section"><h3>可选择的练习方向</h3><div class="tag-row">${weaknesses.length ? weaknesses.map(w => `<span class="ptag warn">${wLabels[w] || w}</span>`).join("") : '<span class="ptag">本次未匹配预设练习标签</span>'}</div></div>
       <div class="profile-section"><h3>训练重点</h3><p>${recs.slice(0, 4).map((r, i) => `${i + 1}. ${r}`).join("<br>")}</p></div>
       <div class="profile-section">
         <h3>JSON Profile（可导入模拟器）</h3>

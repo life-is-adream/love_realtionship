@@ -85,7 +85,8 @@
 /**
  * @typedef {Object} AnalysisResult
  * @property {string} herReply - 女方回复
- * @property {string} herIntent - 女方隐藏意图
+ * @property {string} herIntent - 兼容旧数据的回应概述，不作为心理事实展示
+ * @property {Object} [evidenceReasoning] - 行为观察、可能解释、反证与未知
  * @property {string} yourGoal - 当前目标
  * @property {string} judgement - 当前判断
  * @property {string} risk - 风险提醒

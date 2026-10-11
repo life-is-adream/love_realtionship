@@ -89,3 +89,47 @@ test("同意切换与会话重置由控制器统一处理", () => {
   assert.notEqual(h.appState.relationshipIntelligence.caseId, oldCaseId);
   assert.equal(h.saves, 3);
 });
+
+test("恢复期间仅失效旧请求，旧成功或错误都不能改写恢复档案及记忆同意", async () => {
+  for (const outcome of ["resolve", "reject"]) {
+    const delayed = deferred();
+    let appState = {
+      messages: [{ type: "me", text: "合成旧会话" }],
+      relationshipIntelligence: normalizeRelationshipIntelligenceState({ consent: true, memory: { currentState: "INITIAL_CONTACT" } })
+    };
+    let reads = 0;
+    let saves = 0;
+    let renders = 0;
+    let requests = 0;
+    const controller = createRelationshipIntelligenceController({
+      getAppState: () => { reads += 1; return appState; },
+      saveAppState: () => { saves += 1; },
+      render: () => { renders += 1; },
+      analyze: () => ++requests === 1 ? delayed.promise : Promise.resolve({ version: 1, decision: { value: "OBSERVE" }, memoryPatch: null })
+    });
+    const pending = controller.refresh();
+    // 模拟成功恢复后 loadState 替换整个应用对象；不访问真实存储或聊天。
+    appState = {
+      messages: [{ type: "me", text: "合成已恢复会话" }],
+      relationshipIntelligence: normalizeRelationshipIntelligenceState({ consent: false, lastResult: { version: 1, decision: { value: "OBSERVE" } } })
+    };
+    const restored = structuredClone(appState);
+    const beforeCancel = { reads, saves, renders };
+    controller.cancelPending();
+    assert.deepEqual({ reads, saves, renders }, beforeCancel, "取消待处理请求必须没有读取、持久化或渲染副作用");
+    assert.deepEqual(appState, restored);
+    if (outcome === "resolve") delayed.resolve({ version: 1, decision: { value: "ADVANCE" }, memoryPatch: { currentState: "GROWING_INTEREST" } });
+    else delayed.reject(new Error("合成旧请求错误"));
+    assert.equal(await pending, null);
+    assert.deepEqual(appState, restored, "旧成功结果和错误都不能覆盖恢复内容");
+    assert.equal(appState.relationshipIntelligence.consent, false);
+    assert.equal(appState.relationshipIntelligence.memory, null);
+    assert.equal(saves, 0);
+    assert.equal(renders, beforeCancel.renders);
+    // 失效旧请求不会禁用后续的正常分析。
+    await controller.refresh();
+    assert.equal(appState.relationshipIntelligence.consent, false);
+    assert.equal(appState.relationshipIntelligence.lastResult.decision.value, "OBSERVE");
+    assert.equal(saves, 1);
+  }
+});

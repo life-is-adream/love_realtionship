@@ -2,6 +2,7 @@ import { buildCoachScore, clampScore } from "./coach.js";
 import { buildReplyOptionsForHer, isUsableModelReplyOptions } from "./replies.js";
 import { buildLocalHerReply, getCurrentPersona, getPersonaMemory, getLatestMineText, getState } from "../core/state.js";
 import { selectLocalPuaReply } from "../training/pua-awareness.js";
+import { normalizeCoachEvidence } from "./evidence-contract.js";
 
 /** 取对话中最近一条女方消息文本（供个人校准检测"理性回应情绪"） */
 function getPreviousHerText() {
@@ -30,7 +31,7 @@ export function normalizeReplyOptions(replyOptions) {
     : (replyOptions && typeof replyOptions === "object"
       ? Object.entries(replyOptions).map(([key, value]) => typeof value === "string" ? { key, text: value } : { key, ...(value || {}) })
       : []);
-  const fallbackLabels = { A: "A 温柔高情商", B: "B 幽默风趣", C: "C 拉扯试探" };
+  const fallbackLabels = { A: "A 自然稳妥", B: "B 轻松幽默", C: "C 深入了解" };
   return list.map((item, index) => {
     const key = item.key || ["A", "B", "C"][index] || String(index + 1);
     return {
@@ -79,6 +80,7 @@ export function normalizeAnalysis(obj, raw, context = {}) {
   const useModelOptions = isUsableModelReplyOptions(replyOptions, normalizedHerReply, latestMine);
   return {
     herReply: normalizedHerReply,
+    evidenceReasoning: normalizeCoachEvidence(obj.evidenceReasoning, context.goal),
     herIntent: obj.herIntent || obj["她的隐藏意图"] || "模型未提供。",
     yourGoal: obj.yourGoal || obj["你的隐藏目标"] || goal,
     judgement: obj.judgement || obj["当前判断"] || raw.slice(0, 500),
@@ -104,6 +106,7 @@ export function parsePlainTextFallback(raw, context = {}) {
   const useModelOptions = isUsableModelReplyOptions(extractedReplyOptions, normalizedHerReply, latestMine);
   return {
     herReply,
+    evidenceReasoning: normalizeCoachEvidence(null, context.goal),
     herIntent: extractedIntent || "模型返回普通文本，已兼容解析。",
     yourGoal: extractedGoal || context.goal || "继续推进自然对话。",
     judgement: extractedJudgement || raw.slice(0, 900),
@@ -147,7 +150,8 @@ export function localAnalyze(modelError = "", uiValues = {}) {
     source: "local",
     generationSource: "local",
     modelError,
-    herIntent: `${persona.name} 正在观察你这一轮的真实意图。`,
+    evidenceReasoning: normalizeCoachEvidence({ observations: ["本轮是本地模板生成的虚构回应。"], unknowns: ["现实中的双方意愿和后续结果尚未提供。"] }, uiValues.goal),
+    herIntent: "这是一条本地虚构回应，不能据此推断真人心理。",
     yourGoal: String(uiValues.goal || "").trim() || "继续推进自然对话。",
     judgement: `当前处于${stage}，${background || "关系背景待补充"}。重点是把对话维持得自然、有边界。`,
     risk: memory.boundaries || "保持尊重边界，避免操控或施压。",

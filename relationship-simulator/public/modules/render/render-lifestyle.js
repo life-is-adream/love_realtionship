@@ -1,10 +1,6 @@
 /**
- * F5/F6 生活管理 UI：成长面板区域的「生活管理」可折叠 section。
- *
- * F5 实现健身卡（训练节奏打卡 / 连续记录 / 体重与复查趋势 / 计划卡 / 安全约束卡）；
- * F6 实现护肤卡（今日 AM/PM 复选框 / 连续记录 / 最近 7 天完成度 / 警示行 / 异维A酸护理要点卡）；
- * F7 实现穿搭卡（出门快速检查五项复选框 / 连续整理 / 最近 7 天完成度 / 轻提示 /
- *   场景穿搭卡库（日常·约会·正式）+ 偏瘦体型要点卡）。
+ * 日常记录 UI：健身、护理和穿搭整理的可折叠记录区。
+ * 知识依据在独立分类阅读区呈现；这里保留原记录结构，避免通用化个人计划与医嘱。
  *
  * 惯例对齐：
  * - 布局对齐 render-mistakes 的 mistakes-box 可折叠先例；全部插值过 escapeHtml；
@@ -14,6 +10,7 @@
 
 import { $, escapeHtml } from "../core/dom.js";
 import { getState, mutate } from "../core/state.js";
+import { renderKnowledgeSources } from "./render-presentation-knowledge.js";
 import {
   computeTrainingRhythm,
   computeWeightReview,
@@ -33,13 +30,13 @@ import {
   WEIGHT_KG_MAX
 } from "../training/lifestyle.js";
 
-const RHYTHM_LABELS = { start: "开始", train: "训练日", rest: "休息日", done: "已完成" };
+const RHYTHM_LABELS = { start: "未记录", train: "活动安排", rest: "恢复安排", done: "已记录" };
 const SKINCARE_RECENT_WINDOW = 7;
 const GROOMING_RECENT_WINDOW = 7;
 const SKINCARE_CHECKBOXES = [
   { session: "am", item: "cleanser", label: "温和洁面" },
   { session: "am", item: "moisturizer", label: "保湿" },
-  { session: "am", item: "sunscreen", label: "防晒（强制）" },
+  { session: "am", item: "sunscreen", label: "日晒防护" },
   { session: "pm", item: "cleanser", label: "温和洁面" },
   { session: "pm", item: "moisturizer", label: "保湿修复" }
 ];
@@ -54,6 +51,7 @@ const GROOMING_CHECKBOX_LABELS = {
 export function renderLifestyle() {
   const panel = $("lifestylePanel");
   if (!panel) return;
+  const openSections = new Set([...panel.querySelectorAll("details[open]")].map((section) => section.querySelector("summary")?.textContent));
   const lifestyle = getState().lifestyle;
   const todayStr = todayKey();
   const fitness = lifestyle?.fitness || { trainings: [], weights: [] };
@@ -87,15 +85,17 @@ export function renderLifestyle() {
     return { date, ...computeGroomingCompleteness(entry) };
   }).reverse();
 
-  panel.innerHTML = `<details class="mistakes-box lifestyle-box" open>
-    <summary>生活管理<span class="mistake-count">健身 · 护肤 · 穿搭</span></summary>
+  // 记录独立折叠，先阅读上方知识卡；不把打卡完整度当成健康或吸引力评分。
+  panel.innerHTML = `<details class="mistakes-box lifestyle-box">
+    <summary>日常记录<span class="mistake-count">运动 · 护理 · 整理</span></summary>
     <div class="lifestyle-fitness">
       <div class="lifestyle-rhythm">
         <span class="lifestyle-rhythm-status is-${escapeHtml(rhythm.status)}">${escapeHtml(RHYTHM_LABELS[rhythm.status] || rhythm.status)}</span>
         <span class="lifestyle-rhythm-message">${escapeHtml(rhythm.message)}</span>
         <button class="btn small primary" type="button" data-lifestyle-action="train-today" ${trainedToday ? "disabled" : ""}>${trainedToday ? "今日已练" : "完成今日训练"}</button>
       </div>
-      <div class="lifestyle-streak">连续训练 <b>${escapeHtml(String(streak))}</b> 天${recentTrainings.length ? `<span class="lifestyle-recent">最近：${recentTrainings.map((item) => escapeHtml(item?.date || "")).join("、")}</span>` : ""}</div>
+      <div class="lifestyle-streak">连续训练记录 <b>${escapeHtml(String(streak))}</b> 天${recentTrainings.length ? `<span class="lifestyle-recent">最近：${recentTrainings.map((item) => escapeHtml(item?.date || "")).join("、")}</span>` : ""}</div>
+      <p class="note">打卡只记录活动，不要求连续训练。恢复与强度按自己的计划安排。</p>
       <div class="lifestyle-weight">
         <div class="lifestyle-weight-row">
           <b>体重记录</b>
@@ -105,47 +105,25 @@ export function renderLifestyle() {
         <p class="lifestyle-trend is-${escapeHtml(review.trend)}">${escapeHtml(review.suggestion)}</p>
         ${recentWeights.length ? `<table class="lifestyle-weight-table"><thead><tr><th>日期</th><th>公斤</th></tr></thead><tbody>
           ${recentWeights.map((item) => `<tr><td>${escapeHtml(item?.date || "")}</td><td>${escapeHtml(formatKg(item?.kg))}</td></tr>`).join("")}
-        </tbody></table>` : '<p class="mistake-empty">还没有体重记录。建议每周固定条件称重一次（同一时间、空腹）。</p>'}
+        </tbody></table>` : '<p class="mistake-empty">还没有体重记录。按需要记录，尽量保持称重条件一致；不必每天称重。</p>'}
       </div>
       <details class="lifestyle-plan">
-        <summary>训练计划卡（全身 A/B 交替 · 练一天休一天）</summary>
+        <summary>训练卡 · 基础依据与计划选择</summary>
         <div class="lifestyle-plan-body">
-          <b>训练日 A · 下肢 + 推</b>
-          <ul>
-            <li>杠铃后蹲 3×8</li>
-            <li>倒蹬腿举 3×12</li>
-            <li>杠铃卧推 3×8</li>
-            <li>杠铃坐姿肩推 3×10</li>
-            <li>哑铃侧平举 3×15</li>
-            <li>绳索下压 3×12</li>
-            <li>平板支撑 3×45 秒</li>
-          </ul>
-          <b>训练日 B · 髋铰链 + 拉</b>
-          <ul>
-            <li>罗马尼亚硬拉 3×8</li>
-            <li>宽握高位下拉 3×10</li>
-            <li>杠铃俯身划船 3×10</li>
-            <li>俯卧腿弯举 3×12</li>
-            <li>上斜哑铃卧推 3×10</li>
-            <li>哑铃弯举 3×12</li>
-            <li>哑铃农夫行走 3×30 米（可选）</li>
-          </ul>
-          <p class="note">排法：A → 休 → B → 休 循环交替。组间休息：复合动作 2–3 分钟，孤立动作 60–90 秒。每组结束保留 2–3 次余力。</p>
+          <p>先区分有氧活动与主要肌群强化，逐步安排运动量；动作不熟悉时从合适版本开始。上方健身知识卡提供具体依据、示范入口与自测。</p>
+          <p>固定 A/B、大重量、组数和增肌饮食属于个体计划，需要结合经验、目标、健康状态与恢复调整。</p>
+          <ul class="knowledge-sources">${renderKnowledgeSources(["cdc-activity", "nhs-strength"])}</ul>
         </div>
       </details>
       <div class="lifestyle-safety">
-        <b>安全约束</b>
-        <ul>
-          <li>训练强度 RPE 6–7，不做力竭</li>
-          <li>硬拉类动作先降级（罗马尼亚硬拉可降至空杆或暂停），大重量一律用助力带 / 安全架或找人保护</li>
-          <li>补水 3L 以上，训练日再额外补充</li>
-        </ul>
-        <p class="lifestyle-redline">⚠ 红线信号：异常肌痛 / 肌无力 / 酱油色尿——提示横纹肌溶解风险，立即停训就医。</p>
-        <p class="note">既定安全约束提醒，以医生与正式计划文档为准。</p>
+        <b>适用范围</b>
+        <p>通用卡不规定所有人的饮水量或热量，也不替代已有医嘱。训练中明显不适时停止，按需要寻求医疗评估。</p>
+        <p class="note">体重趋势为记录摘要；界面提示阈值不是医学标准，不能据此诊断或自动调整饮食。</p>
       </div>
     </div>
     <div class="lifestyle-skincare">
       <b>护肤管理</b>
+      <p class="note">按肤质与当日需要护理；勾选仅表示已记录，连续天数不是皮肤健康评价。</p>
       <div class="lifestyle-skincare-today">
         <span class="lifestyle-skincare-session">早间</span>
         ${renderSkincareCheckbox(todayEntry, "am", "cleanser")}
@@ -164,18 +142,13 @@ export function renderLifestyle() {
         </tbody>
       </table>
       <details class="lifestyle-plan">
-        <summary>异维A酸护理要点（既定安全约束）</summary>
+        <summary>护理卡 · 基础护理与药物适用范围</summary>
         <div class="lifestyle-plan-body">
-          <ul>
-            <li>防晒为强制项：每日早间防晒必须记录，漏记会在上方持续警示</li>
-            <li>温和洁面 + 保湿修复，避免去角质 / 磨砂 / 蜡疗类项目</li>
-            <li>禁用维A类补充剂；服药期间禁酒</li>
-            <li>补水 3L 以上；复查血脂 / 肝功时主动交代饮食背景</li>
-          </ul>
+          <p>从温和清洁、保湿和日晒防护开始，按肤质选择，避免临时叠加陌生产品。上方护肤知识卡列出产品选择与防护要点。</p>
+          <p>异维 A 酸属于处方治疗，只有实际服药者才需要相关护理与随访；本应用不推断用药，不推荐开始、停用或改剂量。</p>
+          <ul class="knowledge-sources">${renderKnowledgeSources(["aad-basics", "aad-isotretinoin"])}</ul>
         </div>
       </details>
-      <p class="lifestyle-redline">⚠ 红线信号：严重皲裂 / 异常肌痛 / 酱油色尿——立即停用并就医。</p>
-      <p class="note">既定安全约束提醒，以医嘱为准。</p>
     </div>
     <div class="lifestyle-grooming">
       <b>穿搭管理</b>
@@ -192,53 +165,19 @@ export function renderLifestyle() {
         </tbody>
       </table>
       <details class="lifestyle-plan">
-        <summary>场景穿搭卡 · 日常</summary>
+        <summary>穿搭卡 · 场景选择与专业基础</summary>
         <div class="lifestyle-plan-body">
-          <ul>
-            <li>合身上衣：肩线落在肩点，衣长盖住腰带，不紧绷不堆布</li>
-            <li>干净鞋：鞋面无污渍，鞋型完整——鞋子是第一眼细节</li>
-            <li>简洁配色：全身不超过三种颜色，先做减法再做加法</li>
-          </ul>
-        </div>
-      </details>
-      <details class="lifestyle-plan">
-        <summary>场景穿搭卡 · 约会</summary>
-        <div class="lifestyle-plan-body">
-          <ul>
-            <li>挺括衬衫或质感针织：面料平整比款式新更重要</li>
-            <li>九分裤露脚踝：拉长比例，显利落</li>
-            <li>清淡香气或无：若有若有优于浓烈</li>
-            <li>整体整洁度 &gt; 单品价格：协调干净就是高级感</li>
-          </ul>
-        </div>
-      </details>
-      <details class="lifestyle-plan">
-        <summary>场景穿搭卡 · 正式</summary>
-        <div class="lifestyle-plan-body">
-          <ul>
-            <li>合身深色套装 / 衬衫熨烫：平整挺括是正式感的基本盘</li>
-            <li>皮带、鞋、袜同色系：细节统一显章法</li>
-            <li>极简配饰：一块表或一副眼镜足矣，宁缺毋滥</li>
-          </ul>
-        </div>
-      </details>
-      <details class="lifestyle-plan">
-        <summary>体型要点（偏瘦体型参考）</summary>
-        <div class="lifestyle-plan-body">
-          <ul>
-            <li>合身优先：选修身剪裁，避免大 oversize 吞掉体量</li>
-            <li>层次感：内搭 + 衬衫 + 外套叠穿，视觉上增加厚度</li>
-            <li>竖向线条与同色系：拉长身形比例</li>
-            <li>面料挺括：避免软塌贴身，暴露单薄感</li>
-            <li>腰带定位：分割上下身比例，优化身形</li>
-            <li>干净整洁永远大于复杂花哨</li>
-          </ul>
-          <p class="note">通用造型参考，按自己喜好调整。</p>
+          <p>按天气、活动和场所选择衣鞋，再检查版型与活动舒适度。上方穿搭知识卡提供廓形、纹理、色彩概念，以及日常、约会和正式场景的试穿方法。</p>
+          <p class="note">具体搭配是审美与实践建议，不提供“偏瘦必须修身”或“某种衣服提高好感”的结论。</p>
+          <ul class="knowledge-sources">${renderKnowledgeSources(["usu-design", "ada-breath"])}</ul>
         </div>
       </details>
     </div>
   </details>`;
 
+  panel.querySelectorAll("details").forEach((section) => {
+    section.open = openSections.has(section.querySelector("summary")?.textContent);
+  });
   panel.querySelectorAll("button[data-lifestyle-action]").forEach((button) => {
     button.addEventListener("click", () => handleLifestyleAction(button.dataset.lifestyleAction));
   });

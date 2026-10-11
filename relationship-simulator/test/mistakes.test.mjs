@@ -241,7 +241,7 @@ test("UI 接线：三个收集点均已接入（preflight / coach / manual）", 
   assert.match(appSource, /shouldCollectFromPreflight\(flags\)/);
   // 收集点二：教练评分路径内按 shouldCollectFromScore 判定收集
   const logFn = appSource.indexOf("function addTrainingLog(");
-  const coachAt = appSource.indexOf("collectCoachMistake(state, data.coachScore", logFn);
+  const coachAt = appSource.indexOf("collectCoachMistake(draft, data.coachScore", logFn);
   assert.ok(logFn > -1 && coachAt > logFn, "addTrainingLog 应调用收集点二");
   assert.match(appSource, /shouldCollectFromScore\(coachScore\)/);
   // 收集点三：教练面板手动「加入错题本」按钮

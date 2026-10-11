@@ -51,7 +51,7 @@ export function buildMessages(persona, memory, messages, uiValues = {}) {
  * @param {number} [options.temperature] - 温度参数
  * @returns {Promise<{raw: Object, content: string}>}
  */
-export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", model = DEFAULT_MODEL, messages, temperature = DEFAULT_TEMPERATURE }) {
+export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", model = DEFAULT_MODEL, messages, temperature = DEFAULT_TEMPERATURE, signal }) {
   // 唯一出站边界：所有消息在离开浏览器前统一脱敏（邮箱/网址/电话/长数字）。
   const { messages: safeMessages, hits: redactionHits } = sanitizeOutboundMessages(messages);
   const payload = { model, messages: safeMessages, temperature };
@@ -59,7 +59,8 @@ export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", mode
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    signal
   });
   const text = await res.text();
   let json;

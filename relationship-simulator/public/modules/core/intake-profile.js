@@ -124,7 +124,7 @@ export function buildIntakeSummary(profile) {
     .slice(0, 2)
     .join("、");
   const focusPart = weaknesses ? `，弱点模式重点关注${weaknesses}` : "";
-  return `依恋倾向以${primaryLabel}为主（焦虑 ${distribution.anxious ?? "—"}% · 安全 ${distribution.secure ?? "—"}% · 回避 ${distribution.avoidant ?? "—"}%），沟通风格偏${style}，行动模式偏${action}${focusPart}`;
+  return `情境自检中${primaryLabel}相关选项较多，沟通风格偏${style}，行动模式偏${action}${focusPart}；仅用于选择练习，不是心理诊断或经过校准的依恋测量`;
 }
 
 /**

@@ -74,6 +74,16 @@ test("normalizeState 修复无效角色 ID", () => {
   assert.equal(state.personaId, "lin");
 });
 
+test("继承属性不作为角色，坏自定义项不能遮蔽内置角色", () => {
+  for (const personaId of ["constructor", "toString", "__proto__"]) {
+    const normalized = normalizeState({ personaId });
+    assert.equal(normalized.personaId, "lin");
+    assert.ok(normalized.messages.length);
+  }
+  assert.equal(getAllPersonas({ lin: null }).lin, builtInPersonas.lin);
+  assert.equal(getAllPersonas({ xu: "broken" }).xu, builtInPersonas.xu);
+});
+
 test("normalizeState 处理空消息列表", () => {
   const state = normalizeState({ messages: [] });
   assert.ok(Array.isArray(state.messages));
@@ -200,9 +210,48 @@ test("mutate 中 fn 抛错时不保存不通知", () => {
       state.personaId = "xu";
       throw new Error("boom");
     }), /boom/);
+    assert.equal(getState().personaId, "lin", "失败事务不能留下未保存的内存变更");
     assert.equal(calls, 0, "fn 抛错时不应通知渲染回调");
     assert.equal(mockStorage.get("heartflow-state"), snapshotBefore, "fn 抛错时 localStorage 不应更新");
   } finally {
     onStateChange(null);
   }
+});
+
+test("存储失败不会提交草稿或替换现有根对象", () => {
+  loadState();
+  const previous = getState();
+  const persona = previous.personaId;
+  const originalSetItem = localStorage.setItem;
+  localStorage.setItem = () => { throw new Error("quota exceeded"); };
+  try {
+    assert.throws(() => mutate((draft) => { draft.personaId = "xu"; }), /quota/);
+    assert.equal(getState(), previous);
+    assert.equal(getState().personaId, persona);
+    assert.throws(() => stateModule.setState({ personaId: "xu" }), /quota/);
+    assert.equal(getState(), previous);
+  } finally { localStorage.setItem = originalSetItem; }
+});
+
+test("异步和嵌套变更被拒绝，避免丢失提交；成功变更保留根身份", () => {
+  loadState();
+  const previous = getState();
+  assert.throws(() => mutate(async (draft) => { draft.personaId = "xu"; }), /synchronous/);
+  assert.throws(() => mutate(() => mutate(() => {})), /Nested/);
+  assert.throws(() => mutate(() => stateModule.setState({})), /replace/);
+  mutate((draft) => { draft.personaId = "xu"; });
+  assert.equal(getState(), previous);
+  assert.equal(previous.personaId, "xu");
+});
+
+test("展示回调失败单独报告，不将成功提交误判为失败", () => {
+  loadState();
+  const observed = [];
+  onStateChange(() => { throw new Error("render failed"); }, { onError: (error) => observed.push(error.message) });
+  try {
+    assert.doesNotThrow(() => mutate((draft) => { draft.personaId = "xu"; }));
+    assert.equal(getState().personaId, "xu");
+    assert.equal(JSON.parse(mockStorage.get("heartflow-state")).personaId, "xu");
+    assert.deepEqual(observed, ["render failed"]);
+  } finally { onStateChange(null); }
 });

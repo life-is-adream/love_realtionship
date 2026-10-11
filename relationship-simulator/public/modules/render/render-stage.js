@@ -5,6 +5,10 @@ import { getCurrentPersona, getState } from "../core/state.js";
 import { callLLM } from "../core/api-client.js";
 import { parseStageResult } from "../coach/parser.js";
 import { buildStageProgressHtml } from "./stage-progress.js";
+import { createRequestScope } from "../core/request-scope.js";
+
+const stageRequests = createRequestScope(() => JSON.stringify({ persona: getState().personaId, messages: getState().messages, stage: $("stage")?.value }));
+let activeStageRequest = null;
 
 const STAGE_OVERRIDE_KEY = "heartflow-stage-override";
 const STAGE_AUTO_RESULT_KEY = "heartflow-stage-auto-result";
@@ -32,23 +36,30 @@ export function persistCurrentStage() {
   persistStageValue();
 }
 
-export async function autoDetectStage({ model = "mimo-v2.5", endpoint = "/api/chat", apiKey = "", onStatus = () => {} } = {}) {
+export async function autoDetectStage({ model = "mimo-v2.5", endpoint = "/api/chat", apiKey = "", onStatus = () => {}, ticket = stageRequests.begin("stage") } = {}) {
+  activeStageRequest = ticket;
   const btn = $("autoStageBtn");
   if (btn) { btn.disabled = true; btn.textContent = "判断中..."; }
   try {
     const conversation = getState().messages.filter((m) => m && m.text).map((m) => ({ speaker: m.type === "her" ? "她" : "我", text: m.text }));
     if (!conversation.length) { onStatus("没有对话内容，无法判断阶段。"); return; }
     const { systemPrompt, userPrompt } = buildStageDetectionPrompt(conversation, $("stage")?.value || "");
-    const result = await callLLM({ endpoint, apiKey, model, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }], temperature: 0.3 });
+    const result = await callLLM({ endpoint, apiKey, model, signal: ticket.signal, messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }], temperature: 0.3 });
+    if (!ticket.isCurrent()) return;
     const parsed = parseStageResult(result.content);
     if (!parsed || !isValidStage(parsed.stage)) { onStatus("阶段判断失败，保留当前阶段。"); return; }
-    localStorage.removeItem(STAGE_OVERRIDE_KEY);
+    try { localStorage.removeItem(STAGE_OVERRIDE_KEY); } catch { /* localStorage unavailable */ }
     applyStageResult({ ...parsed, isAuto: true });
     onStatus(`阶段已自动判断：${parsed.stage}（置信度：${parsed.confidence}）`);
   } catch (error) {
+    if (!ticket.isCurrent()) return;
     onStatus(`阶段判断失败：${error.message}`);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = "🤖 自动判断"; }
+    if (activeStageRequest === ticket) {
+      activeStageRequest = null;
+      if (btn) { btn.disabled = false; btn.textContent = "🤖 自动判断"; }
+    }
+    ticket.finish();
   }
 }
 
@@ -67,6 +78,7 @@ export function applyStageResult(result) {
 }
 
 export function onStageManualChange() {
+  stageRequests.cancelAll();
   persistStageValue();
   try { localStorage.setItem(STAGE_OVERRIDE_KEY, "true"); } catch { /* localStorage unavailable */ }
   const badge = $("stageBadge");

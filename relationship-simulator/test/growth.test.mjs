@@ -130,7 +130,8 @@ test("returns stable and transferable labels from observable evidence", () => {
 
   const mastery = getMastery(summary, "initiative");
   assert.equal(mastery.level, "transferable");
-  assert.equal(mastery.label, "可迁移");
+  assert.equal(mastery.label, "练习较熟练");
+  assert.match(mastery.explanation, /现实迁移仍需单独观察/);
   assert.equal(mastery.progress, 86);
 });
 

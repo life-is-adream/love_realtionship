@@ -18,7 +18,7 @@
  */
 
 import { STORAGE_KEYS } from "./config.js";
-import { normalizeState } from "./state.js";
+import { normalizeState, serializeStateForStorage } from "./state.js";
 
 export const BACKUP_APP_ID = "heartflow";
 export const BACKUP_VERSION = 1;
@@ -141,7 +141,7 @@ export function applyBackup(json, persistence) {
       } catch {
         stored = normalizeState(null);
       }
-      persistence.setItem(key, JSON.stringify(stored));
+      persistence.setItem(key, JSON.stringify(serializeStateForStorage(stored)));
     } else {
       persistence.setItem(key, typeof raw === "string" ? raw : JSON.stringify(raw));
     }

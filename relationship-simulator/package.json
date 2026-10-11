@@ -9,6 +9,7 @@
     "dev": "node server/index.js",
     "check:circular": "node scripts/check-circular.mjs",
     "build:index": "node scripts/build-long-index.mjs",
+    "test:journey": "node --test test/relationship-intelligence-journey.test.mjs",
     "test": "node --test"
   },
   "engines": {

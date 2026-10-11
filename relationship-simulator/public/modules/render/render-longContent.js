@@ -8,7 +8,7 @@ let currentChapterUnits = [];
 let longReaderLoaded = false;
 
 export async function openLongReader(chapterId = null, reviewPointId = null, { openIntervention = () => {} } = {}) {
-  document.querySelector(".layout")?.classList.add("hidden");
+  document.querySelector(".tutorial-workspace, .layout")?.classList.add("hidden");
   $("longReader").classList.remove("hidden");
   if (!longReaderLoaded) { await renderChapterList({ openIntervention }); longReaderLoaded = true; }
   const progress = loadReadProgress();
@@ -18,7 +18,7 @@ export async function openLongReader(chapterId = null, reviewPointId = null, { o
 
 export function closeLongReader() {
   $("longReader").classList.add("hidden");
-  document.querySelector(".layout")?.classList.remove("hidden");
+  document.querySelector(".tutorial-workspace, .layout")?.classList.remove("hidden");
 }
 
 export async function renderChapterList({ openIntervention = () => {} } = {}) {
@@ -73,6 +73,8 @@ export function renderChapterContent(chapter, units, { openIntervention = () => 
   }
   content.innerHTML = html.join("");
   content.scrollTop = 0;
+  const reader = $("longReader");
+  if (reader) reader.scrollTop = 0;
   content.querySelectorAll(".intervention-btn").forEach((button) => button.addEventListener("click", () => openIntervention(button.dataset.reviewId)));
 }
 

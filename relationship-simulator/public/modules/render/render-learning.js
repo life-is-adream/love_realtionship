@@ -8,6 +8,8 @@ import { getSharedTextbookIndex } from "../content/textbook-index.js";
 import { loadManifest } from "../content/long-content-loader.js";
 import { recordTrainingEvent } from "../core/learning-state.js";
 import { getState, mutate } from "../core/state.js";
+import { getPracticePlan } from "../training/practice-plans.js";
+import { shanghaiDate } from "../training/real-practice.js";
 
 // 教材检索索引自拆包后为异步构建；用序号 guard 保证并发渲染时后到的旧渲染不覆盖新渲染。
 let textbookRenderSeq = 0;
@@ -60,13 +62,19 @@ export function renderDailyTraining() {
   const panel = $("dailyTrainingPanel");
   if (!panel) return;
   const state = getState();
-  const task = selectDailyTask(state.learning, new Date().toISOString().slice(0, 10));
-  panel.innerHTML = `<div class="daily-card"><div class="daily-head"><strong>今日 5 分钟训练</strong><span>连续 ${getTrainingStreak(state.learning?.dailyTasks || [])} 天</span></div><p>${escapeHtml(task.prompt || task.title || "完成一个低压力回复练习")}</p><textarea id="dailyTaskInput" rows="2" placeholder="写下你的答案"></textarea><button class="btn small" id="submitDailyTaskBtn">提交训练</button><div id="dailyTaskFeedback"></div></div>`;
+  const plan = getPracticePlan(state.relationshipPractice?.planId);
+  const date = shanghaiDate();
+  const task = selectDailyTask(state.learning, date, plan ? { weakestDimension: plan.dimension } : {});
+  panel.innerHTML = `<div class="daily-card"><div class="daily-head"><strong>今日 5 分钟训练</strong><span>连续 ${getTrainingStreak(state.learning?.dailyTasks || [], date)} 天</span></div>${plan ? `<p class="note">当前方向：${escapeHtml(plan.label)}</p>` : ""}<p>${escapeHtml(task.prompt || task.title || "完成一个低压力回复练习")}</p><textarea id="dailyTaskInput" rows="2" placeholder="写下你的答案"></textarea><button class="btn small" id="submitDailyTaskBtn">提交训练</button><p class="note">分数只反映这道练习的规则符合度，现实表现请到下方复盘。</p><div id="dailyTaskFeedback"></div></div>`;
   $("submitDailyTaskBtn")?.addEventListener("click", () => {
     const answer = $("dailyTaskInput")?.value.trim() || "";
+    if (!answer) { $("dailyTaskFeedback").textContent = "先写下自己的答案，再查看反馈。"; return; }
     const grade = gradeMicroTask(task, answer, { context: task.context || "" });
     mutate((state) => {
-      state.learning = recordTrainingEvent(state.learning, { id: `micro-${Date.now()}`, type: "micro-training", source: "micro-training", dimension: grade.dimension, score: grade.score, createdAt: new Date().toISOString(), metadata: { taskType: task.type } });
+      const id = `micro-${task.completionKey}`;
+      state.learning.events = (state.learning.events || []).filter((event) => event.id !== id);
+      state.learning = recordTrainingEvent(state.learning, { id, type: "micro-training", source: "micro-training", dimension: grade.dimension, score: grade.score, createdAt: new Date().toISOString(), metadata: { taskType: task.type } });
+      state.learning.dailyTasks = [...(state.learning.dailyTasks || []).filter((item) => item.id !== id), { id, date, taskId: task.id, completed: true, passed: grade.passed }].slice(-60);
     });
     $("dailyTaskFeedback").textContent = `${grade.score} 分：${grade.nextAction || grade.feedback || "继续保持可观察、低压力的表达。"}`;
   });

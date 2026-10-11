@@ -4,9 +4,8 @@
  * 不读 DOM、不读 localStorage。状态规范化（normalizeLifestyle）由 core/state.js
  * 在载入与保存时嵌入 state.lifestyle；节奏/体重趋势/连续记录均可独立测试。
  *
- * 内容口径：训练与体重复查规则来自用户既定的增肌计划文档与安全约束
- * （异维A酸服药期间：RPE 6-7、不做力竭、硬拉类先降级、必须助力带、补水 3L+）。
- * UI 层统一标注「既定安全约束提醒，以医生与正式计划文档为准」，不做医疗建议。
+ * 内容口径：只描述记录。旧版界面趋势分支保持兼容，其阈值不是医学标准；
+ * 不推断用药，不给热量、饮水量或训练处方。专业知识独立映射公开来源。
  */
 
 export const LIFESTYLE_LIMITS = Object.freeze({
@@ -277,8 +276,8 @@ export function computeSkincareStreak(days, todayStr) {
 }
 
 /**
- * 单日护肤警示（异维A酸既定安全约束提醒，以医嘱为准）：
- * - AM 有记录但防晒未勾 → 防晒强制提醒；AM/PM 全无记录 → 尚未开始；否则空数组。
+ * 单日护理记录提醒，不推断用药与实际日晒风险。
+ * - AM 有记录但防护未勾 → 提醒按当天需要防护；AM/PM 全无记录 → 未记录。
  * @param {object|null|undefined} day - skincare.days 条目
  * @returns {string[]}
  */
@@ -287,8 +286,8 @@ export function buildSkincareNotice(day) {
   const pm = isRecord(day?.pm) ? day.pm : {};
   const amAny = am.cleanser === true || am.moisturizer === true || am.sunscreen === true;
   const pmAny = pm.cleanser === true || pm.moisturizer === true;
-  if (!amAny && !pmAny) return ["今日护肤尚未开始"];
-  if (amAny && am.sunscreen !== true) return ["今日防晒未记录——异维A酸期间防晒为强制项"];
+  if (!amAny && !pmAny) return ["今日护理尚未记录，按需要填写"];
+  if (amAny && am.sunscreen !== true) return ["今日日晒防护未记录，按当天日晒情况安排"];
   return [];
 }
 
@@ -419,19 +418,19 @@ export function computeTrainingRhythm(trainings, todayStr) {
     .filter((day) => day !== null && today !== null && day <= today)
     .sort((a, b) => b - a);
 
-  if (!dated.length) return { status: "start", message: "从今天开始第一次训练" };
+  if (!dated.length) return { status: "start", message: "暂无训练记录，按自己的计划开始" };
   const gap = today - dated[0];
   if (gap === 0) return { status: "done", message: "今日已练" };
-  if (gap === 1) return { status: "rest", message: "昨天练过，今天休息恢复" };
-  return { status: "train", message: `距上次训练已 ${gap} 天，今天练一天，把节奏补回来` };
+  if (gap === 1) return { status: "rest", message: "昨天有训练记录，今天按恢复情况安排" };
+  return { status: "train", message: `距上次记录已 ${gap} 天，按自己的计划安排活动` };
 }
 
-// ── 体重复查（既定复查节点） ─────────────────────────────────────────────────
+// ── 体重记录描述（兼容旧版趋势分支；无饮食处方） ──────────────────────────────
 
 /**
- * 依据最近 14 天体重记录推导复查建议。
- * - plateau：跨度 ≥7 天且 ≥2 条且（最大-最小）≤0.1kg → 「每日 +150 kcal」
- * - fast：最近一条与前一周同期（≥7 天前最近的一条）比涨幅 >0.7kg → 「每日 −150 kcal」
+ * 依据最近 14 天体重记录提供描述。仅比较有限记录，不推断增肌、减脂或健康状态。
+ * - plateau：跨度 ≥7 天且 ≥2 条且（最大-最小）≤0.1kg
+ * - fast：最近一条与 ≥7 天前最近的一条比涨幅 >0.7kg（界面历史阈值）
  * - 数据不足 → insufficient；其余 → normal
  * @param {Array<{date: string, kg: number}>|null|undefined} weights
  * @param {string} todayStr - YYYY-MM-DD
@@ -439,7 +438,7 @@ export function computeTrainingRhythm(trainings, todayStr) {
  */
 export function computeWeightReview(weights, todayStr) {
   const today = dayNumber(todayStr);
-  if (today === null) return { trend: "insufficient", suggestion: "继续记录，满 1-2 周后出趋势" };
+  if (today === null) return { trend: "insufficient", suggestion: "记录不足以对照，按需要继续记录" };
 
   const inWindow = (Array.isArray(weights) ? weights : [])
     .map((item) => ({ day: dayNumber(item?.date), kg: Number(item?.kg) }))
@@ -447,14 +446,14 @@ export function computeWeightReview(weights, todayStr) {
     .sort((a, b) => a.day - b.day); // 旧 → 新
 
   if (inWindow.length < WEIGHT_PLATEAU_MIN_RECORDS || inWindow[inWindow.length - 1].day - inWindow[0].day < WEIGHT_PLATEAU_MIN_SPAN_DAYS) {
-    return { trend: "insufficient", suggestion: "继续记录，满 1-2 周后出趋势" };
+    return { trend: "insufficient", suggestion: "记录不足以对照，按需要继续记录" };
   }
 
   const kgs = inWindow.map((item) => item.kg);
   // 先按 1 位小数归一再做阈值比较，避免 46.1 - 46.0 这类浮点误差误判边界
   const range = Math.round((Math.max(...kgs) - Math.min(...kgs)) * 10) / 10;
   if (range <= WEIGHT_PLATEAU_RANGE_KG) {
-    return { trend: "plateau", suggestion: "体重连续约 2 周未涨——复查节点：每日 +150 kcal" };
+    return { trend: "plateau", suggestion: "本窗口已记录体重相近；不据此自动调整热量" };
   }
 
   const latest = inWindow[inWindow.length - 1];
@@ -463,10 +462,10 @@ export function computeWeightReview(weights, todayStr) {
     const weekAgo = weekAgoCandidates[weekAgoCandidates.length - 1];
     const gain = Math.round((latest.kg - weekAgo.kg) * 10) / 10;
     if (gain > WEIGHT_FAST_GAIN_KG) {
-      return { trend: "fast", suggestion: "单周涨幅超 0.7kg——复查节点：每日 −150 kcal" };
+      return { trend: "fast", suggestion: "与至少 7 天前的一条记录相比增加超 0.7kg；先核对称重条件，不据此自动调整热量" };
     }
   }
-  return { trend: "normal", suggestion: "正常推进" };
+  return { trend: "normal", suggestion: "记录有变化；仅描述体重，不能判断增肌或健康状态" };
 }
 
 // ── 连续训练记录（口径与 training/micro-training.js getTrainingStreak 对齐） ─

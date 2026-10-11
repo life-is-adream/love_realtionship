@@ -1,8 +1,7 @@
 /**
  * CustomEvent 轻量事件系统
  *
- * 使用原生 CustomEvent 实现模块间通信，无需引入 EventBus 库。
- * 所有事件通过一个隐藏的 DOM 节点分发。
+ * 使用原生 EventTarget / CustomEvent，无 DOM 节点依赖。
  *
  * 用法：
  * ```js
@@ -24,7 +23,7 @@
 /** @type {EventTarget} */
 let bus = null;
 
-/** @type {WeakMap<Function, Function>} */
+/** 每个回调按事件名分别保存独立订阅，解绑不会影响其他事件。 */
 const handlerMap = new WeakMap();
 
 /**
@@ -33,9 +32,7 @@ const handlerMap = new WeakMap();
  */
 function getBus() {
   if (!bus) {
-    bus = typeof document !== "undefined"
-      ? document.createElement("div")
-      : new EventTarget();
+    bus = new EventTarget();
   }
   return bus;
 }
@@ -67,10 +64,20 @@ export const Events = {
  * @returns {Function} 取消监听的函数
  */
 export function on(eventName, handler) {
+  if (typeof handler !== "function") throw new TypeError("Event handler must be a function");
   const wrapped = (e) => handler(e.detail);
-  handlerMap.set(handler, wrapped);
+  let events = handlerMap.get(handler);
+  if (!events) handlerMap.set(handler, events = new Map());
+  let subscriptions = events.get(eventName);
+  if (!subscriptions) events.set(eventName, subscriptions = new Set());
+  subscriptions.add(wrapped);
   getBus().addEventListener(eventName, wrapped);
-  return () => getBus().removeEventListener(eventName, wrapped);
+  return () => {
+    if (!subscriptions.delete(wrapped)) return;
+    getBus().removeEventListener(eventName, wrapped);
+    if (!subscriptions.size) events.delete(eventName);
+    if (!events.size) handlerMap.delete(handler);
+  };
 }
 
 /**
@@ -88,11 +95,13 @@ export function emit(eventName, detail) {
  * @param {Function} handler - 处理函数
  */
 export function off(eventName, handler) {
-  const wrapped = handlerMap.get(handler);
-  if (wrapped) {
-    getBus().removeEventListener(eventName, wrapped);
-    handlerMap.delete(handler);
-  }
+  const events = handlerMap.get(handler);
+  const subscriptions = events?.get(eventName);
+  if (!subscriptions) return;
+  for (const wrapped of subscriptions) getBus().removeEventListener(eventName, wrapped);
+  subscriptions.clear();
+  events.delete(eventName);
+  if (!events.size) handlerMap.delete(handler);
 }
 
 /**

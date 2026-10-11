@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 const app = await readFile(new URL("../public/app.js", import.meta.url), "utf8");
 const index = await readFile(new URL("../public/index.html", import.meta.url), "utf8");
 const server = await readFile(new URL("../server/index.js", import.meta.url), "utf8");
+const requestHandler = await readFile(new URL("../server/request-handler.js", import.meta.url), "utf8");
 
 test("产品主入口接入独立 Relationship Intelligence 控制器", () => {
   assert.match(app, /createRelationshipIntelligenceController/);
@@ -23,5 +24,7 @@ test("页面提供本地分析面板和显式匿名记忆同意控件", () => {
 
 test("本地服务主路由公开确定性 runtime 接口", () => {
   assert.match(server, /handleRelationshipIntelligence/);
-  assert.match(server, /\/api\/relationship-intelligence/);
+  assert.match(server, /createRequestHandler/);
+  assert.match(requestHandler, /\/api\/relationship-intelligence/);
+  assert.match(requestHandler, /await handleRelationshipIntelligence\(req, res\)/);
 });

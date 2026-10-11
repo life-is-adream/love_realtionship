@@ -1,4 +1,5 @@
 import { $, escapeHtml } from "../core/dom.js";
+import { coachEvidenceCards } from "../coach/evidence-contract.js";
 import { clampScore } from "../coach/coach.js";
 import { getCurrentPersona, getLatestMineText, getPersonaMemory, getState, mutate } from "../core/state.js";
 import { collectMistake } from "../core/mistakes.js";
@@ -110,7 +111,7 @@ export function renderAnalysis(data, { showReviewComparison = () => "", openLong
     onAfterRender(null);
     return;
   }
-  analysis.innerHTML = [["她的隐藏意图", data.herIntent], ["你的隐藏目标", data.yourGoal], ["当前判断", data.judgement], ["风险提醒", data.risk]].map(([title, text]) => card(title, text)).join("");
+  analysis.innerHTML = coachEvidenceCards(data).map(([title, text]) => card(title, text)).join("");
   if (data.herReply) analysis.insertAdjacentHTML("beforeend", card(data.generationSource === "local" ? "女方下一句（本地兜底）" : "女方下一句（模型输出）", data.herReply));
   for (const choice of data.replyOptions || []) {
     const div = document.createElement("div");

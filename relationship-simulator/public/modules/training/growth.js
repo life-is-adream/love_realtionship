@@ -176,7 +176,7 @@ export function getMastery(summary, dimension) {
 
   if (score >= 80 && sampleSize >= MIN_HIGH_SAMPLE && confidence === "high" && (sourceCount >= 2 || typeCount >= 2)) {
     level = "transferable";
-    label = "可迁移";
+    label = "练习较熟练";
   } else if (score >= 70 && sampleSize >= MIN_MEDIUM_SAMPLE) {
     level = "stable";
     label = "较稳定";
@@ -196,7 +196,7 @@ export function getMastery(summary, dimension) {
     level,
     label,
     progress,
-    explanation: `${sampleNote}当前平均分 ${score}，${confidenceNote}`
+    explanation: `${sampleNote}当前平均分 ${score}，${confidenceNote}这里只描述练习记录，现实迁移仍需单独观察。`
   };
 }
 
