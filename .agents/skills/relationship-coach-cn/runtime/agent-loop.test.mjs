@@ -3,6 +3,20 @@ import assert from "node:assert/strict";
 import { createMemory, grantConsent } from "./memory/memory-store.mjs";
 import { runRelationshipLoop } from "./agent-loop.mjs";
 
+test("explicit exit and historical EXIT cannot produce advancement or reopen conflict", () => {
+  const messages = [{ speaker: "我", text: "你好" }];
+  for (const signals of [{ explicitExit: true, concreteDatePlan: true }, { relationshipEnded: true, conflict: true }]) {
+    const result = runRelationshipLoop({ messages, signals });
+    assert.equal(result.state.to, "EXIT");
+    assert.equal(result.decision.value, "EXIT");
+  }
+  const memory = grantConsent(createMemory({ caseId: "case_exit_test" }), true);
+  memory.currentState = "EXIT";
+  const result = runRelationshipLoop({ messages, memory, consent: true, signals: { conflict: true, counterOffer: true } });
+  assert.equal(result.state.to, "EXIT");
+  assert.equal(result.decision.value, "EXIT");
+});
+
 test("uses OBSERVE and alternative hypotheses for an ambiguous busy message", () => {
   const result = runRelationshipLoop({
     goal: "判断是否继续联系",

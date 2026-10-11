@@ -125,6 +125,7 @@ C 更主动（有足够证据时）：
 | 长期关系/婚姻 | `modules/long-term.md`, `modules/marriage.md` |
 | 性、避孕、STI、HIV、HPV | `modules/sexual-health.md`, `references/curated/health/README.md` |
 | 模拟训练 | `modules/roleplay.md`, `evals/` |
+| 加强能力/实战练习/行动后复盘 | `references/practice-loop.md`；让用户选择现实卡点，再安排一轮练习与结果回流 |
 
 有完整聊天记录时，额外读取 `runtime/conversation/analyzer.mjs` 的输出；需要长期跟进时读取 `runtime/memory/` 和 `runtime/reflection/`，不自动加载私人 Profile。
 

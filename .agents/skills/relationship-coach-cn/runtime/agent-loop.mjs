@@ -5,8 +5,8 @@ import { createPrediction } from "./reflection/reflection-engine.mjs";
 
 const DECISIONS = Object.freeze(["ADVANCE", "MAINTAIN", "OBSERVE", "DE_ESCALATE", "EXIT"]);
 
-function decisionFor(analysis, signals = {}) {
-  if (signals.safetyRisk || signals.relationshipEnded) return "EXIT";
+function decisionFor(analysis, signals = {}, currentState = "UNKNOWN") {
+  if (currentState === "EXIT" || signals.safetyRisk || signals.relationshipEnded || signals.explicitExit) return "EXIT";
   if (signals.explicitRejection && !signals.counterOffer) return "DE_ESCALATE";
   if (signals.conflict || analysis.metrics.conflictMessageCount > 0) return "MAINTAIN";
   if (signals.concreteDatePlan || signals.counterOffer) return "ADVANCE";
@@ -89,7 +89,7 @@ export function runRelationshipLoop({ messages = [], memory = null, goal = "", c
   const normalizedSignals = deriveSignals(analysis, signals);
   const currentState = memory?.currentState || "UNKNOWN";
   const state = transitionState(currentState, normalizedSignals);
-  const decision = decisionFor(analysis, normalizedSignals);
+  const decision = decisionFor(analysis, normalizedSignals, currentState);
   const action = actionFor(decision);
   const prediction = createPrediction({
     id: `prediction_${analysis.metrics.messageCount || 0}`,
