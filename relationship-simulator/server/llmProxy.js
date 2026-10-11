@@ -12,7 +12,10 @@ import { checkRateLimit } from "./rateLimit.js";
 import { readRequestJson, resolveCorsOrigin, RequestBodyTooLargeError, sendJson } from "./http.js";
 import { withUpstreamRequest } from "./upstream-request.js";
 
-const UPSTREAM_TIMEOUT_MS = 30_000;
+// 教练 JSON 输出在大 prompt（人设+教材上下文+完整对话）下，上游生成可达 40-90s；
+// 30s 会把正常请求强杀成 504 迫使前端落本地兜底（2026-10-11 实测复现），放宽到 120s。
+// 上游自身有排队与计费上限，超时不重试的语义保持不变。
+const UPSTREAM_TIMEOUT_MS = 120_000;
 const RETRY_DELAY_MS = 400;
 const MAX_ATTEMPTS = 2; // 首次 + 1 次重试
 
