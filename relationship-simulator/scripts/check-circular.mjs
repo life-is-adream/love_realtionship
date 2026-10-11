@@ -21,15 +21,15 @@ const entries = process.argv.slice(2).length
 // 用 .js 相对/绝对 import 解析为磁盘路径
 function resolveImport(fromFile, spec) {
   if (!spec.startsWith(".")) return null; // 跳过 node: / 裸包（本轮零依赖，可忽略）
-  const base = path.resolve(path.dirname(fromFile), spec);
+  const base = path.resolve(path.dirname(fromFile), spec.split(/[?#]/, 1)[0]);
   const candidates = [base, base + ".js", path.join(base, "index.js")];
   return candidates.find((c) => existsSync(c)) || base + ".js";
 }
 
 function parseImports(file) {
-  const text = readFileSync(file, "utf8");
+  const text = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   const specs = [];
-  const re = /(?:import\s+[^'"]*?\s+from\s+|import\s+)(['"])(.+?)\1/g;
+  const re = /(?:^\s*(?:import|export)\s+(?:[^'";]*?\s+from\s*)?|\bimport\s*\(\s*)(['"])([^'"\r\n]+)\1/gm;
   let m;
   while ((m = re.exec(text))) specs.push(m[2]);
   return specs;
@@ -38,6 +38,7 @@ function parseImports(file) {
 // 构建有向图：module -> [dep module]
 const graph = new Map();
 const visited = new Set();
+const errors = [];
 
 function walk(file) {
   const abs = path.resolve(file);
@@ -47,8 +48,9 @@ function walk(file) {
   let specs = [];
   try {
     specs = parseImports(abs);
-  } catch {
-    return; // 语法解析失败交由 node --check 兜底，这里跳过
+  } catch (error) {
+    errors.push(`${path.relative(ROOT, abs)}: ${error.code || "read failed"}`);
+    return;
   }
   for (const spec of specs) {
     const dep = resolveImport(abs, spec);
@@ -60,7 +62,7 @@ function walk(file) {
 
 for (const e of entries) {
   if (existsSync(e)) walk(e);
-  else console.warn(`[warn] 入口不存在，跳过: ${e}`);
+  else errors.push(`入口不存在: ${e}`);
 }
 
 // DFS 判环
@@ -92,6 +94,10 @@ for (const node of graph.keys()) if (color.get(node) === WHITE) dfs(node);
 
 const rel = (p) => path.relative(ROOT, p);
 console.log(`扫描模块数: ${graph.size}`);
+if (errors.length) {
+  for (const error of errors) console.error(`[error] ${error}`);
+  process.exit(2);
+}
 if (cycles.length === 0) {
   console.log("circular: 0 ✅ 无循环依赖");
   process.exit(0);

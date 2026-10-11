@@ -97,6 +97,16 @@ test("extractModelContent 支持 output_text / output / choices", () => {
   assert.equal(extractModelContent({ choices: [{ text: "回复C" }] }), "回复C");
   assert.equal(extractModelContent(null), "");
   assert.equal(extractModelContent({}), "");
+  assert.equal(extractModelContent({ output: [{ content: { unexpected: true } }] }), "");
+});
+
+test("fetchWithRetry 释放被丢弃的 5xx 响应流", async () => {
+  let calls = 0, cancelled = 0;
+  await fetchWithRetry("https://example.invalid", {}, { delayMs: 0, fetchImpl: async () => {
+    calls++;
+    return calls === 1 ? { status: 503, body: { cancel: async () => { cancelled++; } } } : { status: 200 };
+  } });
+  assert.equal(cancelled, 1);
 });
 
 test("normalizeProxyResponse 保持 chat_completions 模式原样", () => {
@@ -298,19 +308,19 @@ test("serveStatic 首页 index.html 缓存为 no-cache（发布即失效）", as
   assert.equal(res.headers["Cache-Control"], "no-cache");
 });
 
-test("serveStatic js/css 缓存 max-age=3600", async () => {
+test("serveStatic 可编辑的 js/css 每次重新验证", async () => {
   const res = mockRes();
   await serveStatic("/app.js", res);
   assert.equal(res.status, 200);
   assert.match(String(res.headers["Content-Type"]), /javascript/);
-  assert.equal(res.headers["Cache-Control"], "public, max-age=3600");
+  assert.equal(res.headers["Cache-Control"], "no-cache");
 });
 
-test("serveStatic 其它静态资源（图片/文本类）缓存 max-age=86400", async () => {
+test("serveStatic 书籍文本每次重新验证", async () => {
   const res = mockRes();
   await serveStatic("/love-learning/books/rational-male-positive.txt", res);
   assert.equal(res.status, 200);
-  assert.equal(res.headers["Cache-Control"], "public, max-age=86400");
+  assert.equal(res.headers["Cache-Control"], "no-cache");
 });
 
 test("serveStatic 路径穿越 ../ 与编码变体全部 403", async () => {
@@ -393,6 +403,39 @@ test("handleChat 请求体超 2MB 返回 413", async () => {
   assert.equal(res.status, 413);
   assert.equal(JSON.parse(res.body).error, "payload_too_large");
   rateBuckets.clear();
+});
+
+test("handleChat 上游响应体读取失败返回 502，读取超时返回 504", async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    for (const name of ["Error", "TimeoutError"]) {
+      rateBuckets.clear();
+      globalThis.fetch = async () => ({ status: 200, text: async () => { const error = new Error("body failed"); error.name = name; throw error; } });
+      const res = mockRes();
+      await handleChat(chatReq([chatBody()]), res, { serverApiKey: "test-key" });
+      assert.equal(res.status, name === "TimeoutError" ? 504 : 502);
+    }
+  } finally { globalThis.fetch = originalFetch; rateBuckets.clear(); }
+});
+
+test("客户端断开时取消上游，并解除连接监听器", async () => {
+  rateBuckets.clear();
+  const originalFetch = globalThis.fetch;
+  let signal;
+  const res = Object.assign(new EventEmitter(), mockRes());
+  globalThis.fetch = async (_url, options) => {
+    signal = options.signal;
+    return new Promise((_resolve, reject) => signal.addEventListener("abort", () => reject(signal.reason), { once: true }));
+  };
+  try {
+    const task = handleChat(chatReq([chatBody()]), res, { serverApiKey: "test-key" });
+    await new Promise(setImmediate);
+    res.destroyed = true;
+    res.emit("close");
+    await task;
+    assert.equal(signal.aborted, true);
+    assert.equal(res.listenerCount("close"), 0);
+  } finally { globalThis.fetch = originalFetch; rateBuckets.clear(); }
 });
 
 test("handleChat 上游 5xx 重试用尽后返回 502 upstream_unreachable（含一次重试）", async () => {

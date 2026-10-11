@@ -1,5 +1,6 @@
 import { SEARCH_ALLOWED_DOMAINS, SEARCH_API_KEY, SEARCH_ENABLED, SEARCH_ENDPOINT } from "./config.js";
-import { readRequestJson, sendJson } from "./staticServer.js";
+import { readRequestJson, RequestBodyTooLargeError, sendJson } from "./http.js";
+import { withUpstreamRequest } from "./upstream-request.js";
 
 const MAX_QUERY_LENGTH = 120;
 const MAX_RESULTS = 5;
@@ -54,7 +55,10 @@ export async function handleSearch(req, res) {
   let body;
   try {
     body = await readRequestJson(req);
-  } catch {
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return sendJson(res, 413, { error: "payload_too_large", message: "请求体超过 2MB 限制。" });
+    }
     return sendJson(res, 400, { error: "invalid_json", message: "请求体不是合法 JSON。" });
   }
   const query = String(body.query || "").trim().slice(0, MAX_QUERY_LENGTH);
@@ -64,20 +68,24 @@ export async function handleSearch(req, res) {
   console.log(`[search] query="${query}" at ${new Date().toISOString()}`);
 
   let upstream;
+  let text;
   try {
-    upstream = await fetch(SEARCH_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${SEARCH_API_KEY}`
-      },
-      body: JSON.stringify({ query, count: MAX_RESULTS }),
-      signal: AbortSignal.timeout(15_000)
-    });
+    ({ upstream, text } = await withUpstreamRequest(res, 15_000, async (signal) => {
+      const upstream = await fetch(SEARCH_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${SEARCH_API_KEY}`
+        },
+        body: JSON.stringify({ query, count: MAX_RESULTS }),
+        signal
+      });
+      return { upstream, text: await upstream.text() };
+    }));
   } catch {
+    if (res.destroyed || res.writableEnded) return;
     return sendJson(res, 502, { error: "search_unreachable", message: "无法连接搜索服务。" });
   }
-  const text = await upstream.text();
   let json;
   try { json = text ? JSON.parse(text) : {}; } catch { json = null; }
   if (!upstream.ok || !json) {

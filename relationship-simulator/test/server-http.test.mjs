@@ -4,6 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { request as httpRequest } from "node:http";
 import { server } from "../server/index.js";
+import { APP_ASSET_VERSION } from "../server/asset-versioning.js";
 
 function listenOnce() {
   return new Promise((resolve) => server.listen(0, "127.0.0.1", () => resolve(server.address().port)));
@@ -77,13 +78,14 @@ test("GET / 返回 index.html 且 Cache-Control 为 no-cache", async (t) => {
   assert.equal(res.headers["cache-control"], "no-cache");
 });
 
-test("GET /app.js 返回 200 且 Cache-Control 为 max-age=3600", async (t) => {
+test("GET /app.js 返回可重新验证的版本化模块", async (t) => {
   const port = await listenOnce();
   t.after(() => new Promise((resolve) => server.close(resolve)));
 
   const res = await fetchRaw("/app.js");
   assert.equal(res.status, 200);
-  assert.equal(res.headers["cache-control"], "public, max-age=3600");
+  assert.equal(res.headers["cache-control"], "no-cache");
+  assert.ok(res.body.includes(`core/config.js?v=${APP_ASSET_VERSION}`));
 });
 
 test("原始路径穿越请求永不返回文件内容", async (t) => {

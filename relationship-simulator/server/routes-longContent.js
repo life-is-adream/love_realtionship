@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { longSimulationDir } from "./config.js";
-import { sendText } from "./staticServer.js";
+import { sendText } from "./http.js";
 
 export const longContentFiles = {
   1: "03_第1章_重新联系与重新认识.md",

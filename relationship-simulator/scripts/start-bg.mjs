@@ -29,17 +29,23 @@ function readEnvPort() {
   }
 }
 
-// 若已有 PID 文件指向存活进程，给出提示（不阻塞，随后覆盖写入新 PID）。
+// 只在旧 PID 确认已退出时继续；存活或无法核验时保留 PID 和日志。
 if (existsSync(pidFile)) {
   const existing = readFileSync(pidFile, "utf8").trim();
-  if (/^\d+$/.test(existing)) {
-    try {
-      process.kill(Number(existing), 0);
-      console.warn(`提示: 检测到 PID 文件指向仍在运行的进程 ${existing}，将覆盖写入新 PID。`);
-    } catch {
-      // 进程已不存在，忽略
+  const existingPid = Number(existing);
+  if (!/^\d+$/.test(existing) || !Number.isSafeInteger(existingPid) || existingPid <= 0 || existingPid > 2147483647) {
+    throw new Error("PID 文件内容无效，已拒绝启动并保留 PID 文件和日志，请先核对。");
+  }
+  let running = false;
+  try {
+    process.kill(existingPid, 0);
+    running = true;
+  } catch (error) {
+    if (error?.code !== "ESRCH") {
+      throw new Error(`无法确认已有 PID 是否存活（${error?.code || "unknown"}），已拒绝启动并保留 PID 文件和日志。`);
     }
   }
+  if (running) throw new Error("PID 文件对应的进程仍在运行，已拒绝重复启动并保留 PID 文件和日志，请先核对或停止已有服务。");
 }
 
 const outFd = openSync(outLog, "w");

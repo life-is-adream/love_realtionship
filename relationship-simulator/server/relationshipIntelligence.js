@@ -10,7 +10,7 @@ import {
   readRequestJson,
   RequestBodyTooLargeError,
   sendJson
-} from "./staticServer.js";
+} from "./http.js";
 
 const MAX_MESSAGES = 80;
 const MAX_TEXT_LENGTH = 2_000;

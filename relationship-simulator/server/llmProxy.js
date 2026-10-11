@@ -9,7 +9,8 @@ import {
   LLM_TOP_P
 } from "./config.js";
 import { checkRateLimit } from "./rateLimit.js";
-import { readRequestJson, resolveCorsOrigin, RequestBodyTooLargeError, sendJson } from "./staticServer.js";
+import { readRequestJson, resolveCorsOrigin, RequestBodyTooLargeError, sendJson } from "./http.js";
+import { withUpstreamRequest } from "./upstream-request.js";
 
 const UPSTREAM_TIMEOUT_MS = 30_000;
 const RETRY_DELAY_MS = 400;
@@ -19,9 +20,12 @@ const MAX_ATTEMPTS = 2; // 首次 + 1 次重试
 export async function fetchWithRetry(endpoint, options, { attempts = MAX_ATTEMPTS, delayMs = RETRY_DELAY_MS, fetchImpl = fetch } = {}) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    options.signal?.throwIfAborted();
     try {
       const res = await fetchImpl(endpoint, options);
       if (res.status >= 500) {
+        // 不消费的响应释放流，避免重试积累连接资源。
+        await res.body?.cancel?.().catch(() => {});
         lastError = new Error(`upstream ${res.status}`);
         if (attempt >= attempts) break;
         await new Promise((resolve) => setTimeout(resolve, delayMs * attempt));
@@ -94,14 +98,19 @@ export async function handleChat(req, res, { serverApiKey = LLM_API_KEY } = {}) 
   if (Number.isFinite(body.presence_penalty)) upstreamPayload.presence_penalty = clampNum(body.presence_penalty, -2, 2, 0);
 
   let upstream;
+  let text;
   try {
-    upstream = await fetchWithRetry(LLM_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-      body: JSON.stringify(upstreamPayload),
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS)
-    });
+    ({ upstream, text } = await withUpstreamRequest(res, UPSTREAM_TIMEOUT_MS, async (signal) => {
+      const upstream = await fetchWithRetry(LLM_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+        body: JSON.stringify(upstreamPayload),
+        signal
+      });
+      return { upstream, text: await upstream.text() };
+    }));
   } catch (err) {
+    if (res.destroyed || res.writableEnded) return;
     const aborted = err?.name === "AbortError" || err?.name === "TimeoutError";
     return sendJson(res, aborted ? 504 : 502, {
       error: aborted ? "upstream_timeout" : "upstream_unreachable",
@@ -109,7 +118,6 @@ export async function handleChat(req, res, { serverApiKey = LLM_API_KEY } = {}) 
     });
   }
 
-  const text = await upstream.text();
   const contentType = upstream.headers.get("content-type") || "";
   const corsOrigin = resolveCorsOrigin(req.headers?.origin);
 
@@ -160,7 +168,7 @@ export function extractModelContent(json) {
   const output = Array.isArray(json.output) ? json.output : [];
   for (const item of output) {
     if (!item || typeof item !== "object") continue;
-    for (const content of item.content || []) {
+    for (const content of Array.isArray(item.content) ? item.content : []) {
       if (content?.type === "output_text" && typeof content.text === "string" && content.text.trim()) return content.text.trim();
     }
   }
