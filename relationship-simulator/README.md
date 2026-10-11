@@ -186,3 +186,12 @@ node --test
 ```powershell
 npm run check:circular
 ```
+
+## 工程可靠性（2026-10-09）
+
+- `core/state.js` 的 `mutate` 是同步事务：只修改传入的草稿，保存成功后提交；不允许嵌套事务或异步回调。异步准备工作应在事务外完成，生成回复通过纯函数 `core/conversation.js` 一起提交。
+- `core/request-scope.js` 管理生成、优化和计划的取消及结果归属。上下文变化后，旧请求的成功和失败都不能写回；优化结果采用前还会核验输入版本。
+- `server/http.js` 提供请求解析、CORS 和响应工具；`request-handler.js` 统一捕获异步路由异常；`upstream-request.js` 统一上游超时和客户端断开后的取消。
+- Windows 启停脚本通过 `scripts/process-identity.ps1` 核验项目入口、服务标识及 PID 归属。旧的相对路径或 inline 启动方式可能无法通过严格身份核验，需要人工核实原进程。
+
+本轮验证、回归覆盖和剩余限制见 [工程验收记录](../docs/verification/2026-10-09-engineering-hardening.md)。

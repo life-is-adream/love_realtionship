@@ -1,0 +1,29 @@
+{
+  "dialogMessage": "确认重置当前对话？\n\n消息记录、训练日志与成长事件将全部清空，且不可恢复。\n\n继续？",
+  "before": {
+    "messagesLen": 5,
+    "personaMessagesLen": 0,
+    "trainingLogs": 0,
+    "learningEvents": 0,
+    "topKeys": [
+      "avatarOverrides",
+      "customPersonas",
+      "lastAnalysis",
+      "lastGenerationMeta",
+      "learning",
+      "messages",
+      "personaId",
+      "personaMemory",
+      "relationshipIntelligence",
+      "trainingLog",
+      "trainingMode"
+    ]
+  },
+  "after": {
+    "messagesLen": 3,
+    "trainingLogs": 0,
+    "learningEvents": 0,
+    "status": "当前对话已重置。",
+    "visibleStarter": 2091
+  }
+}

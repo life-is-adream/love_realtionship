@@ -1,0 +1,231 @@
+{
+  "card0_cold": {
+    "chunk": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "manifest": {
+      "count": 1,
+      "bytes": 2797,
+      "urls": [
+        "/modules/content/long-content-manifest.js(2797B)"
+      ]
+    },
+    "loader": {
+      "count": 1,
+      "bytes": 2117,
+      "urls": [
+        "/modules/content/long-content-loader.js(2117B)"
+      ]
+    },
+    "apiFetch": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "totalLongContentBytes": 4914,
+    "totalLongContentRequests": 2,
+    "bannerVisible": true,
+    "bannerText": "ℹ️ AI 模拟声明 — 本应用角色为 AI 模拟，非真人。对话内容仅用于沟通训练与自我觉察，请理性对待。\n我知道了",
+    "bodyElements": 499,
+    "consolePageErrors": 0
+  },
+  "card0_ack": {
+    "ackValue": "true",
+    "bannerHiddenAfterAck": true
+  },
+  "card0_reload": {
+    "bannerGoneAfterReload": true,
+    "ackStillTrue": "true"
+  },
+  "card3_reader_open": {
+    "chapterListItems": 10,
+    "manifestNote": "opening reader itself should not import any chapter chunk"
+  },
+  "card3_ch1": {
+    "chunk": {
+      "count": 1,
+      "bytes": 104210,
+      "urls": [
+        "/modules/content/long-content/chapter-01.js(104210B)"
+      ]
+    },
+    "manifest": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "loader": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "apiFetch": {
+      "count": 1,
+      "bytes": 69336,
+      "urls": [
+        "/api/long-content/1(69336B)"
+      ]
+    },
+    "totalLongContentBytes": 173546,
+    "totalLongContentRequests": 2,
+    "heading": "第1章 · 重新联系与重新认识",
+    "contentChars": 22504,
+    "reviewCards": 17,
+    "truncated": false
+  },
+  "card3_ch10": {
+    "chunk": {
+      "count": 1,
+      "bytes": 68804,
+      "urls": [
+        "/modules/content/long-content/chapter-10.js(68804B)"
+      ]
+    },
+    "manifest": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "loader": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "apiFetch": {
+      "count": 1,
+      "bytes": 87821,
+      "urls": [
+        "/api/long-content/10(87821B)"
+      ]
+    },
+    "totalLongContentBytes": 156625,
+    "totalLongContentRequests": 2,
+    "heading": "第10章 · 继续练习而不是童话结尾",
+    "contentChars": 28706,
+    "reviewCards": 14
+  },
+  "card3_intervention": {
+    "hasInterventionBtn": true,
+    "modalVisible": true,
+    "contentChars": 1122,
+    "hasContext": true,
+    "hasOriginalReview": true,
+    "hasInput": true
+  },
+  "card3_readerRequestWindow": {
+    "chunk": {
+      "count": 2,
+      "bytes": 173014,
+      "urls": [
+        "/modules/content/long-content/chapter-01.js(104210B)",
+        "/modules/content/long-content/chapter-10.js(68804B)"
+      ]
+    },
+    "manifest": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "loader": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "apiFetch": {
+      "count": 2,
+      "bytes": 157157,
+      "urls": [
+        "/api/long-content/1(69336B)",
+        "/api/long-content/10(87821B)"
+      ]
+    },
+    "totalLongContentBytes": 330171,
+    "totalLongContentRequests": 4
+  },
+  "card3_textbook": {
+    "chunk": {
+      "count": 10,
+      "bytes": 709397,
+      "urls": [
+        "/modules/content/long-content/chapter-01.js(104210B)",
+        "/modules/content/long-content/chapter-10.js(68804B)",
+        "/modules/content/long-content/chapter-04.js(21532B)",
+        "/modules/content/long-content/chapter-05.js(47840B)",
+        "/modules/content/long-content/chapter-03.js(39782B)",
+        "/modules/content/long-content/chapter-07.js(83015B)",
+        "/modules/content/long-content/chapter-09.js(38801B)",
+        "/modules/content/long-content/chapter-08.js(55701B)",
+        "/modules/content/long-content/chapter-06.js(155452B)",
+        "/modules/content/long-content/chapter-02.js(94260B)"
+      ]
+    },
+    "manifest": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "loader": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "apiFetch": {
+      "count": 0,
+      "bytes": 0,
+      "urls": []
+    },
+    "totalLongContentBytes": 709397,
+    "totalLongContentRequests": 10,
+    "panelTextHead": "✦\nFIELD NOTES / MATCHED\n教材依据\n\n这轮对话命中 3 个可复盘片段\n\n03\n01\n第1章 · 重新联系与重新认识\n恋爱大师复盘 5\n男方在这里表现出明显的从信号推结论倾向：一个提醒、一张照片、一句愿意聊天，都可能被他放大成关系进度。夏紫桐的回应不是冷淡，而是要求他把信号和结论分开。健康的靠近允许期待存在，但不把期待伪装成事实。 这一章没有完成重新在一起，甚至没有完成明确的暧昧。完成的是更基础的…\n追问\n聊天\n推进\n↗\n02\n第2章 · 稳定联系与日常靠近\n第50回合｜周四早上，恋爱大师分析十",
+    "hitCount": 3,
+    "apiStatus": "MiMo 失败，已切换到本地兜底：HTTP 502: 无法连接上游模型服务。"
+  },
+  "card3_jump": {
+    "readerOpened": true,
+    "autoOpenedReviewDetails": 1,
+    "readerHeading": "第1章 · 重新联系与重新认识\n\n从加回联系方式到重新形成聊天习惯。\n\n1. 加回联系方式\n周一 22:18\n我\n夏紫桐，好久不见。这个时间突然发消息有点冒昧，"
+  },
+  "card6_before": {
+    "localStorageKeys": [
+      "heartflow-active-tab",
+      "heartflow-long-read-progress",
+      "heartflow-ai-compliance-ack",
+      "heartflow-state"
+    ],
+    "stateSnapshotBytes": 3328,
+    "domMessageLikeCount": 0
+  },
+  "card6_dismiss": {
+    "confirmShown": true,
+    "confirmMessage": "确认重置当前对话？\n\n消息记录、训练日志与成长事件将全部清空，且不可恢复。\n\n继续？",
+    "localStorageUnchanged": true,
+    "keyDiff": []
+  },
+  "card6_accept": {
+    "confirmMessage": "确认重置当前对话？\n\n消息记录、训练日志与成长事件将全部清空，且不可恢复。\n\n继续？",
+    "statusText": "当前对话已重置。",
+    "localStorageKeysAfter": [
+      "heartflow-active-tab",
+      "heartflow-long-read-progress",
+      "heartflow-ai-compliance-ack",
+      "heartflow-state"
+    ],
+    "stateClearedOrReset": {
+      "before": [
+        [
+          "heartflow-state",
+          "{\"personaId\":\"lin\",\"customPersonas\":{},\"personaMemory\":{\"lin\":{\"background\":\"当前和林知夏处于初步熟悉阶段，聊天目标是自然建立了解，不急于推进关系。\",\"inter"
+        ]
+      ],
+      "after": [
+        [
+          "heartflow-state",
+          "{\"personaId\":\"lin\",\"customPersonas\":{},\"personaMemory\":{\"lin\":{\"background\":\"当前和林知夏处于初步熟悉阶段，聊天目标是自然建立了解，不急于推进关系。\",\"inter"
+        ]
+      ]
+    }
+  },
+  "pageErrorsTotal": []
+}
