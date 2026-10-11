@@ -34,10 +34,15 @@ export function buildDateJourneyHtml(session, currentDraft = "", message = "", s
     <ul>${feedback.improvements.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
     ${feedback.comparison ? `<p>${escapeHtml(feedback.comparison)}</p>` : ""}
     <small>本地启发式只能检查部分表达特征，不是完整安全审查，不能预测对方反应或证明现实效果。</small></div>` : "";
-  const observationsHtml = canSelect ? `<fieldset class="date-journey-observations"><legend>选择模拟中的对方回应</legend><p class="note">这是一条情境分支，不是对真人内心的判断。确认后会保留，重练表达不会覆盖它。</p>
+  const observationsHtml = canSelect ? `<fieldset class="date-journey-observations"><legend>选择模拟中的对方回应</legend><p class="note">这是一条情境分支，不是对真人内心的判断。确认后会保留，重练表达不会覆盖它。每条分支都是有效结局、也各有代价；本轮结束后可以看到这条路你得到了什么、放弃了什么。</p>
     ${scene.responses.map((item) => `<label><input type="radio" name="dateJourneyBranch" value="${item.branch}" ${selection === item.branch ? "checked" : ""}><span><b>${escapeHtml(item.label)}</b>${escapeHtml(item.observation)}</span></label>`).join("")}
     <button class="btn small" type="button" data-journey-action="observe">确认这条模拟回应</button></fieldset>` : "";
   const historyHtml = summary.observations.length ? `<details class="date-journey-history"><summary>已保留 ${summary.observations.length} 条模拟观察</summary><ol>${summary.observations.map((item) => `<li><b>${escapeHtml(item.stageTitle)}：${escapeHtml(item.label)}${item.kind === "followup" ? "（新的主动回应）" : ""}</b><p>${escapeHtml(item.observation)}</p></li>`).join("")}</ol></details>` : "";
+  const tradeoff = summary.tradeoff;
+  const tradeoffHtml = tradeoff ? `<div class="date-journey-tradeoff"><p class="note">每一种结局都是有效结果，不计分、不进错题本；下面只是帮你把这条路看得更清楚。</p>
+    <p><b>这条路你得到了</b></p><ul>${tradeoff.gains.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    <p><b>它同时意味着放弃</b></p><ul>${tradeoff.costs.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    ${tradeoff.note.map((item) => `<p class="note">${escapeHtml(item)}</p>`).join("")}</div>` : "";
   return `<section class="date-journey-card" aria-label="连续约会训练">
     <div class="daily-head"><strong>连续约会训练</strong><span>${complete ? "本轮完成" : `${scene.index + 1} / ${DATE_JOURNEY_STAGES.length}`}</span></div>
     <p class="note">虚构成人场景 · 先自己回复，再看反馈、重练和选择回应。练习内容只留在本页面，刷新即清空。</p>
@@ -53,6 +58,7 @@ export function buildDateJourneyHtml(session, currentDraft = "", message = "", s
     <div class="date-journey-actions"><button class="btn small" type="button" data-journey-action="critique">${feedback?.hasResponse ? "按反馈重练并比较" : "查看表达反馈"}</button>${!summary.stopped ? '<button class="btn ghost small" type="button" data-journey-action="stop">我决定不继续这段探索</button>' : ""}</div>
     ${feedbackHtml}${observationsHtml}`}
     <div class="date-journey-summary" aria-live="polite"><strong>${escapeHtml(DECISION_LABELS[summary.decision] || "继续观察")}</strong><p>${escapeHtml(summary.message)}</p>
+      ${tradeoffHtml}
       ${summary.canAdvance ? `<button class="btn small" type="button" data-journey-action="advance">${scene.index === DATE_JOURNEY_STAGES.length - 1 ? "完成本轮复盘" : "进入下一段情境"}</button>` : ""}
       ${summary.canObserveFollowup ? '<p class="note">改写回复不会带来新证据。可以先停在这里；若要练习后续分支，只模拟对方主动补充回应，不追加追问。</p><button class="btn small" type="button" data-journey-action="followup">模拟后来收到一条主动回应</button>' : ""}
     </div>

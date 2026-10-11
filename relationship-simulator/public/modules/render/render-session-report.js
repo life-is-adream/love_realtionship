@@ -101,14 +101,28 @@ function renderReportCard(report) {
     <div class="session-report-dims">${dimsRows}</div>
     ${renderExtremeCard("最佳消息", report.best)}
     ${renderExtremeCard("最差消息", report.worst)}
+    ${renderHerReplay(report.herReplay)}
     ${renderTextbookSection(report.textbookRefs)}
     ${renderInsights(report.insights)}
     <div class="mistake-actions">
       <button class="btn small" data-report-action="copy">复制报告</button>
       <button class="btn small" data-report-action="save" ${saved ? "disabled" : ""}>${saved ? "已保存训练事件" : "保存为训练事件"}</button>
     </div>
+    <p class="mistake-empty report-closing-line">游戏可以重来，现实没有存档。</p>
     <p class="mistake-empty">报告纯本地生成（四维聚合 + 教材检索），不调用模型；保存走训练事件同 id 幂等，重复点击不重复落账。</p>
   </details>`;
+}
+
+/** ② 对方视角回放：把已评分消息换到对方的阅读位置（本地规则标注，非读心） */
+function renderHerReplay(replay) {
+  const lines = Array.isArray(replay?.lines) ? replay.lines : [];
+  if (!lines.length) return "";
+  const items = lines.map((line) => `<div class="session-report-card is-replay">
+    <div class="log-meta"><span class="mistake-status ${line.overall >= 80 ? "ok" : "open"}">${escapeHtml(String(line.overall))} 分</span></div>
+    <div class="mistake-text">${escapeHtml(shorten(line.text, 120))}</div>
+    ${line.tags.length ? `<div class="mistake-tags">${line.tags.map((tag) => `<span class="mistake-issue-chip">${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
+  </div>`).join("");
+  return `<div class="session-report-replay"><b>🔁 对方视角回放</b><p class="mistake-empty">${escapeHtml(String(replay.note || ""))}</p><div class="session-report-replay-list">${items}</div></div>`;
 }
 
 function renderExtremeCard(title, extreme) {

@@ -101,6 +101,45 @@ test("incompatibility and the learner's own choice are valid terminal outcomes",
   assert.equal(selfExit.status, "stopped");
 });
 
+test("every terminal outcome presents gains and costs without scoring or blaming", () => {
+  let session = createDateJourney();
+  for (let index = 0; index < DATE_JOURNEY_STAGES.length; index += 1) {
+    assert.equal(getDateJourneySummary(session).tradeoff, null, "ongoing stages must not reveal the ending tradeoff");
+    session = advanceDateJourney(recordDateJourneyObservation(submitDateJourneyResponse(session, reply), "positive"));
+  }
+  const complete = getDateJourneySummary(session);
+  assert.ok(complete.tradeoff.gains.length >= 2 && complete.tradeoff.costs.length >= 2);
+  assert.ok(complete.tradeoff.note.some((item) => /已保留的 6 条/.test(item)));
+  assert.equal(JSON.stringify(complete.tradeoff).includes("失败"), false);
+  assert.equal(JSON.stringify(complete.tradeoff).includes("低分"), false);
+
+  const outcomes = {
+    declined: recordDateJourneyObservation(answered(), "declined"),
+    incompatible: recordDateJourneyObservation(answered(), "incompatible"),
+    "self-exit": stopDateJourney(answered())
+  };
+  for (const [reason, stopped] of Object.entries(outcomes)) {
+    const tradeoff = getDateJourneySummary(stopped).tradeoff;
+    assert.ok(tradeoff, `missing tradeoff for ${reason}`);
+    assert.ok(tradeoff.gains.length >= 2 && tradeoff.costs.length >= 2, reason);
+    assert.equal(JSON.stringify(tradeoff).includes("失败"), false, reason);
+    assert.equal(JSON.stringify(tradeoff).includes("低分"), false, reason);
+  }
+  const declinedText = JSON.stringify(getDateJourneySummary(outcomes.declined).tradeoff);
+  assert.match(declinedText, /清晰的答案/);
+  assert.match(declinedText, /失落感是真实/);
+  assert.match(JSON.stringify(getDateJourneySummary(outcomes["self-exit"]).tradeoff), /决定权/);
+  const paused = recordDateJourneyObservation(answered(), "uncertain");
+  assert.equal(getDateJourneySummary(paused).tradeoff, null);
+
+  const rejectionView = buildDateJourneyHtml(outcomes.declined);
+  assert.match(rejectionView, /不计分、不进错题本/);
+  assert.match(rejectionView, /这条路你得到了/);
+  assert.match(rejectionView, /它同时意味着放弃/);
+  const branchView = buildDateJourneyHtml(answered());
+  assert.match(branchView, /每条分支都是有效结局、也各有代价/);
+});
+
 test("critique precedes progression and flagged pressure cannot unlock a positive branch", () => {
   const noReply = createDateJourney();
   assert.equal(recordDateJourneyObservation(noReply, "positive").observation, null);

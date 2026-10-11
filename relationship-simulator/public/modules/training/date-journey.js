@@ -322,5 +322,46 @@ export function getDateJourneySummary(value) {
   return { decision: session.decision, message: decisionText, complete: session.status === "complete", stopped: session.status === "stopped",
     canAdvance: session.status === "active" && session.observation === "positive" && Boolean(session.lastFeedback?.hasResponse) && session.lastFeedback.current !== false && !session.lastFeedback.blocked,
     canObserveFollowup: session.status === "paused" && session.observation === "uncertain",
+    tradeoff: journeyTradeoff(session),
     observations: session.history.map((item) => ({ ...item, stageTitle: scenes[DATE_JOURNEY_STAGES.indexOf(item.stage)].title, label: BRANCH_LABELS[item.branch], observation: scenes[DATE_JOURNEY_STAGES.indexOf(item.stage)].responses[item.branch] })) };
+}
+
+// 结局的收获与代价对照：任何结局（完成、被拒、不合适、自主退出）都是有效结果，
+// 不打分、不进错题；只让学习者看清每条路「得到了什么、放弃了什么」，由自己判断。
+function journeyTradeoff(session) {
+  const settled = session.history.filter((item) => DATE_JOURNEY_STAGES.includes(item.stage) && DATE_JOURNEY_BRANCHES.includes(item.branch));
+  const reviewNote = settled.length ? [`你可以回看已保留的 ${settled.length} 条模拟观察，再决定下一轮怎么练。`] : [];
+  if (session.status === "complete") {
+    return { gains: [
+      "双方都直接确认了意愿，并就联系节奏和未定事项达成了可协商的安排。",
+      "每一段都留下了可以回看的行为证据，而不是靠猜测推进。"
+    ], costs: [
+      "确定关系意味着放弃同时了解其他人的时间与可能性。",
+      "已付出的时间与承诺不会因为以后变化而退回，兑现仍需持续行动。"
+    ], note: reviewNote };
+  }
+  if (session.status === "stopped") {
+    if (session.stopReason === "incompatible") return { gains: [
+      "及早确认了无法协调的分歧，避免了在错误的基础上继续投入。",
+      "双方都能体面结束，没有人需要为「不合适」道歉。"
+    ], costs: [
+      "双方的时间和期待都落空，惋惜是正常的。",
+      "这段已经投入感情的可能性就此结束。"
+    ], note: reviewNote };
+    if (session.stopReason === "self-exit") return { gains: [
+      "你保留了对节奏和方向的决定权，退出本身就是有效答案，不需要对方批准。",
+      "不合适也可以不解释；你没有为了答案而委屈自己的底线。"
+    ], costs: [
+      "没有说出口的答案会一直未知。",
+      "也许错过了一种可能的走向；这是选择的一部分。"
+    ], note: reviewNote };
+    return { gains: [
+      "对方给出了清晰的答案，你不必再为不确定投入情绪和猜测。",
+      "清晰的拒绝比漫长的模糊更省时间；你把选择权留给了对方，也留给了自己。"
+    ], costs: [
+      "这段可能性就此结束，失落感是真实且正常的，不需要立刻「想开」。",
+      "已经付出的时间与心意不会退回。"
+    ], note: reviewNote };
+  }
+  return null;
 }

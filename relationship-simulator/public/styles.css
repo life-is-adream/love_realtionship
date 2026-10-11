@@ -1105,6 +1105,18 @@ input:focus, select:focus, textarea:focus{
 .intake-actions{ display:flex; gap:6px; flex-wrap:wrap; }
 .radar-baseline{ font-size:11.5px; color:var(--ink-subtle); line-height:1.55; border-top:1px dashed var(--line); padding-top:6px; }
 
+/* ---------- ④ 常见陷阱图鉴 ---------- */
+.trap-library{ margin-top:10px; border:1px dashed var(--line); border-radius:10px; padding:8px 10px; }
+.trap-library > summary{ cursor:pointer; font-size:12.5px; color:var(--ink-muted); }
+.trap-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:8px; margin-top:8px; }
+.trap-card{ border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:12px; line-height:1.55; }
+.trap-card.is-lit{ border-color:oklch(70% 0.12 30 / .45); background:oklch(70% 0.12 30 / .06); }
+.trap-card.is-dim{ opacity:.72; }
+.trap-head{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:4px; }
+.trap-why{ margin:2px 0 4px; color:var(--ink-muted); }
+.trap-signal{ margin:0; }
+.trap-library .mistake-empty{ margin:6px 0 0; }
+
 /* ---------- F4 会话复盘报告 ---------- */
 .session-report-box{ border-color:oklch(70% 0.1 200 / .35); }
 .session-report-head{ margin-top:8px; }

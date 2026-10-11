@@ -12,6 +12,7 @@ import { getState, mutate } from "../core/state.js";
 import { getPersonaMemory, getCurrentPersona } from "../core/state.js";
 import { resolveMistake, deleteMistake } from "../core/mistakes.js";
 import { findWeakestDim, buildRewriteComparison, aggregateMistakePatterns, MISTAKE_DIM_LABELS } from "../training/mistake-patterns.js";
+import { buildTrapProgress, TRAP_LIBRARY_NOTE } from "../training/trap-library.js";
 import { buildCoachScore, detectReplyFlags } from "../coach/coach.js";
 import { recordTrainingEvent } from "../core/learning-state.js";
 import { readIntakeProfile, buildIntakeSummary } from "../core/intake-profile.js";
@@ -33,6 +34,7 @@ export function renderMistakes() {
     <summary>错题本<span class="mistake-count">未解决 ${escapeHtml(String(unresolvedCount))} / 共 ${escapeHtml(String(mistakes.length))}</span></summary>
     ${renderRadarSummary(mistakes)}
     ${renderIntakeBaselineLine()}
+    ${renderTrapLibrary(mistakes)}
     <div class="mistake-list">${rows || '<p class="mistake-empty">暂无错题记录。发送前测验命中的高危表达、教练评分过低的回复，或点「加入错题本」，都会收集到这里。</p>'}</div>
   </details>`;
   panel.querySelectorAll("button[data-mistake-action]").forEach((button) => {
@@ -65,6 +67,29 @@ function renderIntakeBaselineLine() {
   const profile = readIntakeProfile();
   if (!profile) return "";
   return `<div class="radar-baseline">基线画像：${escapeHtml(buildIntakeSummary(profile))}（${escapeHtml(profile.testDate)}）</div>`;
+}
+
+/**
+ * ④ 常见陷阱图鉴：命中即点亮（收集语义，不是待办）；已重写解决的计数显示为「走出」。
+ * 未点亮的陷阱保持灰态（仍显示名字与信号，提前认识也是练习的一部分）。
+ */
+function renderTrapLibrary(mistakes) {
+  const { traps, litCount } = buildTrapProgress(mistakes);
+  const cards = traps.map((trap) => {
+    const lit = trap.count > 0;
+    const walked = trap.resolvedCount > 0;
+    return `<div class="trap-card ${lit ? "is-lit" : "is-dim"}">
+      <div class="trap-head"><b>${escapeHtml(trap.name)}</b>
+        ${lit ? `<span class="mistake-status ${walked ? "ok" : "open"}">${walked ? `走出 ${escapeHtml(String(trap.resolvedCount))} 次` : `命中 ${escapeHtml(String(trap.count))} 次`}</span>` : '<span class="mistake-status">还没遇到</span>'}
+      </div>
+      ${lit ? `<p class="trap-why">${escapeHtml(trap.why)}</p><p class="note trap-signal">识别信号：${escapeHtml(trap.signal)}</p>` : `<p class="note">遇到了会自动点亮；先认识它的触发场景：${escapeHtml(trap.signal)}</p>`}
+    </div>`;
+  }).join("");
+  return `<details class="trap-library" open>
+    <summary>常见陷阱图鉴<span class="mistake-count">已点亮 ${escapeHtml(String(litCount))} / ${escapeHtml(String(traps.length))}</span></summary>
+    <p class="mistake-empty">${escapeHtml(TRAP_LIBRARY_NOTE)}</p>
+    <div class="trap-grid">${cards}</div>
+  </details>`;
 }
 
 function renderMistakeRow(mistake) {

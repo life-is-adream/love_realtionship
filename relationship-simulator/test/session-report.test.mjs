@@ -358,3 +358,54 @@ test("UI 接线：render-session-report 全部插值过 escapeHtml 且零 LLM", 
   assert.doesNotMatch(reportModuleSource, /callLLM|api-client/);
   assert.doesNotMatch(pureModuleSource, /callLLM|fetch\(|localStorage\.|document\./);
 });
+
+// ── ② 对方视角回放 + 题眼句 ──────────────────────────────────────────────────
+
+test("herReplay：按时间正序回放、上限 6 条，标签来自维度规则的启发式", async () => {
+  const mk = (ts, text, total, dims) => ({ ts, text, overall: total, dims });
+  const analyses = [
+    mk("2026-02-01T10:05:00.000Z", "第七条", 70, { naturalness: 70, empathy: 70, boundary: 70, drive: 70 }),
+    mk("2026-02-01T09:00:00.000Z", "最早的自说自话", 60, { naturalness: 70, empathy: 50, boundary: 70, drive: 70 }),
+    mk("2026-02-01T09:10:00.000Z", "追问连击", 55, { naturalness: 70, empathy: 70, boundary: 50, drive: 70 }),
+    mk("2026-02-01T09:20:00.000Z", "快速推进", 75, { naturalness: 70, empathy: 70, boundary: 70, drive: 85 }),
+    mk("2026-02-01T09:30:00.000Z", "自然表达", 85, { naturalness: 85, empathy: 70, boundary: 70, drive: 70 }),
+    mk("2026-02-01T09:40:00.000Z", "普通一条", 70, { naturalness: 70, empathy: 70, boundary: 70, drive: 70 }),
+    mk("2026-02-01T09:50:00.000Z", "第八条被截断", 70, { naturalness: 70, empathy: 70, boundary: 70, drive: 70 })
+  ];
+  const messages = analyses.map((item) => ({ type: "me", text: item.text }));
+  const report = await buildSessionReport(messages, analyses, { now: NOW });
+  const lines = report.herReplay.lines;
+  assert.equal(lines.length, 6, "回放上限 6 条");
+  assert.equal(lines[0].text, "最早的自说自话", "按时间正序");
+  // 正序排列后取前 6 条：最新的 10:05 一条被排除，09:50 的入选
+  assert.equal(lines[5].text, "第八条被截断");
+  const byText = new Map(lines.map((line) => [line.text, line]));
+  assert.deepEqual(byText.get("最早的自说自话").tags, ["这条更多在说你自己，先接住对方再表达"]);
+  assert.deepEqual(byText.get("追问连击").tags, ["这条留给对方的拒绝空间很小"]);
+  assert.deepEqual(byText.get("快速推进").tags, ["这条在明显推进节奏"]);
+  assert.deepEqual(byText.get("自然表达").tags, ["这条读起来自然"]);
+  assert.deepEqual(byText.get("普通一条").tags, []);
+  assert.match(report.herReplay.note, /不等于对方的真实感受/);
+});
+
+test("markdown：含对方视角回放节与题眼句，空回放给明确提示", async () => {
+  const messages = [{ type: "me", text: "今天聊得挺舒服的。" }];
+  const analyses = [{ mine: "今天聊得挺舒服的。", score: { total: 82, naturalness: 80, empathy: 90, boundary: 70, momentum: 65 } }];
+  const report = await buildSessionReport(messages, analyses, { now: NOW });
+  const md = buildReportMarkdown(report);
+  assert.match(md, /## 对方视角回放/);
+  assert.match(md, /不等于对方的真实感受/);
+  assert.match(md, /今天聊得挺舒服的/);
+  assert.match(md, /游戏可以重来，现实没有存档/);
+
+  const empty = buildReportMarkdown(await buildSessionReport([], [], { now: NOW }));
+  assert.match(empty, /暂无已评分消息，无法回放对方视角/);
+  assert.match(empty, /游戏可以重来，现实没有存档/, "题眼句在空会话也要出现");
+});
+
+test("UI 接线：报告卡渲染对方视角回放区块、题眼句收尾、插值过 escapeHtml", () => {
+  assert.match(reportModuleSource, /renderHerReplay\(report\.herReplay\)/);
+  assert.match(reportModuleSource, /session-report-replay/);
+  assert.match(reportModuleSource, /游戏可以重来，现实没有存档/);
+  assert.match(reportModuleSource, /report-closing-line/);
+});

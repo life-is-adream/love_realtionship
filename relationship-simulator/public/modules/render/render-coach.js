@@ -1,11 +1,24 @@
 import { $, escapeHtml } from "../core/dom.js";
 import { coachEvidenceCards } from "../coach/evidence-contract.js";
+import { buildHerVoice } from "../coach/her-voice.js";
 import { clampScore } from "../coach/coach.js";
 import { getCurrentPersona, getLatestMineText, getPersonaMemory, getState, mutate } from "../core/state.js";
 import { collectMistake } from "../core/mistakes.js";
 
 export function card(title, text) {
   return `<div class="mini"><h3>${escapeHtml(title)}</h3><div>${escapeHtml(text || "")}</div></div>`;
+}
+
+/**
+ * ① 角色回信卡：先让「她」说话（第一人称读法），分数与维度保留在后方。
+ * 纯本地启发式（her-voice.js），零模型调用；纯函数导出便于测试。
+ */
+export function herVoiceCardHtml(score) {
+  const voice = buildHerVoice(score, getCurrentPersona()?.name || "");
+  if (!voice) return "";
+  const signature = voice.signature ? ` —— 模拟的「${voice.signature}」` : "";
+  return `<div class="mini her-voice-card"><h3>${escapeHtml(voice.headline)}</h3>
+    <div>${voice.lines.map((line) => `<p>「${escapeHtml(line)}」</p>`).join("")}<p class="note">${escapeHtml(`以上是${signature || "模拟角色"}的可能读法。${voice.note}`)}</p></div></div>`;
 }
 
 function dimLabel(key) {
@@ -62,6 +75,7 @@ export function renderTraining(currentScore = null) {
   const historyItems = log.slice(1, 6);
   panel.innerHTML = `
     <div class="score-card"><div class="score-ring">${escapeHtml(score.total)}</div><div class="score-card-body"><h3>本轮总分 ${formatDelta(score.total, previousTotal)}</h3><p>${escapeHtml(score.summary || "保持自然、尊重和具体表达。")}</p><button class="btn small ghost" id="addMistakeBtn" type="button">✚ 加入错题本</button></div></div>
+    ${herVoiceCardHtml(score)}
     <div class="score-bars">${scoreBar("自然度", score.naturalness, { weakest: weakestKey === "naturalness", strongest: strongestKey === "naturalness" })}${scoreBar("共情", score.empathy, { weakest: weakestKey === "empathy", strongest: strongestKey === "empathy" })}${scoreBar("边界感", score.boundary, { weakest: weakestKey === "boundary", strongest: strongestKey === "boundary" })}${scoreBar("推进力", score.momentum, { weakest: weakestKey === "momentum", strongest: strongestKey === "momentum" })}</div>
     <div class="training-insights"><div class="insight insight-strength"><b>本轮亮点</b><p>${escapeHtml(score.strength || "表达基本自然，没有明显硬伤。")}</p></div><div class="insight insight-shortcoming"><b>核心短板</b><p>${escapeHtml(score.shortcoming || "继续观察自己的回复是否给对方留足接话空间。")}</p></div></div>
     <div class="mini next-practice"><h3>下一步训练</h3><div>${escapeHtml(score.nextPractice || "下一轮尝试：先回应她的问题，再补一个轻松的开放问题。")}</div></div>

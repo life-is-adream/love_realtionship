@@ -28,6 +28,9 @@ export const REPORT_TEXTBOOK_REF_LIMIT = 3;
 /** 报告文本摘录上限（markdown 与 UI 共用） */
 export const REPORT_EXCERPT_LIMIT = 160;
 
+/** ② 对方视角回放：最多回放的消息条数（按时间正序） */
+export const HER_REPLAY_LIMIT = 6;
+
 /** 洞察规则阈值（确定性，可在测试中覆盖传参比对） */
 export const SESSION_REPORT_RULES = Object.freeze({
   /** 覆盖率低于该值提示样本不足 */
@@ -120,6 +123,7 @@ export async function buildSessionReport(messages, analyses, options = {}) {
   const textbookRefs = await collectTextbookRefs(opts.searchTextbook, best, worst);
   const generatedAt = toIso(opts.now ?? null) || new Date().toISOString();
   const insights = buildInsights({ messageCount, analyzedCount, coverage, dimAverages, best, worst, lastReport: opts.lastReport || null });
+  const herReplay = buildHerReplay(matched);
 
   return {
     generatedAt,
@@ -132,8 +136,38 @@ export async function buildSessionReport(messages, analyses, options = {}) {
     best,
     worst,
     textbookRefs,
-    insights
+    insights,
+    herReplay
   };
+}
+
+/**
+ * ② 对方视角回放：把已评分的用户消息按时间正序换到「对方的阅读位置」，
+ * 每条附本地启发式的视角标注（来自该条评分的维度，不是语义理解）。
+ * 目的与《拣爱》一致：让学习者体验「同一句话在对方那里是什么」；
+ * 标签是规则启发式，不代表对方真实感受。
+ * @param {Array<{text: string, ts: string|null, overall: number, dims: Object}>} matched
+ * @returns {{ lines: Array<{text: string, overall: number, tags: string[]}>, note: string }}
+ */
+function buildHerReplay(matched) {
+  const lines = [...matched]
+    .sort((a, b) => toTime(a.ts) - toTime(b.ts))
+    .slice(0, HER_REPLAY_LIMIT)
+    .map((analysis) => ({ text: analysis.text, overall: analysis.overall, tags: buildReplayTags(analysis.dims) }));
+  return {
+    lines,
+    note: "回放只是把你的消息换到对方的阅读位置；标签来自维度评分的本地规则，不等于对方的真实感受，也不是读心。"
+  };
+}
+
+/** 视角标注：每维最多一条、确定性；只在越过阈值时标注，不评价人格 */
+function buildReplayTags(dims) {
+  const tags = [];
+  if (dims.empathy !== null && dims.empathy < 60) tags.push("这条更多在说你自己，先接住对方再表达");
+  if (dims.boundary !== null && dims.boundary < 60) tags.push("这条留给对方的拒绝空间很小");
+  if (dims.drive !== null && dims.drive >= 75) tags.push("这条在明显推进节奏");
+  if (dims.naturalness !== null && dims.naturalness >= 80) tags.push("这条读起来自然");
+  return tags;
 }
 
 /**
@@ -179,6 +213,21 @@ export function buildReportMarkdown(report) {
   } else {
     for (const insight of insights) lines.push(`- ${insight}`);
   }
+  lines.push("");
+  lines.push("## 对方视角回放");
+  const replay = report.herReplay;
+  if (replay && Array.isArray(replay.lines) && replay.lines.length) {
+    lines.push(`> ${replay.note}`);
+    for (const line of replay.lines) {
+      lines.push(`- （${line.overall} 分）${truncateText(line.text, REPORT_EXCERPT_LIMIT)}${line.tags.length ? `\n  - 视角标注：${line.tags.join("；")}` : ""}`);
+    }
+  } else {
+    lines.push("- 暂无已评分消息，无法回放对方视角。");
+  }
+  lines.push("");
+  lines.push("---");
+  lines.push("");
+  lines.push("游戏可以重来，现实没有存档。");
   return lines.join("\n");
 }
 
