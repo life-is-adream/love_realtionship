@@ -1,0 +1,342 @@
+/* 教程布局沿用 HeartFlow 的深梅紫、玫瑰粉和暖金配色。 */
+html:has(body.tutorial-app) { background: var(--canvas); }
+body.tutorial-app {
+  --canvas: oklch(13% 0.026 350);
+  --surface-1: oklch(17% 0.024 350);
+  --surface-2: oklch(21% 0.028 350);
+  --surface-3: oklch(26% 0.032 350);
+  --surface-4: oklch(31% 0.034 350);
+  --ink: oklch(97% 0.012 350);
+  --ink-muted: oklch(86% 0.018 350);
+  --ink-subtle: oklch(74% 0.022 350);
+  --ink-faint: oklch(62% 0.022 350);
+  --line: oklch(100% 0 0 / .08);
+  --line-strong: oklch(100% 0 0 / .14);
+  --line-tertiary: oklch(100% 0 0 / .20);
+  --accent: oklch(70% 0.165 8);
+  --rose: oklch(70% 0.165 8);
+  --rose-hover: oklch(76% 0.165 12);
+  --rose-focus: oklch(64% 0.165 6);
+  --green: oklch(72% 0.145 150);
+  --amber: oklch(80% 0.135 72);
+  --blue: oklch(73% 0.125 250);
+  --red: oklch(68% 0.165 22);
+  --border: var(--line);
+  --overlay: oklch(0% 0 0 / .6);
+  --grad-brand: linear-gradient(135deg, var(--rose), var(--amber));
+  --edge-hi: none;
+  --e1: none;
+  --e2: none;
+  --e3: none;
+  --r-sm: 4px;
+  --r-md: 4px;
+  --r: 5px;
+  --r-lg: 5px;
+  --font-ui: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --font-display: var(--font-ui);
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(60% 50% at 8% -8%, oklch(70% 0.165 8 / .12), transparent 60%),
+    radial-gradient(55% 45% at 100% 6%, oklch(73% 0.125 250 / .10), transparent 55%),
+    radial-gradient(70% 60% at 50% 120%, oklch(80% 0.135 72 / .08), transparent 60%),
+    linear-gradient(160deg, oklch(11% 0.024 350), oklch(14% 0.028 350) 55%, oklch(12% 0.026 350));
+  background-attachment: fixed;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.7;
+  color-scheme: dark;
+}
+body.tutorial-app::before,
+body.tutorial-app .hero::after,
+body.tutorial-app .textbook-card::after { content: none; }
+body.tutorial-app :where(*) {
+  box-shadow: none !important;
+  text-shadow: none;
+  backdrop-filter: none;
+}
+body.tutorial-app :where(h1, h2, h3, h4, p, li, span, small, b, strong) { overflow-wrap: anywhere; }
+body.tutorial-app :where(h1, h2, h3, h4) { font-family: var(--font-ui); letter-spacing: normal; line-height: 1.45; }
+body.tutorial-app h1 { font-size: 26px; font-weight: 600; }
+body.tutorial-app h2 { font-size: 20px; font-weight: 600; }
+body.tutorial-app h3 { font-size: 17px; font-weight: 600; }
+body.tutorial-app h4 { font-size: 15px; }
+body.tutorial-app p { line-height: 1.75; }
+body.tutorial-app a { color: #c76082; }
+body.tutorial-app a:hover { color: #ef98b0; }
+body.tutorial-app :is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #c76082;
+  outline-offset: 3px;
+}
+body.tutorial-app .eyebrow { display: none; }
+body.tutorial-app .skip-link { position: absolute; z-index: 1000; left: 16px; top: -90px; padding: 8px 14px; border: 1px solid #e07798; background: #27202a; }
+body.tutorial-app .skip-link:focus { top: 10px; }
+
+/* 页眉与一级导航 */
+body.tutorial-app .site-header { background: #27202a; border-bottom: 1px solid var(--line); }
+body.tutorial-app .site-header-inner,
+body.tutorial-app .site-nav-inner {
+  width: calc(100% - 32px);
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+body.tutorial-app .site-header-inner { min-height: 76px; justify-content: space-between; padding: 13px 0; }
+body.tutorial-app :is(.site-brand, .brand) { display: flex; align-items: center; gap: 10px; color: #c76082; text-decoration: none; }
+body.tutorial-app :is(.site-brand h1, .brand-name) { margin: 0; color: #c76082; font-family: var(--font-ui); font-size: 25px; line-height: 1.3; font-weight: 600; }
+body.tutorial-app .brand-name :is(b, span) { color: inherit; font-weight: inherit; }
+body.tutorial-app .site-brand > b { font-size: 25px; font-weight: 600; }
+body.tutorial-app .site-brand > span { color: var(--ink-subtle); font-size: 14px; font-weight: 400; }
+body.tutorial-app .brand-mark { background-image: var(--grad-brand) !important; }
+body.tutorial-app .site-tagline { flex: 1; margin: 0; color: var(--ink-subtle); font-size: 13px; }
+body.tutorial-app .brand-mark { width: 30px; height: 30px; border-radius: 4px; background: #3a2b3a; }
+body.tutorial-app .site-brand :is(p, small) { display: block; margin: 3px 0 0; color: var(--ink-subtle); font-size: 12px; font-weight: 400; }
+body.tutorial-app :is(.site-header-actions, .topbar-right) { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+body.tutorial-app .status-pill { padding: 4px 9px; border-radius: 4px; background: #322632; font-size: 12px; }
+body.tutorial-app .site-nav { background: oklch(17% 0.024 350); border-bottom: 1px solid var(--line); }
+body.tutorial-app .site-nav-inner { align-items: stretch; gap: 0; flex-wrap: wrap; }
+body.tutorial-app .site-nav :is(a, button) {
+  display: block; border: 0; border-radius: 0; padding: 10px 18px;
+  background: transparent; color: var(--ink-muted); font: inherit; font-size: 15px; font-weight: 600;
+  line-height: 1.6; text-decoration: none; cursor: pointer;
+}
+body.tutorial-app .site-nav :is(a, button):is(:hover, .is-active, .active, [aria-current="page"]) { background: #c76082; color: #27202a; }
+body.tutorial-app .site-nav :is(a, button):focus-visible { outline-color: var(--rose); outline-offset: -4px; }
+
+/* 左侧目录与正文；页面本身负责纵向滚动。 */
+body.tutorial-app .shell { width: calc(100% - 32px); max-width: 1200px; margin: 22px auto 0; padding: 0 0 40px; }
+body.tutorial-app .tutorial-workspace { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 18px; align-items: start; }
+body.tutorial-app :is(.tutorial-sidebar, .tutorial-content, .tutorial-rail) { min-width: 0; background: #27202a; border: 1px solid var(--line); border-radius: 3px; }
+body.tutorial-app .tutorial-sidebar { padding: 0 0 10px; position: static; height: auto; max-height: none; overflow: visible; }
+body.tutorial-app .tutorial-sidebar :is(h2, h3) { margin: 0; padding: 11px 13px; background: #322632; border-bottom: 1px solid var(--line); color: #d8c5d4; font-size: 14px; font-weight: 600; }
+body.tutorial-app :is(.tutorial-nav-group, .sidebar-group) + :is(.tutorial-nav-group, .sidebar-group) { margin-top: 10px; border-top: 1px solid var(--line); }
+body.tutorial-app .tutorial-sidebar [data-view],
+body.tutorial-app .tutorial-sidebar nav > a {
+  display: block; width: 100%; margin: 0; padding: 8px 13px; border: 0; border-left: 3px solid transparent;
+  border-radius: 0; background: #27202a; color: #d8c5d4; text-align: left; text-decoration: none;
+  font: inherit; font-size: 14px; line-height: 1.65; cursor: pointer;
+}
+body.tutorial-app .tutorial-sidebar :is([data-view], nav > a):hover { background: #3a2b3a; color: #c76082; }
+body.tutorial-app .tutorial-sidebar [data-view]:is(.is-active, .active, [aria-current="page"]) { border-left-color: #e07798; background: #503442; color: #ef98b0; font-weight: 600; }
+body.tutorial-app .tutorial-sidebar [data-view] small { display: block; color: var(--ink-subtle); font-size: 12px; }
+body.tutorial-app .tutorial-sidebar nav > a small { float: right; font-size: 12px; color: var(--ink-subtle); }
+body.tutorial-app .tutorial-sidebar .unread-dot { display: inline-block; width: 7px; height: 7px; margin-left: 8px; border-radius: 50%; background: #ed91a8; vertical-align: middle; }
+body.tutorial-app .sidebar-note { margin: 12px 12px 0; padding-top: 10px; border-top: 1px solid var(--line); color: var(--ink-subtle); font-size: 12px; }
+body.tutorial-app .tutorial-content { padding: 22px 24px 28px; }
+body.tutorial-app :is(.workspace-heading, .workspace-header) { margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+body.tutorial-app #workspaceTitle { margin: 0 0 8px; font-size: 26px; line-height: 1.4; font-weight: 600; }
+body.tutorial-app #workspaceDescription { margin: 0; color: var(--ink-subtle); line-height: 1.75; }
+body.tutorial-app .workspace-breadcrumb { margin: 0 0 8px; color: var(--ink-subtle); font-size: 12px; }
+body.tutorial-app .workspace-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+body.tutorial-app .settings-tools { margin-bottom: 20px; }
+body.tutorial-app .tutorial-rail { padding: 14px; font-size: 13px; line-height: 1.7; }
+body.tutorial-app .tutorial-rail :is(h2, h3) { margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 15px; }
+body.tutorial-app .tutorial-rail :is(a, button) { display: block; margin: 8px 0; padding: 0; border: 0; background: transparent; text-decoration: none; text-align: left; font: inherit; color: #c76082; cursor: pointer; }
+body.tutorial-app .tutorial-rail :is(a, button):hover { text-decoration: underline; }
+body.tutorial-app .tutorial-rail p { margin: 12px 0 0; color: var(--ink-subtle); }
+body.tutorial-app #workspaceMenuToggle { display: none; }
+body.tutorial-app .workspace-menu-toggle { min-height: 34px; padding: 7px 12px; border: 1px solid #65475b; border-radius: 4px; background: #27202a; color: #ef98b0; font: inherit; font-size: 14px; cursor: pointer; }
+body.tutorial-app :is(.layout, .workspace-view, .persona-panel, .coach-panel, .chat-panel) {
+  position: static; top: auto; grid-column: auto; grid-row: auto;
+  height: auto; min-height: 0; max-height: none; overflow: visible;
+  grid-template-columns: minmax(0, 1fr); grid-template-rows: none;
+}
+body.tutorial-app .layout { display: block; }
+body.tutorial-app .panel { display: block !important; padding: 0; margin: 0; border: 0; background: #27202a; border-radius: 0; }
+body.tutorial-app .workspace-view { min-width: 0; }
+body.tutorial-app .workspace-view > :is(.field, details, .section-title, .persona-top, .insight-card, .api-box, .avatar-editor, .tone-controls) { margin-bottom: 18px; }
+body.tutorial-app .workspace-view > .chips { margin-bottom: 18px; }
+body.tutorial-app .section-title { margin: 0 0 15px; gap: 12px; }
+body.tutorial-app .section-title h2 { font-size: 18px; }
+body.tutorial-app .section-title:not(:first-child) { margin-top: 22px; padding-top: 18px; }
+body.tutorial-app .hero { display: block; padding: 16px; margin-bottom: 18px; background: #27202a; }
+body.tutorial-app .topbar { border-radius: 4px; background: #27202a; }
+body.tutorial-app .hero-actions { justify-content: flex-start; }
+body.tutorial-app .mobile-tabs { display: none !important; }
+
+/* 首页使用普通教程目录，没有 hero 或背景插画。 */
+body.tutorial-app :is(.tutorial-categories, .tutorial-home-grid, .tutorial-category-grid) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+body.tutorial-app .tutorial-category { min-width: 0; padding: 16px; border: 1px solid var(--line); background: #27202a; border-radius: 3px; }
+body.tutorial-app .tutorial-category h2 { margin: 0 0 6px; color: #c76082; font-size: 18px; }
+body.tutorial-app .tutorial-category h2 + p { margin: 0 0 9px; color: var(--ink-subtle); font-size: 13px; }
+body.tutorial-app .tutorial-link-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+body.tutorial-app .tutorial-link { display: block; width: 100%; margin: 0; padding: 11px 0; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: #27202a; color: #c76082; font: inherit; text-decoration: none; text-align: left; cursor: pointer; }
+body.tutorial-app .tutorial-link b { display: block; font-size: 14px; font-weight: 600; }
+body.tutorial-app .tutorial-link small { display: block; margin-top: 2px; color: var(--ink-subtle); font-size: 12px; line-height: 1.7; }
+body.tutorial-app .tutorial-link:hover { background: #322632; color: #ef98b0; }
+
+/* 表单、增强下拉框和按钮使用深梅紫表面，并保留原来的交互状态。 */
+body.tutorial-app :is(input, select, textarea) { color-scheme: dark; border-radius: 4px; border-color: #65475b; background-color: #27202a !important; color: #f2e9f0 !important; font: inherit; font-size: 14px; line-height: 1.55; }
+body.tutorial-app :is(input, select, textarea):focus { border-color: #e07798; outline: 2px solid #e07798; outline-offset: 1px; background: #27202a; }
+body.tutorial-app :is(input, textarea)::placeholder { color: #ad99aa; opacity: 1; }
+body.tutorial-app :is(input[type="checkbox"], input[type="radio"]) { width: auto; min-width: 15px; height: 15px; padding: 0; flex: 0 0 auto; accent-color: #c76082; }
+body.tutorial-app input[type="range"] { padding: 0; accent-color: #e07798; }
+body.tutorial-app input[type="date"] { color-scheme: dark; }
+body.tutorial-app select option { background: #27202a; color: #f2e9f0; }
+body.tutorial-app .select__trigger { background: #27202a; color: var(--ink); border-radius: 4px; font-size: 14px; }
+body.tutorial-app .select.is-open .select__trigger { background: #27202a; border-color: #e07798; }
+body.tutorial-app .select__menu { background: #27202a; border-color: #65475b; border-radius: 4px; }
+body.tutorial-app .select__option { border-radius: 2px; color: var(--ink); }
+body.tutorial-app .select__option:is(:hover, .is-active, .is-selected) { background: #503442; color: #ef98b0; }
+body.tutorial-app .btn { --bh: 34px; padding: 6px 12px; border-radius: 4px; color: #d8c5d4; background: #322632; border-color: #65475b; font-size: 13px; line-height: 1.45; white-space: normal; }
+body.tutorial-app .btn:hover { background: #503442; border-color: #79536c; transform: none; }
+body.tutorial-app .btn.primary { background: linear-gradient(135deg, var(--rose), var(--amber)); color: #281720; border-color: transparent; }
+body.tutorial-app .btn.primary:hover { background: linear-gradient(135deg, var(--rose-hover), var(--amber)); border-color: transparent; }
+body.tutorial-app .btn.ghost { background: #27202a; }
+body.tutorial-app .btn.ghost:hover { background: #3a2b3a; }
+body.tutorial-app .btn.danger { color: #ea899e; background: #4d2635; border-color: #804555; }
+body.tutorial-app .btn.danger:hover { background: #442630; }
+body.tutorial-app .btn.small { --bh: 30px; padding: 4px 10px; font-size: 12px; }
+body.tutorial-app button:disabled { opacity: .55; cursor: not-allowed; }
+body.tutorial-app .mode-switch { border-radius: 4px; }
+body.tutorial-app .mode-btn { border-radius: 3px; }
+body.tutorial-app .mode-btn:is(.is-active, [data-mode="pua"].is-active) { background: #503442; color: #ef98b0; }
+body.tutorial-app .mode-btn:hover { background: #322632; color: #ef98b0; }
+
+/* 原组件沿用梅紫色主表面，保留结构化内容的分组。 */
+body.tutorial-app :is(.insight-card, .api-box, .custom-role, .memory-box, .avatar-editor, .composer, .mini, .choice, .score-card, .insight, .optimizer-card, .signal-card, .daily-card, .growth-card, .practice-card, .date-journey-card, .intake-card, .textbook-card, .relationship-intelligence-card, .mistakes-box, .mistake-item, .session-report-card, .radar-summary, .lifestyle-plan, .lifestyle-box, .comparison-col, .coach-float-panel, .coach-float-option, .coach-float-search-item) { background: #27202a; border-color: #4a3748; border-radius: 4px; }
+body.tutorial-app :is(.practice-card, .date-journey-card, .relationship-intelligence-card) { padding: 18px; margin: 0 0 18px; font-size: 14px; line-height: 1.75; }
+body.tutorial-app :is(.mini div, .choice p, .choice .note, .practice-card p, .date-journey-card p) { font-size: 14px; line-height: 1.75; }
+body.tutorial-app :is(.mini h3, .choice strong, .practice-plan h3, .daily-head strong, .intake-head strong) { font-size: 15px; }
+body.tutorial-app .choice:hover { transform: none; border-color: #79536c; }
+body.tutorial-app .daily-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+body.tutorial-app .daily-head span { color: var(--ink-subtle); font-size: 12px; }
+body.tutorial-app .growth-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+body.tutorial-app .growth-grid > div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px; background: #322632; border-bottom: 1px solid var(--line); }
+body.tutorial-app .growth-grid > div span { color: var(--ink-subtle); font-size: 13px; }
+body.tutorial-app :is(.note, .intake-hint, .training-card p, .growth-card p, .optimizer-text, .optimizer-reason, .plan-step p, .insight p, .textbook-heading p, .textbook-empty p, .lifestyle-plan-body, .lifestyle-safety, .lifestyle-skincare) { font-size: 13px; line-height: 1.75; }
+body.tutorial-app :is(.ri-empty, .ri-consent-control, .ri-decision, .ri-state, .ri-grid > div, .ri-hypotheses, .ri-limitations, .textbook-empty, .textbook-result, .long-narrative, .review-card, .practice-next-round, .date-journey-summary) { background: #322632; color: var(--ink-muted); border-color: #4a3748; border-radius: 4px; }
+body.tutorial-app :is(.ri-empty p, .ri-grid p, .ri-grid ul, .ri-hypotheses p, .ri-limitations p, .ri-state small, .ri-decision small, .ri-consent-note) { font-size: 13px; line-height: 1.7; }
+body.tutorial-app .ri-consent-note.is-on { color: #c76082; }
+body.tutorial-app .textbook-result:hover { background: #3a2b3a; border-color: #79536c; transform: none; }
+body.tutorial-app :is(.textbook-count, .textbook-result-tags em) { color: #c76082; }
+body.tutorial-app .textbook-result-list::before { background: #65475b; }
+body.tutorial-app .textbook-mark { background: #3a2b3a; color: #c76082; border-radius: 3px; }
+body.tutorial-app :is(.textbook-result, .topic-chip, .chips span):hover { color: #ef98b0; }
+body.tutorial-app :is(.privacy-notice, .training-complete, .signal-result.is-correct, .diff-added) { background: #433043; color: #ef98b0; border-color: #775165; }
+body.tutorial-app :is(.mode-banner, .mode-banner.is-pua, .compliance-banner, .replay-warning, .signal-result.is-partial, .lifestyle-safety, .baseline-tag) { background: #443527; color: #efd09a; border-color: #806443; border-radius: 4px; }
+body.tutorial-app :is(.mode-banner.is-pua b, .compliance-banner b, .mistake-issue-chip, .lifestyle-skincare-notice, .lifestyle-trend.is-plateau) { color: #efd09a; }
+body.tutorial-app :is(.signal-result.is-wrong, .diff-removed, .mistake-status.open, .bar-tag.weak, .dim-pill.weak) { background: #442630; color: #ea899e; border-color: #804555; }
+body.tutorial-app :is(.mistake-status.ok, .bar-tag.strong, .dim-pill.strong, .stage-badge.manual) { background: #503442; color: #ef98b0; }
+body.tutorial-app :is(.danger-text, .lifestyle-redline, .lifestyle-trend.is-fast, .mistake-compare-row em.down) { color: #ea899e; }
+body.tutorial-app :is(.ok-text, .lifestyle-rhythm-status.is-train, .lifestyle-trend.is-normal, .mistake-compare-row em.up) { color: #c76082; }
+body.tutorial-app :is(.source-badge.model, .msg-source.source-local, .stage-badge.auto, .lifestyle-rhythm-status.is-done) { color: #b2d5e9; background: #243543; border-color: #465e70; }
+body.tutorial-app :is(.source-badge.local, .msg-source.source-model) { color: #efd09a; background: #443527; border-color: #806443; }
+body.tutorial-app :is(.insight-strength, .session-report-card.is-best) { border-color: #775165; }
+body.tutorial-app :is(.insight-shortcoming, .session-report-card.is-worst) { border-color: #804555; }
+body.tutorial-app :is(.stage-progress-fill, .stage-dot.done, .score-bar i, .score-bar.is-strong i, .session-report-bar i) { background: #e07798; }
+body.tutorial-app .score-bar.is-weak i { background: #ed91a8; }
+body.tutorial-app :is(.score-ring, .avatar) { background: #3a2b3a; color: #ef98b0; border-color: #775165; }
+body.tutorial-app .stage-dot.active { background: #c76082; border-color: #c76082; }
+body.tutorial-app .date-journey-steps .is-current { background: #503442; color: #ef98b0; border-color: #e07798; }
+body.tutorial-app .date-journey-feedback { background: #322632; border-left-color: #e07798; }
+body.tutorial-app .date-journey-summary { padding: 12px; }
+body.tutorial-app :is(.date-journey-observations, .practice-history-entry, .practice-history-entry dl) { font-size: 14px; }
+body.tutorial-app :is(.date-journey-steps li, .chips span, .topic-chip) { border-radius: 3px; }
+body.tutorial-app .lifestyle-weight-table { font-size: 13px; }
+body.tutorial-app :is(.lifestyle-weight-table th, .lifestyle-weight-table td) { padding: 7px 9px; border-color: #4a3748; }
+body.tutorial-app .lifestyle-weight-table th { background: #322632; color: #d8c5d4; }
+body.tutorial-app pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; overflow: auto; }
+
+/* 聊天是唯一可有界滚动的正文组件；其他原侧栏不再嵌套滚动。 */
+body.tutorial-app .chat { min-height: 220px; max-height: 480px; height: auto; padding: 10px 3px; overflow-y: auto; }
+body.tutorial-app .msg { background: #322632; color: var(--ink); border-color: #4a3748; border-radius: 6px; }
+body.tutorial-app .msg.me { background: #503442; border-color: #775165; }
+body.tutorial-app .msg.me :is(.who, .msg-body) { color: #e2d3df; }
+body.tutorial-app .composer { margin-top: 18px; background: #322632; }
+body.tutorial-app .coach-float { margin: 12px 0; }
+body.tutorial-app .coach-float-fab { position: static; width: 34px; height: 34px; border-radius: 4px; background: #c76082; color: #27202a; font-size: 18px; }
+body.tutorial-app .coach-float-fab:hover { transform: none; }
+body.tutorial-app .coach-float-panel { position: static; width: 100%; margin-top: 10px; max-height: none; overflow: visible; }
+
+/* 长篇阅读与弹窗保留功能，用浅色正文和单个阅读滚动层。 */
+body.tutorial-app .long-reader { display: block; padding: 22px max(20px, calc((100vw - 1200px) / 2)); background: #27202a; color: var(--ink); overflow-y: auto; }
+body.tutorial-app .long-reader-header { position: sticky; top: -22px; z-index: 1; padding: 12px 0; background: #27202a; }
+body.tutorial-app .long-reader-body { grid-template-columns: 210px minmax(0, 1fr); overflow: visible; align-items: start; }
+body.tutorial-app :is(.chapter-list, .chapter-content) { max-height: none; overflow: visible; }
+body.tutorial-app .chapter-content { min-width: 0; font-size: 15px; }
+body.tutorial-app .chapter-heading { font-size: 24px; }
+body.tutorial-app .long-msg.me .long-msg-bubble { background: #503442; color: #e2d3df; }
+body.tutorial-app .long-msg.her .long-msg-bubble { background: #322632; color: #f2e9f0; }
+body.tutorial-app .long-narrative { color: #bba6b8; font-size: 14px; line-height: 1.8; }
+body.tutorial-app .modal-overlay { background: rgb(20 29 17 / 40%); }
+body.tutorial-app .modal-body { background: #27202a; color: var(--ink); border: 1px solid #4a3748; border-radius: 5px; width: min(760px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); }
+body.tutorial-app .intervention-context { max-height: none; overflow: visible; }
+
+/* 知识区一次展示一个分类；每课折叠，使用原有配色和普通正文排版。 */
+body.tutorial-app .knowledge-intro h2 { margin: 0 0 8px; }
+body.tutorial-app .knowledge-intro p { margin: 6px 0; color: var(--ink-muted); }
+body.tutorial-app .knowledge-intro .note { color: var(--ink-subtle); }
+body.tutorial-app .knowledge-categories { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 12px; }
+body.tutorial-app .knowledge-categories button { padding: 8px 13px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface-2); color: var(--ink-muted); font: inherit; cursor: pointer; }
+body.tutorial-app .knowledge-categories button[aria-pressed="true"] { color: #ef98b0; border-color: #c76082; background: #503442; }
+body.tutorial-app .knowledge-category-description { margin: 0 0 18px; color: var(--ink-subtle); }
+body.tutorial-app .knowledge-card { margin: 0 0 12px; border: 1px solid var(--line-strong); border-radius: 4px; }
+body.tutorial-app .knowledge-card > summary { padding: 15px 18px; cursor: pointer; color: var(--ink); }
+body.tutorial-app .knowledge-card > summary b { font-size: 16px; }
+body.tutorial-app .knowledge-card > summary span { display: block; margin: 5px 0 0; font-size: 13px; color: var(--ink-subtle); }
+body.tutorial-app .knowledge-card[open] > summary { background: #322632; border-bottom: 1px solid var(--line); }
+body.tutorial-app .knowledge-card-body { padding: 8px 20px 18px; line-height: 1.85; }
+body.tutorial-app .knowledge-card-body h3 { margin: 22px 0 8px; font-size: 16px; color: var(--amber); }
+body.tutorial-app .knowledge-card-body h3 small { margin-left: 8px; font-weight: 400; font-size: 12px; color: var(--ink-subtle); }
+body.tutorial-app .knowledge-card-body :is(ul, ol) { padding-left: 22px; }
+body.tutorial-app .knowledge-card-body li { margin: 8px 0; }
+body.tutorial-app .knowledge-scope { color: var(--ink-subtle); font-size: 13px; }
+body.tutorial-app .knowledge-fact-ref { display: block; color: var(--ink-subtle); font-size: 12px; }
+body.tutorial-app :is(.knowledge-mistake, .knowledge-boundary) { padding: 12px 14px; border-left: 2px solid var(--rose); background: var(--surface-2); }
+body.tutorial-app .knowledge-quiz { margin: 20px 0; padding: 1px 15px 12px; border: 1px solid var(--line-strong); }
+body.tutorial-app .knowledge-answer-options { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+body.tutorial-app .knowledge-answer-options .btn { white-space: normal; text-align: left; justify-content: flex-start; line-height: 1.7; min-height: 40px; }
+body.tutorial-app .knowledge-answer-options [aria-pressed="true"] { border-color: var(--rose); }
+body.tutorial-app .knowledge-feedback { color: var(--amber); }
+body.tutorial-app .knowledge-feedback:empty { display: none; }
+body.tutorial-app .knowledge-sources { padding-left: 20px; font-size: 13px; }
+body.tutorial-app .knowledge-sources li { padding: 7px 0; }
+body.tutorial-app .knowledge-sources small { display: block; color: var(--ink-subtle); }
+body.tutorial-app .knowledge-sources p { margin: 3px 0 0; color: var(--ink-subtle); }
+body.tutorial-app .knowledge-privacy { margin: 18px 0 24px; }
+body.tutorial-app #lifestylePanel { border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 1000px) {
+  body.tutorial-app .tutorial-workspace { grid-template-columns: 210px minmax(0, 1fr); }
+  body.tutorial-app .tutorial-rail { display: none; }
+}
+@media (max-width: 760px) {
+  body.tutorial-app .site-header-inner { min-height: 66px; flex-wrap: wrap; gap: 10px; }
+  body.tutorial-app :is(.site-brand h1, .site-brand > b, .brand-name) { font-size: 21px; }
+  body.tutorial-app .site-tagline { display: none; }
+  body.tutorial-app .site-header-actions { justify-content: flex-start; }
+  body.tutorial-app .site-nav :is(a, button) { padding: 9px 12px; font-size: 13px; }
+  body.tutorial-app .shell { margin-top: 14px; width: calc(100% - 24px); padding-bottom: 24px; }
+  body.tutorial-app .tutorial-workspace { display: block; }
+  body.tutorial-app #workspaceMenuToggle { display: inline-flex; margin: 0 0 12px; }
+  body.tutorial-app #workspaceSidebar { display: none; margin-bottom: 14px; }
+  body.tutorial-app #workspaceSidebar.is-open { display: block; }
+  body.tutorial-app .tutorial-content { padding: 18px 15px 22px; }
+  body.tutorial-app .knowledge-card-body { padding: 6px 12px 14px; }
+  body.tutorial-app .knowledge-card > summary { padding: 12px; }
+  body.tutorial-app .knowledge-categories button { padding: 7px 10px; font-size: 14px; }
+  body.tutorial-app #workspaceTitle { font-size: 23px; }
+  body.tutorial-app :is(.tutorial-categories, .tutorial-home-grid, .tutorial-category-grid) { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  body.tutorial-app :is(.practice-form-grid, .ri-summary, .optimizer-grid, .signal-detail-grid, .training-insights, .replay-columns, .replay-summary-grid, .growth-overview, .growth-grid, .preflight-grid, .comparison-grid, .custom-role-actions) { grid-template-columns: minmax(0, 1fr); }
+  body.tutorial-app :is(.practice-card, .date-journey-card, .relationship-intelligence-card) { padding: 14px; }
+  body.tutorial-app .chat { min-height: 180px; max-height: 55vh; }
+  body.tutorial-app .msg { max-width: 93%; }
+  body.tutorial-app .long-reader { padding: 14px; }
+  body.tutorial-app .long-reader-header { top: -14px; gap: 10px; }
+  body.tutorial-app .long-reader-body { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  body.tutorial-app .chapter-list { border-bottom: 1px solid #4a3748; padding-bottom: 12px; }
+  body.tutorial-app .practice-history-entry dl { grid-template-columns: 100px minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.tutorial-app :where(*) { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* 旧样式曾对 panel 设置 display:block!important；隐藏视图必须最后强制生效。 */
+body.tutorial-app[hidden],
+body.tutorial-app [hidden],
+body.tutorial-app .hidden,
+body.tutorial-app .workspace-view[hidden],
+body.tutorial-app [data-view-panel][hidden] { display: none !important; }

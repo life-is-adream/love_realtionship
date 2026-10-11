@@ -854,8 +854,8 @@ input:focus, select:focus, textarea:focus{
   .panel[data-panel]{ display:block !important; }
 }
 
-/* 底部 Tab 栏在桌面端默认隐藏（不需要 @media 也能生效） */
-.mobile-tabs{ display:none; }
+/* 桌面端隐藏 Tab 栏；窄屏保留入口，才能切到教练与训练面板。 */
+@media(min-width:721px){ .mobile-tabs{ display:none; } }
 
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; } }
 
@@ -1167,7 +1167,7 @@ input:focus, select:focus, textarea:focus{
 /* 现实练习与连续模拟：沿用训练区的卡片和色彩。 */
 .practice-card,.date-journey-card{ border:1px solid var(--line); border-radius:12px; background:var(--surface-2); padding:14px; margin-top:12px; display:flex; flex-direction:column; gap:10px; font-size:13px; color:var(--ink); }
 .practice-card label,.date-journey-card label{ display:flex; flex-direction:column; gap:6px; min-width:0; }
-.practice-card select,.date-journey-card select,.date-journey-card textarea{ width:100%; min-width:0; box-sizing:border-box; font:inherit; padding:9px; border:1px solid var(--line); border-radius:8px; color:var(--ink); background:var(--surface); }
+.practice-card select,.date-journey-card select,.date-journey-card textarea{ width:100%; min-width:0; box-sizing:border-box; font:inherit; padding:9px; border:1px solid var(--line); border-radius:8px; color:var(--ink); background:var(--surface-1); }
 .practice-card p,.date-journey-card p{ margin:0; line-height:1.6; }
 .practice-plan{ display:flex; flex-direction:column; gap:8px; }
 .practice-plan h3{ margin:0; font-size:14px; }
@@ -1176,10 +1176,23 @@ input:focus, select:focus, textarea:focus{
 .practice-consent input{ width:auto; accent-color:var(--accent); }
 .practice-history article{ border-top:1px solid var(--line); padding-top:10px; margin-top:10px; display:flex; flex-direction:column; gap:6px; }
 .practice-history small{ color:var(--ink-subtle); }
+.practice-history-entry{ border-top:1px solid var(--line); padding:10px 0; }
+.practice-history-entry summary{ cursor:pointer; font-weight:600; line-height:1.5; }
+.practice-history-entry dl{ display:grid; grid-template-columns:minmax(100px,.7fr) minmax(0,1fr); gap:6px 10px; }
+.practice-history-entry dt{ color:var(--ink-subtle); }
+.practice-history-entry dd{ margin:0; overflow-wrap:anywhere; }
+.practice-history-entry p{ margin-top:6px; }
+.practice-next-round{ padding:10px; border:1px solid var(--line); border-radius:8px; display:flex; flex-direction:column; gap:8px; }
+.practice-card input[type="date"]{ min-width:0; width:100%; box-sizing:border-box; padding:9px; border:1px solid var(--line); border-radius:8px; font:inherit; color:var(--ink); background:var(--surface-1); color-scheme:dark; }
 .practice-card a{ color:inherit; text-decoration:underline; }
-.date-journey-progress{ display:flex; flex-wrap:wrap; gap:6px; padding:0; list-style:none; }
-.date-journey-progress li{ border:1px solid var(--line); border-radius:20px; padding:4px 8px; font-size:12px; }
-.date-journey-progress .current{ font-weight:700; background:var(--surface-3,var(--surface-2)); }
+.date-journey-steps{ display:flex; flex-wrap:wrap; gap:6px; padding:0; list-style:none; }
+.date-journey-steps li{ border:1px solid var(--line); border-radius:20px; padding:4px 8px; font-size:12px; }
+.date-journey-steps .is-current{ font-weight:700; background:var(--surface-3); border-color:var(--rose); }
+.date-journey-steps .is-done{ color:var(--ink-subtle); }
+.date-journey-observations{ border:1px solid var(--line); border-radius:8px; margin:0; padding:10px; display:flex; flex-direction:column; gap:8px; }
+.date-journey-observations label{ flex-direction:row; align-items:flex-start; gap:8px; }
+.date-journey-observations input{ width:auto; margin-top:4px; accent-color:var(--accent); }
+.date-journey-observations b{ display:block; margin-bottom:3px; }
 .date-journey-actions{ display:flex; flex-wrap:wrap; gap:8px; }
 .date-journey-feedback{ padding:10px; border-left:3px solid var(--line); display:flex; flex-direction:column; gap:8px; }
 @media(max-width:600px){ .practice-form-grid{ grid-template-columns:1fr; } }

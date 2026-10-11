@@ -3,56 +3,173 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HeartFlow 恋爱模拟器</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
-  <link rel="stylesheet" href="/styles.css" />
+  <title>HeartFlow · 恋爱成长课</title>
+  <link rel="stylesheet" href="/styles.css?v=20261007-engineering-r1" />
+  <link rel="stylesheet" href="/tutorial-layout.css?v=20261007-engineering-r1" />
 </head>
-<body>
-  <div class="orb orb-a"></div>
-  <div class="orb orb-b"></div>
-  <div class="noise"></div>
-
-  <main class="shell">
-    <div class="topbar">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.6-7-9.3A3.7 3.7 0 0 1 12 7.4 3.7 3.7 0 0 1 19 10.7C19 15.4 12 20 12 20Z" fill="#2a141d" stroke="#2a141d" stroke-width="1.4"/></svg>
-        </span>
-        <span class="brand-name"><b>Heart</b><span>Flow</span></span>
-      </div>
-      <div class="topbar-right">
-        <a href="/love-learning.html" style="margin-right:14px;color:inherit;text-decoration:none;font-size:14px;font-weight:600;opacity:.85;" title="恋爱学习知识地图">♡ 恋爱学习</a>
-        <span class="status-pill"><span class="live"></span> 模型在线 · mimo-v2.5</span>
-      </div>
+<body class="tutorial-app">
+  <a class="skip-link" id="skipToContent" href="#workspaceTitle">跳到正文</a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="site-brand" href="#home" data-view="home"><b>HeartFlow</b><span>恋爱成长课</span></a>
+      <p class="site-tagline">学习、练习与现实复盘</p>
+      <span class="status-pill" id="modelStatusBadge" role="status">本地服务待检查</span>
     </div>
+  </header>
+  <nav class="site-nav" aria-label="主导航"><div class="site-nav-inner">
+    <button type="button" data-view="home">首页</button>
+    <a href="/love-learning.html">全部课程</a>
+    <button type="button" id="openPracticeBtn">实战练习</button>
+    <button type="button" data-view="coach">复盘分析</button>
+    <button type="button" data-view="settings">设置</button>
+  </div></nav>
+  <main class="shell">
+    <button id="workspaceMenuToggle" class="workspace-menu-toggle" type="button" aria-controls="workspaceSidebar" aria-expanded="false">学习目录</button>
+    <div class="tutorial-workspace">
+      <aside class="tutorial-sidebar" id="workspaceSidebar">
+        <h2>学习与练习</h2>
+        <nav aria-label="功能目录">
+          <a href="#home" data-view="home">学习首页</a>
+          <a href="/love-learning.html">课程目录 <small>179课</small></a>
+          <h3>沟通练习</h3>
+          <a href="#practice" data-view="practice">每日小练习</a>
+          <a href="#chat" data-view="chat">对话练习</a>
+          <a href="#journey" data-view="journey">连续约会练习</a>
+          <h3>观察与复盘</h3>
+          <a href="#real" data-view="real">现实互动复盘</a>
+          <a href="#coach" data-view="coach">教练分析 <span class="unread-dot hidden" aria-label="有新分析"></span></a>
+          <a href="#growth" data-view="growth">成长记录与错题</a>
+          <h3>个人管理</h3>
+          <a href="#lifestyle" data-view="lifestyle">形象与身心知识</a>
+          <a href="#settings" data-view="settings">角色与设置</a>
+        </nav>
+        <p class="sidebar-note">一轮练一个动作，依据真实回应调整下一步。</p>
+      </aside>
+      <section class="tutorial-content" aria-labelledby="workspaceTitle">
+        <header class="workspace-heading">
+          <p class="workspace-breadcrumb">HeartFlow / 学习与练习</p>
+          <h1 id="workspaceTitle" tabindex="-1">恋爱成长学习目录</h1>
+          <p id="workspaceDescription">按当前需要选择课程或练习，从一个具体问题开始。</p>
+        </header>
+        <section class="workspace-view" data-view-panel="home">
+          <div class="tutorial-categories">
+            <section class="tutorial-category"><h2>认识与建立联系</h2><p>找到自然交流的场景，练习倾听和自我表达。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=2"><b>认识人的机会</b><small>进入可以重复参与的场景</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=4"><b>自然介绍自己</b><small>让对方认识真实的你</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=5"><b>把聊天接下去</b><small>先听懂，再分享</small></a>
+              <a class="tutorial-link" href="#chat" data-view="chat"><b>对话练习</b><small>在虚构场景中自己回应</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>邀约与约会相处</h2><p>提出具体邀请，观察互惠与自己的相处感受。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=13"><b>清楚提出邀约</b><small>具体、可协商、容易拒绝</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=14"><b>第一次约会</b><small>安排轻松的共同体验</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=18"><b>表达好感</b><small>说清楚想法，听见对方选择</small></a>
+              <a class="tutorial-link" href="#journey" data-view="journey"><b>连续约会练习</b><small>三个场景，六段互动</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>沟通、情绪与边界</h2><p>把事实和猜测分开，尊重双方的意愿与空间。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=23"><b>说清楚一件事</b><small>表达感受和具体请求</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=22"><b>建立自己的边界</b><small>明确可执行的行动规则</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=56"><b>处理等待与受挫</b><small>恢复自己的生活安排</small></a>
+              <a class="tutorial-link" href="#coach" data-view="coach"><b>事实与解释</b><small>查看证据、反证和未知</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>长期关系与生活</h2><p>学习兼容性、关系修复与共同生活的协商。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=85"><b>生活方向与兼容性</b><small>谈城市、工作和未来安排</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=67"><b>冲突中的暂停</b><small>约定时间，回来继续沟通</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=26"><b>亲密与同意</b><small>清楚、具体、可以撤回</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=87"><b>婚姻准备</b><small>讨论承诺与共同责任</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>把学习带进现实</h2><p>一次只练一个小动作，再记录真实观察。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="#practice" data-view="practice"><b>每日小练习</b><small>用几分钟练清楚表达</small></a>
+              <a class="tutorial-link" href="#real" data-view="real"><b>现实互动复盘</b><small>分开行动、回应与自身感受</small></a>
+              <a class="tutorial-link" href="#growth" data-view="growth"><b>回顾成长与错题</b><small>查看练习中的具体变化</small></a>
+              <a class="tutorial-link" href="#lifestyle" data-view="lifestyle"><b>形象准备与身心知识</b><small>健身、护肤、穿搭、声音，以及女性生理和心理知识</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>课程与阅读</h2><p>按主题选择原文，或顺着课程逐步学习。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html"><b>全部179课</b><small>搜索主题、阅读与记录进度</small></a>
+              <a class="tutorial-link" href="/love-learning.html?view=books"><b>书架与资料</b><small>19份本地整合阅读材料</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=1"><b>从第一课开始</b><small>先想清楚自己想要的关系</small></a>
+              <a class="tutorial-link" href="/intake-quiz.html"><b>沟通情境自检</b><small>选择当前适合的练习方向</small></a>
+            </div></section>
+          </div>
+        </section>
+        <section class="panel workspace-view" data-view-panel="practice" hidden><div id="dailyTrainingPanel"></div><div id="intakePanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="journey" hidden><div id="dateJourneyPanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="real" hidden><div id="realPracticePanel"></div></section>
+        <section class="panel coach-panel workspace-view" data-panel="coach" data-view-panel="coach" hidden><section class="relationship-intelligence-card" aria-labelledby="relationshipIntelligenceTitle">
+          <div class="ri-head">
+            <div>
+              <p class="eyebrow">Local Intelligence</p>
+              <h2 id="relationshipIntelligenceTitle">证据与决策</h2>
+            </div>
+            <button class="btn small ghost" id="refreshRelationshipIntelligenceBtn" type="button">重新分析</button>
+          </div>
+          <label class="ri-consent-control">
+            <input id="relationshipIntelligenceConsent" type="checkbox" />
+            <span><b>允许保存匿名结构化记忆</b><small>不保存原始聊天，可随时关闭并清除。</small></span>
+          </label>
+          <div id="relationshipIntelligencePanel" aria-live="polite"></div>
+        </section>
 
-    <header class="hero">
-      <div>
-        <p class="eyebrow">HeartFlow · Relationship Simulator</p>
-        <h1>恋爱对话训练台</h1>
-        <p class="hero-copy">隐藏意图分析、A/B/C 神级回复、MiMo 本地代理。练真实互动，不练油腻套路。</p>
-      </div>
-      <div class="hero-actions">
-        <div class="mode-switch" id="modeSwitch" role="group" aria-label="训练模式切换">
-          <button class="mode-btn is-active" id="modeBtnAnti" type="button" data-mode="anti">🛡️ 反PUA 训练</button>
-          <button class="mode-btn" id="modeBtnPua" type="button" data-mode="pua">🔍 PUA 识别</button>
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Coach Layer</p>
+            <h2>事实、解释与未知</h2>
+          </div>
         </div>
-        <button class="btn ghost" id="healthBtn">检查模型</button>
-        <button class="btn ghost" id="longContentBtn">长篇教材</button>
-        <button class="btn ghost" id="exportBtn">导出</button>
-        <button class="btn ghost" id="backupBtn" type="button">备份档案</button>
-        <button class="btn ghost" id="restoreBtn" type="button">恢复档案</button>
-        <button class="btn danger" id="resetBtn">重置</button>
-      </div>
-    </header>
+        <div class="analysis-grid" id="analysis"></div>
+        <div class="signal-panel" id="signalPanel" aria-live="polite"></div><div class="workspace-actions"><button class="btn" id="openReplayBtn" type="button">分析真实对话</button></div><div class="section-title choices-title">
+          <div>
+            <p class="eyebrow">Reply Options</p>
+            <h2>A / B / C 回复</h2>
+          </div>
+        </div>
+        <div class="choices" id="choices"></div>
 
-    <div class="compliance-banner hidden" id="complianceBanner" role="status" aria-live="polite"></div>
-    <div class="mode-banner hidden" id="modeBanner" role="status" aria-live="polite"></div>
+        <div class="section-title plan-title">
+          <div>
+            <p class="eyebrow">Long-term Route</p>
+            <h2>长期对话路线</h2>
+          </div>
+          <button class="btn small" id="planBtn">生成计划</button>
+        </div>
+        <div class="plan-panel" id="planPanel"></div><div id="textbookPanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="growth" hidden><div id="growthPanel"></div><div id="mistakesPanel"></div><div class="workspace-actions"><button class="btn" id="sessionReportBtn" type="button">生成会话复盘</button></div><div id="sessionReportPanel"></div><div class="section-title progress-title">
+          <div>
+            <p class="eyebrow">Training Score</p>
+            <h2>教练评分 / 成长日志</h2>
+          </div>
+        </div>
+        <div class="progress-panel" id="progressPanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="lifestyle" hidden><div id="presentationKnowledgePanel"></div><div id="lifestylePanel"></div></section>
+        <section class="panel chat-panel workspace-view" data-panel="chat" data-view-panel="chat" hidden><div class="compliance-banner hidden" id="complianceBanner" role="status" aria-live="polite"></div><div class="mode-banner hidden" id="modeBanner" role="status" aria-live="polite"></div><div class="chat-context"><span id="chatContext"></span><a href="#settings" data-view="settings">调整角色与阶段</a><a href="#coach" data-view="coach">查看教练分析</a></div>
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Live Scene</p>
+            <h2>当前对话</h2>
+          </div>
+          <button class="btn small" id="nextBtn">然后</button>
+        </div>
 
-    <section class="layout">
-      <aside class="panel persona-panel" data-panel="persona">
+        <div class="chat" id="chat"></div>
+        <div class="coach-float" id="coachFloat">
+          <button class="coach-float-fab" id="coachFloatBtn" type="button" aria-label="打开教练建议" title="教练建议">✦</button>
+          <div class="coach-float-panel hidden" id="coachFloatPanel"></div>
+        </div>
+
+        <div class="composer">
+          <label class="field">
+            <span>你的回复</span>
+            <textarea id="userInput" placeholder="在这里输入你想回复她的话，然后点“发送我的回复”。">那你装得还挺成功的，至少我完全没看出来。其实第一次参加能这样已经挺好了。</textarea>
+          </label>
+          <div class="composer-actions">
+            <button class="btn primary" id="sendMineBtn">发送我的回复</button>
+            <button class="btn ghost" id="preflightBtn">发送前测验</button>
+            <button class="btn" id="generateHerBtn">生成女方对话</button>
+          </div>
+          <div class="timing-panel" id="timingPanel" aria-live="polite"></div>
+          <div class="preflight-panel" id="preflightPanel"></div>
+        </div>
+      </section>
+        <section class="panel persona-panel workspace-view" data-panel="persona" data-view-panel="settings" hidden><section class="settings-tools"><h2>训练与档案设置</h2><div class="mode-switch" id="modeSwitch" role="group" aria-label="训练模式切换"><button class="mode-btn is-active" id="modeBtnAnti" type="button" data-mode="anti">反PUA训练</button><button class="mode-btn" id="modeBtnPua" type="button" data-mode="pua">PUA识别</button></div><div class="workspace-actions"><button class="btn" id="healthBtn" type="button">检查模型</button><button class="btn" id="longContentBtn" type="button">长篇教材</button><button class="btn" id="exportBtn" type="button">导出</button><button class="btn" id="backupBtn" type="button">备份档案</button><button class="btn" id="restoreBtn" type="button">恢复档案</button><button class="btn danger" id="resetBtn" type="button">重置对话</button></div></section>
         <div class="persona-top">
           <div class="avatar" id="personaAvatar">林</div>
           <div>
@@ -73,7 +190,7 @@
           <select id="personaSelect"></select>
         </label>
 
-        <section class="avatar-editor" aria-label="头像设置">
+        <details class="avatar-editor"><summary>头像设置</summary>
           <div class="avatar-editor-head">
             <strong>角色头像</strong>
             <span>仅保存到本机浏览器</span>
@@ -88,7 +205,7 @@
           <p class="avatar-hint">上传后可直接拖动圆形头像调整取景，或用滑杆微调。</p>
           <label class="avatar-range"><span>水平位置</span><input id="avatarPosX" type="range" min="0" max="100" value="50" /></label>
           <label class="avatar-range"><span>垂直位置</span><input id="avatarPosY" type="range" min="0" max="100" value="50" /></label>
-        </section>
+        </details>
 
         <details class="custom-role">
           <summary>自定义角色</summary>
@@ -150,7 +267,7 @@
           <select id="styleBias">
             <option value="A">A：温柔高情商</option>
             <option value="B">B：幽默风趣</option>
-            <option value="C">C：拉扯试探</option>
+            <option value="C">C：深入了解</option>
             <option value="mix">混合推荐</option>
           </select>
         </label>
@@ -173,7 +290,7 @@
           <textarea id="goal">保持自然微信初聊，从活动话题过渡到了解她本人，避免尬聊和需求感。</textarea>
         </label>
 
-        <details class="memory-box" open>
+        <details class="memory-box">
           <summary>场景 / 角色记忆</summary>
           <div class="memory-grid">
             <label class="field">
@@ -205,111 +322,12 @@
           <input id="endpoint" type="hidden" value="/api/chat" />
           <input id="apiKey" type="hidden" value="" />
         </div>
-      </aside>
-
-      <section class="panel chat-panel" data-panel="chat">
-        <div class="section-title">
-          <div>
-            <p class="eyebrow">Live Scene</p>
-            <h2>当前对话</h2>
-          </div>
-          <button class="btn small" id="nextBtn">然后</button>
-        </div>
-
-        <div class="chat" id="chat"></div>
-        <div class="coach-float" id="coachFloat">
-          <button class="coach-float-fab" id="coachFloatBtn" type="button" aria-label="打开教练建议" title="教练建议">✦</button>
-          <div class="coach-float-panel hidden" id="coachFloatPanel"></div>
-        </div>
-
-        <div class="composer">
-          <label class="field">
-            <span>你的回复</span>
-            <textarea id="userInput" placeholder="在这里输入你想回复她的话，然后点“发送我的回复”。">那你装得还挺成功的，至少我完全没看出来。其实第一次参加能这样已经挺好了。</textarea>
-          </label>
-          <div class="composer-actions">
-            <button class="btn primary" id="sendMineBtn">发送我的回复</button>
-            <button class="btn ghost" id="preflightBtn">发送前测验</button>
-            <button class="btn" id="generateHerBtn">生成女方对话</button>
-          </div>
-          <div class="timing-panel" id="timingPanel" aria-live="polite"></div>
-          <div class="preflight-panel" id="preflightPanel"></div>
-        </div>
+      </section>
       </section>
 
-      <aside class="panel coach-panel" data-panel="coach">
-        <section class="relationship-intelligence-card" aria-labelledby="relationshipIntelligenceTitle">
-          <div class="ri-head">
-            <div>
-              <p class="eyebrow">Local Intelligence</p>
-              <h2 id="relationshipIntelligenceTitle">证据与决策</h2>
-            </div>
-            <button class="btn small ghost" id="refreshRelationshipIntelligenceBtn" type="button">重新分析</button>
-          </div>
-          <label class="ri-consent-control">
-            <input id="relationshipIntelligenceConsent" type="checkbox" />
-            <span><b>允许保存匿名结构化记忆</b><small>不保存原始聊天，可随时关闭并清除。</small></span>
-          </label>
-          <div id="relationshipIntelligencePanel" aria-live="polite"></div>
-        </section>
-
-        <div class="section-title">
-          <div>
-            <p class="eyebrow">Coach Layer</p>
-            <h2>隐藏意图</h2>
-          </div>
-        </div>
-        <div class="analysis-grid" id="analysis"></div>
-        <div class="signal-panel" id="signalPanel" aria-live="polite"></div>
-        <div class="learning-tools">
-          <div class="section-title compact-section-title">
-            <div><p class="eyebrow">Practice Loop</p><h2>训练闭环</h2></div>
-            <button class="btn small" id="openReplayBtn" type="button">分析真实对话</button>
-            <button class="btn small" id="sessionReportBtn" type="button">生成会话复盘</button>
-          </div>
-          <div id="dailyTrainingPanel"></div>
-          <div id="growthPanel"></div>
-          <div id="intakePanel"></div>
-          <div id="mistakesPanel"></div>
-          <div id="sessionReportPanel"></div>
-          <div id="lifestylePanel"></div>
-          <div id="textbookPanel"></div>
-        </div>
-
-        <div class="section-title choices-title">
-          <div>
-            <p class="eyebrow">Reply Options</p>
-            <h2>A / B / C 回复</h2>
-          </div>
-        </div>
-        <div class="choices" id="choices"></div>
-
-        <div class="section-title plan-title">
-          <div>
-            <p class="eyebrow">Long-term Route</p>
-            <h2>长期对话路线</h2>
-          </div>
-          <button class="btn small" id="planBtn">生成计划</button>
-        </div>
-        <div class="plan-panel" id="planPanel"></div>
-
-        <div class="section-title progress-title">
-          <div>
-            <p class="eyebrow">Training Score</p>
-            <h2>教练评分 / 成长日志</h2>
-          </div>
-        </div>
-        <div class="progress-panel" id="progressPanel"></div>
-      </aside>
-    </section>
-
-    <nav class="mobile-tabs" id="mobileTabs">
-      <button class="tab active" data-tab="chat"><span>💬</span> 聊天</button>
-      <button class="tab" data-tab="coach"><span>📋</span> 教练<span class="unread-dot hidden"></span></button>
-      <button class="tab" data-tab="persona"><span>👤</span> 角色</button>
-    </nav>
+    </div>
+    <footer class="site-footer">HeartFlow · 恋爱成长学习与练习</footer>
   </main>
-
   <!-- 长篇阅读视图 -->
   <section id="longReader" class="long-reader hidden">
     <div class="long-reader-header">
@@ -369,6 +387,6 @@
 
   <input id="fileImport" type="file" accept="application/json" hidden />
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
-  <script type="module" src="/app.js?v=20260803-1"></script>
+  <script type="module" src="/app.js?v=20261007-engineering-r1"></script>
 </body>
 </html>
