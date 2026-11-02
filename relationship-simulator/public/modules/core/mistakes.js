@@ -10,6 +10,8 @@
  * naturalness/empathy/boundary/drive（drive 对应教练引擎的 momentum/推进力）。
  */
 
+import { clampScoreOrNull } from "./number.js";
+
 export const MISTAKES_LIMIT = 200; // 对齐项目 200 条上限惯例（learning.events / messages 同规格）
 
 export const MISTAKE_SOURCES = Object.freeze(["preflight", "coach", "manual"]);
@@ -208,11 +210,9 @@ function normalizeDims(value) {
   const source = isRecord(value) ? value : {};
   return Object.fromEntries(
     MISTAKE_DIM_KEYS.map((key) => {
-      const raw = source[key];
-      // 注意 Number(null)/Number("") 均为 0，必须先把「未评分」哨兵值排除
-      if (raw === null || raw === undefined || raw === "") return [key, null];
-      const num = Number(raw);
-      return [key, Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : null];
+      // clampScoreOrNull 已排除 Number(null)/Number("") 均为 0 的陷阱：
+      // 「未评分」哨兵值保持 null，不会被悄悄变成 0 分。
+      return [key, clampScoreOrNull(source[key])];
     })
   );
 }

@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>恋爱学习 · 课程教程</title>
+  <style>
+    :root {
+      --bg: #1b151e; --bg2: #27202a; --panel: #27202a; --panel-2: #322632;
+      --line: #4a3748; --text: #f2e9f0; --muted: #bba6b8;
+      --accent: #e07798; --accent2: #c76082;
+      --advance: #d8809e; --communicate: #446b8a; --intimacy: #775b8a;
+      --life: #d8809e; --self: #876947;
+      --good: #d8809e; --warn: #e9c083; --bad: #ef92a0; --ok: #627184;
+      --radius: 3px;
+      --font: Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; line-height: 1.65; font-size: 14px; }
+    a { color: var(--accent2); }
+    button, input { font-family: var(--font); }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .shell { max-width: 1320px; margin: 0 auto; padding: 0 20px 48px; }
+    .topbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; min-height: 76px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 23px; color: var(--accent2); }
+    .brand-mark { font-size: 25px; }
+    .brand .sub { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 4px; }
+    .spacer { flex: 1; }
+    .pill { font-size: 12px; color: var(--muted); }
+    .pill b { color: var(--text); }
+    .backlink { font-size: 13px; text-decoration: none; }
+    .backlink:hover { text-decoration: underline; }
+    .learning-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 20px; margin-top: 20px; align-items: start; }
+    .learning-sidebar { position: sticky; top: 16px; background: #3a2b3a; border: 1px solid var(--line); }
+    .sidebar-title { margin: 0; padding: 13px 15px; font-size: 15px; font-weight: 700; border-bottom: 1px solid var(--line); }
+    .tabs { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 6px 0; }
+    .tab { width: 100%; padding: 11px 15px; text-align: left; border: 0; border-left: 3px solid transparent; background: transparent; color: #d8c5d4; cursor: pointer; font-size: 14px; }
+    .tab:hover { background: #433043; color: var(--accent2); }
+    .tab.is-active { background: #f0e0e8; color: var(--accent2); border-left-color: var(--accent); font-weight: 700; }
+    .sidebar-note { margin: 0; padding: 12px 15px 16px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); }
+    .learning-content { min-width: 0; background: #27202a; border: 1px solid var(--line); padding: 24px; }
+    .hero { margin: 0 0 18px; }
+    .hero h1 { margin: 0 0 6px; font-size: 27px; font-weight: 500; }
+    .hero p { margin: 0; color: var(--muted); }
+    .progress-bar { margin: 18px 0 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .progress-track { height: 5px; background: #3a2b3a; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); transition: width .3s; }
+    .progress-meta { display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 7px; }
+    .view { display: none; }
+    .view.is-active { display: block; }
+    .view h2 { margin: 0 0 12px; font-size: 21px; font-weight: 500; }
+    .toolbar { display: flex; gap: 8px; margin: 12px 0 18px; flex-wrap: wrap; align-items: center; }
+    .search { flex: 1; min-width: 180px; background: #27202a; border: 1px solid #4a3748; color: var(--text); padding: 9px 11px; border-radius: 3px; font-size: 14px; }
+    .search:focus { outline: none; border-color: var(--accent); }
+    .chip { border: 1px solid var(--line); background: #1b151e; color: #715e69; padding: 7px 11px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+    .chip.is-active { background: #433043; color: var(--accent2); border-color: #775165; }
+    .legend { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 16px; font-size: 12px; color: var(--muted); }
+    .legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+    .map-scroll { overflow-x: auto; }
+    .map { display: grid; grid-template-columns: 108px repeat(5, minmax(132px, 1fr)); gap: 5px; min-width: 815px; }
+    .map-head { padding: 10px 7px; font-size: 13px; font-weight: 700; text-align: center; background: #1b151e; }
+    .map-head small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+    .stage-label { display: flex; flex-direction: column; justify-content: center; padding: 9px; background: #3a2b3a; border: 1px solid var(--line); }
+    .stage-label b { font-size: 13px; }
+    .stage-label small { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .cell { position: relative; border: 1px solid var(--line); background: #27202a; padding: 9px; min-height: 94px; cursor: pointer; }
+    .cell:hover, .cell.is-current { border-color: var(--accent); background: #322632; }
+    .cell-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+    .cell-count { font-size: 13px; font-weight: 700; }
+    .cell-done { font-size: 11px; color: var(--muted); }
+    .cell-chips { display: flex; flex-direction: column; gap: 3px; }
+    .cell-chip { font-size: 11px; padding: 2px 5px; background: #3a2b3a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cell-chip.learned { background: #433043; color: var(--accent2); }
+    .cell-more { margin-top: 6px; font-size: 11px; color: var(--muted); }
+    .cur-marker { position: absolute; top: -5px; right: -3px; background: var(--accent); color: #27202a; font-size: 10px; padding: 1px 5px; }
+    .detail { margin-top: 20px; border-top: 2px solid var(--accent); padding-top: 15px; }
+    .detail h3 { margin: 0 0 4px; font-size: 18px; }
+    .detail .meta { color: var(--muted); font-size: 12px; margin-bottom: 12px; }
+    .list-head, .course-row { display: grid; grid-template-columns: 54px minmax(0, 1fr) 90px 176px; gap: 12px; align-items: center; }
+    .list-head { padding: 9px 10px; background: #322632; color: #bba6b8; font-size: 12px; border-bottom: 1px solid var(--line); }
+    .course-list { display: flex; flex-direction: column; }
+    .course-row { padding: 14px 10px; border-bottom: 1px solid var(--line); background: #27202a; }
+    .course-row:hover { background: #322632; }
+    .course-row > div { min-width: 0; }
+    .course-row .no { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .course-row .t { font-size: 15px; color: #e2d3df; }
+    .course-row .g { margin-top: 3px; font-size: 12px; color: var(--muted); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .course-actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+    .tag { display: inline-block; font-size: 11px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted); }
+    .btn { border: 1px solid #dfccd6; background: #27202a; color: var(--accent2); cursor: pointer; padding: 7px 12px; border-radius: 3px; font-size: 13px; white-space: nowrap; }
+    .btn:hover { background: #3a2b3a; border-color: var(--accent); }
+    .btn.done { background: var(--accent); color: #27202a; border-color: var(--accent); }
+    .btn.small { padding: 5px 8px; font-size: 12px; }
+    .books { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 12px; margin-top: 14px; }
+    .book { border: 1px solid var(--line); background: #27202a; padding: 16px; cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
+    .book:hover { border-color: var(--accent); }
+    .book .bt { font-weight: 700; font-size: 15px; line-height: 1.5; }
+    .book .ba, .book .bn { color: var(--muted); font-size: 12px; }
+    .book .bn { flex: 1; }
+    .book .foot { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+    .kind { font-size: 11px; padding: 2px 6px; border-radius: 2px; font-weight: 700; }
+    .kind-科普 { background: #433043; color: var(--good); }
+    .kind-历史 { background: #eef1f5; color: var(--ok); }
+    .kind-注意 { background: #443527; color: var(--warn); }
+    .kind-争议 { background: #f9eee2; color: #966039; }
+    .kind-高危 { background: #442630; color: var(--bad); }
+    .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .68); display: none; z-index: 50; padding: 24px; }
+    .overlay.is-open { display: flex; }
+    .reader { margin: auto; width: min(880px, 100%); height: min(90vh, 900px); background: #27202a; border: 1px solid #4a3748; border-radius: 3px; display: flex; flex-direction: column; overflow: hidden; }
+    .reader-head { padding: 20px 24px 14px; border-bottom: 1px solid var(--line); }
+    .reader-head h2 { margin: 0 0 5px; font-size: 23px; font-weight: 500; line-height: 1.4; }
+    .reader-head .meta { color: var(--muted); font-size: 12px; }
+    .reader-warn { font-size: 12px; padding: 8px 10px; margin-top: 10px; border-left: 3px solid var(--line); }
+    .reader-warn.high { background: #442630; border-color: #965969; }
+    .reader-warn.mid { background: #faf5e9; border-color: #ccb474; }
+    .reader-warn.ok { background: #3a2b3a; border-color: #d9c0cc; }
+    .reader-tools { display: flex; gap: 10px; align-items: center; padding: 10px 24px; background: #322632; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .reader-tools .fcount { color: var(--muted); font-size: 12px; }
+    .reader-body { flex: 1; overflow: auto; padding: 28px 30px 40px; }
+    .reader-body pre, .reader-body > p { max-width: 720px; margin: 0 auto; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--font); font-size: 16px; color: #f2e9f0; line-height: 1.9; }
+    .reader-body mark { background: #f4e6a7; color: #f2e9f0; }
+    .empty { color: var(--muted); padding: 32px 12px; text-align: center; }
+    .footer-note { margin-top: 24px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+    @media (max-width: 1100px) {
+      .learning-layout { grid-template-columns: 180px minmax(0, 1fr); gap: 16px; }
+      .learning-content { padding: 20px; }
+      .list-head, .course-row { grid-template-columns: 48px minmax(0, 1fr) 156px; gap: 10px; }
+      .list-head > span:nth-child(3), .course-row > div:nth-child(3) { display: none; }
+    }
+    @media (max-width: 760px) {
+      .shell { padding: 0 12px 32px; }
+      .topbar { gap: 8px 14px; padding: 14px 0; }
+      .brand { font-size: 21px; }
+      .brand .sub, #pillPos { display: none; }
+      .learning-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 12px; }
+      .learning-sidebar { position: static; }
+      .sidebar-title, .sidebar-note { display: none; }
+      .tabs { flex-direction: row; padding: 0; }
+      .tab { text-align: center; border-left: 0; border-bottom: 3px solid transparent; padding: 10px 6px; }
+      .tab.is-active { border-bottom-color: var(--accent); }
+      .learning-content { padding: 18px 14px; }
+      .hero h1 { font-size: 25px; }
+      .list-head { display: none; }
+      .course-row { grid-template-columns: 42px minmax(0, 1fr); gap: 6px 10px; padding: 14px 2px; }
+      .course-actions { grid-column: 2; justify-content: flex-start; padding-top: 4px; }
+      .reader-body { padding: 20px 18px 30px; }
+      .overlay { padding: 10px; }
+      .reader { height: 94vh; }
+      .reader-head, .reader-tools { padding: 13px 16px; }
+      .reader-head h2 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark">♡</span> 恋爱学习 <span class="sub">Relationship Learning Map</span></div>
+      <div class="spacer"></div>
+      <span class="pill">已学 <b id="pillLearned">0</b> / <span id="pillTotal">—</span></span>
+      <span class="pill" id="pillPos">当前位置：-</span>
+       <a class="backlink" href="/index.html#home">← 返回 HeartFlow</a>
+    </div>
+
+    <div class="learning-layout">
+      <aside class="learning-sidebar" aria-label="学习导航">
+        <h2 class="sidebar-title">学习目录</h2>
+        <nav class="tabs" role="tablist" aria-label="学习内容">
+          <button class="tab is-active" type="button" role="tab" aria-selected="true" aria-controls="view-courses" data-view="courses">课程清单</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="view-map" data-view="map">知识地图</button>
+          <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="view-books" data-view="books">书架阅读</button>
+        </nav>
+        <p class="sidebar-note">按课程顺序阅读，也可以通过知识地图查找阶段与主题。</p>
+      </aside>
+      <main class="learning-content">
+    <header class="hero">
+      <h1>恋爱成长课程</h1>
+      <p>从认识、约会到长期关系，按自己的需要选择课程和阅读材料。</p>
+    </header>
+
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-meta">
+        <span id="progressText">正在加载课程进度…</span>
+        <span id="progressStage">尚未开始</span>
+      </div>
+    </div>
+
+    <!-- 知识地图 -->
+    <section class="view" id="view-map" role="tabpanel" aria-label="知识地图">
+      <h2>知识地图</h2>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--advance)"></span>关系推进</span>
+        <span><span class="dot" style="background:var(--communicate)"></span>沟通与情绪</span>
+        <span><span class="dot" style="background:var(--intimacy)"></span>亲密与性</span>
+        <span><span class="dot" style="background:var(--life)"></span>生活与家庭</span>
+        <span><span class="dot" style="background:var(--self)"></span>自我与择偶</span>
+        <span><span class="dot" style="background:var(--accent);border-radius:4px"></span>当前位置</span>
+      </div>
+      <div class="map-scroll"><div class="map" id="mapGrid"></div></div>
+      <div class="detail" id="mapDetail" hidden>
+        <h3 id="detailTitle"></h3>
+        <div class="meta" id="detailMeta"></div>
+        <div id="detailList"></div>
+      </div>
+      <div class="footer-note">
+        说明：课程按课程序号分带、再按标题关键词归类到维度，属于便于定位的<strong>近似导图</strong>，不是对关系或个人能力的诊断。「危机修复」是贯穿各阶段的应对能力，单独标注便于查找。
+      </div>
+    </section>
+
+    <!-- 课程清单 -->
+    <section class="view is-active" id="view-courses" role="tabpanel" aria-label="课程清单">
+      <h2>课程清单</h2>
+      <div class="toolbar">
+        <input class="search" id="courseSearch" placeholder="搜索课程标题，例如：边界、情绪、金钱…" />
+        <button class="chip is-active" data-cf="all">全部</button>
+        <button class="chip" data-cf="learned">已学</button>
+        <button class="chip" data-cf="todo">未学</button>
+      </div>
+      <div class="list-head"><span>课号</span><span>标题</span><span>标签</span><span>操作</span></div>
+      <div class="course-list" id="courseList"></div>
+    </section>
+
+    <!-- 书架 -->
+    <section class="view" id="view-books" role="tabpanel" aria-label="书架阅读">
+      <h2>书架阅读</h2>
+      <div class="toolbar">
+        <input class="search" id="bookSearch" placeholder="搜索书名或作者…" />
+        <button class="chip is-active" data-bf="all">全部</button>
+        <button class="chip" data-bf="科普">科普</button>
+        <button class="chip" data-bf="历史">历史</button>
+        <button class="chip" data-bf="注意">注意</button>
+        <button class="chip" data-bf="争议">争议</button>
+        <button class="chip" data-bf="高危">高危</button>
+      </div>
+      <div class="books" id="bookGrid"></div>
+      <div class="footer-note">
+        这批 txt 书籍中，部分（谜男方法、五步陷阱、红丸/理智的男性系列等）属于<strong>历史/争议或高危的 PUA、红丸、搭讪材料</strong>，仅作为识别、警惕与史料参考，切勿当作关系建议或行动指令。性健康与医疗、法律问题请以现行权威/官方来源为准。
+      </div>
+    </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Reader -->
+  <div class="overlay" id="readerOverlay">
+    <div class="reader">
+      <div class="reader-head">
+        <h2 id="readerTitle">—</h2>
+        <div class="meta" id="readerMeta"></div>
+        <div class="reader-warn" id="readerWarn"></div>
+      </div>
+      <div class="reader-tools">
+        <button class="btn small" id="readerBack">关闭阅读</button>
+        <input class="search" id="readerFind" placeholder="在正文中查找…" style="max-width:220px" />
+        <span class="fcount" id="readerFindCount"></span>
+      </div>
+      <div class="reader-body" id="readerBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const STAGE_DESC = {
+      attraction: ["认识吸引", "进入可被认识的场景，建立第一印象"],
+      connection: ["建立联系", "聊天、线上互动、打开并延续话题"],
+      dating: ["约会相处", "邀约、见面、推进到稳定约会"],
+      commitment: ["确立关系", "明确关系、依恋与个人边界"],
+      stability: ["经营稳定", "沟通、情绪、亲密、金钱与长期维护"],
+      repair: ["危机修复", "冲突、冷暴力、出轨、分手与挽回（跨阶段）"],
+      marriage: ["婚姻家庭", "谈婚论嫁、组建家庭、共度晚年"],
+    };
+    const DIM_DESC = {
+      advance: ["关系推进", "认识 · 聊天 · 邀约 · 约会 · 表白"],
+      communicate: ["沟通与情绪", "表达 · 倾听 · 冲突 · 共情"],
+      intimacy: ["亲密与性", "亲密 · 身体 · 同意 · 性健康"],
+      life: ["生活与家庭", "金钱 · 家庭 · 边界 · 育儿"],
+      self: ["自我与择偶", "自我价值 · 择偶标准 · 社交 · 恋爱观"],
+    };
+    const DIM_COLOR = { advance: "#d8809e", communicate: "#446b8a", intimacy: "#775b8a", life: "#d8809e", self: "#876947" };
+    const SORT_STAGE = ["attraction", "connection", "dating", "commitment", "stability", "repair", "marriage"];
+    const SORT_DIM = ["advance", "communicate", "intimacy", "life", "self"];
+
+    const STORAGE_KEY = "love-learning-state-v1";
+    let M = null;
+    let state = { learned: [] };
+    let dimFilter = "all", stageFilter = "all", bookKindFilter = "all";
+
+    function loadState() {
+      try { const s = localStorage.getItem(STORAGE_KEY); if (s) state = JSON.parse(s); } catch (e) {}
+      if (!Array.isArray(state.learned)) state.learned = [];
+    }
+    function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    function isLearned(no) { return state.learned.indexOf(no) >= 0; }
+    function toggleLearned(no) {
+      const i = state.learned.indexOf(no);
+      if (i >= 0) state.learned.splice(i, 1);
+      else { state.learned.push(no); state.learned.sort((a, b) => a - b); }
+      saveState(); renderAll();
+    }
+    function currentCourse() {
+      if (!M.courses.length) return null;
+      if (state.learned.length) {
+        const max = Math.max.apply(null, state.learned);
+        const next = M.courses.find(c => c.no > max);
+        return next || M.courses[M.courses.length - 1];
+      }
+      return M.courses[0];
+    }
+
+    function cellsFor(stageId, dimId) {
+      return M.courses.filter(c => c.stage === stageId && c.dim === dimId);
+    }
+
+    /* ---------- 知识地图 ---------- */
+    function renderMap() {
+      const grid = document.getElementById("mapGrid");
+      grid.innerHTML = "";
+      // 表头（维度列）
+      const corner = document.createElement("div");
+      grid.appendChild(corner);
+      for (const dimId of SORT_DIM) {
+        const [name, desc] = DIM_DESC[dimId];
+        const h = document.createElement("div");
+        h.className = "map-head";
+        h.style.color = DIM_COLOR[dimId];
+        h.innerHTML = name + "<small>" + desc + "</small>";
+        grid.appendChild(h);
+      }
+      const cur = currentCourse();
+      for (const stageId of SORT_STAGE) {
+        const [sname, sdesc] = STAGE_DESC[stageId];
+        const label = document.createElement("div");
+        label.className = "stage-label";
+        label.innerHTML = "<b>" + sname + "</b><small>" + sdesc + "</small>";
+        grid.appendChild(label);
+        for (const dimId of SORT_DIM) {
+          const list = cellsFor(stageId, dimId);
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          const learned = list.filter(c => isLearned(c.no)).length;
+          if (cur && cur.stage === stageId && cur.dim === dimId) cell.classList.add("is-current");
+          cell.innerHTML =
+            "<div class='cell-head'><span class='cell-count'>" + list.length + " 课</span>" +
+            "<span class='cell-done'>" + learned + "/" + list.length + "</span></div>" +
+            "<div class='cell-chips'>" + list.slice(0, 4).map(c =>
+              "<div class='cell-chip" + (isLearned(c.no) ? " learned" : "") + "' title='" + escAttr(c.title) + "'>" + c.no + "·" + escHtml(c.title) + "</div>"
+            ).join("") + "</div>" +
+            (list.length > 4 ? "<div class='cell-more'>+ 展开全部</div>" : "");
+          if (cur && cur.stage === stageId && cur.dim === dimId) {
+            cell.innerHTML += "<span class='cur-marker'>当前位置</span>";
+          }
+          cell.onclick = () => showDetail(stageId, dimId);
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    function showDetail(stageId, dimId) {
+      const detail = document.getElementById("mapDetail");
+      const [sname] = STAGE_DESC[stageId];
+      const [dname] = DIM_DESC[dimId];
+      const list = cellsFor(stageId, dimId);
+      document.getElementById("detailTitle").textContent = sname + " · " + dname;
+      document.getElementById("detailMeta").textContent = list.length + " 门课 · " + list.filter(c => isLearned(c.no)).length + " 门已学";
+      const wrap = document.getElementById("detailList");
+      wrap.innerHTML = "";
+      list.forEach(c => wrap.appendChild(courseRow(c)));
+      detail.hidden = false;
+      detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function courseRow(c) {
+      const row = document.createElement("div");
+      row.className = "course-row";
+      const no = document.createElement("span"); no.className = "no"; no.textContent = "第" + c.no + "课";
+      const mid = document.createElement("div");
+      const t = document.createElement("div"); t.className = "t"; t.textContent = c.title;
+      const g = document.createElement("div"); g.className = "g";
+      g.textContent = (STAGE_DESC[c.stage] ? STAGE_DESC[c.stage][0] : c.stage) + " · " + (DIM_DESC[c.dim] ? DIM_DESC[c.dim][0] : c.dim) + (c.goal ? " · " + c.goal : "");
+      mid.appendChild(t); mid.appendChild(g);
+      const actions = document.createElement("div");
+      actions.className = "course-actions";
+      if (c.file) {
+        const read = document.createElement("button");
+        read.className = "btn small";
+        read.textContent = "阅读全文";
+        read.onclick = () => openCourse(c);
+        actions.appendChild(read);
+      }
+      const tags = document.createElement("div");
+      tags.innerHTML = "<span class='tag' style='color:" + DIM_COLOR[c.dim] + "'>" + DIM_DESC[c.dim][0] + "</span>";
+      const btn = document.createElement("button");
+      btn.className = "btn small" + (isLearned(c.no) ? " done" : "");
+      btn.textContent = isLearned(c.no) ? "已学 ✓" : "标记已学";
+      btn.onclick = () => toggleLearned(c.no);
+      actions.appendChild(btn);
+      row.appendChild(no); row.appendChild(mid); row.appendChild(tags); row.appendChild(actions);
+      return row;
+    }
+
+    /* ---------- 课程清单 ---------- */
+    function renderCourses() {
+      const q = document.getElementById("courseSearch").value.trim().toLowerCase();
+      const wrap = document.getElementById("courseList");
+      wrap.innerHTML = "";
+      let list = M.courses.slice();
+      if (q) list = list.filter(c => c.title.toLowerCase().includes(q) || String(c.no).includes(q));
+      if (stageFilter === "learned") list = list.filter(c => isLearned(c.no));
+      if (stageFilter === "todo") list = list.filter(c => !isLearned(c.no));
+      if (!list.length) { wrap.innerHTML = "<div class='empty'>没有匹配的课程</div>"; return; }
+      const head = document.createElement("div");
+      list.forEach(c => {
+        const row = courseRow(c);
+        // 补充课号列样式对齐
+        wrap.appendChild(row);
+      });
+    }
+
+    /* ---------- 书架 ---------- */
+    function renderBooks() {
+      const q = document.getElementById("bookSearch").value.trim().toLowerCase();
+      const wrap = document.getElementById("bookGrid");
+      wrap.innerHTML = "";
+      let list = M.books.slice();
+      if (q) list = list.filter(b => b.title.toLowerCase().includes(q) || (b.author || "").toLowerCase().includes(q));
+      if (bookKindFilter !== "all") list = list.filter(b => b.kind === bookKindFilter);
+      if (!list.length) { wrap.innerHTML = "<div class='empty' style='grid-column:1/-1'>没有匹配的书籍</div>"; return; }
+      list.forEach(b => {
+        const card = document.createElement("div");
+        card.className = "book";
+        card.innerHTML =
+          "<div class='bt'>" + escHtml(b.title) + "</div>" +
+          "<div class='ba'>作者：<span>" + escHtml(b.author || "佚名") + "</span></div>" +
+          "<div class='bn'>" + escHtml(b.note || "") + "</div>" +
+          "<div class='foot'><span class='kind kind-" + b.kind + "'>" + b.kind + "</span>" +
+          "<span class='tag'>" + DIM_DESC[b.dim][0] + "</span>" +
+          (b.bytes ? "<span class='tag'>" + fmtBytes(b.bytes) + "</span>" : "") + "</div>";
+        if (b.file) { card.style.cursor = "pointer"; card.onclick = () => openReader(b); }
+        else { card.style.opacity = ".5"; card.style.cursor = "default"; }
+        wrap.appendChild(card);
+      });
+    }
+
+    function fmtBytes(n) {
+      if (n >= 1048576) return (n / 1048576).toFixed(1) + " MB";
+      if (n >= 1024) return Math.round(n / 1024) + " KB";
+      return n + " B";
+    }
+
+    /* ---------- Reader ---------- */
+    let readerRaw = "";
+    let readerRequestId = 0;
+    function showCourseLinkMessage(message) {
+      readerRequestId++;
+      readerRaw = "";
+      document.getElementById("readerOverlay").classList.add("is-open");
+      document.getElementById("readerTitle").textContent = "课程链接提示";
+      document.getElementById("readerMeta").textContent = "";
+      document.getElementById("readerFind").value = "";
+      document.getElementById("readerFindCount").textContent = "";
+      setWarn(document.getElementById("readerWarn"), "课程", "可以返回课程清单继续选择。");
+      const body = document.getElementById("readerBody");
+      body.innerHTML = "";
+      const hint = document.createElement("p");
+      hint.textContent = message;
+      body.appendChild(hint);
+    }
+    function openCourse(course) {
+      if (!course?.file || !/^love-learning\/courses\/\d{3}\.md$/.test(course.file)) {
+        showCourseLinkMessage("该课正文暂未生成。请运行 node scripts/build-love-learning.mjs --courses-only 后刷新页面。");
+        return;
+      }
+      openReader({ ...course, title: "第 " + course.no + " 课：" + course.title, kind: "课程", note: "本地预生成课程原文" });
+    }
+    function openRequestedCourse(search = window.location.search) {
+      const numbers = new URLSearchParams(search).getAll("course");
+      if (!numbers.length) return;
+      if (numbers.length !== 1 || !/^[1-9]\d{0,2}$/.test(numbers[0])) {
+        showCourseLinkMessage("课程链接中的编号无效，请使用 ?course=1 这样的正整数编号。");
+        return;
+      }
+      const course = M.courses.find((item) => item.no === Number(numbers[0]));
+      if (!course) {
+        showCourseLinkMessage("课程清单中没有第 " + Number(numbers[0]) + " 课，请返回清单选择已有课程。");
+        return;
+      }
+      openCourse(course);
+    }
+    function openReader(b) {
+      const requestId = ++readerRequestId;
+      readerRaw = "";
+      document.getElementById("readerOverlay").classList.add("is-open");
+      document.getElementById("readerTitle").textContent = b.title;
+      document.getElementById("readerMeta").textContent = b.no
+        ? b.date + " · " + STAGE_DESC[b.stage][0] + " · " + DIM_DESC[b.dim][0]
+        : b.author + " · " + b.kind + " · " + DIM_DESC[b.dim][0];
+      const warn = document.getElementById("readerWarn");
+      const body = document.getElementById("readerBody");
+      body.innerHTML = "<div class='empty'>正在加载…</div>";
+      document.getElementById("readerFind").value = "";
+      document.getElementById("readerFindCount").textContent = "";
+      setWarn(warn, b.kind, b.note);
+      fetch("/" + b.file, { cache: "no-cache" }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(txt => {
+          if (requestId !== readerRequestId) return;
+          readerRaw = txt;
+          const pre = document.createElement("pre");
+          pre.id = "readerPre";
+          pre.textContent = txt;
+          body.innerHTML = "";
+          body.appendChild(pre);
+        })
+        .catch(() => { if (requestId === readerRequestId) body.innerHTML = "<div class='empty'>加载失败：文件不存在或无法读取</div>"; });
+    }
+    function setWarn(el, kind, note) {
+      if (kind === "高危" || kind === "争议") { el.className = "reader-warn high"; el.textContent = "⚠ 高危/争议材料：" + note + " 请勿当作关系建议或操控他人的行动指南。"; }
+      else if (kind === "注意") { el.className = "reader-warn mid"; el.textContent = "⚠ 请谨慎对待：" + note; }
+      else { el.className = "reader-warn ok"; el.textContent = "ℹ " + note; }
+    }
+    function closeReader() { readerRequestId++; document.getElementById("readerOverlay").classList.remove("is-open"); }
+
+    document.getElementById("readerBack").onclick = closeReader;
+    document.getElementById("readerOverlay").addEventListener("click", e => { if (e.target.id === "readerOverlay") closeReader(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeReader(); });
+
+    let findIdx = -1, findMatches = [];
+    document.getElementById("readerFind").addEventListener("input", e => {
+      const q = e.target.value.trim();
+      const pre = document.getElementById("readerPre");
+      if (!pre) return;
+      const text = readerRaw;
+      if (!q) { pre.textContent = text; findMatches = []; findIdx = -1; document.getElementById("readerFindCount").textContent = ""; return; }
+      findMatches = []; let i = text.indexOf(q);
+      while (i >= 0) { findMatches.push(i); i = text.indexOf(q, i + 1); }
+      findIdx = findMatches.length ? 0 : -1;
+      paintFind(q);
+    });
+    document.getElementById("readerFind").addEventListener("keydown", e => {
+      if (e.key === "Enter" && findMatches.length) { findIdx = (findIdx + 1) % findMatches.length; paintFind(document.getElementById("readerFind").value.trim()); e.preventDefault(); }
+    });
+    function paintFind(q) {
+      const pre = document.getElementById("readerPre");
+      if (!pre) return;
+      document.getElementById("readerFindCount").textContent = findMatches.length ? (findIdx + 1) + " / " + findMatches.length + " 处" : "0 处";
+      if (!findMatches.length) { pre.textContent = readerRaw; return; }
+      let html = ""; let last = 0;
+      const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      findMatches.forEach((pos, k) => {
+        html += esc(readerRaw.slice(last, pos));
+        html += "<mark>" + esc(readerRaw.slice(pos, pos + q.length)) + "</mark>";
+        last = pos + q.length;
+        if (k === findIdx) {
+          // 跳到当前命中
+          if (k === findIdx) { }
+        }
+      });
+      html += esc(readerRaw.slice(last));
+      pre.innerHTML = html;
+      const marks = pre.querySelectorAll("mark");
+      if (marks[findIdx]) marks[findIdx].scrollIntoView({ block: "center" });
+    }
+
+    /* ---------- 公共 ---------- */
+    function escHtml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    function escAttr(s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;"); }
+
+    function renderProgress() {
+      const total = M.course_count || M.courses.length || 0;
+      const learned = state.learned.length;
+      const pct = total ? Math.round(learned / total * 100) : 0;
+      document.getElementById("progressFill").style.width = pct + "%";
+      document.getElementById("progressText").textContent = "已学 " + learned + " / " + total + " · " + pct + "%";
+      document.getElementById("pillLearned").textContent = learned;
+      document.getElementById("pillTotal").textContent = total;
+      const cur = currentCourse();
+      if (cur) {
+        document.getElementById("progressStage").textContent = "当前：" + STAGE_DESC[cur.stage][0] + " · " + DIM_DESC[cur.dim][0] + "（第 " + cur.no + " 课" + (state.learned.length ? "，已学到上一课" : "，从第一课开始") + "）";
+        document.getElementById("pillPos").innerHTML = "当前位置：<b>" + STAGE_DESC[cur.stage][0] + "</b>";
+      } else {
+        document.getElementById("progressStage").textContent = "无课程数据";
+        document.getElementById("pillPos").textContent = "当前位置：-";
+      }
+    }
+
+    function renderAll() { renderProgress(); renderMap(); renderCourses(); renderBooks(); }
+
+    /* ---------- 事件 ---------- */
+    function showLearningView(view = "courses") {
+      if (!["courses", "map", "books"].includes(view)) return;
+      document.querySelectorAll(".tab").forEach(tab => {
+        const active = tab.dataset.view === view;
+        tab.classList.toggle("is-active", active);
+        tab.setAttribute("aria-selected", String(active));
+      });
+      document.querySelectorAll(".view").forEach(panel => panel.classList.remove("is-active"));
+      document.getElementById("view-" + view).classList.add("is-active");
+    }
+    function requestedLearningView(search = window.location.search) {
+      const params = new URLSearchParams(search);
+      if (params.has("course")) return "courses";
+      const views = params.getAll("view");
+      if (views.length !== 1 || !["list", "map", "books"].includes(views[0])) return "courses";
+      return views[0] === "list" ? "courses" : views[0];
+    }
+    document.querySelectorAll(".tab").forEach(tab => { tab.onclick = () => showLearningView(tab.dataset.view); });
+    showLearningView(requestedLearningView());
+    document.getElementById("courseSearch").addEventListener("input", renderCourses);
+    document.getElementById("bookSearch").addEventListener("input", renderBooks);
+    document.querySelectorAll("[data-cf]").forEach(ch => ch.onclick = () => {
+      document.querySelectorAll("[data-cf]").forEach(x => x.classList.remove("is-active"));
+      ch.classList.add("is-active"); stageFilter = ch.dataset.cf; renderCourses();
+    });
+    document.querySelectorAll("[data-bf]").forEach(ch => ch.onclick = () => {
+      document.querySelectorAll("[data-bf]").forEach(x => x.classList.remove("is-active"));
+      ch.classList.add("is-active"); bookKindFilter = ch.dataset.bf; renderBooks();
+    });
+
+    /* ---------- 启动 ---------- */
+    fetch("/love-learning/manifest.json?v=20261003-tutorial-r1", { cache: "no-store" }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(manifest => {
+      M = manifest;
+      loadState();
+      renderAll();
+      openRequestedCourse();
+    }).catch(err => {
+      showLearningView("courses");
+      document.getElementById("view-courses").innerHTML = "<div class='empty'>无法加载学习数据（manifest.json）。请先运行：<code>node scripts/build-love-learning.mjs --courses-only</code> 后刷新页面。</div>";
+    });
+  </script>
+</body>
+</html>

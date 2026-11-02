@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HeartFlow · 恋爱成长课</title>
+  <link rel="stylesheet" href="/styles.css?v=20261013-abilities-r1" />
+  <link rel="stylesheet" href="/tutorial-layout.css?v=20261013-abilities-r1" />
+  <link rel="stylesheet" href="/ability-assessment.css?v=20261013-abilities-r1" />
+  <link rel="stylesheet" href="/pet.css?v=20261031-pet2" />
+</head>
+<body class="tutorial-app">
+  <a class="skip-link" id="skipToContent" href="#workspaceTitle">跳到正文</a>
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="site-brand" href="#home" data-view="home"><b>HeartFlow</b><span>恋爱成长课</span></a>
+      <p class="site-tagline">学习、练习与现实复盘</p>
+      <span class="status-pill" id="modelStatusBadge" role="status">本地服务待检查</span>
+    </div>
+  </header>
+  <nav class="site-nav" aria-label="主导航"><div class="site-nav-inner">
+    <button type="button" data-view="home">首页</button>
+    <a href="/love-learning.html">全部课程</a>
+    <button type="button" id="openPracticeBtn">实战练习</button>
+    <button type="button" data-view="coach">复盘分析</button>
+    <button type="button" data-view="settings">设置</button>
+  </div></nav>
+  <main class="shell">
+    <button id="workspaceMenuToggle" class="workspace-menu-toggle" type="button" aria-controls="workspaceSidebar" aria-expanded="false">学习目录</button>
+    <div class="tutorial-workspace">
+      <aside class="tutorial-sidebar" id="workspaceSidebar">
+        <h2>学习与练习</h2>
+        <nav aria-label="功能目录">
+          <a href="#home" data-view="home">学习首页</a>
+          <a href="/love-learning.html">课程目录 <small>179课</small></a>
+          <h3>沟通练习</h3>
+          <a href="#practice" data-view="practice">每日小练习</a>
+          <a href="#chat" data-view="chat">对话练习</a>
+          <a href="#journey" data-view="journey">连续约会练习</a>
+          <h3>观察与复盘</h3>
+          <a href="#real" data-view="real">现实互动复盘</a>
+          <a href="#coach" data-view="coach">教练分析 <span class="unread-dot hidden" aria-label="有新分析"></span></a>
+          <a href="#growth" data-view="growth">成长记录与错题</a>
+          <h3>个人管理</h3>
+          <a href="#abilities" data-view="abilities">个人恋爱能力画像</a>
+          <a href="#lifestyle" data-view="lifestyle">形象与身心知识</a>
+          <a href="#settings" data-view="settings">角色与设置</a>
+        </nav>
+        <p class="sidebar-note">一轮练一个动作，依据真实回应调整下一步。</p>
+      </aside>
+      <section class="tutorial-content" aria-labelledby="workspaceTitle">
+        <header class="workspace-heading">
+          <p class="workspace-breadcrumb">HeartFlow / 学习与练习</p>
+          <h1 id="workspaceTitle" tabindex="-1">恋爱成长学习目录</h1>
+          <p id="workspaceDescription">按当前需要选择课程或练习，从一个具体问题开始。</p>
+        </header>
+        <section class="workspace-view" data-view-panel="home">
+          <div class="tutorial-categories">
+            <section class="tutorial-category"><h2>认识与建立联系</h2><p>找到自然交流的场景，练习倾听和自我表达。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=2"><b>认识人的机会</b><small>进入可以重复参与的场景</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=4"><b>自然介绍自己</b><small>让对方认识真实的你</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=5"><b>把聊天接下去</b><small>先听懂，再分享</small></a>
+              <a class="tutorial-link" href="#chat" data-view="chat"><b>对话练习</b><small>在虚构场景中自己回应</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>邀约与约会相处</h2><p>提出具体邀请，观察互惠与自己的相处感受。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=13"><b>清楚提出邀约</b><small>具体、可协商、容易拒绝</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=14"><b>第一次约会</b><small>安排轻松的共同体验</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=18"><b>表达好感</b><small>说清楚想法，听见对方选择</small></a>
+              <a class="tutorial-link" href="#journey" data-view="journey"><b>连续约会练习</b><small>三个场景，六段互动</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>沟通、情绪与边界</h2><p>把事实和猜测分开，尊重双方的意愿与空间。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=23"><b>说清楚一件事</b><small>表达感受和具体请求</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=22"><b>建立自己的边界</b><small>明确可执行的行动规则</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=56"><b>处理等待与受挫</b><small>恢复自己的生活安排</small></a>
+              <a class="tutorial-link" href="#coach" data-view="coach"><b>事实与解释</b><small>查看证据、反证和未知</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>长期关系与生活</h2><p>学习兼容性、关系修复与共同生活的协商。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html?course=85"><b>生活方向与兼容性</b><small>谈城市、工作和未来安排</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=67"><b>冲突中的暂停</b><small>约定时间，回来继续沟通</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=26"><b>亲密与同意</b><small>清楚、具体、可以撤回</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=87"><b>婚姻准备</b><small>讨论承诺与共同责任</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>把学习带进现实</h2><p>一次只练一个小动作，再记录真实观察。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="#practice" data-view="practice"><b>每日小练习</b><small>用几分钟练清楚表达</small></a>
+              <a class="tutorial-link" href="#real" data-view="real"><b>现实互动复盘</b><small>分开行动、回应与自身感受</small></a>
+              <a class="tutorial-link" href="#growth" data-view="growth"><b>回顾成长与错题</b><small>查看练习中的具体变化</small></a>
+              <a class="tutorial-link" href="#abilities" data-view="abilities"><b>个人恋爱能力画像</b><small>八项初评、训练重点与复评对比</small></a>
+              <a class="tutorial-link" href="#lifestyle" data-view="lifestyle"><b>形象准备与身心知识</b><small>健身、护肤、穿搭、声音，以及女性生理和心理知识</small></a>
+            </div></section>
+            <section class="tutorial-category"><h2>课程与阅读</h2><p>按主题选择原文，或顺着课程逐步学习。</p><div class="tutorial-link-grid">
+              <a class="tutorial-link" href="/love-learning.html"><b>全部179课</b><small>搜索主题、阅读与记录进度</small></a>
+              <a class="tutorial-link" href="/love-learning.html?view=books"><b>书架与资料</b><small>19份本地整合阅读材料</small></a>
+              <a class="tutorial-link" href="/love-learning.html?course=1"><b>从第一课开始</b><small>先想清楚自己想要的关系</small></a>
+              <a class="tutorial-link" href="/intake-quiz.html"><b>沟通情境自检</b><small>选择当前适合的练习方向</small></a>
+            </div></section>
+          </div>
+        </section>
+        <section class="panel workspace-view" data-view-panel="practice" hidden><div id="dailyTrainingPanel"></div><div id="intakePanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="journey" hidden><div id="dateJourneyPanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="real" hidden><div id="realPracticePanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="abilities" hidden><div id="abilityAssessmentPanel"></div></section>
+        <section class="panel coach-panel workspace-view" data-panel="coach" data-view-panel="coach" hidden><section class="relationship-intelligence-card" aria-labelledby="relationshipIntelligenceTitle">
+          <div class="ri-head">
+            <div>
+              <p class="eyebrow">Local Intelligence</p>
+              <h2 id="relationshipIntelligenceTitle">证据与决策</h2>
+            </div>
+            <button class="btn small ghost" id="refreshRelationshipIntelligenceBtn" type="button">重新分析</button>
+          </div>
+          <label class="ri-consent-control">
+            <input id="relationshipIntelligenceConsent" type="checkbox" />
+            <span><b>允许保存结构化复盘记忆</b><small>不保存原始聊天，仅保存经规则脱敏的摘要；勿填第三方个人信息，可随时关闭并清除。</small></span>
+          </label>
+          <div id="relationshipIntelligencePanel" aria-live="polite"></div>
+        </section>
+
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Coach Layer</p>
+            <h2>事实、解释与未知</h2>
+          </div>
+        </div>
+        <div class="analysis-grid" id="analysis"></div>
+        <div class="signal-panel" id="signalPanel" aria-live="polite"></div><div class="workspace-actions"><button class="btn" id="openReplayBtn" type="button">分析真实对话</button></div><div class="section-title choices-title">
+          <div>
+            <p class="eyebrow">Reply Options</p>
+            <h2>A / B / C 回复</h2>
+          </div>
+        </div>
+        <div class="choices" id="choices"></div>
+
+        <div class="section-title plan-title">
+          <div>
+            <p class="eyebrow">Long-term Route</p>
+            <h2>长期对话路线</h2>
+          </div>
+          <button class="btn small" id="planBtn">生成计划</button>
+        </div>
+        <div class="plan-panel" id="planPanel"></div><div id="textbookPanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="growth" hidden><div id="growthPanel"></div><div id="mistakesPanel"></div><div id="memoryPanel"></div><div class="workspace-actions"><button class="btn" id="sessionReportBtn" type="button">生成会话复盘</button></div><div id="sessionReportPanel"></div><div class="section-title progress-title">
+          <div>
+            <p class="eyebrow">Training Score</p>
+            <h2>教练评分 / 成长日志</h2>
+          </div>
+        </div>
+        <div class="progress-panel" id="progressPanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="lifestyle" hidden><div id="presentationKnowledgePanel"></div><div id="lifestylePanel"></div></section>
+        <section class="panel chat-panel workspace-view" data-panel="chat" data-view-panel="chat" hidden><div class="compliance-banner hidden" id="complianceBanner" role="status" aria-live="polite"></div><div class="mode-banner hidden" id="modeBanner" role="status" aria-live="polite"></div><div class="chat-context"><span id="chatContext"></span><a href="#settings" data-view="settings">调整角色与阶段</a><a href="#coach" data-view="coach">查看教练分析</a></div>
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Live Scene</p>
+            <h2>当前对话</h2>
+          </div>
+          <button class="btn small" id="nextBtn">然后</button>
+        </div>
+
+        <div class="chat" id="chat"></div>
+        <div class="coach-float" id="coachFloat">
+          <button class="coach-float-fab" id="coachFloatBtn" type="button" aria-label="打开教练建议" title="教练建议">✦</button>
+          <div class="coach-float-panel hidden" id="coachFloatPanel"></div>
+        </div>
+
+        <div class="composer">
+          <label class="field">
+            <span>你的回复</span>
+            <textarea id="userInput" placeholder="在这里输入你想回复她的话，然后点“发送我的回复”。">那你装得还挺成功的，至少我完全没看出来。其实第一次参加能这样已经挺好了。</textarea>
+          </label>
+          <div class="composer-actions">
+            <button class="btn primary" id="sendMineBtn">发送我的回复</button>
+            <button class="btn ghost" id="preflightBtn">发送前测验</button>
+            <button class="btn" id="generateHerBtn">生成女方对话</button>
+          </div>
+          <div class="timing-panel" id="timingPanel" aria-live="polite"></div>
+          <div class="preflight-panel" id="preflightPanel"></div>
+        </div>
+      </section>
+        <section class="panel persona-panel workspace-view" data-panel="persona" data-view-panel="settings" hidden><section class="settings-tools"><h2>训练与档案设置</h2><div class="mode-switch" id="modeSwitch" role="group" aria-label="训练模式切换"><button class="mode-btn is-active" id="modeBtnAnti" type="button" data-mode="anti">反PUA训练</button><button class="mode-btn" id="modeBtnPua" type="button" data-mode="pua">PUA识别</button></div><div class="workspace-actions"><button class="btn" id="healthBtn" type="button">检查模型</button><button class="btn" id="longContentBtn" type="button">长篇教材</button><button class="btn" id="exportBtn" type="button">导出</button><button class="btn" id="backupBtn" type="button">备份档案</button><button class="btn" id="restoreBtn" type="button">恢复档案</button><button class="btn danger" id="resetBtn" type="button">重置对话</button></div></section>
+        <div class="persona-top">
+          <div class="avatar" id="personaAvatar">林</div>
+          <div>
+            <h2 id="personaName">林知夏</h2>
+            <p id="personaMeta">23 岁 · 研一 · 慢热知性型</p>
+          </div>
+        </div>
+
+        <div class="chips" id="personaChips"></div>
+
+        <div class="insight-card">
+          <strong>角色逻辑</strong>
+          <p id="personaLogic">她不会因一句话上头。她持续观察：你是否自然、稳定、有分寸、有生活内容。</p>
+        </div>
+
+        <label class="field">
+          <span>切换女方角色</span>
+          <select id="personaSelect"></select>
+        </label>
+
+        <details class="voice-settings" id="voiceSettings">
+          <summary>语音朗读（本地模型 · 离线）</summary>
+          <label class="field">
+            <span>语音引擎</span>
+            <select id="ttsEngineSelect"></select>
+          </label>
+          <label class="field">
+            <span>女方音色</span>
+            <select id="ttsVoiceSelect"></select>
+          </label>
+          <label class="check-field">
+            <input type="checkbox" id="ttsAutoPlay" />
+            <span>生成回复后自动朗读</span>
+          </label>
+          <div class="workspace-actions">
+            <button class="btn small" id="ttsTestBtn" type="button">试听</button>
+            <button class="btn small ghost" id="ttsStopBtn" type="button">停止朗读</button>
+          </div>
+          <p class="voice-status" id="ttsStatus">正在检查本地语音服务…</p>
+          <p class="note">两套模型都在本机运行，不联网、不产生费用。ChatTTS 更拟真（占显存、首句稍慢），Kokoro 更轻快（纯 CPU）。首次使用需双击项目根目录「启动语音服务.cmd」；每条女方消息旁也有「朗读」按钮。</p>
+        </details>
+
+        <details class="avatar-editor"><summary>头像设置</summary>
+          <div class="avatar-editor-head">
+            <strong>角色头像</strong>
+            <span>仅保存到本机浏览器</span>
+          </div>
+          <div class="avatar-editor-actions">
+            <label class="btn small avatar-upload-btn">
+              上传头像
+              <input id="avatarUpload" type="file" accept="image/png,image/jpeg,image/webp" />
+            </label>
+            <button class="btn small ghost" id="resetAvatarBtn" type="button">还原默认</button>
+          </div>
+          <p class="avatar-hint">上传后可直接拖动圆形头像调整取景，或用滑杆微调。</p>
+          <label class="avatar-range"><span>水平位置</span><input id="avatarPosX" type="range" min="0" max="100" value="50" /></label>
+          <label class="avatar-range"><span>垂直位置</span><input id="avatarPosY" type="range" min="0" max="100" value="50" /></label>
+        </details>
+
+        <details class="custom-role">
+          <summary>自定义角色</summary>
+          <div class="custom-role-grid">
+            <label class="field">
+              <span>姓名</span>
+              <input id="customName" placeholder="例如：周予宁" />
+            </label>
+            <label class="field">
+              <span>身份标签</span>
+              <input id="customMeta" placeholder="例如：24 岁 · 研二 · 外冷内热" />
+            </label>
+            <label class="field">
+              <span>性格标签（用逗号分隔）</span>
+              <input id="customTags" placeholder="慢热, 有边界, 爱阅读, 讨厌油腻" />
+            </label>
+            <label class="field">
+              <span>角色逻辑</span>
+              <textarea id="customLogic" placeholder="她如何判断一个男生？她喜欢什么互动，不喜欢什么越界？"></textarea>
+            </label>
+            <label class="field">
+              <span>开场第一句</span>
+              <textarea id="customOpening" placeholder="例如：今天活动还挺有意思的，就是最后有点赶。"></textarea>
+            </label>
+            <div class="custom-role-actions">
+              <button class="btn primary" id="savePersonaBtn" type="button">保存并切换</button>
+              <button class="btn danger" id="deletePersonaBtn" type="button">删除当前自定义</button>
+            </div>
+          </div>
+        </details>
+
+        <details class="scenario-box">
+          <summary>情境剧本</summary>
+          <div id="scenarioList"></div>
+          <button class="btn small" id="loadScenarioBtn">加载剧本</button>
+        </details>
+
+        <div class="stage-auto-row">
+          <span id="stageBadge" class="stage-badge"></span>
+          <button class="btn small ghost" id="autoStageBtn">🤖 自动判断</button>
+        </div>
+
+        <label class="field">
+          <span>训练阶段</span>
+          <select id="stage">
+            <option>刚加微信后的第一晚</option>
+            <option>隔天轻联系</option>
+            <option>第一次邀约</option>
+            <option>第一次约会后</option>
+            <option>暧昧推进</option>
+            <option>表达好感</option>
+            <option>确定关系</option>
+          </select>
+        </label>
+        <div id="stageProgress" class="stage-progress-wrap" aria-live="polite"></div>
+
+        <label class="field">
+          <span>你的风格</span>
+          <select id="styleBias">
+            <option value="A">A：温柔高情商</option>
+            <option value="B">B：幽默风趣</option>
+            <option value="C">C：深入了解</option>
+            <option value="mix">混合推荐</option>
+          </select>
+        </label>
+
+        <div class="tone-controls">
+          <label class="tone-slider">
+            <span>真诚度 <em id="sincerityValue">70</em></span>
+            <input id="sincerity" type="range" min="0" max="100" value="70" />
+            <small>越高越克制套路感、更像本人真实表达</small>
+          </label>
+          <label class="tone-slider">
+            <span>语气强度 <em id="toneIntensityValue">50</em></span>
+            <input id="toneIntensity" type="range" min="0" max="100" value="50" />
+            <small>越高越有推进感，但仍尊重边界</small>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>当前目标</span>
+          <textarea id="goal">保持自然微信初聊，从活动话题过渡到了解她本人，避免尬聊和需求感。</textarea>
+        </label>
+
+        <details class="memory-box">
+          <summary>场景 / 角色记忆</summary>
+          <div class="memory-grid">
+            <label class="field">
+              <span>关系背景</span>
+              <textarea id="memoryBackground" placeholder="例如：刚在志愿活动认识，已加微信，还不熟。"></textarea>
+            </label>
+            <label class="field">
+              <span>她的兴趣</span>
+              <textarea id="memoryInterests" placeholder="例如：阅读、徒步、电影、志愿活动。"></textarea>
+            </label>
+            <label class="field">
+              <span>雷区 / 禁忌</span>
+              <textarea id="memoryBoundaries" placeholder="例如：不接受过早暧昧、查户口、施压邀约。"></textarea>
+            </label>
+            <button class="btn ghost" id="saveMemoryBtn" type="button">保存记忆</button>
+          </div>
+        </details>
+
+        <div class="api-box">
+          <div class="api-head">
+            <span class="dot"></span>
+            <strong>OpenAI / 兼容代理</strong>
+          </div>
+          <p id="apiStatus">请求本地 /api/chat。密钥在服务端 .env。</p>
+          <p id="privacyNotice" class="privacy-notice hidden" aria-live="polite"></p>
+          <div class="api-actions">
+            <button class="btn small ghost" id="retryModelBtn" type="button">重试 MiMo</button>
+          </div>
+          <input id="endpoint" type="hidden" value="/api/chat" />
+          <input id="apiKey" type="hidden" value="" />
+        </div>
+      </section>
+      </section>
+
+    </div>
+    <footer class="site-footer">HeartFlow · 恋爱成长学习与练习</footer>
+  </main>
+  <!-- 长篇阅读视图 -->
+  <section id="longReader" class="long-reader hidden">
+    <div class="long-reader-header">
+      <button class="btn small ghost" id="closeLongReaderBtn">← 返回训练台</button>
+      <h2>长篇教材 · 夏紫桐系列</h2>
+    </div>
+    <div class="long-reader-body">
+      <aside class="chapter-list" id="chapterList"></aside>
+      <div class="chapter-content" id="chapterContent">
+        <p class="long-reader-hint">选择左侧章节开始阅读</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 介入练习模态 -->
+  <div id="interventionModal" class="modal hidden">
+    <div class="modal-overlay" id="interventionOverlay"></div>
+    <div class="modal-body intervention-panel">
+      <div class="modal-header">
+        <h3 id="interventionTitle">介入练习</h3>
+        <button class="btn small ghost" id="closeInterventionBtn">✕</button>
+      </div>
+      <div class="intervention-content" id="interventionContent"></div>
+    </div>
+  </div>
+
+  <!-- 错题本重写练习模态（F2） -->
+  <div id="mistakePracticeModal" class="modal hidden">
+    <div class="modal-overlay" id="mistakePracticeOverlay"></div>
+    <div class="modal-body intervention-panel">
+      <div class="modal-header">
+        <h3>重写练习</h3>
+        <button class="btn small ghost" id="closeMistakePracticeBtn" type="button">✕</button>
+      </div>
+      <div class="intervention-content" id="mistakePracticeContent"></div>
+    </div>
+  </div>
+
+  <!-- 对话回放分析模态 -->
+  <div id="replayModal" class="modal hidden">
+    <div class="modal-overlay" id="replayOverlay"></div>
+    <div class="modal-body replay-panel">
+      <div class="modal-header">
+        <div><h3>对话回放分析</h3><small>默认只在本机分析，不保存原文</small></div>
+        <button class="btn small ghost" id="closeReplayBtn" type="button">✕</button>
+      </div>
+      <p class="privacy-note">建议先删除姓名、电话、学校、单位和地址。支持“我：/她：”或加粗说话人格式，无法识别的行会保留并提醒。</p>
+      <textarea id="replayInput" rows="10" placeholder="我：最近工作怎么样？
+她：还行吧，最近有点忙。
+我：你是不是不高兴？"></textarea>
+      <div class="replay-actions">
+        <button class="btn primary" id="analyzeReplayBtn" type="button">仅本地分析</button>
+      </div>
+      <div id="replayResult" class="replay-result"></div>
+    </div>
+  </div>
+
+  <input id="fileImport" type="file" accept="application/json" hidden />
+  <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
+  <script src="/pet.js?v=20261031-pet3" defer></script>
+  <script type="module" src="/app.js?v=20261013-abilities-r1"></script>
+</body>
+</html>

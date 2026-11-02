@@ -106,6 +106,49 @@ test("没有可分析消息时拒绝请求", () => {
   );
 });
 
+test("产品 API 将明确停止联系置于过时约会与替代安排信号之前", () => {
+  const result = runProductRelationshipIntelligence({
+    messages: [{ type: "her", text: "我不想继续，请别再联系我。" }],
+    signals: { concreteDatePlan: true, counterOffer: true }
+  });
+  assert.equal(result.decision.value, "EXIT");
+  assert.equal(result.state.to, "EXIT");
+  assert.match(result.action, /停止推进/);
+});
+
+test("普通拒绝食物或当日时间不成为关系退出判断", () => {
+  const result = runProductRelationshipIntelligence({
+    messages: [{ type: "her", text: "今天不方便，也不想吃火锅，下周一起吃饭可以。" }],
+    signals: { concreteDatePlan: true }
+  });
+  assert.notEqual(result.decision.value, "EXIT");
+});
+
+test("产品 API 重建已同意记忆时拒绝敏感 ID 和各复盘字段", () => {
+  const result = runProductRelationshipIntelligence({
+    messages: [{ type: "me", text: "一条合成消息" }],
+    consent: true, caseId: "case_synthetic_privacy",
+    memory: {
+      observations: [{ id: "example-person@example.invalid", summary: "普通观察", evidenceIds: ["example-person@example.invalid"] }],
+      outcomes: [{ id: "outcome_synthetic", prediction: "预测", observedOutcome: "结果", update: "微信号: synthetic_account", lessons: ["姓名: 合成样例"] }]
+    }
+  });
+  const serialized = JSON.stringify(result.memoryPatch);
+  assert.doesNotMatch(serialized, /example-person@example\.invalid|synthetic_account|合成样例/);
+  assert.equal(result.memoryPatch.privacy.knownIdentifiersRedacted, true);
+  assert.equal(result.memoryPatch.privacy.anonymized, false);
+  assert.equal(result.memoryPatch.privacy.manualReviewRequired, true);
+});
+
+test("产品 API 新观察即使消息条数相同也保留，原上下文重试幂等", () => {
+  const input = { consent: true, caseId: "case_synthetic_events", messages: [{ type: "her", text: "合成消息第一条" }] };
+  const first = runProductRelationshipIntelligence(input);
+  const second = runProductRelationshipIntelligence({ ...input, messages: [{ type: "her", text: "合成消息另一条" }], memory: first.memoryPatch });
+  const retry = runProductRelationshipIntelligence({ ...input, messages: [{ type: "her", text: "合成消息另一条" }], memory: second.memoryPatch });
+  assert.equal(second.memoryPatch.observations.length, 2);
+  assert.equal(retry.memoryPatch.observations.length, 2);
+});
+
 test("HTTP 主路由端到端调用本地 runtime，且响应不回显原始消息", async () => {
   await new Promise((resolve, reject) => {
     server.once("error", reject);

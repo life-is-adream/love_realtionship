@@ -24,14 +24,20 @@ export const LLM_TEMPERATURE = Number(process.env.LLM_TEMPERATURE || 1.0);
 export const LLM_TOP_P = Number(process.env.LLM_TOP_P || 0.95);
 export const LLM_REASONING_EFFORT = process.env.LLM_REASONING_EFFORT || "medium";
 
-// 联网搜索（可选增强，默认关闭）：配置 SEARCH_ENDPOINT 后才启用。
+// 联网搜索（双引擎，默认用模型联网搜索）：
+// 引擎一（默认）：SEARCH_MODEL + MiMo web_search 插件，复用 LLM_ENDPOINT/LLM_API_KEY。
+// 仅支持 LLM_API_MODE=chat_completions；Responses 配置在 dispatch 前受控拒绝。
+// 引擎二（可选）：配置 SEARCH_ENDPOINT+SEARCH_API_KEY 后优先使用外部搜索 API。
 // 仅用于检索公开通用知识（如心理学/沟通研究），绝不发送对话原文。
 export const SEARCH_ENDPOINT = process.env.SEARCH_ENDPOINT || "";
 export const SEARCH_API_KEY = process.env.SEARCH_API_KEY || "";
 export const SEARCH_ENABLED = Boolean(SEARCH_ENDPOINT && SEARCH_API_KEY);
-/** 白名单权威域名后缀：仅允许检索这些来源，避免模型把不可信网页当依据。 */
+export const SEARCH_MODEL = process.env.SEARCH_MODEL || "mimo-v2.6-flash";
+/** 所有检索引擎始终执行来源域名白名单；匹配域名不等于验证页面观点或证据。 */
 export const SEARCH_ALLOWED_DOMAINS = (process.env.SEARCH_ALLOWED_DOMAINS || "edu.cn,gov.cn,who.int,apa.org,psychologytoday.com,healthychildren.org,nhs.uk")
   .split(",").map((domain) => domain.trim().toLowerCase()).filter(Boolean);
+// 保留显式配置标记用于兼容现有调用方；它不会关闭默认白名单过滤。
+export const SEARCH_ALLOWED_DOMAINS_EXPLICIT = Boolean(process.env.SEARCH_ALLOWED_DOMAINS);
 
 export function loadDotEnv(filePath) {
   if (!existsSync(filePath)) return;

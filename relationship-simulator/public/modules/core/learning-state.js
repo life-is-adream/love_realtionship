@@ -6,6 +6,10 @@
  * legacy/root state while the UI migration is being rolled out.
  */
 
+import { normalizeAbilityAssessment } from "../training/ability-assessment.js";
+import { clampScoreOrNull } from "./number.js";
+import { correctLegacyCoachEvent, trainingScoresFromEvent } from "./training-scores.js";
+
 export const LEARNING_SCHEMA_VERSION = 2;
 export const LEARNING_LIMITS = Object.freeze({
   events: 200,
@@ -56,7 +60,8 @@ export function normalizeLearningState(value = {}) {
     growthSnapshots: copyArray(input.growthSnapshots).slice(-LEARNING_LIMITS.growthSnapshots),
     signalAttempts: copyArray(input.signalAttempts).slice(-LEARNING_LIMITS.signalAttempts),
     textbookProgress: copyRecord(input.textbookProgress),
-    settings: copyRecord(input.settings)
+    settings: copyRecord(input.settings),
+    abilityAssessment: normalizeAbilityAssessment(input.abilityAssessment)
   };
 
   return state;
@@ -125,18 +130,18 @@ export function buildLearningSummary(state, now = Date.now()) {
   );
 
   for (const event of normalized.events) {
-    const dimension = normalizeString(event.dimension, "");
-    const score = normalizeNullableScore(event.score);
-    if (!byDimension[dimension] || score === null) continue;
-    const bucket = byDimension[dimension];
-    bucket.count += 1;
-    bucket.totalScore += score;
-    bucket.averageScore = Math.round(bucket.totalScore / bucket.count);
-    const eventTime = toTime(event.createdAt);
-    if (bucket.latestTime === null || (eventTime !== null && eventTime >= bucket.latestTime)) {
-      bucket.latestScore = score;
-      bucket.latestSource = event.source;
-      bucket.latestTime = eventTime;
+    for (const [dimension, score] of Object.entries(trainingScoresFromEvent(event))) {
+      if (!byDimension[dimension] || score === null) continue;
+      const bucket = byDimension[dimension];
+      bucket.count += 1;
+      bucket.totalScore += score;
+      bucket.averageScore = Math.round(bucket.totalScore / bucket.count);
+      const eventTime = toTime(event.createdAt);
+      if (bucket.latestTime === null || (eventTime !== null && eventTime >= bucket.latestTime)) {
+        bucket.latestScore = score;
+        bucket.latestSource = event.source;
+        bucket.latestTime = eventTime;
+      }
     }
   }
 
@@ -192,11 +197,11 @@ function normalizeStoredEvent(value) {
   try {
     // Re-reading old persisted events must not invent a current timestamp.
     // Only newly created events receive the current time by default.
-    return createTrainingEvent(
+    return correctLegacyCoachEvent(createTrainingEvent(
       Object.prototype.hasOwnProperty.call(value, "createdAt")
         ? value
         : { ...value, createdAt: null }
-    );
+    ));
   } catch {
     return null;
   }
@@ -252,9 +257,7 @@ function normalizeNullableString(value) {
 }
 
 function normalizeNullableScore(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const score = Number(value);
-  return Number.isFinite(score) ? Math.max(0, Math.min(100, Math.round(score))) : null;
+  return clampScoreOrNull(value);
 }
 
 function normalizeCreatedAt(input) {

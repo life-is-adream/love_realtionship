@@ -1,4 +1,5 @@
 import { getPracticePlan } from "./practice-plans.js";
+import { shanghaiDate } from "../core/date.js";
 
 export const PRACTICE_OPTIONS = Object.freeze({
   attempt: { done: "已经尝试", notYet: "还没尝试", noOpportunity: "暂时没有合适机会" },
@@ -65,13 +66,8 @@ function boundedHistory(snapshots) {
   return [...retained].sort((a, b) => a - b).map((index) => snapshots[index]);
 }
 
-export function shanghaiDate(value = new Date()) {
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) throw new TypeError("日期无效");
-  const parts = new Intl.DateTimeFormat("en", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(date);
-  const part = (type) => parts.find((item) => item.type === type).value;
-  return `${part("year")}-${part("month")}-${part("day")}`;
-}
+// 日期键唯一口径迁到 core/date.js（本文件内部仍直接用，故用本地导入 + 再导出）。
+export { shanghaiDate };
 
 function validDate(value) {
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;

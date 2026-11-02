@@ -7,12 +7,15 @@ import { STORAGE_KEYS } from "../core/config.js";
 
 export const COMPLIANCE_MESSAGE = "本应用角色为 AI 模拟，非真人。对话内容仅用于沟通训练与自我觉察，请理性对待。";
 
-/** localStorage 不可用（隐私模式等）时按"已知悉"处理：不阻塞界面，也不在每次访问重复弹出。 */
+/**
+ * fail-closed：localStorage 不可用（隐私模式等）时视为"未知悉"，横幅照常显示。
+ * 合规声明是硬性要求，读取失败不允许静默跳过；`dismiss()` 仍可在本次会话内关闭。
+ */
 export function hasAcknowledgedCompliance(storage = globalThis.localStorage) {
   try {
     return storage.getItem(STORAGE_KEYS.complianceAck) === "true";
   } catch {
-    return true;
+    return false;
   }
 }
 

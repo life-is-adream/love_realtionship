@@ -17,6 +17,34 @@ const WARM_RE = /谢谢|开心|期待|喜欢|高兴|愿意|哈哈|好呀|可以�
 const LOW_ENERGY_RE = /忙|累|最近有点|改天|先休息|晚点|之后再说|哈哈还好/u;
 const BOUNDARY_RE = /不想|不方便|别再|不用了|停止|停下|拒绝|不需要|先这样/u;
 const CONFLICT_RE = /生气|失望|不舒服|吵|误会|为什么总|别这样|受不了|不尊重/u;
+// These describe explicit statements, not every ordinary preference or boundary.
+const RELATIONSHIP_REJECTION_RE = /(?:不想|不愿意|不愿|不希望|不打算)(?:和你|跟你)?(?:在一起|谈恋爱|交往|发展(?:关系)?)(?=[了。！!，,、；;\s]|$)|(?:不想|不愿意|不愿|不希望|不打算)(?:再|继续)(?:发展|交往|这段关系|我们的关系)?(?=[了。！!，,、；;\s]|$)|(?:不喜欢你|对你没有恋爱的感觉)(?=[。！!，,、；;\s]|$)|我们(?:还是)?(?:就此|到此|到这里)?(?:结束(?:这段关系|我们的关系)?|分手)(?=[了吧。！!，,、；;\s]|$)/u;
+const NO_CONTACT_RE = /(?:(?:别|不要|请勿|不许|不用)(?:再|继续)?(?:联系(?:我)?|来找我|找我|纠缠我|给我发(?:消息|信息|微信|短信)|发(?:消息|信息|微信|短信)给我|给我打电话)|(?:停止|停下)(?:联系(?:我)?|联络(?:我)?|纠缠(?:我)?)|(?:不想|不愿意|不希望)(?:再|继续)(?:联系|见面))(?=[了吧好吗。！!，,、；;\s]|$)/u;
+const CONTACT_PAUSE_RE = /(?:现在|今天|暂时|这几天|目前)(?:请)?(?:不想|不愿意|不要|别)(?:再|继续)?(?:聊|联系)|(?:请)?先(?:别|不要)(?:给我发(?:消息|信息|短信)|联系我|找我)|(?:请)?先(?:停止|停下)(?:聊天|联系)/u;
+const SELF_EXIT_RE = /我(?:决定|想要)?(?:退出|结束)(?:这段|我们的)?关系|我(?:不想|不愿意|不愿|不打算)(?:再|继续)(?:发展|交往|这段关系|(?=[了。！!，,、；;\s]|$))/u;
+const DECLARED_EXIT_RE = /我(?:决定|想要)?(?:退出|结束)(?:这段|我们的)?关系/u;
+const SAFETY_RISK_RE = /(?:去|到|在).{0,12}(?:堵你|堵她|堵他|堵对方)|(?:跟踪|尾随)(?:你|她|他|对方)|(?:打死|杀了)(?:我|你|她|他|对方)|(?:他|她|对方|你)(?:会|要|想)?(?:打|威胁)我|(?:会|要|就|想)伤害(?:我|你|她|他|对方)|(?:担心|害怕).{0,12}(?:伤害|暴力)|(?:我|他|她)(?:就|会|要)(?:自杀|自伤|伤害自己)/u;
+
+function explicitStatementFlags(message) {
+  const translation = /(?:这句话|这句台词).{0,8}(?:怎么翻译|是什么意思|语法)/u.test(message.text);
+  const fiction = /剧情|电影|小说|台词/u.test(message.text) && /(?:这句台词|这句话|这段话).{0,8}(?:意思|翻译|怎么|语法)/u.test(message.text);
+  const thirdPartyDiscussion = /(?:朋友|同事|同学|邻居|家人)说/u.test(message.text) && /(?:这句话|这段话).{0,8}(?:翻译|意思|语法|怎么看)/u.test(message.text);
+  if (translation || fiction || thirdPartyDiscussion) return { rejection: false, exit: false, pause: false, safety: false };
+  // Quotation alone is not a reason to discard an actual refusal.
+  const text = message.text.replace(/[“”‘’"「」『』]/gu, "")
+    .replace(/(?:不是|并非|没有说|没说)(?:不想|不愿意|不愿|不希望|不打算)(?:和你|跟你)?(?:在一起|谈恋爱|交往|发展(?:关系)?|(?:再|继续)(?:发展|交往|这段关系|我们的关系)?)/gu, "")
+    .replace(/(?:不是|并非|没有说|没说)不喜欢你/gu, "");
+  const clauses = text.split(/[，,。！!？?；;\n]/u);
+  const safetyText = text.replace(/(?:不会|不想|不要|不愿|不应|不能|避免|停止)(?:再)?(?:伤害|打死|杀了|跟踪|尾随)(?:我|你|她|他|对方)/gu, "")
+    .replace(/(?:不|并不)(?:担心|害怕).{0,8}(?:伤害|暴力)/gu, "");
+  return {
+    rejection: message.speaker === "other" && RELATIONSHIP_REJECTION_RE.test(text),
+    exit: DECLARED_EXIT_RE.test(text) || clauses.some((clause) => NO_CONTACT_RE.test(clause) && !CONTACT_PAUSE_RE.test(clause)) ||
+      (message.speaker !== "other" && SELF_EXIT_RE.test(text)),
+    pause: CONTACT_PAUSE_RE.test(text),
+    safety: SAFETY_RISK_RE.test(safetyText)
+  };
+}
 const EMOTION_PATTERNS = [
   ["warm", WARM_RE],
   ["low_energy", LOW_ENERGY_RE],
@@ -157,6 +185,15 @@ function buildEvidence(messages, metrics) {
   if (metrics.conflictMessageCount > 0) {
     evidence.push({ id: "conversation_evidence_6", kind: "conflict", observation: "文本中出现冲突或受伤表达", source: "lexical_flags" });
   }
+  if (metrics.explicitRejectionMessageCount > 0 || metrics.explicitExitMessageCount > 0) {
+    evidence.push({ id: "conversation_evidence_7", kind: "boundary", observation: "文本明确表达关系拒绝、退出或停止联系，旧推进信号不能覆盖", source: "explicit_statement_flags" });
+  }
+  if (metrics.contactPauseMessageCount > 0) {
+    evidence.push({ id: "conversation_evidence_8", kind: "boundary", observation: "文本明确要求暂时停止聊天或联系，当前不应继续推进", source: "explicit_statement_flags" });
+  }
+  if (metrics.safetyRiskMessageCount > 0) {
+    evidence.push({ id: "conversation_evidence_9", kind: "safety", observation: "文本出现人身威胁或跟踪表达，应停止推进并优先处理安全", source: "explicit_statement_flags" });
+  }
   if (!evidence.length) {
     evidence.push({ id: "conversation_evidence_0", kind: "data_quality", observation: "当前文本未提供足够区分性信号", source: "feature_extraction" });
   }
@@ -175,11 +212,20 @@ export function analyzeConversation(messages, options = {}) {
   const emotionCounts = Object.fromEntries(EMOTION_PATTERNS.map(([label]) => [label, 0]));
   let boundaryMessageCount = 0;
   let conflictMessageCount = 0;
+  let explicitRejectionMessageCount = 0;
+  let explicitExitMessageCount = 0;
+  let contactPauseMessageCount = 0;
+  let safetyRiskMessageCount = 0;
   for (const message of normalized) {
     const labels = classifyEmotion(message.text);
     for (const label of labels) if (label in emotionCounts) emotionCounts[label] += 1;
     if (BOUNDARY_RE.test(message.text)) boundaryMessageCount += 1;
     if (CONFLICT_RE.test(message.text)) conflictMessageCount += 1;
+    const explicit = explicitStatementFlags(message);
+    if (explicit.rejection) explicitRejectionMessageCount += 1;
+    if (explicit.exit) explicitExitMessageCount += 1;
+    if (explicit.pause) contactPauseMessageCount += 1;
+    if (explicit.safety) safetyRiskMessageCount += 1;
   }
   const replyGaps = getReplyGaps(normalized);
   const starts = getConversationStarts(normalized, options.segmentGapMs || 12 * 60 * 60 * 1000);
@@ -203,6 +249,10 @@ export function analyzeConversation(messages, options = {}) {
     consecutiveFollowups: countConsecutiveFollowups(normalized),
     boundaryMessageCount,
     conflictMessageCount,
+    explicitRejectionMessageCount,
+    explicitExitMessageCount,
+    contactPauseMessageCount,
+    safetyRiskMessageCount,
     timestampCoverage,
     dataQuality: normalized.length >= 4 && timestampCoverage === "complete" ? "adequate" : "limited"
   };

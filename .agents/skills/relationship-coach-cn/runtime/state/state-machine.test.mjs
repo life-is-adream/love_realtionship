@@ -24,3 +24,9 @@ test("routes conflict through repair and exits after explicit rejection", () => 
   assert.equal(exit.to, "EXIT");
   assert.equal(exit.reversible, false);
 });
+
+test("explicit relationship rejection outranks conflicting counteroffer and date signals", () => {
+  const result = transitionState("GROWING_INTEREST", { explicitRejection: true, counterOffer: true, concreteDatePlan: true });
+  assert.equal(result.to, "EXIT");
+  assert.equal(result.reversible, false);
+});

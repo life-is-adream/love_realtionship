@@ -23,7 +23,7 @@ export function isDirectEntry(moduleUrl, entryPath = process.argv[1]) {
 /** Keep both synchronous and asynchronous route failures inside one boundary. */
 export function createRequestHandler({
   resolveCorsOrigin, sendJson, sendText, handleHealth, handleChat, handleSearch,
-  handleRelationshipIntelligence, handleLongContent, serveStatic
+  handleRelationshipIntelligence, handleLongContent, handleTts, handleTtsHealth, serveStatic
 }) {
   return async (req, res) => {
     try {
@@ -41,6 +41,8 @@ export function createRequestHandler({
       if (req.method === "POST" && url.pathname === "/api/chat") return await handleChat(req, res);
       if (req.method === "POST" && url.pathname === "/api/search") return await handleSearch(req, res);
       if (req.method === "POST" && url.pathname === "/api/relationship-intelligence") return await handleRelationshipIntelligence(req, res);
+      if (req.method === "GET" && url.pathname === "/api/tts/health") return await handleTtsHealth(res);
+      if (req.method === "POST" && url.pathname === "/api/tts") return await handleTts(req, res);
       if (req.method === "GET" && url.pathname.startsWith("/api/long-content/")) return await handleLongContent(url.pathname, res);
       if (req.method !== "GET" && req.method !== "HEAD") return sendText(res, 405, "Method Not Allowed");
       return await serveStatic(url.pathname, res);

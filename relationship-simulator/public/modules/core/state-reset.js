@@ -12,6 +12,7 @@ export function createConversationResetState(value) {
     avatarOverrides: previous.avatarOverrides,
     relationshipIntelligence: previous.relationshipIntelligence,
     relationshipPractice: previous.relationshipPractice,
-    lifestyle: previous.lifestyle
+    lifestyle: previous.lifestyle,
+    learning: { abilityAssessment: previous.learning.abilityAssessment }
   });
 }

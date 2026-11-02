@@ -5,6 +5,9 @@
  * or a model response. It accepts both phase-1 direct training events and the
  * five-score AnalysisResult shape, then keeps the provenance of every point.
  */
+import { clampScore } from "../core/number.js";
+
+import { shanghaiDate } from "../core/date.js";
 
 export const GROWTH_DIMENSIONS = Object.freeze([
   "initiative",
@@ -58,7 +61,7 @@ const MIN_HIGH_SAMPLE = 5;
 /**
  * Aggregate dated events into a recent-window score and an earliest baseline.
  *
- * `score` is the mean of comparable observations in the requested recent
+ * `score` is the latest comparable observation in the requested recent
  * window. `baseline` is the earliest comparable observation available for the
  * same dimension, including observations before that window. An undated event
  * is not used because its date cannot be safely inferred.
@@ -196,7 +199,7 @@ export function getMastery(summary, dimension) {
     level,
     label,
     progress,
-    explanation: `${sampleNote}当前平均分 ${score}，${confidenceNote}这里只描述练习记录，现实迁移仍需单独观察。`
+    explanation: `${sampleNote}最近一次练习分 ${score}，${confidenceNote}这里只描述练习记录，现实迁移仍需单独观察。`
   };
 }
 
@@ -397,7 +400,7 @@ function getQuestionEvidence(event, scores) {
   for (const candidate of candidates) {
     const number = Number(candidate);
     if (!Number.isFinite(number)) continue;
-    return number <= 1 ? number * 100 : clamp(number);
+    return number <= 1 ? number * 100 : clampScore(number);
   }
 
   const rates = [
@@ -410,7 +413,7 @@ function getQuestionEvidence(event, scores) {
   for (const candidate of rates) {
     const number = Number(candidate);
     if (!Number.isFinite(number)) continue;
-    return number <= 1 ? number * 100 : clamp(number);
+    return number <= 1 ? number * 100 : clampScore(number);
   }
 
   // Some replay/coach adapters provide a bounded question count and message
@@ -418,7 +421,7 @@ function getQuestionEvidence(event, scores) {
   const questionCount = Number(event.questionCount ?? event.metrics?.questionCount);
   const messageCount = Number(event.messageCount ?? event.metrics?.messageCount);
   if (Number.isFinite(questionCount) && Number.isFinite(messageCount) && messageCount > 0) {
-    return clamp((questionCount / messageCount) * 100);
+    return clampScore((questionCount / messageCount) * 100);
   }
 
   // `scores` is accepted as a parameter to make the mapping signature
@@ -431,7 +434,7 @@ function weightedAvailable(items) {
   const valid = items.filter(([value, weight]) => value !== null && weight > 0);
   if (valid.length === 0) return null;
   const weight = valid.reduce((sum, [, itemWeight]) => sum + itemWeight, 0);
-  return clamp(valid.reduce((sum, [value, itemWeight]) => sum + value * itemWeight, 0) / weight);
+  return clampScore(valid.reduce((sum, [value, itemWeight]) => sum + value * itemWeight, 0) / weight);
 }
 
 function eventDate(event) {
@@ -461,7 +464,7 @@ function canonicalDimension(value) {
 function scoreFrom(value) {
   if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
-  return Number.isFinite(number) ? clamp(number) : null;
+  return Number.isFinite(number) ? clampScore(number) : null;
 }
 
 function finiteScoreOrNull(value) {
@@ -494,12 +497,6 @@ function normalizeWindowDays(value) {
   return Number.isFinite(number) && number > 0 ? Math.max(1, Math.floor(number)) : 30;
 }
 
-function clamp(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return 0;
-  return Math.max(0, Math.min(100, Math.round(number)));
-}
-
 function toTime(value) {
   if (value instanceof Date) {
     const time = value.getTime();
@@ -512,7 +509,7 @@ function toTime(value) {
 }
 
 function toDateKey(time) {
-  return new Date(time).toISOString().slice(0, 10);
+  return shanghaiDate(time);
 }
 
 function actionFor(dimension) {

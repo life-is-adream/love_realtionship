@@ -9,6 +9,7 @@ const INVITATION_PATTERN = /一起|约|见面|咖啡|散步|吃饭|看电影|周
 
 // P2-11：7 阶段枚举复用 stages.js 的共享常量（原此处硬编码 Set，两处枚举值已比对一致）。
 import { STAGE_VALUES } from "../core/stages.js";
+import { clampScore } from "../core/number.js";
 
 // stages.js 导出为数组；本模块用 Set 保持 O(1) 命中判断。
 const STAGE_SET = new Set(STAGE_VALUES);
@@ -371,7 +372,7 @@ export function scoreTiming({ messages = [], latestDraft = "", stage = "", now }
   if (context.draftAcknowledgesSpace && (context.otherClosing || context.otherFatigued || context.otherBoundary)) score += 8;
   if (context.hasReturnPoint && !context.otherBoundary) score += 4;
 
-  score = Math.max(0, Math.min(100, Math.round(score)));
+  score = clampScore(score);
   return {
     ...base,
     score,

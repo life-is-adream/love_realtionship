@@ -50,7 +50,9 @@ test("垂直旅程：HeartFlow 消息 → 本地分析 → 同意记忆 → 拒�
   assert.equal(requests[1].consent, true);
   assert.equal(requests[1].caseId, CASE_ID);
   assert.equal(withConsent.memoryPatch.caseId, CASE_ID);
-  assert.equal(withConsent.memoryPatch.privacy.anonymized, true);
+  assert.equal(withConsent.memoryPatch.privacy.anonymized, false);
+  assert.equal(withConsent.memoryPatch.privacy.knownIdentifiersRedacted, true);
+  assert.equal(withConsent.memoryPatch.privacy.manualReviewRequired, true);
   assert.equal(withConsent.memoryPatch.privacy.rawChatRetained, false);
   assert.equal(appState.relationshipIntelligence.memory.currentState, "INITIAL_CONTACT");
   assert.equal(JSON.stringify(appState.relationshipIntelligence.memory).includes(LOCAL_ONLY_TEXT), false);
@@ -65,8 +67,8 @@ test("垂直旅程：HeartFlow 消息 → 本地分析 → 同意记忆 → 拒�
 
   assert.equal(requests[2].memory.currentState, "INITIAL_CONTACT");
   assert.equal(afterRejection.state.to, "EXIT");
-  assert.equal(afterRejection.decision.value, "DE_ESCALATE");
-  assert.match(afterRejection.action, /停止追加说服|降低投入/);
+  assert.equal(afterRejection.decision.value, "EXIT");
+  assert.match(afterRejection.action, /停止推进/);
   assert.equal(JSON.stringify(afterRejection).includes(LOCAL_ONLY_TEXT), false);
   assert.equal(appState.relationshipIntelligence.memory.currentState, "EXIT");
 

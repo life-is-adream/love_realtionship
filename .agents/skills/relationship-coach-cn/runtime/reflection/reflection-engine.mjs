@@ -1,26 +1,29 @@
-const DECISIONS = new Set(["ADVANCE", "MAINTAIN", "OBSERVE", "DE_ESCALATE", "EXIT"]);
+import { limitedTextPrivacy, normalizeAnonymousId, normalizeFreeText } from "../memory/memory-store.mjs";
 
-function bounded(value, limit = 300) {
-  return String(value || "").trim().slice(0, limit);
-}
+const DECISIONS = new Set(["ADVANCE", "MAINTAIN", "OBSERVE", "DE_ESCALATE", "EXIT"]);
 
 export function createPrediction({ decision, action, expectedSignal, evidenceIds = [], id = "prediction_001" } = {}) {
   if (!DECISIONS.has(decision)) throw new TypeError("prediction decision is invalid");
-  if (!bounded(action) || !bounded(expectedSignal)) throw new TypeError("prediction action and expectedSignal are required");
+  const normalizedId = normalizeAnonymousId(id);
+  if (!normalizedId) throw new TypeError("prediction id must be a controlled identifier");
+  const safeAction = normalizeFreeText(action, 300);
+  const safeExpectedSignal = normalizeFreeText(expectedSignal, 300);
+  if (!safeAction || !safeExpectedSignal) throw new TypeError("prediction action and expectedSignal must be non-sensitive text");
   return {
     version: 1,
-    id: bounded(id, 80),
+    id: normalizedId,
     decision,
-    action: bounded(action),
-    expectedSignal: bounded(expectedSignal),
-    evidenceIds: Array.isArray(evidenceIds) ? evidenceIds.map((item) => bounded(item, 80)).slice(0, 20) : [],
+    action: safeAction,
+    expectedSignal: safeExpectedSignal,
+    evidenceIds: Array.isArray(evidenceIds) ? evidenceIds.map((item) => normalizeAnonymousId(item)).filter(Boolean).slice(0, 20) : [],
     status: "pending"
   };
 }
 
 export function reflectOnOutcome(prediction, outcome = {}) {
   if (!prediction || prediction.version !== 1) throw new TypeError("prediction is invalid");
-  const observedOutcome = bounded(outcome.observedOutcome ?? outcome.outcome);
+  const safePrediction = createPrediction(prediction);
+  const observedOutcome = normalizeFreeText(outcome.observedOutcome ?? outcome.outcome, 300);
   const hasExplicitMatch = typeof outcome.matchesExpected === "boolean";
   const calibration = !observedOutcome || !hasExplicitMatch
     ? "unknown"
@@ -32,17 +35,17 @@ export function reflectOnOutcome(prediction, outcome = {}) {
       : "结果信息不足，暂不更新关系判断。";
   return {
     version: 1,
-    predictionId: prediction.id,
+    predictionId: safePrediction.id,
     prediction: {
-      decision: prediction.decision,
-      action: prediction.action,
-      expectedSignal: prediction.expectedSignal,
-      evidenceIds: prediction.evidenceIds
+      decision: safePrediction.decision,
+      action: safePrediction.action,
+      expectedSignal: safePrediction.expectedSignal,
+      evidenceIds: safePrediction.evidenceIds
     },
     observedOutcome: observedOutcome || null,
     calibration,
     update,
-    nextTest: bounded(outcome.nextTest || "下一次只验证一个最小、可逆的现实信号。"),
-    privacy: { rawOutcomeRetained: false, anonymized: true }
+    nextTest: normalizeFreeText(outcome.nextTest, 300) || "下一次只验证一个最小、可逆的现实信号。",
+    privacy: limitedTextPrivacy({ rawOutcomeRetained: false })
   };
 }

@@ -7,6 +7,7 @@ import { isValidStage } from "./modules/core/stages.js";
 import { scenarios } from "./modules/content/scenarios.js";
 import { loadManifest } from "./modules/content/long-content-loader.js";
 import { normalizeLearningState, recordTrainingEvent } from "./modules/core/learning-state.js";
+import { createCoachLearningEvent } from "./modules/core/training-scores.js";
 import {
   shouldCollectFromScore, shouldCollectFromPreflight, classifyPreflightIssues, collectMistake
 } from "./modules/core/mistakes.js";
@@ -23,29 +24,34 @@ import { formatRedactionNotice } from "./modules/core/privacy.js";
 import { $, escapeHtml as escapeHtmlShared } from "./modules/core/dom.js";
 import {
   getAllPersonas, getCurrentPersona, getLatestMineText, getPersonaMemory, getState,
-  loadState, saveState, setState as setStateStore, mutate, onStateChange, serializeStateForStorage
+  loadState, saveState, setState as setStateStore, mutate, onStateChange, serializeStateForStorage,
+  getStateLoadIssue
 } from "./modules/core/state.js";
 import { buildBackup, buildBackupFilename, validateBackup, applyBackup } from "./modules/core/backup.js";
+import { buildTierPromptLine } from "./modules/core/investment.js";
 import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, migrateMemory, analyzeLongTermPatterns, buildPatternInjection } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
-import { buildMessages as buildMessagesPure, callLLM as callLLMPure, checkHealth as checkHealthApi } from "./modules/core/api-client.js";
+import { buildHerMessages, buildCoachMessages, callLLM as callLLMPure, checkHealth as checkHealthApi } from "./modules/core/api-client.js";
 import { emit, Events } from "./modules/core/events.js";
 import { appendMine, appendMineIfNew, recallMine, renderChat } from "./modules/render/render-chat.js";
 import { appendGeneratedReply } from "./modules/core/conversation.js";
+import { parseHerBubbles, joinHerReply } from "./modules/coach/her-reply.js";
 import { renderPersonaControls, savePersonaMemory, switchPersona as switchPersonaView, saveCustomPersona as saveCustomPersonaView, deleteCurrentPersona as deleteCurrentPersonaView, uploadAvatar, resetAvatar, setAvatarPosition, beginAvatarDrag, moveAvatarDrag, endAvatarDrag } from "./modules/render/render-persona.js";
-import { card, renderActionPlan, renderAnalysis as renderCoachAnalysis, renderPlanCard, buildActionPlan } from "./modules/render/render-coach.js";
+import { card, renderActionPlan, renderAnalysis as renderCoachAnalysis, renderPlanCard, buildActionPlan, isRelationshipStopped } from "./modules/render/render-coach.js";
 import { buildCoachFloatData, buildCoachFloatHtml } from "./modules/render/coach-float.js";
 import { runCoachFloatSearch as runCoachFloatSearchView } from "./modules/render/coach-float-search.js";
 import { renderTiming, renderSignalPractice, renderDailyTraining, renderGrowthProfile, renderTextbookEvidence, enableTextbookIndexLoad } from "./modules/render/render-learning.js";
 import { openLongReader as openLongReaderView, closeLongReader, renderChapterList, loadChapter } from "./modules/render/render-longContent.js";
 import { openIntervention, closeIntervention } from "./modules/render/render-intervention.js";
 import { renderMistakes, closeMistakePractice } from "./modules/render/render-mistakes.js";
+import { renderMemoryPanel } from "./modules/render/render-memory-panel.js";
 import { renderLifestyle } from "./modules/render/render-lifestyle.js";
 import { renderPresentationKnowledge } from "./modules/render/render-presentation-knowledge.js";
 import { renderSessionReport, generateSessionReport } from "./modules/render/render-session-report.js";
 import { renderIntake } from "./modules/render/render-intake.js";
 import { renderRealPractice, resetRealPracticeDrafts } from "./modules/render/render-real-practice.js";
 import { renderDateJourney, resetDateJourney } from "./modules/render/render-date-journey.js";
+import { renderAbilityAssessment, resetAbilityAssessmentDrafts } from "./modules/render/render-ability-assessment.js";
 import { createConversationResetState } from "./modules/core/state-reset.js";
 import { modelStatusLabel } from "./modules/core/model-status.js";
 import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCurrentStage, renderStageProgress, restoreStageState } from "./modules/render/render-stage.js";
@@ -58,6 +64,7 @@ import { renderRelationshipIntelligence } from "./modules/render/render-intellig
 import { createTrainingModeController } from "./modules/training/training-mode-controller.js";
 import { initComplianceBanner } from "./modules/render/compliance-banner.js";
 import { createRequestScope } from "./modules/core/request-scope.js";
+import { speakText, stopSpeaking, maybeAutoSpeak, TTS_ENGINES, voicesFor, getVoicePrefs, setVoicePrefs, fetchTtsHealth } from "./modules/voice/tts-client.js";
 
 let state = loadState();
 const MIMO_MODEL = DEFAULT_MODEL;
@@ -72,6 +79,7 @@ const modelRequests = createRequestScope(() => JSON.stringify({
   consent: state.relationshipIntelligence?.consent, ui: uiValues()
 }));
 const workspaceNav = initWorkspaceNav({ onViewChange: (view) => {
+  modelRequests.cancel("coach-search");
   if (view === "coach") clearCoachUnread();
   window.scrollTo({ top: 0, behavior: "instant" });
 } });
@@ -80,6 +88,7 @@ const intelligenceController = createRelationshipIntelligenceController({
   getAppState: () => state,
   saveAppState: saveState,
   getGoal: () => $("goal")?.value || "",
+  updateAppState: mutate,
   render: renderIntelligencePanel
 });
 
@@ -87,6 +96,7 @@ const trainingModeController = createTrainingModeController({
   getAppState: () => state,
   saveAppState: saveState,
   getElement: $,
+  updateAppState: mutate,
   setStatus: (message) => { if ($("apiStatus")) $("apiStatus").textContent = message; }
 });
 
@@ -135,6 +145,7 @@ function renderLearningPanels() {
   renderDateJourney();
   renderGrowthProfile();
   renderMistakes();
+  renderMemoryPanel();
   renderSessionReport();
   renderLifestyle();
   renderPresentationKnowledge();
@@ -196,6 +207,8 @@ function collectCoachMistake(draft, coachScore, text, stage, mode) {
 
 function renderIntelligencePanel(value = state.relationshipIntelligence) {
   renderRelationshipIntelligence(value);
+  if (isRelationshipStopped(value)) modelRequests.cancel("plan");
+  renderActionPlan();
   const consent = $("relationshipIntelligenceConsent");
   if (consent) consent.checked = value?.consent === true;
 }
@@ -203,6 +216,7 @@ function renderIntelligencePanel(value = state.relationshipIntelligence) {
 function renderCoachFloat() {
   const panel = $("coachFloatPanel");
   if (!panel) return;
+  modelRequests.cancel("coach-search");
   panel.innerHTML = buildCoachFloatHtml(buildCoachFloatData(state.lastAnalysis));
 }
 
@@ -210,6 +224,7 @@ function toggleCoachFloat() {
   const panel = $("coachFloatPanel");
   if (!panel) return;
   const hidden = panel.classList.toggle("hidden");
+  if (hidden) modelRequests.cancel("coach-search");
   if (!hidden) renderCoachFloat();
   $("coachFloatBtn")?.classList.toggle("is-open", !hidden);
 }
@@ -217,7 +232,8 @@ function toggleCoachFloat() {
 async function runCoachFloatSearch() {
   return runCoachFloatSearchView({
     analysis: state.lastAnalysis || {},
-    stage: $("stage")?.value || ""
+    stage: $("stage")?.value || "",
+    requestScope: modelRequests
   });
 }
 
@@ -243,6 +259,8 @@ function renderAll() {
   renderActionPlan();
   renderScenarioList();
   renderIntelligencePanel();
+  renderMemoryPanel();
+  renderAbilityAssessment();
 }
 
 function addTrainingLog(draft, data) {
@@ -261,27 +279,34 @@ function addTrainingLog(draft, data) {
     baseline: "calibrated"
   });
   draft.trainingLog = draft.trainingLog.slice(0, 12);
-  const dimension = { momentum: "initiative", empathy: "curiosity", boundary: "boundaries", naturalness: "timing" }[data.coachScore.weakestDim] || "initiative";
-  draft.learning = recordTrainingEvent(draft.learning, {
+  draft.learning = recordTrainingEvent(draft.learning, createCoachLearningEvent(data.coachScore, {
     id: `coach-event-${Date.now()}-${draft.messages.length}`,
     type: "coach-score",
     source: data.generationSource || data.source || "local",
-    dimension,
-    score: data.coachScore.total,
-    createdAt: new Date().toISOString(),
-    metadata: { naturalness: data.coachScore.naturalness, empathy: data.coachScore.empathy, boundary: data.coachScore.boundary, momentum: data.coachScore.momentum, weakestDim: data.coachScore.weakestDim || null }
-  });
+    createdAt: new Date().toISOString()
+  }));
   // F2 收集点二：低分自动进错题本（在 mutate 回调内直接操作 state，禁止嵌套 mutate）
   collectCoachMistake(draft, data.coachScore, lastMine, $("stage")?.value || "", draft.trainingMode === "pua" ? "pua" : "anti");
 }
 
-function commitAnalysis(data, source) {
+function commitHerReply(bubbles, source = "model") {
+  const persona = getCurrentPersona();
+  const createdAt = new Date().toISOString();
+  mutate((state) => {
+    for (const text of bubbles) appendGeneratedReply(state, text, source, persona.name, createdAt);
+  });
+  renderChat({ afterRender: afterChatRender });
+  maybeAutoSpeak(joinHerReply(bubbles));
+}
+
+function commitAnalysis(data, source, { replyAlreadyCommitted = false } = {}) {
   const persona = getCurrentPersona();
   // 有意生成一轮分析后允许教材索引加载；提交通知只渲染一次。
   enableTextbookIndexLoad();
   mutate((state) => {
     state.lastAnalysis = { ...data, source, generationSource: source };
-    appendGeneratedReply(state, state.lastAnalysis.herReply, source, persona.name);
+    // 两次调用路径下她的回复已先行落盘；同文本重复由 appendGeneratedReply 去重。
+    if (!replyAlreadyCommitted) appendGeneratedReply(state, state.lastAnalysis.herReply, source, persona.name);
     addTrainingLog(state, state.lastAnalysis);
     state.lastGenerationMeta = { source, error: "" };
 
@@ -294,13 +319,15 @@ function commitAnalysis(data, source) {
         state.personaMemory[persona.id]._enhanced = updateMemoryState(
           migrateMemory(currentEnhanced),
           memoryUpdates,
-          state.messages
+          state.messages,
+          state.lastAnalysis
         );
       }
     }
   });
   emit(Events.ANALYSIS_COMMITTED, { source, score: data.coachScore });
   void intelligenceController.refresh();
+  maybeAutoSpeak(data.herReply);
   return state.lastAnalysis;
 }
 
@@ -310,7 +337,7 @@ function localFallback(modelError = "") {
   return commitAnalysis(data, "local");
 }
 
-async function buildMessages() {
+async function buildGenerationContext() {
   const persona = getCurrentPersona();
   const memory = getPersonaMemory(persona);
   const textbookSearchIndex = await getSharedTextbookIndex();
@@ -333,7 +360,15 @@ async function buildMessages() {
     _enhancedInjection: enhancedInjection
   } : memory;
 
-  return buildMessagesPure(persona, memoryWithEnhanced, state.messages, { ...uiValues(), textbookContext });
+  // 投入度分层：把持久化的 tier 转成策略行注入（无样本时不注入，避免空泛约束）
+  const tierInjection = buildTierPromptLine(state.relationshipTier, $("stage")?.value || "");
+  const memoryWithTier = tierInjection
+    ? { ...memoryWithEnhanced, _tierInjection: tierInjection }
+    : memoryWithEnhanced;
+
+  // 教材上下文按当前分析结果检索；两次调用共用同一份，避免重复检索教材索引。
+  const ui = { ...uiValues(), textbookContext };
+  return { persona, memory: memoryWithTier, messages: structuredClone(state.messages), ui, textbookContext };
 }
 
 async function callLLM(options) {
@@ -353,28 +388,60 @@ async function callLLM(options) {
 }
 
 async function askAi({ silent = false } = {}) {
-  $("apiStatus").textContent = "模型调用中...";
+  $("apiStatus").textContent = "她正在输入…";
   let ticket;
+  let coachTicket;
   try {
     savePersonaMemory(false);
     appendMineIfNew({ afterRender: afterChatRender });
     ticket = modelRequests.begin("dialogue");
-    const messages = await buildMessages();
+    const { persona, memory, messages, ui } = await buildGenerationContext();
     if (!ticket.isCurrent()) return STALE_RESULT;
-    const result = await callLLM({ endpoint: $("endpoint").value, apiKey: $("apiKey").value, model: MIMO_MODEL, messages, signal: ticket.signal });
+    const api = { endpoint: $("endpoint").value, apiKey: $("apiKey").value, model: MIMO_MODEL, signal: ticket.signal };
+
+    // 调用一：只要她的微信文本。先落盘、先渲染、先朗读——用户不必等教练分析。
+    const herResult = await callLLM({ ...api, messages: buildHerMessages(persona, memory, messages, ui) });
     if (!ticket.isCurrent()) return STALE_RESULT;
-    const parsed = parseModelContent(result.content, uiValues());
-    if (!parsed.herReply) throw new Error("模型未返回女方对话。");
-    $("apiStatus").textContent = "模型调用成功。";
-    return commitAnalysis(parsed, "model");
+    const bubbles = parseHerBubbles(herResult.content, persona.name);
+    if (!bubbles.length) throw new Error("模型未返回女方对话。");
+    const herReply = joinHerReply(bubbles);
+    commitHerReply(bubbles);
+
+    // 她的回复落盘会改变会话上下文，因此教练调用必须另开一条通道、在落盘之后取快照，
+    // 否则结果回来一定被判定为过期而丢弃。
+    coachTicket = modelRequests.begin("dialogue-coach");
+    $("apiStatus").textContent = "教练正在分析…";
+    let analysis;
+    let coachDegraded = false;
+    try {
+      const coachResult = await callLLM({
+        ...api,
+        signal: coachTicket.signal,
+        messages: buildCoachMessages({ persona, memory, messages, herReply, uiValues: ui })
+      });
+      if (!coachTicket.isCurrent()) return STALE_RESULT;
+      analysis = { ...parseModelContent(coachResult.content, ui), herReply };
+    } catch (coachError) {
+      if (!coachTicket.isCurrent()) return STALE_RESULT;
+      coachDegraded = true;
+      analysis = { ...localAnalyze(`教练分析失败：${coachError.message}`, ui), herReply };
+    }
+    $("apiStatus").textContent = coachDegraded
+      ? "她已由模型回复；教练分析未通过，已用本地评估补上。"
+      : "模型调用成功。";
+    return commitAnalysis(analysis, "model", { replyAlreadyCommitted: true });
   } catch (error) {
-    if (ticket && !ticket.isCurrent()) return STALE_RESULT;
+    // 她的回复落盘后 ticket 的上下文快照必然已过期，此处以最近一次为准，
+    // 否则提交阶段的真实错误会被当成过期结果静默吞掉。
+    const active = coachTicket || ticket;
+    if (active && !active.isCurrent()) return STALE_RESULT;
     mutate((state) => { state.lastGenerationMeta = { source: "model", error: error.message || String(error) }; });
     $("apiStatus").textContent = "模型调用失败：" + error.message;
     if (!silent) throw error;
     return null;
   } finally {
     ticket?.finish();
+    coachTicket?.finish();
   }
 }
 
@@ -488,12 +555,27 @@ async function preflightReply() {
 function normalizeActionPlan(content, fallback) {
   try {
     const parsed = JSON.parse(extractJsonObject(content));
-    if (!parsed.title || !parsed.objective || !Array.isArray(parsed.steps) || parsed.steps.length < 3 || !Array.isArray(parsed.topics) || parsed.topics.length < 4 || !Array.isArray(parsed.decisionRules) || parsed.decisionRules.length < 3) return fallback;
-    return { title: String(parsed.title), pacing: String(parsed.pacing || fallback.pacing), objective: String(parsed.objective), steps: parsed.steps.slice(0, 3).map((step) => ({ title: String(step.title || "下一步"), detail: String(step.detail || "") })), topics: parsed.topics.slice(0, 4).map(String), decisionRules: parsed.decisionRules.slice(0, 3).map(String), warning: String(parsed.warning || fallback.warning) };
-  } catch { return fallback; }
+    if (!parsed.title || !parsed.objective || !Array.isArray(parsed.steps) || parsed.steps.length < 3 || !Array.isArray(parsed.topics) || parsed.topics.length < 4 || !Array.isArray(parsed.decisionRules) || parsed.decisionRules.length < 3) {
+      return { ...fallback, source: "local-fallback" };
+    }
+    return {
+      title: String(parsed.title), pacing: String(parsed.pacing || fallback.pacing), objective: String(parsed.objective),
+      steps: parsed.steps.slice(0, 3).map((step) => ({ title: String(step.title || "下一步"), detail: String(step.detail || "") })),
+      topics: parsed.topics.slice(0, 4).map(String),
+      decisionRules: parsed.decisionRules.slice(0, 3).map(String),
+      warning: String(parsed.warning || fallback.warning),
+      source: "model"
+    };
+  } catch { return { ...fallback, source: "local-fallback" }; }
 }
 
 async function generateActionPlan() {
+  if (isRelationshipStopped(state.relationshipIntelligence)) {
+    modelRequests.cancel("plan");
+    renderActionPlan();
+    $("apiStatus").textContent = "本轮已停止推进，暂不生成继续联系的计划。";
+    return;
+  }
   const ticket = modelRequests.begin("plan");
   const persona = getCurrentPersona();
   const memory = getPersonaMemory(persona);
@@ -589,6 +671,7 @@ async function handleRestoreFileChange(event) {
     }
     resetDateJourney();
     resetRealPracticeDrafts();
+    resetAbilityAssessmentDrafts();
     modelRequests.cancelAll();
     state = loadState();
     intelligenceController.cancelPending();
@@ -607,6 +690,7 @@ function resetSession() {
   resetDateJourney();
   resetRealPracticeDrafts();
   state = setStateStore(createConversationResetState(state));
+  resetAbilityAssessmentDrafts();
   intelligenceController.reset();
   $("userInput").value = getCurrentPersona().sampleReply || "";
   renderAll();
@@ -659,9 +743,11 @@ function sendMine() {
 function setRelationshipIntelligenceConsentFromUi() {
   const granted = $("relationshipIntelligenceConsent")?.checked === true;
   if (!granted) {
-    for (const memory of Object.values(state.personaMemory || {})) {
-      if (memory && typeof memory === "object") delete memory._enhanced;
-    }
+    mutate((draft) => {
+      for (const memory of Object.values(draft.personaMemory || {})) {
+        if (memory && typeof memory === "object") delete memory._enhanced;
+      }
+    });
   }
   intelligenceController.setConsent(granted);
   if (granted) void intelligenceController.refresh();
@@ -701,13 +787,13 @@ async function enhanceReplayWithMiMo() {
 // loadChapter(chapterId, pendingReviewPointId) / reviewPointId
 
 window.RelationshipLLM = {
-  buildMessages,
+  buildGenerationContext,
   call: callLLM,
   preflightReply,
   getPersonaMemory,
   getState: () => structuredClone(getState()),
   // 兼容契约：对外集成/调试入口（P2-6 收口时经用户批准保留 setState 写路径，不迁移到 mutate）。
-  setState: (next) => { modelRequests.cancelAll(); state = setStateStore(next); renderAll(); }
+  setState: (next) => { modelRequests.cancelAll(); state = setStateStore(next); resetAbilityAssessmentDrafts(); renderAll(); }
 };
 
 $("retryModelBtn")?.addEventListener("click", () => generateHerDialogue({ allowLocalFallback: false }));
@@ -716,8 +802,13 @@ $("sendMineBtn")?.addEventListener("click", sendMine);
 $("modeBtnAnti")?.addEventListener("click", () => trainingModeController.setMode("anti"));
 $("modeBtnPua")?.addEventListener("click", () => trainingModeController.setMode("pua", { ask: true }));
 $("chat")?.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-recall-index]");
-  if (button) handleRecall(button.dataset.recallIndex);
+  const recallButton = event.target.closest("[data-recall-index]");
+  if (recallButton) { handleRecall(recallButton.dataset.recallIndex); return; }
+  const speakButton = event.target.closest("[data-speak-index]");
+  if (speakButton) {
+    const message = state.messages[Number(speakButton.dataset.speakIndex)];
+    if (message?.type === "her") void speakText(message.text, { button: speakButton });
+  }
 });
 $("preflightBtn")?.addEventListener("click", preflightReply);
 $("planBtn")?.addEventListener("click", generateActionPlan);
@@ -742,6 +833,79 @@ $("resetBtn")?.addEventListener("click", () => {
   if (globalThis.confirm?.(RESET_CONFIRMATION) === true) resetSession();
 });
 $("personaSelect")?.addEventListener("change", (event) => switchPersona(event.target.value, true));
+// 语音朗读设置：引擎 / 音色 / 自动朗读 / 试听（偏好独立存 localStorage，不进主 state）
+const ttsEngineSelect = $("ttsEngineSelect");
+const ttsVoiceSelect = $("ttsVoiceSelect");
+if (ttsVoiceSelect && ttsEngineSelect) {
+  const voicePrefs = getVoicePrefs();
+  ttsEngineSelect.innerHTML = TTS_ENGINES.map((engine) => `<option value="${escapeHtml(engine.id)}">${escapeHtml(engine.label)}</option>`).join("");
+  ttsEngineSelect.value = voicePrefs.engine;
+
+  const renderVoices = (engineId, selected) => {
+    const voices = voicesFor(engineId);
+    ttsVoiceSelect.innerHTML = voices.map((voice) => `<option value="${escapeHtml(voice.id)}">${escapeHtml(voice.label)}</option>`).join("");
+    ttsVoiceSelect.value = voices.some((voice) => voice.id === selected) ? selected : voices[0].id;
+  };
+  renderVoices(voicePrefs.engine, voicePrefs.voice);
+
+  const autoPlayToggle = $("ttsAutoPlay");
+  if (autoPlayToggle) autoPlayToggle.checked = voicePrefs.autoPlay;
+
+  ttsEngineSelect.addEventListener("change", () => {
+    const next = setVoicePrefs({ engine: ttsEngineSelect.value });
+    renderVoices(next.engine, next.voice);
+    void refreshVoiceStatus();
+  });
+  ttsVoiceSelect.addEventListener("change", () => setVoicePrefs({ voice: ttsVoiceSelect.value }));
+  autoPlayToggle?.addEventListener("change", () => setVoicePrefs({ autoPlay: autoPlayToggle.checked }));
+  $("ttsTestBtn")?.addEventListener("click", () => {
+    const prefs = getVoicePrefs();
+    void speakText("很高兴认识你。今天聊得挺开心的，下次有空再一起走走。", prefs);
+  });
+  $("ttsStopBtn")?.addEventListener("click", stopSpeaking);
+
+  // 打开面板时才探测服务状态，避免每次进页面都打一次本地请求。
+  const settingsPanel = $("voiceSettings");
+  let statusLoaded = false;
+  const refreshVoiceStatus = async () => {
+    const statusEl = $("ttsStatus");
+    if (!statusEl) return;
+    statusLoaded = true;
+    statusEl.dataset.state = "loading";
+    statusEl.textContent = "正在检查本地语音服务…";
+    const health = await fetchTtsHealth();
+    if (!health.reachable) {
+      statusEl.dataset.state = "down";
+      statusEl.textContent = `未连接：${health.message || "本地语音服务未启动"} 请双击「启动语音服务.cmd」。`;
+      return;
+    }
+    const engines = health.engines || {};
+    const describe = (id) => {
+      const item = engines[id];
+      if (!item) return `${id}: 未注册`;
+      const label = TTS_ENGINES.find((engine) => engine.id === id)?.label || id;
+      if (item.status === "ready") {
+        const parts = [item.device ? item.device.toUpperCase() : "CPU"];
+        if (item.sizeMb) parts.push(`模型 ${item.sizeMb}MB`);
+        if (item.vramMb) parts.push(`显存 ${item.vramMb}MB`);
+        if (item.loadSec) parts.push(`加载 ${item.loadSec}s`);
+        return `${label} 就绪（${parts.join(" · ")}）`;
+      }
+      if (item.status === "loading") return `${label} 加载中…`;
+      if (item.status === "error") return `${label} 加载失败：${item.error || "未知原因"}`;
+      return `${label} 待命（首次使用自动加载）`;
+    };
+    const lines = [describe("chattts"), describe("kokoro")];
+    const active = engines[getVoicePrefs().engine];
+    statusEl.dataset.state = active?.status === "error" ? "error" : "ok";
+    statusEl.textContent = lines.join(" ｜ ");
+  };
+  settingsPanel?.addEventListener("toggle", () => {
+    if (settingsPanel.open && !statusLoaded) void refreshVoiceStatus();
+  });
+  if (settingsPanel?.open) void refreshVoiceStatus();
+  globalThis.addEventListener("heartflow:voice-status", () => void refreshVoiceStatus());
+}
 $("savePersonaBtn")?.addEventListener("click", saveCustomPersona);
 $("deletePersonaBtn")?.addEventListener("click", deleteCurrentPersona);
 $("avatarUpload")?.addEventListener("change", uploadAvatar);
@@ -802,4 +966,7 @@ renderAll();
 trainingModeController.render();
 restoreStageState();
 checkHealth();
+// 档案损坏时提示"已保留原始副本"（隔离键见 core/config.js STORAGE_KEYS.stateQuarantine）。
+const stateLoadIssue = getStateLoadIssue();
+if (stateLoadIssue && $("apiStatus")) $("apiStatus").textContent = "检测到本地档案损坏，已保留原始副本（heartflow-state-quarantine），当前以默认档案继续。";
 void intelligenceController.refresh();

@@ -6,6 +6,7 @@
  */
 
 import { MISTAKE_DIM_KEYS } from "../core/mistakes.js";
+import { clampScoreOrNull } from "../core/number.js";
 
 /** 维度中文标签（drive 对应教练引擎的 momentum/推进力） */
 export const MISTAKE_DIM_LABELS = Object.freeze({
@@ -188,7 +189,5 @@ export function buildRewriteComparison(originalDims, rewriteScore, flags = null)
 }
 
 function normalizeScore(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const num = Number(value);
-  return Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : null;
+  return clampScoreOrNull(value);
 }

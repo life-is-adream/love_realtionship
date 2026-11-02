@@ -1,0 +1,138 @@
+/* ---------- 桌宠 · 小满 ---------- */
+.pet{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:30;
+  width:132px;
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.pet[hidden]{ display:none; }
+
+.pet-stage{
+  position:relative;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  height:132px;
+}
+/* 落地阴影，让角色不像贴在空中的贴纸 */
+.pet-stage::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-6px;
+  width:64%;
+  height:14px;
+  transform:translateX(-50%);
+  background:radial-gradient(ellipse at center, oklch(0% 0 0 / .45), transparent 70%);
+  pointer-events:none;
+}
+.pet-figure{
+  position:relative;
+  z-index:1;
+  display:block;
+  padding:0;
+  border:0;
+  background:none;
+  cursor:grab;
+  line-height:0;
+  max-height:100%;
+  animation:pet-bob 3.6s ease-in-out infinite;
+}
+.pet-figure:active{ cursor:grabbing; }
+.pet.dragging .pet-figure{ animation:none; cursor:grabbing; }
+.pet-img{
+  display:block;
+  height:auto;
+  width:auto;
+  max-height:132px;
+  filter:drop-shadow(0 6px 10px oklch(0% 0 0 / .35));
+  transition:opacity .12s linear;
+}
+@keyframes pet-bob{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-4px); }
+}
+
+/* 气泡 */
+.pet-bubble{
+  position:absolute;
+  right:-4px;
+  bottom:calc(100% + 10px);
+  z-index:2;
+  width:max-content;
+  max-width:min(220px, 62vw);
+  padding:8px 11px;
+  border:1px solid var(--line-strong);
+  border-left:3px solid var(--rose);
+  border-radius:12px;
+  background:var(--surface-2);
+  box-shadow:var(--e3);
+  color:var(--ink-muted);
+  font-family:var(--font-ui);
+  font-size:12.5px;
+  line-height:1.6;
+  text-align:left;
+  pointer-events:none;
+  opacity:0;
+  transform:translateY(4px);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.pet-bubble.show{ opacity:1; transform:translateY(0); }
+.pet-bubble::after{
+  content:"";
+  position:absolute;
+  right:16px;
+  bottom:-6px;
+  width:10px;
+  height:10px;
+  border-right:1px solid var(--line-strong);
+  border-bottom:1px solid var(--line-strong);
+  background:var(--surface-2);
+  transform:rotate(45deg);
+}
+
+/* 收起 */
+.pet-close{
+  position:absolute;
+  top:-6px;
+  right:-6px;
+  z-index:3;
+  width:20px;
+  height:20px;
+  padding:0;
+  border:1px solid var(--line-strong);
+  border-radius:50%;
+  background:var(--surface-3);
+  color:var(--ink-faint);
+  font-size:12px;
+  line-height:1;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity .15s, color .15s;
+}
+.pet:hover .pet-close,
+.pet-close:focus-visible{ opacity:1; }
+.pet-close:hover{ color:var(--rose); }
+@media (hover:none){
+  .pet-close{ opacity:.75; }
+}
+
+@media (max-width:720px){
+  .pet{
+    right:12px;
+    bottom:calc(74px + env(safe-area-inset-bottom, 0px));
+    width:96px;
+  }
+  .pet-stage{ height:96px; }
+  .pet-img{ max-height:96px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .pet-figure{ animation:none; }
+  .pet-bubble{ transition:none; }
+  .pet-img{ transition:none; }
+}

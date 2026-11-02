@@ -445,6 +445,14 @@ input:focus, select:focus, textarea:focus{
   font:inherit; font-size:10.5px; cursor:pointer; opacity:.72; transition:color .16s ease, opacity .16s ease;
 }
 .msg-recall:hover{ color:var(--rose); opacity:1; text-decoration:underline; }
+.msg-speak{
+  margin-left:auto; border:1px solid var(--line-strong); border-radius:999px;
+  padding:1px 9px; color:var(--ink-faint); background:transparent; font:inherit; font-size:10.5px;
+  cursor:pointer; opacity:.8; transition:color .16s ease, border-color .16s ease, opacity .16s ease;
+}
+.msg-speak:hover{ color:var(--accent); border-color:var(--accent); opacity:1; }
+.msg-speak.is-loading{ color:var(--ink-faint); border-style:dashed; cursor:progress; }
+.msg-speak.is-playing{ color:var(--rose); border-color:var(--rose); }
 .msg-body{ white-space:pre-wrap; font-size:13.5px; line-height:1.65; color:var(--ink-muted); }
 .msg.her{ justify-self:start; }
 .msg.me{
@@ -1084,6 +1092,21 @@ input:focus, select:focus, textarea:focus{
 .radar-summary{ margin-top:10px; border:1px solid oklch(70% 0.1 300 / .35); border-radius:8px; padding:8px 10px; background:oklch(30% 0.04 300 / .25); display:flex; flex-direction:column; gap:6px; }
 .radar-stats{ display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--ink-muted); }
 .radar-stats b{ color:var(--accent); }
+
+/* ---------- 关系档案（记忆可见性，见 docs/设计文档-关系推进分层.md §4） ---------- */
+.memory-card{ border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin:10px 0; background:var(--surface-1); }
+.memory-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+.memory-head strong{ font-size:13px; font-weight:600; color:var(--ink); }
+.memory-head span{ font-size:11px; color:var(--ink-faint); }
+.memory-stats{ display:flex; gap:12px; flex-wrap:wrap; margin:8px 0 4px; font-size:11.5px; color:var(--ink-muted); }
+.memory-section{ margin-top:10px; }
+.memory-subtitle{ margin-bottom:6px; font-size:11.5px; color:var(--ink-subtle); }
+.memory-list{ display:flex; flex-direction:column; gap:6px; margin:0; padding:0; list-style:none; }
+.memory-row{ display:flex; align-items:flex-start; gap:8px; padding:7px 9px; border:1px solid var(--line); border-radius:8px; background:var(--surface-2); }
+.memory-row time{ flex:0 0 76px; font-size:11px; color:var(--ink-faint); font-variant-numeric:tabular-nums; }
+.memory-row span{ flex:1; font-size:12.5px; line-height:1.55; color:var(--ink); word-break:break-word; }
+.memory-row button{ flex:0 0 auto; }
+.memory-gate .note{ margin:6px 0 8px; }
 .radar-issues{ display:flex; gap:6px; flex-wrap:wrap; }
 .radar-insights{ display:flex; flex-direction:column; gap:2px; }
 .radar-insights p{ margin:0; font-size:11.5px; color:var(--ink-subtle); line-height:1.55; }
@@ -1212,3 +1235,16 @@ input:focus, select:focus, textarea:focus{
 .lifestyle-grooming{ display:flex; flex-direction:column; gap:6px; border-top:1px solid var(--line); margin-top:8px; padding-top:8px; font-size:12px; color:var(--ink-subtle); }
 .lifestyle-grooming > b{ color:var(--ink); font-size:12.5px; }
 .lifestyle-grooming-notice{ margin:0; font-weight:400; color:var(--ink-faint); }
+
+/* F8 语音朗读（本地 Kokoro TTS）：设置面板 + 试听按钮 */
+.voice-settings{ border:1px solid var(--line); border-radius:var(--r); padding:10px 12px; margin-top:12px; background:var(--surface-2); }
+.voice-settings > summary{ cursor:pointer; font-size:12.5px; font-weight:600; color:var(--ink); }
+.voice-settings .field{ margin-top:10px; }
+.voice-settings .check-field{ display:flex; align-items:center; gap:8px; margin-top:10px; font-size:12.5px; color:var(--ink-muted); cursor:pointer; }
+.voice-settings .check-field input{ accent-color:var(--accent); }
+.voice-settings .workspace-actions{ margin-top:10px; }
+.voice-settings .note{ margin:8px 0 0; }
+.voice-status{ margin:10px 0 0; font-size:11.5px; line-height:1.6; color:var(--ink-muted); padding:6px 9px; border-radius:8px; background:var(--surface-1, rgba(0,0,0,.03)); border:1px dashed var(--line); }
+.voice-status[data-state="ok"]{ color:var(--ink-muted); }
+.voice-status[data-state="down"],.voice-status[data-state="error"]{ color:#b4541f; border-color:rgba(180,84,31,.4); }
+.voice-status[data-state="loading"]{ opacity:.75; }

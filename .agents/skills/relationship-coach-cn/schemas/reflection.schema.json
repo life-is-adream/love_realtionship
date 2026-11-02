@@ -13,6 +13,6 @@
     "calibration": {"enum": ["calibrated", "mismatch", "unknown"]},
     "update": {"type": "string"},
     "nextTest": {"type": "string"},
-    "privacy": {"type": "object", "additionalProperties": false, "required": ["rawOutcomeRetained", "anonymized"], "properties": {"rawOutcomeRetained": {"const": false}, "anonymized": {"const": true}}}
+    "privacy": {"type": "object", "additionalProperties": false, "required": ["rawOutcomeRetained", "anonymized", "thirdPartyIdentifiers", "knownIdentifiersRedacted", "manualReviewRequired", "anonymizationScope"], "properties": {"rawOutcomeRetained": {"const": false}, "anonymized": {"const": false}, "thirdPartyIdentifiers": {"type": "null"}, "knownIdentifiersRedacted": {"const": true}, "manualReviewRequired": {"const": true}, "anonymizationScope": {"const": "known_patterns_and_controlled_identifiers"}}}
   }
 }

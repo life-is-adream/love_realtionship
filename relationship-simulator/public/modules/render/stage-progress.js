@@ -5,6 +5,7 @@
  * 百分比。纯函数，不依赖 DOM；渲染由 render-progress.js 负责。
  */
 import { RELATIONSHIP_STAGES } from "../core/stages.js";
+import { escapeHtml } from "../core/dom.js";
 
 /** 阶段总数（固定 7，与 stages.js 保持一致） */
 export const STAGE_TOTAL = RELATIONSHIP_STAGES.length;
@@ -37,10 +38,10 @@ export function buildStageProgressHtml(stageValue) {
   const { index, total, percent, stages } = buildStageProgress(stageValue);
   const dots = stages.map((stage, i) => {
     const state = i < index ? "done" : i === index ? "active" : "todo";
-    const title = stage.replace(/[<>&"']/g, "");
+    const title = escapeHtml(stage);
     return `<span class="stage-dot ${state}" title="${title}" aria-label="${title}"></span>`;
   }).join("");
-  const label = index >= 0 ? stages[index].replace(/[<>&"']/g, "") : "未选择阶段";
+  const label = index >= 0 ? escapeHtml(stages[index]) : "未选择阶段";
   return `<div class="stage-progress" role="img" aria-label="关系进度 ${percent}%">
     <div class="stage-progress-bar"><div class="stage-progress-fill" style="width:${percent}%"></div></div>
     <div class="stage-progress-dots">${dots}</div>

@@ -13,6 +13,7 @@ export function createRelationshipIntelligenceController({
   getAppState,
   saveAppState,
   getGoal = () => "",
+  updateAppState = null,
   analyze = analyzeRelationshipIntelligence,
   render = () => {}
 }) {
@@ -23,9 +24,16 @@ export function createRelationshipIntelligenceController({
   let requestSequence = 0;
 
   function replace(next, { persist = false } = {}) {
-    const appState = getAppState();
-    appState.relationshipIntelligence = next;
-    if (persist) saveAppState();
+    if (persist && typeof updateAppState === "function") {
+      // 落盘路径走 mutate：草稿隔离 + 持久化 + 广播（触发 renderAll）。
+      // 非落盘路径（loading/error）保持直写，避免每次中间态都写盘。
+      updateAppState((draft) => { draft.relationshipIntelligence = next; });
+    } else {
+      // 未注入 mutate 的装配（测试替身 / 旧调用方）：退回原行为。
+      const target = getAppState();
+      target.relationshipIntelligence = next;
+      if (persist) saveAppState();
+    }
     render(next);
     return next;
   }

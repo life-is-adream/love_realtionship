@@ -174,19 +174,40 @@ export function buildActionPlan(persona, memory, score, uiValues = {}) {
     ],
     topics: [...interests.slice(0, 4), "最近放松方式", "校园/工作日常", "周末安排", "活动体验"].slice(0, 4),
     decisionRules: ["她回复具体、主动提问或主动延续话题，再增加投入。", "她回复变短、回避或没有接住时，降低频率，不连续追问。", "只有双方持续投入且她表现舒适时，才提出具体、低压力、可拒绝的邀约。"],
-    warning: memory.boundaries || "保持真实表达，不要让 AI 替你制造一个现实里接不住的人设。"
+    warning: memory.boundaries || "保持真实表达，不要让 AI 替你制造一个现实里接不住的人设。",
+    // 来源标记：local-template=本地模板；local-fallback=MiMo 输出未过校验被替换；model=MiMo 生成
+    source: "local-template"
   };
+}
+
+export function isRelationshipStopped(intelligence) {
+  const result = intelligence?.lastResult;
+  return result?.decision?.value === "EXIT" || result?.state?.to === "EXIT";
 }
 
 export function renderPlanCard(plan) {
   const panel = $("planPanel");
   if (!panel) return;
-  panel.innerHTML = `<div class="plan-card"><div class="plan-head"><strong>${escapeHtml(plan.title)}</strong><span>${escapeHtml(plan.pacing)}</span></div><div class="rewrite-box"><b>长期目标</b><p>${escapeHtml(plan.objective || "先建立稳定、轻松且互相投入的互动节奏。")}</p></div><div class="plan-grid">${plan.steps.map((step, index) => `<div class="plan-step"><b>${index + 1}</b><div><strong>${escapeHtml(step.title)}</strong><p>${escapeHtml(step.detail)}</p></div></div>`).join("")}</div><div class="topic-row">${plan.topics.map((topic) => `<span class="topic-chip">${escapeHtml(topic)}</span>`).join("")}</div><div class="rewrite-box"><b>执行判断</b><p>${escapeHtml(plan.decisionRules.join(" "))}</p></div><div class="note">${escapeHtml(plan.warning)}</div></div>`;
+  const stopped = isRelationshipStopped(getState().relationshipIntelligence);
+  const button = $("planBtn");
+  if (button) button.disabled = stopped;
+  if (stopped) {
+    panel.innerHTML = '<div class="plan-card"><div class="plan-head"><strong>本轮已停止推进</strong></div><p>尊重明确拒绝、关系结束或自己的退出选择，不追加邀约或说服。先恢复自己的生活安排，再选择其它学习练习。</p></div>';
+    return;
+  }
+  // 来源必须明示：静默降级会让用户把本地模板当成模型产出（与 ABC 的 source-note 同一约定）。
+  const sourceNote = {
+    model: "计划由 MiMo 生成",
+    "local-fallback": "MiMo 的计划未通过结构校验，已使用本地模板",
+    "local-template": "当前为本地模板，点「生成计划」可由 MiMo 起草"
+  }[plan.source] || "计划来源未标注";
+  panel.innerHTML = `<div class="plan-card"><div class="plan-head"><strong>${escapeHtml(plan.title)}</strong><span>${escapeHtml(plan.pacing)}</span></div><div class="note plan-source-note">${escapeHtml(sourceNote)}</div><div class="rewrite-box"><b>长期目标</b><p>${escapeHtml(plan.objective || "先建立稳定、轻松且互相投入的互动节奏。")}</p></div><div class="plan-grid">${plan.steps.map((step, index) => `<div class="plan-step"><b>${index + 1}</b><div><strong>${escapeHtml(step.title)}</strong><p>${escapeHtml(step.detail)}</p></div></div>`).join("")}</div><div class="topic-row">${plan.topics.map((topic) => `<span class="topic-chip">${escapeHtml(topic)}</span>`).join("")}</div><div class="rewrite-box"><b>执行判断</b><p>${escapeHtml(plan.decisionRules.join(" "))}</p></div><div class="note">${escapeHtml(plan.warning)}</div></div>`;
 }
 
 export function renderActionPlan() {
+  const state = getState();
+  if (isRelationshipStopped(state.relationshipIntelligence)) return renderPlanCard(null);
   const persona = getCurrentPersona();
   const memory = getPersonaMemory(persona);
-  const state = getState();
   renderPlanCard(buildActionPlan(persona, memory, state.lastAnalysis?.coachScore || state.trainingLog?.[0]?.score || null, { stage: $("stage")?.value || "" }));
 }

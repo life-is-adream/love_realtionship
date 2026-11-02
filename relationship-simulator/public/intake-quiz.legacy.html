@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HeartFlow 入学测试 — 沟通情境自检</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #ededed; min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
+.container { max-width: 420px; width: 100%; }
+.header { text-align: center; padding: 32px 20px 20px; }
+.header h1 { font-size: 20px; color: #1a1a1a; margin-bottom: 8px; }
+.header p { font-size: 13px; color: #666; line-height: 1.6; }
+.progress-bar { height: 3px; background: #ddd; border-radius: 2px; margin: 16px 0 6px; overflow: hidden; }
+.progress-fill { height: 100%; background: #07c160; transition: width 0.4s ease; width: 0%; }
+.progress-text { font-size: 12px; color: #999; text-align: right; margin-bottom: 12px; }
+.chat-card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.scenario-label { font-size: 11px; color: #07c160; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px; }
+.context-note { font-size: 12.5px; color: #666; line-height: 1.6; margin-bottom: 12px; }
+.chat-bubbles { margin-bottom: 14px; }
+.bubble-row { display: flex; margin-bottom: 10px; align-items: flex-start; }
+.bubble-row.her { justify-content: flex-start; }
+.bubble-row.me { justify-content: flex-end; }
+.avatar { width: 34px; height: 34px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.bubble-row.her .avatar { background: #f5c6d0; margin-right: 8px; }
+.bubble-row.me .avatar { background: #a8d8ea; margin-left: 8px; }
+.bubble { max-width: 230px; padding: 9px 13px; border-radius: 8px; font-size: 13.5px; line-height: 1.5; }
+.bubble-row.her .bubble { background: #fff; border: 1px solid #e8e8e8; border-top-left-radius: 2px; }
+.bubble-row.me .bubble { background: #95ec69; border-top-right-radius: 2px; }
+.time-note { font-size: 11px; color: #bbb; text-align: center; margin: 8px 0; }
+.question-text { font-size: 14px; color: #333; margin-bottom: 12px; font-weight: 500; }
+.options { display: flex; flex-direction: column; gap: 9px; }
+.option { padding: 11px 14px; border: 1.5px solid #e8e8e8; border-radius: 10px; font-size: 13px; line-height: 1.5; color: #333; cursor: pointer; transition: all 0.2s; text-align: left; background: #fafafa; }
+.option:hover { border-color: #07c160; background: #f0faf4; }
+.option.selected { border-color: #07c160; background: #e8f8ee; font-weight: 500; }
+.option .tag { display: inline-block; font-size: 11px; color: #999; margin-right: 6px; font-weight: 600; }
+.nav-row { display: flex; justify-content: space-between; margin-top: 14px; }
+.nav-btn { padding: 10px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+.nav-btn.next { background: #07c160; color: #fff; }
+.nav-btn.next:disabled { background: #ccc; cursor: not-allowed; }
+.nav-btn.prev { background: #f0f0f0; color: #666; }
+.nav-btn.prev:hover { background: #e0e0e0; }
+.result-card { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+.result-title { font-size: 18px; font-weight: 600; color: #1a1a1a; text-align: center; margin-bottom: 4px; }
+.result-subtitle { font-size: 13px; color: #666; text-align: center; margin-bottom: 20px; }
+.profile-section { margin-bottom: 14px; padding: 14px; background: #f8f9fa; border-radius: 8px; }
+.profile-section h3 { font-size: 13px; color: #07c160; margin-bottom: 8px; font-weight: 600; }
+.profile-section p { font-size: 13px; color: #444; line-height: 1.7; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.ptag { padding: 4px 10px; border-radius: 12px; font-size: 11px; background: #e8f8ee; color: #07c160; }
+.ptag.warn { background: #fff3e0; color: #e65100; }
+.score-bar { display: flex; align-items: center; margin: 6px 0; }
+.score-label { font-size: 12px; color: #666; width: 56px; flex-shrink: 0; }
+.score-track { flex: 1; height: 6px; background: #eee; border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.score-fill.anxious { background: #ff7043; }
+.score-fill.secure { background: #07c160; }
+.score-fill.avoidant { background: #5c6bc0; }
+.score-value { font-size: 11px; color: #999; width: 32px; text-align: right; }
+.json-output { margin-top: 12px; padding: 12px; background: #1e1e1e; border-radius: 8px; font-family: "Fira Code", "Consolas", monospace; font-size: 11px; color: #d4d4d4; white-space: pre-wrap; word-break: break-all; max-height: 180px; overflow-y: auto; }
+.copy-btn { margin-top: 12px; width: 100%; padding: 10px; border: none; border-radius: 8px; background: #07c160; color: #fff; font-size: 14px; cursor: pointer; }
+.copy-btn:hover { background: #06ad56; }
+.save-btn { margin-top: 10px; width: 100%; padding: 11px; border: none; border-radius: 8px; background: #07c160; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.save-btn:hover { background: #06ad56; }
+.download-btn { margin-top: 10px; width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; color: #333; font-size: 13px; cursor: pointer; }
+.download-btn:hover { border-color: #07c160; color: #07c160; }
+.restart-btn { margin-top: 10px; width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 8px; background: #fff; color: #666; font-size: 13px; cursor: pointer; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>HeartFlow 入学测试</h1>
+    <p>15 个微信聊天情境，回顾自己的回应选择。<br>选择最接近你当前做法的选项；结果仅供安排练习。</p>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText">0 / 15</div>
+  <div id="quizArea"></div>
+  <div id="resultArea" class="hidden"></div>
+</div>
+
+<script>
+const SCENARIOS = [
+  {
+    id: "first-chat",
+    label: "情境一 · 刚加上微信",
+    context: "朋友聚会上聊了几句，加了微信。第二天你想找她聊天。",
+    bubbles: [{ who: "note", text: "—— 添加好友第二天 ——" }],
+    question: "你会怎么开第一条消息？",
+    options: [
+      { text: "翻她朋友圈找话题，发：“你上次去的那个展我也想去，值得看吗？”", tags: { attachment: "secure", style: "steady", emotion: "express", action: "initiative" } },
+      { text: "想了半小时措辞，最后发：“嗨，我是昨天那个XX，很高兴认识你~”", tags: { attachment: "anxious", style: "overthink", emotion: "seek", action: "hesitate" } },
+      { text: "等她先找我吧，毕竟是她同意加的我。", tags: { attachment: "avoidant", style: "withdraw", emotion: "protect", action: "passive" } },
+      { text: "直接发：“在干嘛？”", tags: { attachment: "secure", style: "rush", emotion: "express", action: "impulse" } }
+    ]
+  },
+  {
+    id: "no-reply",
+    label: "情境二 · 等待",
+    context: "你们聊了两周，气氛不错。今天你发了一条消息，她 3 小时没回。",
+    bubbles: [
+      { who: "me", text: "今天那个展还挺有意思的，你之前去过类似的吗？" },
+      { who: "note", text: "—— 3 小时后 ——" }
+    ],
+    question: "你会怎么做？",
+    options: [
+      { text: "再发一条：“你忙吗？没事的话晚上聊~”", tags: { attachment: "anxious", style: "chase", emotion: "seek", action: "impulse" } },
+      { text: "不做什么，她可能在忙。明天有合适话题再聊。", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "wait" } },
+      { text: "打开聊天框看了三遍，分析她是不是不想聊了，但最终没发。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "无所谓，正好我也不想聊。关掉手机干自己的事。", tags: { attachment: "avoidant", style: "withdraw", emotion: "suppress", action: "passive" } }
+    ]
+  },
+  {
+    id: "emotion-share",
+    label: "情境三 · 她分享情绪",
+    context: "晚上她突然发了一段话，语气明显低落。",
+    bubbles: [{ who: "her", text: "今天被导师当着全组的面批了，说我数据做得像本科毕设……真的好心累，感觉自己什么都做不好。" }],
+    question: "你怎么回？",
+    options: [
+      { text: "“被当众说确实很难受。你那个数据具体是哪部分被批了？我觉得可能是方法的问题，换个思路……”", tags: { attachment: "secure", style: "rationalize", emotion: "solve", action: "initiative" } },
+      { text: "“听着就累……被那样说谁都会难受的。你今晚想吐槽就吐槽，我听着。”", tags: { attachment: "secure", style: "empathy", emotion: "hold", action: "wait" } },
+      { text: "“其实导师那样说也不一定是坏事，说明他对你有期待。你可以想想他具体指什么……”", tags: { attachment: "avoidant", style: "rationalize", emotion: "solve", action: "passive" } },
+      { text: "“啊……那你现在还好吗？是不是特别生气？你要不要出来走走？我随时可以。”", tags: { attachment: "anxious", style: "chase", emotion: "rescue", action: "impulse" } }
+    ]
+  },
+  {
+    id: "vague-reject",
+    label: "情境四 · 模糊拒绝",
+    context: "你约她周末去看展，她回了一句让你拿不准的话。",
+    bubbles: [
+      { who: "me", text: "周六那个摄影展你有兴趣吗？我看了评价还不错。" },
+      { who: "her", text: "哈哈听起来挺好的，不过这周还不一定，到时候再说吧~" }
+    ],
+    question: "你怎么理解和回应？",
+    options: [
+      { text: "她大概率是不想去但不好意思说。回：“没事，你忙的话下次也行。”", tags: { attachment: "avoidant", style: "withdraw", emotion: "protect", action: "passive" } },
+      { text: "不确定，但不往坏处想。回：“行，那你确定了跟我说，票我先看着。”", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "wait" } },
+      { text: "反复看这句话，分析“到时候再说”到底是拒绝还是真的忙。过两小时又发：“那周五晚上能确定吗？”", tags: { attachment: "anxious", style: "overthink", emotion: "seek", action: "impulse" } },
+      { text: "有点不爽，觉得被敷衍了。回：“好吧。” 然后两天没主动找她。", tags: { attachment: "avoidant", style: "punish", emotion: "suppress", action: "passive" } }
+    ]
+  },
+  {
+    id: "boundary",
+    label: "情境五 · 她说想一个人待着",
+    context: "你们已经比较熟了，但她今天明显不太想聊。",
+    bubbles: [{ who: "her", text: "今天有点累，想早点休息，明天再聊哈。" }],
+    question: "你怎么回？",
+    options: [
+      { text: "“好的，早点休息。晚安~”", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "wait" } },
+      { text: "“怎么了？是不是发生什么事了？你可以跟我说说。”", tags: { attachment: "anxious", style: "chase", emotion: "rescue", action: "impulse" } },
+      { text: "“行。” 心里有点在意她是不是不想理我，但没说。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "“嗯。” 正好，我也懒得聊。", tags: { attachment: "avoidant", style: "withdraw", emotion: "suppress", action: "passive" } }
+    ]
+  },
+  {
+    id: "jealousy",
+    label: "情境六 · 她和异性互动",
+    context: "她发了一条朋友圈，和一个男同事在咖啡店。",
+    bubbles: [{ who: "her", text: "[朋友圈] 和组里师兄讨论完论文，被投喂了一杯拿铁 ☕ 谢谢请客！" }],
+    question: "你的第一反应和做法是？",
+    options: [
+      { text: "看到了，没什么特别感觉。正常社交。", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "wait" } },
+      { text: "心里一紧，反复看那张照片，想她为什么不告诉我。犹豫要不要评论或私聊问。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "有点不舒服，但告诉自己“我们又不是什么关系”，然后刻意不去想。", tags: { attachment: "avoidant", style: "withdraw", emotion: "suppress", action: "passive" } },
+      { text: "评论一句：“下次也请我喝啊哈哈”，用轻松方式刷存在感。", tags: { attachment: "anxious", style: "chase", emotion: "seek", action: "impulse" } }
+    ]
+  },
+  {
+    id: "conflict",
+    label: "情境七 · 小摩擦之后",
+    context: "昨天聊天时你说了一句让她不太高兴的话，她回了个“哦”就没再说了。",
+    bubbles: [
+      { who: "me", text: "你那个方案确实有点理想化了，实际操作不太行吧。" },
+      { who: "her", text: "哦。" },
+      { who: "note", text: "—— 第二天早上 ——" }
+    ],
+    question: "第二天你会怎么做？",
+    options: [
+      { text: "主动发：“昨天那句话我说得不太好听，我意思是执行层面有挑战，不是说你想法不好。”", tags: { attachment: "secure", style: "repair", emotion: "acknowledge", action: "initiative" } },
+      { text: "当什么都没发生，找个新话题聊，避免尴尬。", tags: { attachment: "avoidant", style: "withdraw", emotion: "avoid", action: "passive" } },
+      { text: "发：“你还在生气吗？我昨天不是那个意思，你别多想。”", tags: { attachment: "anxious", style: "overthink", emotion: "seek", action: "impulse" } },
+      { text: "等她先说话。如果她不找我，说明她也没那么在意。", tags: { attachment: "avoidant", style: "steady", emotion: "protect", action: "wait" } }
+    ]
+  },
+  {
+    id: "confession-timing",
+    label: "情境八 · 该不该推进",
+    context: "你们认识一个月，见过三次面，聊天频率稳定。你开始想确定关系。",
+    bubbles: [{ who: "her", text: "今天和你走那段路还挺舒服的，好久没这样散步了。" }],
+    question: "你心里怎么想，接下来怎么做？",
+    options: [
+      { text: "她这句话是不是在暗示什么？是不是该表白了？反复措辞到凌晨两点。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "感觉不错，但不急。下次见面自然地说“和你在一起挺开心的”，看她反应再决定。", tags: { attachment: "secure", style: "steady", emotion: "express", action: "initiative" } },
+      { text: "开心归开心，但确定关系意味着要承担很多，先不想这个。", tags: { attachment: "avoidant", style: "withdraw", emotion: "avoid", action: "passive" } },
+      { text: "直接发：“我觉得我们挺合适的，要不要试试在一起？”", tags: { attachment: "anxious", style: "rush", emotion: "seek", action: "impulse" } }
+    ]
+  },
+  {
+    id: "cold-shift",
+    label: "情境九 · 她突然变冷",
+    context: "最近一周她回复明显变慢、变短，从秒回变成隔半天回一个“嗯”“哈哈”。",
+    bubbles: [
+      { who: "me", text: "周末那个市集你去吗？" },
+      { who: "her", text: "再说吧哈哈" },
+      { who: "me", text: "最近忙吗？" },
+      { who: "her", text: "嗯 有点" }
+    ],
+    question: "你怎么判断，怎么做？",
+    options: [
+      { text: "她可能在忙，也可能兴趣在降。先不追问，过几天找个轻松话题试一次。如果还是这样，就接受信号。", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "wait" } },
+      { text: "是不是我做错什么了？翻聊天记录找原因。发：“你最近是不是不太想聊了？是我哪里做得不好吗？”", tags: { attachment: "anxious", style: "overthink", emotion: "seek", action: "impulse" } },
+      { text: "她不想聊就算了。我也不想热脸贴冷屁股。直接不找了。", tags: { attachment: "avoidant", style: "withdraw", emotion: "protect", action: "passive" } },
+      { text: "连续发几条消息试图激活对话：“那个剧你看了吗”“今天天气好好”“在干嘛呀”", tags: { attachment: "anxious", style: "chase", emotion: "rescue", action: "impulse" } }
+    ]
+  },
+  {
+    id: "she-initiates",
+    label: "情境十 · 她主动找你",
+    context: "平时都是你主动多，但今天她突然先发了消息。",
+    bubbles: [{ who: "her", text: "诶，你上次说的那个播客叫什么来着？我通勤想听。" }],
+    question: "你怎么回？",
+    options: [
+      { text: "开心，马上回：“叫《XX》，你从第12期开始听比较好，那期嘉宾特别有意思。”", tags: { attachment: "secure", style: "steady", emotion: "express", action: "initiative" } },
+      { text: "她主动找我了！是不是说明她对我有意思？要不要趁热打铁约她？先等等，别太急……", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "回个名字就完了。不想表现得太热情。", tags: { attachment: "avoidant", style: "withdraw", emotion: "suppress", action: "passive" } },
+      { text: "秒回名字，然后紧接着问：“你周末有空吗？一起听啊哈哈”", tags: { attachment: "anxious", style: "rush", emotion: "seek", action: "impulse" } }
+    ]
+  },
+  {
+    id: "date-silence",
+    label: "情境十一 · 约会冷场",
+    context: "第二次见面，咖啡厅坐了十分钟，话题突然断了，空气安静下来。",
+    bubbles: [{ who: "note", text: "—— 面对面，沉默了 10 秒 ——" }],
+    question: "你此刻的反应是？",
+    options: [
+      { text: "有点慌，脑子里快速搜索话题，赶紧抛出一个问题：“对了你最近在看什么剧？”", tags: { attachment: "anxious", style: "chase", emotion: "seek", action: "impulse" } },
+      { text: "安静就安静吧，喝口咖啡，看看周围，自然地说：“这家店音乐还挺好听的。”", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "wait" } },
+      { text: "内心开始分析：是不是她觉得无聊了？是不是我不够有趣？下次是不是不该约了。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "沉默让我很不舒服，但我不太想主动找话题。掏出手机看了一眼。", tags: { attachment: "avoidant", style: "withdraw", emotion: "avoid", action: "passive" } }
+    ]
+  },
+  {
+    id: "ex-topic",
+    label: "情境十二 · 她提到前任",
+    context: "聊到感情话题时，她主动提了一句前任。",
+    bubbles: [{ who: "her", text: "我前任也是理工科的，不过他特别闷，从来不主动说心里话。" }],
+    question: "你怎么接？",
+    options: [
+      { text: "“那确实挺闷的。你现在会更看重对方愿不愿意表达吗？”", tags: { attachment: "secure", style: "empathy", emotion: "hold", action: "initiative" } },
+      { text: "心里一紧：她是不是在暗示我？我是不是也太闷了？开始反思自己最近是不是话太少。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "“哦。” 不太想聊她前任的事，换个话题。", tags: { attachment: "avoidant", style: "withdraw", emotion: "avoid", action: "passive" } },
+      { text: "“放心我肯定比他强哈哈，我话可多了。”", tags: { attachment: "secure", style: "rush", emotion: "express", action: "impulse" } }
+    ]
+  },
+  {
+    id: "invite-fear",
+    label: "情境十三 · 想约但怕被拒",
+    context: "你看到一个很适合她的活动，很想约她去，但手指停在发送键上。",
+    bubbles: [
+      { who: "note", text: "—— 你编辑好了消息，但还没发出去 ——" },
+      { who: "me", text: "[草稿] 周六有个露天电影放映，是你喜欢的那种文艺片，要不要一起？" }
+    ],
+    question: "你最终会怎么做？",
+    options: [
+      { text: "发出去。被拒就被拒，至少我表达了。", tags: { attachment: "secure", style: "steady", emotion: "express", action: "initiative" } },
+      { text: "改了五遍措辞，把“要不要一起”改成“你要是有空的话可以看看”，降低被拒感。", tags: { attachment: "anxious", style: "overthink", emotion: "protect", action: "hesitate" } },
+      { text: "算了，万一她拒绝多尴尬。把草稿删了，发个无关的表情包。", tags: { attachment: "avoidant", style: "withdraw", emotion: "avoid", action: "passive" } },
+      { text: "不直接约，先试探：“你周六有安排吗？” 看她反应再决定要不要说活动。", tags: { attachment: "anxious", style: "chase", emotion: "seek", action: "hesitate" } }
+    ]
+  },
+  {
+    id: "compliment",
+    label: "情境十四 · 她夸你",
+    context: "你帮了她一个小忙，她回了一句让你有点意外的话。",
+    bubbles: [{ who: "her", text: "你也太靠谱了吧哈哈哈，感觉什么事找你都挺放心的。" }],
+    question: "你怎么回？",
+    options: [
+      { text: "“哈哈那当然，以后有事直接说。” 自然接住，不卑不亢。", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "initiative" } },
+      { text: "她这是在夸我还是在给我发好人卡？“靠谱”“放心”是不是意味着没感觉？开始分析措辞。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "“还好吧，举手之劳。” 不太习惯被夸，轻描淡写带过。", tags: { attachment: "avoidant", style: "withdraw", emotion: "suppress", action: "passive" } },
+      { text: "“那你是不是该请我喝杯奶茶表示一下？[狗头]”", tags: { attachment: "secure", style: "empathy", emotion: "express", action: "initiative" } }
+    ]
+  },
+  {
+    id: "social-pressure",
+    label: "情境十五 · 朋友起哄",
+    context: "一群人吃饭，有朋友当面起哄你俩“是不是在一起了”，她笑着没说话。",
+    bubbles: [
+      { who: "note", text: "—— 饭桌上，朋友大声说 ——" },
+      { who: "her", text: "（笑着低头吃饭，没接话，但耳朵有点红）" }
+    ],
+    question: "你当场怎么反应？",
+    options: [
+      { text: "笑着挡一下：“别闹，人家好好吃饭呢。” 不让她尴尬，也不急着定义。", tags: { attachment: "secure", style: "steady", emotion: "accept", action: "initiative" } },
+      { text: "心跳加速，偷看她反应。她没否认是不是说明有戏？但也不敢接话，怕她尴尬。", tags: { attachment: "anxious", style: "overthink", emotion: "analyze", action: "hesitate" } },
+      { text: "有点不舒服被当众调侃，冷淡地说：“别瞎说。” 然后转移话题。", tags: { attachment: "avoidant", style: "withdraw", emotion: "protect", action: "passive" } },
+      { text: "顺着起哄：“对啊，你终于看出来了？” 半开玩笑半认真地试探。", tags: { attachment: "anxious", style: "rush", emotion: "seek", action: "impulse" } }
+    ]
+  }
+];
+
+// ── State ──
+// F3：主应用桥接键——「保存到主应用」直接写入该独立键（主 state 之外，localStorage.setItem 合法），
+// 主应用经 core/intake-profile.js 读取并规范化。
+const INTAKE_STORAGE_KEY = "heartflow-intake-profile";
+
+let currentQ = 0;
+const answers = [];
+
+function render() {
+  const area = document.getElementById("quizArea");
+  const s = SCENARIOS[currentQ];
+  const selected = answers[currentQ];
+  document.getElementById("progressFill").style.width = `${(currentQ / SCENARIOS.length) * 100}%`;
+  document.getElementById("progressText").textContent = `${currentQ + 1} / ${SCENARIOS.length}`;
+
+  const bubblesHtml = s.bubbles.map(b => {
+    if (b.who === "note") return `<div class="time-note">${b.text}</div>`;
+    return `<div class="bubble-row ${b.who}"><div class="avatar">${b.who === "her" ? "她" : "我"}</div><div class="bubble">${b.text}</div></div>`;
+  }).join("");
+
+  const optionsHtml = s.options.map((opt, i) =>
+    `<div class="option${selected === i ? " selected" : ""}" data-idx="${i}"><span class="tag">${"ABCD"[i]}</span>${opt.text}</div>`
+  ).join("");
+
+  area.innerHTML = `
+    <div class="chat-card">
+      <div class="scenario-label">${s.label}</div>
+      <div class="context-note">${s.context}</div>
+      <div class="chat-bubbles">${bubblesHtml}</div>
+      <div class="question-text">${s.question}</div>
+      <div class="options">${optionsHtml}</div>
+    </div>
+    <div class="nav-row">
+      ${currentQ > 0 ? '<button class="nav-btn prev" id="prevBtn">上一题</button>' : '<div></div>'}
+      <button class="nav-btn next" id="nextBtn" ${selected === undefined ? "disabled" : ""}>${currentQ === SCENARIOS.length - 1 ? "看结果" : "下一题"}</button>
+    </div>`;
+
+  area.querySelectorAll(".option").forEach(el => el.addEventListener("click", () => { answers[currentQ] = +el.dataset.idx; render(); }));
+  document.getElementById("nextBtn")?.addEventListener("click", () => { if (answers[currentQ] === undefined) return; currentQ < SCENARIOS.length - 1 ? (currentQ++, render()) : showResult(); });
+  document.getElementById("prevBtn")?.addEventListener("click", () => { currentQ--; render(); });
+}
+
+function showResult() {
+  const D = { att: { anxious: 0, secure: 0, avoidant: 0 }, style: {}, emotion: {}, action: {} };
+  answers.forEach((ai, qi) => {
+    const t = SCENARIOS[qi].options[ai].tags;
+    D.att[t.attachment]++;
+    D.style[t.style] = (D.style[t.style] || 0) + 1;
+    D.emotion[t.emotion] = (D.emotion[t.emotion] || 0) + 1;
+    D.action[t.action] = (D.action[t.action] || 0) + 1;
+  });
+
+  const total = D.att.anxious + D.att.secure + D.att.avoidant;
+  const pct = { anxious: Math.round(D.att.anxious / total * 100), secure: Math.round(D.att.secure / total * 100), avoidant: Math.round(D.att.avoidant / total * 100) };
+  const primary = Object.entries(D.att).sort((a, b) => b[1] - a[1])[0][0];
+
+  const sLabels = { chase: "追逐型", overthink: "反刍型", rationalize: "理性化", steady: "稳定型", withdraw: "撤退型", empathy: "共情型", repair: "修复型", rush: "冲动型", punish: "惩罚型" };
+  const eLabels = { seek: "寻求确认", analyze: "分析推演", solve: "给方案", hold: "接住情绪", accept: "接纳", suppress: "压抑", rescue: "拯救", avoid: "回避", protect: "自我保护", acknowledge: "承认修复", express: "自然表达" };
+  const aLabels = { initiative: "主动推进", hesitate: "犹豫不决", passive: "被动等待", impulse: "冲动行动", wait: "从容等待" };
+
+  const top = (obj, labels, n = 3) => Object.entries(obj).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, n).map(([k]) => labels[k] || k);
+  const topStyles = top(D.style, sLabels);
+  const topEmotions = top(D.emotion, eLabels);
+  const topActions = top(D.action, aLabels, 2);
+
+  // Weakness detection
+  const weaknesses = [];
+  if ((D.style.chase || 0) + (D.style.overthink || 0) >= 4) weaknesses.push("interrogation");
+  if ((D.style.overthink || 0) + (D.emotion.analyze || 0) >= 4) weaknesses.push("overthinking");
+  if ((D.emotion.solve || 0) + (D.style.rationalize || 0) >= 3) weaknesses.push("rationalize-emotion");
+  if ((D.style.withdraw || 0) + (D.emotion.suppress || 0) + (D.emotion.avoid || 0) >= 4) weaknesses.push("avoidant-withdrawal");
+  if ((D.action.hesitate || 0) + (D.action.passive || 0) >= 7) weaknesses.push("action-paralysis");
+  if ((D.action.impulse || 0) >= 5) weaknesses.push("impulsive-escalation");
+
+  const wLabels = { interrogation: "查户口式追问", overthinking: "过度分析/犹豫", "rationalize-emotion": "理性回应情绪", "avoidant-withdrawal": "回避式撤退", "action-paralysis": "行动瘫痪", "impulsive-escalation": "冲动推进" };
+
+  const attDesc = {
+    anxious: "本次选择中，寻求确认和反复分析的回应较多。可以选一个现实卡点，练习区分事实与猜测；是否适合你仍需实际观察。",
+    secure: "本次选择中，表达与接受不同回应的选项较多。可以用现实互动检验这些做法，而非把选择题结果当成已经掌握的能力。",
+    avoidant: "本次选择中，撤退或减少表达的选项较多。可以练习清楚说出自己的需要，也允许自己选择退出；这不构成人格或依恋类型判断。"
+  };
+
+  const recs = [];
+  if (weaknesses.includes("interrogation")) recs.push("练习“先回应→再分享→最后问”的三段式节奏，替代连续提问");
+  if (weaknesses.includes("overthinking")) recs.push("发出去的消息不需要第二句解释。说完就说完，不需要对方批准");
+  if (weaknesses.includes("rationalize-emotion")) recs.push("她表达情绪时，第一句永远是回应感受，不是分析原因或给方案");
+  if (weaknesses.includes("avoidant-withdrawal")) recs.push("想撤退时多说一句“我现在有点不知道怎么表达”，而不是直接消失");
+  if (weaknesses.includes("action-paralysis")) recs.push("已有互惠且情境适合时，准备一个具体、容易拒绝的邀请；没有合适机会时先陪练，不靠时间限制强行邀约");
+  if (weaknesses.includes("impulsive-escalation")) recs.push("发消息前等 10 分钟。冲动时写的消息，冷静后大概率会想删");
+  if (primary === "anxious" && !weaknesses.includes("overthinking")) recs.push("她没回消息时，设一个“2小时不看手机”的规则，打断反刍循环");
+  if (primary === "avoidant" && !weaknesses.includes("avoidant-withdrawal")) recs.push("每周主动发起一次低压力的聊天或邀约，不等“想聊了再聊”");
+  if (recs.length === 0) recs.push("你的基础不错，重点练习在暧昧期自然表达好感，不憋着也不冲");
+
+  const profile = {
+    version: "1.0",
+    testDate: new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()),
+    questions: SCENARIOS.length,
+    attachment: { primary, distribution: pct },
+    communicationStyle: topStyles,
+    emotionHandling: topEmotions,
+    actionPattern: topActions,
+    weaknessPatterns: weaknesses,
+    trainingFocus: recs.slice(0, 4)
+  };
+
+  document.getElementById("quizArea").classList.add("hidden");
+  document.getElementById("progressFill").style.width = "100%";
+  document.getElementById("progressText").textContent = "完成";
+  const ra = document.getElementById("resultArea");
+  ra.classList.remove("hidden");
+  ra.innerHTML = `
+    <div class="result-card">
+      <div class="result-title">本次沟通情境自检</div>
+      <div class="result-subtitle">仅回顾 ${SCENARIOS.length} 个选择，不是心理诊断、依恋测量或现实能力评分</div>
+      <div class="profile-section">
+        <h3>回应选项回顾</h3>
+        <p>${attDesc[primary]}</p>
+        <div style="margin-top:12px;">
+          <div class="score-bar"><span class="score-label">确认</span><div class="score-track"><div class="score-fill anxious" style="width:${pct.anxious}%"></div></div><span class="score-value">${D.att.anxious}题</span></div>
+          <div class="score-bar"><span class="score-label">接纳</span><div class="score-track"><div class="score-fill secure" style="width:${pct.secure}%"></div></div><span class="score-value">${D.att.secure}题</span></div>
+          <div class="score-bar"><span class="score-label">撤退</span><div class="score-track"><div class="score-fill avoidant" style="width:${pct.avoidant}%"></div></div><span class="score-value">${D.att.avoidant}题</span></div>
+          <p>数字仅表示这些情境中选中了多少个预设标签；不能据此给自己或他人定型。</p>
+        </div>
+      </div>
+      <div class="profile-section"><h3>沟通风格</h3><div class="tag-row">${topStyles.map(s => `<span class="ptag">${s}</span>`).join("")}</div></div>
+      <div class="profile-section"><h3>情绪处理方式</h3><div class="tag-row">${topEmotions.map(s => `<span class="ptag">${s}</span>`).join("")}</div></div>
+      <div class="profile-section"><h3>行动模式</h3><div class="tag-row">${topActions.map(s => `<span class="ptag">${s}</span>`).join("")}</div></div>
+      <div class="profile-section"><h3>可选择的练习方向</h3><div class="tag-row">${weaknesses.length ? weaknesses.map(w => `<span class="ptag warn">${wLabels[w] || w}</span>`).join("") : '<span class="ptag">本次未匹配预设练习标签</span>'}</div></div>
+      <div class="profile-section"><h3>训练重点</h3><p>${recs.slice(0, 4).map((r, i) => `${i + 1}. ${r}`).join("<br>")}</p></div>
+      <div class="profile-section">
+        <h3>JSON Profile（可导入模拟器）</h3>
+        <div class="json-output" id="jsonOutput">${JSON.stringify(profile, null, 2)}</div>
+        <button class="copy-btn" id="copyBtn">复制 JSON</button>
+      </div>
+      <button class="save-btn" id="saveToAppBtn">保存到主应用</button>
+      <button class="download-btn" id="downloadProfileBtn">下载画像 JSON</button>
+      <button class="restart-btn" id="restartBtn">重新测试</button>
+    </div>`;
+
+  document.getElementById("copyBtn").addEventListener("click", () => {
+    navigator.clipboard.writeText(JSON.stringify(profile, null, 2)).then(() => { document.getElementById("copyBtn").textContent = "已复制 ✓"; setTimeout(() => { document.getElementById("copyBtn").textContent = "复制 JSON"; }, 2000); });
+  });
+
+  // F3「保存到主应用」：confirm 防误触（有旧画像时明示将覆盖），确认后写入桥接键。
+  document.getElementById("saveToAppBtn").addEventListener("click", () => {
+    let oldInfo = "";
+    try {
+      const oldRaw = localStorage.getItem(INTAKE_STORAGE_KEY);
+      if (oldRaw) {
+        try { oldInfo = `（完成于 ${JSON.parse(oldRaw).testDate || "未知日期"}）`; } catch { oldInfo = ""; }
+      }
+    } catch { oldInfo = ""; }
+    const message = oldInfo
+      ? `主应用已保存过一份画像${oldInfo}，保存将覆盖它，且不可恢复。\n\n继续保存？`
+      : "确认将这份画像保存到主应用？\n\n保存后主应用「入学测试」入口将显示基线画像。\n\n继续？";
+    if (!confirm(message)) return;
+    try {
+      localStorage.setItem(INTAKE_STORAGE_KEY, JSON.stringify(profile));
+      const saveBtn = document.getElementById("saveToAppBtn");
+      saveBtn.textContent = "已保存到主应用 ✓";
+      setTimeout(() => { saveBtn.textContent = "保存到主应用"; }, 2000);
+    } catch {
+      document.getElementById("saveToAppBtn").textContent = "保存失败（localStorage 不可用）";
+    }
+  });
+
+  // F3「下载画像 JSON」：手动备份路径（Blob + anchor，与主应用导出同一模式）。
+  document.getElementById("downloadProfileBtn").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(profile, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `heartflow-intake-profile-${profile.testDate}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("restartBtn").addEventListener("click", () => { currentQ = 0; answers.length = 0; ra.classList.add("hidden"); document.getElementById("quizArea").classList.remove("hidden"); render(); });
+}
+
+render();
+</script>
+</body>
+</html>

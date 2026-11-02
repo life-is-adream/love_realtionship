@@ -12,6 +12,10 @@ export function createRequestScope(captureContext) {
         finish: () => { if (pending.get(channel) === entry) pending.delete(channel); }
       };
     },
+    cancel(channel) {
+      pending.get(channel)?.controller.abort();
+      pending.delete(channel);
+    },
     cancelAll() {
       for (const entry of pending.values()) entry.controller.abort();
       pending.clear();

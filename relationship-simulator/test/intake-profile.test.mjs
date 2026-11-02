@@ -45,13 +45,15 @@ test("STORAGE_KEYS 新增 heartflow-intake-profile 键（F3）", () => {
   assert.equal(STORAGE_KEYS.intakeProfile, "heartflow-intake-profile");
 });
 
-test("备份白名单自动包含画像键，备份 data 现在含 8 键（F1 白名单派生自 STORAGE_KEYS）", () => {
+test("备份白名单自动包含画像键，备份 data 随 STORAGE_KEYS 全量导出（F1 白名单派生自 STORAGE_KEYS）", () => {
   assert.ok(BACKUP_KEY_WHITELIST.includes(STORAGE_KEYS.intakeProfile), "BACKUP_KEY_WHITELIST 应包含画像键");
   const storage = createMemoryStorage({
     [STORAGE_KEYS.intakeProfile]: JSON.stringify(sampleProfile())
   });
   const backup = buildBackup(structuredClone(defaultState), storage);
-  assert.equal(Object.keys(backup.data).length, 8, "备份 data 应含 8 键（7 个旧键 + 画像键）");
+  // 键数随 STORAGE_KEYS 增长（当前含 voicePrefs 共 9 键），断言用白名单长度保持派生关系。
+  assert.equal(Object.keys(backup.data).length, BACKUP_KEY_WHITELIST.length, "备份 data 应覆盖全部白名单键");
+  assert.equal(Object.keys(backup.data).length >= 8, true, "历史上至少 8 键（7 个旧键 + 画像键）");
   assert.deepEqual(JSON.parse(backup.data[STORAGE_KEYS.intakeProfile]).attachment.primary, "anxious");
 });
 

@@ -1,13 +1,20 @@
-import { analyzeConversation } from "./conversation/analyzer.mjs";
-import { appendObservation } from "./memory/memory-store.mjs";
+import { createHash } from "node:crypto";
+import { analyzeConversation, normalizeMessages } from "./conversation/analyzer.mjs";
+import { appendObservation, redact } from "./memory/memory-store.mjs";
 import { transitionState } from "./state/state-machine.mjs";
 import { createPrediction } from "./reflection/reflection-engine.mjs";
 
 const DECISIONS = Object.freeze(["ADVANCE", "MAINTAIN", "OBSERVE", "DE_ESCALATE", "EXIT"]);
+const OBSERVATION_SIGNAL_KEYS = Object.freeze([
+  "safetyRisk", "relationshipEnded", "explicitExit", "explicitRejection", "contactPause",
+  "initialContact", "repeatedInteraction", "conflict", "counterOffer", "concreteDatePlan",
+  "repairAttempt", "repairSucceeded", "reciprocalInterest", "relationshipDefined",
+  "stableRoutine", "lowReciprocity"
+]);
 
 function decisionFor(analysis, signals = {}, currentState = "UNKNOWN") {
   if (currentState === "EXIT" || signals.safetyRisk || signals.relationshipEnded || signals.explicitExit) return "EXIT";
-  if (signals.explicitRejection && !signals.counterOffer) return "DE_ESCALATE";
+  if (signals.explicitRejection || signals.contactPause) return "DE_ESCALATE";
   if (signals.conflict || analysis.metrics.conflictMessageCount > 0) return "MAINTAIN";
   if (signals.concreteDatePlan || signals.counterOffer) return "ADVANCE";
   if (analysis.metrics.dataQuality === "limited" || analysis.metrics.otherQuestionRatio === null) return "OBSERVE";
@@ -58,6 +65,10 @@ function hypothesesFor(analysis) {
 function deriveSignals(analysis, signals = {}) {
   return {
     ...signals,
+    safetyRisk: Boolean(signals.safetyRisk || analysis.metrics.safetyRiskMessageCount > 0),
+    explicitExit: Boolean(signals.explicitExit || analysis.metrics.explicitExitMessageCount > 0),
+    explicitRejection: Boolean(signals.explicitRejection || analysis.metrics.explicitRejectionMessageCount > 0),
+    contactPause: Boolean(analysis.metrics.contactPauseMessageCount > 0),
     initialContact: signals.initialContact ?? analysis.metrics.messageCount > 0,
     repeatedInteraction: signals.repeatedInteraction ?? analysis.metrics.messageCount >= 4,
     conflict: signals.conflict ?? analysis.metrics.conflictMessageCount > 0,
@@ -65,11 +76,19 @@ function deriveSignals(analysis, signals = {}) {
   };
 }
 
-function buildMemoryPatch(memory, state, analysis, decision) {
+function observationIdFor(messages, signals) {
+  // Content is consumed transiently; only its digest and feature summary remain.
+  // Exclude caller IDs so retries with fresh transport IDs are still idempotent.
+  const content = normalizeMessages(messages).map(({ speaker, text, timestampMs }) => ({ speaker, text, timestampMs }));
+  const signalSnapshot = Object.fromEntries(OBSERVATION_SIGNAL_KEYS.map((key) => [key, Boolean(signals[key])]));
+  return `loop_${createHash("sha256").update(JSON.stringify({ content, signals: signalSnapshot })).digest("hex")}`;
+}
+
+function buildMemoryPatch(memory, state, analysis, decision, observationId) {
   if (!memory) return null;
   const summary = `观察到${analysis.metrics.messageCount}条消息；当前建议为${decision}，仅保留结构化摘要。`;
   const next = appendObservation(memory, {
-    id: `loop_${analysis.evidence[0]?.id || "observation"}`,
+    id: observationId,
     kind: "agent_loop",
     summary,
     stage: null,
@@ -88,7 +107,9 @@ export function runRelationshipLoop({ messages = [], memory = null, goal = "", c
   const analysis = analyzeConversation(messages);
   const normalizedSignals = deriveSignals(analysis, signals);
   const currentState = memory?.currentState || "UNKNOWN";
-  const state = transitionState(currentState, normalizedSignals);
+  const observationId = memory ? observationIdFor(messages, normalizedSignals) : null;
+  const observationReplayed = Array.isArray(memory?.observations) && memory.observations.some(({ id }) => id === observationId);
+  const state = transitionState(currentState, { ...normalizedSignals, observationReplayed });
   const decision = decisionFor(analysis, normalizedSignals, currentState);
   const action = actionFor(decision);
   const prediction = createPrediction({
@@ -98,10 +119,10 @@ export function runRelationshipLoop({ messages = [], memory = null, goal = "", c
     expectedSignal: expectedSignalFor(decision),
     evidenceIds: analysis.evidence.map((item) => item.id)
   });
-  const memoryPatch = buildMemoryPatch(memory, state, analysis, decision);
+  const memoryPatch = buildMemoryPatch(memory, state, analysis, decision, observationId);
   return {
     version: 1,
-    goal: String(goal || "").trim().slice(0, 300),
+    goal: redact(goal).slice(0, 300),
     analysis,
     hypotheses: hypothesesFor(analysis),
     state,

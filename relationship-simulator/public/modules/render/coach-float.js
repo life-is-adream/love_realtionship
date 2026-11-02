@@ -6,6 +6,7 @@
  * 纯函数构建内容，渲染由 app.js 挂接到 DOM。
  */
 import { clampScore } from "../coach/coach.js";
+import { escapeHtml } from "../core/dom.js";
 
 /** 四维评分标签 */
 export const DIMENSION_LABELS = [
@@ -58,8 +59,4 @@ export function buildCoachFloatHtml(data) {
     <div class="coach-float-options">${optionsHtml}</div>
     <button class="btn small ghost coach-float-search-btn" id="coachFloatSearchBtn" type="button">🔍 联网查依据</button>
     <div class="coach-float-search-result" id="coachFloatSearchResult"></div>`;
-}
-
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
 }

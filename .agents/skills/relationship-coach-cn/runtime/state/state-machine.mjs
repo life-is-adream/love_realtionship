@@ -30,7 +30,9 @@ export function transitionState(currentState, signals = {}) {
   const evidenceIds = Array.isArray(signals.evidenceIds) ? signals.evidenceIds.map(String).slice(0, 20) : [];
   if (from === "EXIT") return result(from, "EXIT", "已退出的关系保持退出状态", evidenceIds, false);
   if (signals.safetyRisk || signals.explicitExit || signals.relationshipEnded) return result(from, "EXIT", "安全风险、明确退出或关系结束信号优先", evidenceIds, false);
-  if (signals.explicitRejection && !signals.counterOffer) return result(from, "EXIT", "明确拒绝且没有替代安排，停止继续推进", evidenceIds, false);
+  if (signals.explicitRejection) return result(from, "EXIT", "明确关系拒绝优先于旧或冲突的推进信号，停止继续推进", evidenceIds, false);
+  if (signals.contactPause) return result(from, from, "明确要求暂时停止联系，保持状态并暂停推进", evidenceIds);
+  if (signals.observationReplayed) return result(from, from, "同一观察重试不重复推进关系状态", evidenceIds);
   if (signals.conflict) return result(from, "CONFLICT", "出现需要处理的冲突事实", evidenceIds);
   if (from === "CONFLICT" && signals.repairAttempt) return result(from, "REPAIR", "双方开始讨论具体行为、影响和修复请求", evidenceIds);
   if (from === "REPAIR" && signals.repairSucceeded) return result(from, "STABLE_RELATIONSHIP", "修复后出现可观察的稳定行为", evidenceIds);

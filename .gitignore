@@ -51,3 +51,10 @@ relationship-simulator/snap0.txt
 
 # love-learning 构建产物（node scripts/build-love-learning.mjs 可重建；源数据在仓库根 scripts/ 与 恋爱15分钟学习/）
 relationship-simulator/public/love-learning/
+
+# 本地语音模型与依赖（约 500MB，不入库；重建方式见 relationship-simulator/voice/README.md）
+relationship-simulator/voice/venv/
+relationship-simulator/voice/models/
+relationship-simulator/voice/wheels/
+relationship-simulator/voice/logs/
+relationship-simulator/voice/*.tmp

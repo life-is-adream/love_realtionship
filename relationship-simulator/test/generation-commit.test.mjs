@@ -4,9 +4,12 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { getState, setState, mutate, onStateChange, getCurrentPersona } from "../public/modules/core/state.js";
 import { appendGeneratedReply } from "../public/modules/core/conversation.js";
+import { joinHerReply } from "../public/modules/coach/her-reply.js";
 import { appendHerIfNeeded } from "../public/modules/render/render-chat.js";
 import { shouldCollectFromScore, collectMistake } from "../public/modules/core/mistakes.js";
 import { recordTrainingEvent } from "../public/modules/core/learning-state.js";
+import { createCoachLearningEvent } from "../public/modules/core/training-scores.js";
+import { aggregateGrowth } from "../public/modules/training/growth.js";
 
 const source = await readFile(new URL("../public/app.js", import.meta.url), "utf8");
 const scoreCollection = source.slice(source.indexOf("function collectCoachMistake("), source.indexOf("function renderIntelligencePanel("));
@@ -28,9 +31,13 @@ function mount(t, extra = {}) {
   });
   const env = {
     state: getState(), mutate, getCurrentPersona, appendGeneratedReply, appendHerIfNeeded,
-    recordTrainingEvent, shouldCollectFromScore, collectMistake, MISTAKE_DIM_LABELS: { boundary: "边界" },
+    recordTrainingEvent, createCoachLearningEvent, shouldCollectFromScore, collectMistake, MISTAKE_DIM_LABELS: { boundary: "边界" },
     $: () => ({ value: "第一次邀约" }), enableTextbookIndexLoad() {}, renderAll() {}, emit() {},
-    Events: { ANALYSIS_COMMITTED: "committed" }, intelligenceController: { refresh: async () => {} }
+    // commitHerReply 会重渲染聊天区并触发自动朗读；此处只验证落盘语义。
+    renderChat() {}, afterChatRender() {}, joinHerReply,
+    Events: { ANALYSIS_COMMITTED: "committed" }, intelligenceController: { refresh: async () => {} },
+    // 自动朗读钩子：本测试只关心提交语义，语音由 tts-client 测试覆盖。
+    maybeAutoSpeak() {}
   };
   vm.createContext(env);
   vm.runInContext(scoreCollection + commitFunctions, env);
@@ -71,4 +78,39 @@ test("生成提交保存失败时，消息、分析和训练记录全部回滚",
   assert.throws(() => ui.env.commitAnalysis(analysis, "model"), /quota/);
   assert.equal(JSON.stringify(getState()), before);
   assert.deepEqual(ui.counts(), { writes: 0, notifications: 0 });
+});
+
+test("她的多条气泡按微信连发落盘，重复气泡不重复追加", (t) => {
+  const ui = mount(t);
+  const before = getState().messages.length;
+  ui.env.commitHerReply(["哈哈确实", "那我明天问你"]);
+  const messages = getState().messages;
+  assert.equal(messages.length, before + 2);
+  assert.deepEqual(messages.slice(-2).map((item) => item.text), ["哈哈确实", "那我明天问你"]);
+  assert.equal(messages.at(-1).who, getCurrentPersona().name);
+  ui.env.commitHerReply(["那我明天问你"]);
+  assert.equal(getState().messages.length, before + 2, "与上一条同文本的气泡不重复落盘");
+});
+
+test("她的回复先落盘后，教练分析提交不再追加第二条", (t) => {
+  const ui = mount(t);
+  ui.env.commitHerReply([analysis.herReply]);
+  const afterReply = getState().messages.length;
+  ui.env.commitAnalysis(analysis, "model", { replyAlreadyCommitted: true });
+  assert.equal(getState().messages.length, afterReply, "教练提交不重复追加她的消息");
+  assert.equal(getState().lastAnalysis.herReply, analysis.herReply);
+  assert.equal(getState().trainingLog.length, 1, "分析仍照常进训练日志");
+});
+
+test("生成评分分别作为成长分项证据，不把总分或自然度记为时机感", (t) => {
+  const ui = mount(t);
+  ui.env.commitAnalysis({ ...analysis, coachScore: { total: 90, naturalness: 20, empathy: 40, boundary: 60, momentum: 80, weakestDim: "naturalness" } }, "local");
+  const learningEvent = getState().learning.events[0];
+  assert.equal(learningEvent.dimension, null);
+  assert.equal(learningEvent.score, null);
+  const profile = aggregateGrowth(getState().learning.events);
+  assert.equal(profile.dimensions.initiative.score, 62);
+  assert.equal(profile.dimensions.curiosity.score, 40);
+  assert.equal(profile.dimensions.boundaries.score, 60);
+  assert.equal(profile.dimensions.timing.score, null);
 });

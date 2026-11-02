@@ -8,6 +8,7 @@ const VIEW_COPY = Object.freeze({
   real: { title: "现实练习与复盘", description: "按实际卡点准备行动，记录可观察结果与下一步。" },
   coach: { title: "分析与建议", description: "结合当前对话，查看依据、局限和可执行建议。" },
   growth: { title: "成长记录", description: "回看练习记录与复盘；练习分数仅表示题目规则符合度。" },
+  abilities: { title: "个人恋爱能力画像", description: "用自评与情境练习定位八个方面的短板，再选择两个训练重点。" },
   lifestyle: { title: "形象与身心知识", description: "学习健身、护肤、穿搭、声音，以及女性生理和心理知识；每张卡可查看依据、练习与来源。" },
   settings: { title: "设置与档案", description: "调整模拟、角色和模型设置，管理导出、备份与恢复。" }
 });

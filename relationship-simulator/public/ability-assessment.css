@@ -1,0 +1,54 @@
+/* 能力画像沿用深梅紫、玫瑰粉和暖金；一列目录，展开后阅读依据。 */
+body.tutorial-app .ability-assessment { color: var(--ink); }
+body.tutorial-app .ability-assessment :is(p, ul) { margin: 8px 0 14px; }
+body.tutorial-app .ability-overview { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding: 0 0 14px; border-bottom: 1px solid var(--line); }
+body.tutorial-app .ability-overview h2 { margin: 0; font-size: 27px; color: var(--rose-hover); }
+body.tutorial-app .ability-kicker { color: var(--ink-subtle); font-size: 13px; }
+body.tutorial-app .ability-coverage { display: flex; flex-direction: column; justify-content: center; color: var(--ink-muted); font-size: 14px; }
+body.tutorial-app .ability-coverage b { color: var(--amber); font-weight: 600; }
+body.tutorial-app .ability-dimensions { margin: 20px 0 10px; border-top: 1px solid var(--line); }
+body.tutorial-app .ability-dimension { margin: 0; border-bottom: 1px solid var(--line); }
+body.tutorial-app .ability-dimension > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; padding: 13px 0; cursor: pointer; font-size: 14px; }
+body.tutorial-app .ability-dimension > summary::before { content: "＋"; float: left; display: none; }
+body.tutorial-app .ability-dimension > summary b { color: var(--rose-hover); font-weight: 500; }
+body.tutorial-app .ability-dimension > summary small { color: var(--ink-subtle); }
+body.tutorial-app .ability-dimension[open] > summary { color: var(--rose-hover); }
+body.tutorial-app .ability-dimension-body { padding: 0 0 16px; font-size: 14px; }
+body.tutorial-app .ability-evidence { padding-left: 20px; }
+body.tutorial-app .ability-evidence li { margin-bottom: 10px; }
+body.tutorial-app .ability-evidence small { display: block; color: var(--ink-subtle); font-size: 12px; }
+body.tutorial-app .ability-evidence li p { margin: 3px 0 6px; }
+body.tutorial-app .ability-row-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px; }
+body.tutorial-app .ability-assessment label:has(input[type="checkbox"]) { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+body.tutorial-app .ability-assessment input:is([type="checkbox"], [type="radio"]) { width: 16px; height: 16px; margin: 0; flex: 0 0 16px; accent-color: var(--rose); }
+body.tutorial-app .ability-editor { margin: 22px 0; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 0 14px; }
+body.tutorial-app .ability-editor > summary { padding: 13px 0; cursor: pointer; color: var(--rose-hover); font-weight: 600; }
+body.tutorial-app .ability-editor > summary small { margin-left: 12px; color: var(--ink-subtle); font-size: 12px; font-weight: 400; }
+body.tutorial-app .ability-level-guide { margin-bottom: 16px; font-size: 13px; }
+body.tutorial-app .ability-level-guide summary { cursor: pointer; }
+body.tutorial-app .ability-question-group { min-width: 0; margin: 0 0 22px; padding: 12px 0 18px; border: 0; border-bottom: 1px solid var(--line); }
+body.tutorial-app .ability-question-group > legend { font-weight: 600; color: var(--ink); }
+body.tutorial-app .ability-self-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+body.tutorial-app .ability-self-fields label { display: block; font-size: 14px; color: var(--ink-muted); }
+body.tutorial-app .ability-self-fields select { display: block; width: 100%; margin-top: 7px; padding: 8px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--r-sm); font: inherit; }
+body.tutorial-app .ability-scenario { min-width: 0; padding: 0; border: 0; }
+body.tutorial-app .ability-scenario legend { padding: 0; margin-bottom: 9px; color: var(--ink-muted); font-size: 14px; }
+body.tutorial-app .ability-option { display: flex; align-items: flex-start; gap: 8px; margin: 8px 0; color: var(--ink-muted); font-size: 14px; cursor: pointer; }
+body.tutorial-app .ability-option input { margin-top: 4px !important; }
+body.tutorial-app .ability-form-actions { padding: 0 0 14px; }
+body.tutorial-app .ability-data-controls { padding: 14px 0; border-top: 1px solid var(--line); }
+body.tutorial-app .ability-critical { margin: 15px 0; padding: 12px 14px; border-left: 3px solid var(--amber); background: var(--surface-2); font-size: 14px; }
+body.tutorial-app .ability-critical b { color: var(--amber); }
+body.tutorial-app #abilityAssessmentError { color: var(--red); font-size: 14px; }
+body.tutorial-app .ability-history { margin-top: 16px; font-size: 13px; }
+body.tutorial-app .ability-history > summary { cursor: pointer; color: var(--ink-muted); }
+body.tutorial-app .ability-history-table { overflow-x: auto; }
+body.tutorial-app .ability-history table { width: 100%; border-collapse: collapse; }
+body.tutorial-app .ability-history :is(th, td) { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+body.tutorial-app .ability-history th { font-weight: 500; color: var(--ink-muted); }
+@media (max-width: 600px) {
+  body.tutorial-app .ability-dimension > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; }
+  body.tutorial-app .ability-dimension > summary small { grid-column: 1 / -1; }
+  body.tutorial-app .ability-self-fields { grid-template-columns: 1fr; }
+  body.tutorial-app .ability-editor > summary small { display: block; margin-left: 0; }
+}

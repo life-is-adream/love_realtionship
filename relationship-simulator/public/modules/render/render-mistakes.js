@@ -9,6 +9,7 @@
 
 import { $, escapeHtml } from "../core/dom.js";
 import { getState, mutate } from "../core/state.js";
+import { createCoachLearningEvent } from "../core/training-scores.js";
 import { getPersonaMemory, getCurrentPersona } from "../core/state.js";
 import { resolveMistake, deleteMistake } from "../core/mistakes.js";
 import { findWeakestDim, buildRewriteComparison, aggregateMistakePatterns, MISTAKE_DIM_LABELS } from "../training/mistake-patterns.js";
@@ -19,7 +20,6 @@ import { readIntakeProfile, buildIntakeSummary } from "../core/intake-profile.js
 
 const SOURCE_LABELS = { preflight: "发送前测验", coach: "教练评分", manual: "手动" };
 /** 错题维度 → 学习档案维度（与 app.js addTrainingLog 的映射一致，drive 同 momentum） */
-const LEARNING_DIM_BY_MISTAKE_DIM = { naturalness: "timing", empathy: "curiosity", boundary: "boundaries", drive: "initiative" };
 
 let practiceContext = null; // { mistake }
 let lastRewriteResult = null; // { rewriteText, comparison }
@@ -258,16 +258,13 @@ function resolveFromPractice() {
       rewriteDims: Object.fromEntries(comparison.dims.map((dim) => [dim.key, dim.after]))
     });
     // 按 learning-state 机制记训练事件（createTrainingEvent 对 type 无白名单，字符串类型自由扩展）
-    const weakestDim = findWeakestDim(ctx.mistake.dims)?.key || "drive";
-    state.learning = recordTrainingEvent(state.learning, {
+    state.learning = recordTrainingEvent(state.learning, createCoachLearningEvent(rewriteScore, {
       id: `mistake-rewrite-${ctx.mistake.id}`,
       type: "mistake-rewrite",
       source: "local",
-      dimension: LEARNING_DIM_BY_MISTAKE_DIM[weakestDim] || "initiative",
-      score: rewriteScore?.total ?? null,
       createdAt: new Date().toISOString(),
       metadata: { mistakeId: ctx.mistake.id, beforeDims: ctx.mistake.dims, afterDims: Object.fromEntries(comparison.dims.map((dim) => [dim.key, dim.after])) }
-    });
+    }));
   });
   $("apiStatus").textContent = "重写已记录，错题标记为已解决。";
   closeMistakePractice();

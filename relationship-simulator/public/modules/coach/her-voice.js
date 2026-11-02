@@ -12,6 +12,8 @@
  * score 维度沿用教练引擎命名：naturalness / empathy / boundary / momentum。
  */
 
+import { clampScoreOrNull } from "../core/number.js";
+
 export const HER_VOICE_DIM_THRESHOLD = 55;
 export const HER_VOICE_GOOD_TOTAL = 80;
 export const HER_VOICE_MID_TOTAL = 65;
@@ -46,9 +48,7 @@ function weakestDimOf(score) {
 }
 
 function normalizeDim(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const num = Number(value);
-  return Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : null;
+  return clampScoreOrNull(value);
 }
 
 /**

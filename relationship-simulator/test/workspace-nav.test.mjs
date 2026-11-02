@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { initWorkspaceNav } from "../public/modules/render/workspace-nav.js";
 
-const VIEWS = ["home", "chat", "practice", "journey", "real", "coach", "growth", "lifestyle", "settings"];
+const VIEWS = ["home", "chat", "practice", "journey", "real", "coach", "growth", "abilities", "lifestyle", "settings"];
 
 function makeElement(dataset = {}) {
   const classes = new Set();
@@ -73,6 +73,21 @@ test("a valid initial hash wins and every other panel is hidden and inert", () =
   assert.deepEqual(changes, ["real"]);
   assert.equal(ui.element("workspaceTitle").focusCount, 0);
   assert.equal(ui.browser.writes.length, 0);
+});
+
+test("ability profile deep links and navigation retain assessment inputs", () => {
+  const ui = page("#abilities");
+  const abilityPanel = ui.panels.find((panel) => panel.dataset.viewPanel === "abilities");
+  const draft = { value: "3", scenario: "respect" };
+  abilityPanel.form = draft;
+  const nav = initWorkspaceNav({ root: ui.root });
+  assertVisible(ui, "abilities");
+  assert.equal(ui.element("workspaceTitle").textContent, "个人恋爱能力画像");
+  nav.show("lifestyle");
+  ui.browser.navigateHash("#abilities");
+  assertVisible(ui, "abilities");
+  assert.equal(abilityPanel.form, draft);
+  assert.equal(abilityPanel.form.value, "3");
 });
 
 test("unknown hashes and unknown programmatic views safely return to home", () => {

@@ -4,25 +4,32 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HeartFlow · 恋爱成长课</title>
-  <link rel="stylesheet" href="/styles.css?v=20261007-engineering-r1" />
-  <link rel="stylesheet" href="/tutorial-layout.css?v=20261007-engineering-r1" />
+  <meta name="description" content="把恋爱当成可以练的能力：先定位关系阶段，再练这一步该做的具体动作。逐句反馈，不背话术。" />
+  <link rel="preload" href="/pet/idle.png" as="image" />
+  <link rel="stylesheet" href="/styles.css?v=20261013-abilities-r1" />
+  <link rel="stylesheet" href="/ability-assessment.css?v=20261013-abilities-r1" />
+  <link rel="stylesheet" href="/shell.css?v=20261101-focus-r9" />
+  <link rel="stylesheet" href="/pet.css?v=20261031-pet2" />
 </head>
 <body class="tutorial-app">
   <a class="skip-link" id="skipToContent" href="#workspaceTitle">跳到正文</a>
+
   <header class="site-header">
     <div class="site-header-inner">
       <a class="site-brand" href="#home" data-view="home"><b>HeartFlow</b><span>恋爱成长课</span></a>
-      <p class="site-tagline">学习、练习与现实复盘</p>
       <span class="status-pill" id="modelStatusBadge" role="status">本地服务待检查</span>
     </div>
   </header>
+
   <nav class="site-nav" aria-label="主导航"><div class="site-nav-inner">
     <button type="button" data-view="home">首页</button>
     <a href="/love-learning.html">全部课程</a>
+    <button type="button" data-view="practice">每日一练</button>
     <button type="button" id="openPracticeBtn">实战练习</button>
     <button type="button" data-view="coach">复盘分析</button>
     <button type="button" data-view="settings">设置</button>
   </div></nav>
+
   <main class="shell">
     <button id="workspaceMenuToggle" class="workspace-menu-toggle" type="button" aria-controls="workspaceSidebar" aria-expanded="false">学习目录</button>
     <div class="tutorial-workspace">
@@ -40,60 +47,272 @@
           <a href="#coach" data-view="coach">教练分析 <span class="unread-dot hidden" aria-label="有新分析"></span></a>
           <a href="#growth" data-view="growth">成长记录与错题</a>
           <h3>个人管理</h3>
+          <a href="#abilities" data-view="abilities">个人恋爱能力画像</a>
           <a href="#lifestyle" data-view="lifestyle">形象与身心知识</a>
           <a href="#settings" data-view="settings">角色与设置</a>
         </nav>
-        <p class="sidebar-note">一轮练一个动作，依据真实回应调整下一步。</p>
+        <p class="sidebar-note">一轮只练一个动作。看真实回应，再决定下一步。</p>
       </aside>
+
       <section class="tutorial-content" aria-labelledby="workspaceTitle">
         <header class="workspace-heading">
           <p class="workspace-breadcrumb">HeartFlow / 学习与练习</p>
           <h1 id="workspaceTitle" tabindex="-1">恋爱成长学习目录</h1>
           <p id="workspaceDescription">按当前需要选择课程或练习，从一个具体问题开始。</p>
         </header>
+
+        <!-- ===================== 首页 ===================== -->
         <section class="workspace-view" data-view-panel="home">
-          <div class="tutorial-categories">
-            <section class="tutorial-category"><h2>认识与建立联系</h2><p>找到自然交流的场景，练习倾听和自我表达。</p><div class="tutorial-link-grid">
-              <a class="tutorial-link" href="/love-learning.html?course=2"><b>认识人的机会</b><small>进入可以重复参与的场景</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=4"><b>自然介绍自己</b><small>让对方认识真实的你</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=5"><b>把聊天接下去</b><small>先听懂，再分享</small></a>
-              <a class="tutorial-link" href="#chat" data-view="chat"><b>对话练习</b><small>在虚构场景中自己回应</small></a>
-            </div></section>
-            <section class="tutorial-category"><h2>邀约与约会相处</h2><p>提出具体邀请，观察互惠与自己的相处感受。</p><div class="tutorial-link-grid">
-              <a class="tutorial-link" href="/love-learning.html?course=13"><b>清楚提出邀约</b><small>具体、可协商、容易拒绝</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=14"><b>第一次约会</b><small>安排轻松的共同体验</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=18"><b>表达好感</b><small>说清楚想法，听见对方选择</small></a>
-              <a class="tutorial-link" href="#journey" data-view="journey"><b>连续约会练习</b><small>三个场景，六段互动</small></a>
-            </div></section>
-            <section class="tutorial-category"><h2>沟通、情绪与边界</h2><p>把事实和猜测分开，尊重双方的意愿与空间。</p><div class="tutorial-link-grid">
-              <a class="tutorial-link" href="/love-learning.html?course=23"><b>说清楚一件事</b><small>表达感受和具体请求</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=22"><b>建立自己的边界</b><small>明确可执行的行动规则</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=56"><b>处理等待与受挫</b><small>恢复自己的生活安排</small></a>
-              <a class="tutorial-link" href="#coach" data-view="coach"><b>事实与解释</b><small>查看证据、反证和未知</small></a>
-            </div></section>
-            <section class="tutorial-category"><h2>长期关系与生活</h2><p>学习兼容性、关系修复与共同生活的协商。</p><div class="tutorial-link-grid">
-              <a class="tutorial-link" href="/love-learning.html?course=85"><b>生活方向与兼容性</b><small>谈城市、工作和未来安排</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=67"><b>冲突中的暂停</b><small>约定时间，回来继续沟通</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=26"><b>亲密与同意</b><small>清楚、具体、可以撤回</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=87"><b>婚姻准备</b><small>讨论承诺与共同责任</small></a>
-            </div></section>
-            <section class="tutorial-category"><h2>把学习带进现实</h2><p>一次只练一个小动作，再记录真实观察。</p><div class="tutorial-link-grid">
-              <a class="tutorial-link" href="#practice" data-view="practice"><b>每日小练习</b><small>用几分钟练清楚表达</small></a>
-              <a class="tutorial-link" href="#real" data-view="real"><b>现实互动复盘</b><small>分开行动、回应与自身感受</small></a>
-              <a class="tutorial-link" href="#growth" data-view="growth"><b>回顾成长与错题</b><small>查看练习中的具体变化</small></a>
-              <a class="tutorial-link" href="#lifestyle" data-view="lifestyle"><b>形象准备与身心知识</b><small>健身、护肤、穿搭、声音，以及女性生理和心理知识</small></a>
-            </div></section>
-            <section class="tutorial-category"><h2>课程与阅读</h2><p>按主题选择原文，或顺着课程逐步学习。</p><div class="tutorial-link-grid">
-              <a class="tutorial-link" href="/love-learning.html"><b>全部179课</b><small>搜索主题、阅读与记录进度</small></a>
-              <a class="tutorial-link" href="/love-learning.html?view=books"><b>书架与资料</b><small>19份本地整合阅读材料</small></a>
-              <a class="tutorial-link" href="/love-learning.html?course=1"><b>从第一课开始</b><small>先想清楚自己想要的关系</small></a>
-              <a class="tutorial-link" href="/intake-quiz.html"><b>沟通情境自检</b><small>选择当前适合的练习方向</small></a>
-            </div></section>
+
+          <div class="hf-hero">
+            <div class="hf-hero-copy hf-rise">
+              <p class="hf-kicker">关系不是考题，是练习</p>
+              <h1>恋爱不是知识题，<br>是<em>练出来</em>的回应。</h1>
+              <p class="hf-lede">这里没有可以背诵的话术。每一课对应一个具体动作：先自己回一句，再对照反馈改一次，最后带着它去真实的人面前试。</p>
+              <div class="hf-hero-actions">
+                <a class="hf-btn" href="#practice" data-view="practice">今天练一个动作 <span class="hf-btn-arrow" aria-hidden="true">→</span></a>
+                <a class="hf-btn hf-btn-quiet" href="#how">先看看怎么练</a>
+              </div>
+              <p class="hf-hero-note">约 6 分钟 · 不用注册 · 记录只留在这台设备</p>
+            </div>
+
+            <aside class="hf-locate hf-rise" aria-labelledby="hfLocateTitle">
+              <p class="hf-locate-eyebrow">先定位</p>
+              <h2 id="hfLocateTitle">你现在最接近哪一句？</h2>
+              <p class="hf-locate-sub">不用选得准。挑一句最像的，我先给你这一步该练的东西。</p>
+              <div class="hf-choices" role="list">
+                <a class="hf-choice" role="listitem" href="/love-learning.html?course=2">
+                  <span class="hf-choice-idx">01</span>
+                  <span class="hf-choice-text">还没认识什么人，想先有自然的相遇</span>
+                  <span class="hf-choice-arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="hf-choice" role="listitem" href="#chat" data-view="chat">
+                  <span class="hf-choice-idx">02</span>
+                  <span class="hf-choice-text">在聊，但聊几句就没话了</span>
+                  <span class="hf-choice-arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="hf-choice" role="listitem" href="/love-learning.html?course=13">
+                  <span class="hf-choice-idx">03</span>
+                  <span class="hf-choice-text">想约她出来，但开不了口</span>
+                  <span class="hf-choice-arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="hf-choice" role="listitem" href="#coach" data-view="coach">
+                  <span class="hf-choice-idx">04</span>
+                  <span class="hf-choice-text">关系不明，猜不透她怎么想</span>
+                  <span class="hf-choice-arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="hf-choice" role="listitem" href="/love-learning.html?course=67">
+                  <span class="hf-choice-idx">05</span>
+                  <span class="hf-choice-text">在一起了，但总在同一个地方吵</span>
+                  <span class="hf-choice-arrow" aria-hidden="true">→</span>
+                </a>
+              </div>
+              <p class="hf-locate-foot"><b>都看不清？</b>那就从下面这个动作开始，练完再回来定位。</p>
+            </aside>
           </div>
+
+          <section class="hf-rep hf-rise" aria-labelledby="hfRepTitle">
+            <div class="hf-rep-in">
+              <div class="hf-rep-label">
+                <span class="hf-rep-num">01</span>
+                <span>今天的一个动作</span>
+              </div>
+              <div>
+                <h2 id="hfRepTitle">把「在干嘛」换成一个具体的问题</h2>
+                <p>从她最近提过的一件事里挑一个细节，问它后来怎么样了。问完就等，不追问第二遍。</p>
+              </div>
+              <a class="hf-btn" href="#practice" data-view="practice">开始 · 约 6 分钟</a>
+            </div>
+          </section>
+
+          <section class="hf-sec" aria-labelledby="hfMapTitle">
+            <header class="hf-sec-head">
+              <span class="hf-sec-num">02</span>
+              <h2 id="hfMapTitle">关系不是一条直线，<br>是五个不同的任务</h2>
+              <p class="hf-sec-desc">每个阶段要解决的心理问题并不一样。用错阶段的动作，越努力越像压力。</p>
+            </header>
+
+            <ol class="hf-stages">
+              <li class="hf-stage">
+                <span class="hf-stage-n">01</span>
+                <h3>相遇</h3>
+                <p class="hf-stage-task">任务 · 降低不确定性</p>
+                <p class="hf-stage-body">初识时对方先判断的不是你优不优秀，而是和你相处轻不轻松、安不安全。可重复出现的场景，比一次惊艳更有效。</p>
+                <p class="hf-stage-trap"><b>常见误判</b>把「聊得来」当成「有感觉」——热络常常是场景带来的。</p>
+                <div class="hf-stage-links">
+                  <a href="/love-learning.html?course=2">认识人的机会</a>
+                  <a href="/love-learning.html?course=4">自然介绍自己</a>
+                </div>
+              </li>
+              <li class="hf-stage">
+                <span class="hf-stage-n">02</span>
+                <h3>试探</h3>
+                <p class="hf-stage-task">任务 · 渐进互惠</p>
+                <p class="hf-stage-body">自我暴露有节奏：你先给出一点真实的信息，看她是否回以相近的深度。她给得浅，你就别再加深。</p>
+                <p class="hf-stage-trap"><b>常见误判</b>把「回得快」当成「喜欢你」——多数时候只反映手机习惯。</p>
+                <div class="hf-stage-links">
+                  <a href="/love-learning.html?course=5">把聊天接下去</a>
+                  <a href="#chat" data-view="chat">对话练习</a>
+                </div>
+              </li>
+              <li class="hf-stage">
+                <span class="hf-stage-n">03</span>
+                <h3>靠近</h3>
+                <p class="hf-stage-task">任务 · 具体邀约</p>
+                <p class="hf-stage-body">邀约的难点不是勇气，是降低对方的拒绝成本：时间、地点、时长讲清楚，并说明不方便可以直说。</p>
+                <p class="hf-stage-trap"><b>常见误判</b>把「答应出来」当成「关系确定」——一次赴约只说明她愿意了解。</p>
+                <div class="hf-stage-links">
+                  <a href="/love-learning.html?course=13">清楚提出邀约</a>
+                  <a href="/love-learning.html?course=14">第一次约会</a>
+                </div>
+              </li>
+              <li class="hf-stage">
+                <span class="hf-stage-n">04</span>
+                <h3>确认</h3>
+                <p class="hf-stage-task">任务 · 意图清晰</p>
+                <p class="hf-stage-body">暧昧的成本由双方承担。直接说「我对你有好感，想认真了解你」，比暗示和试探更尊重人，也更快拿到真实答案。</p>
+                <p class="hf-stage-trap"><b>常见误判</b>把「没拒绝」当成「同意」——沉默不是答应。</p>
+                <div class="hf-stage-links">
+                  <a href="/love-learning.html?course=18">表达好感</a>
+                  <a href="#journey" data-view="journey">连续约会练习</a>
+                </div>
+              </li>
+              <li class="hf-stage">
+                <span class="hf-stage-n">05</span>
+                <h3>经营</h3>
+                <p class="hf-stage-task">任务 · 修复与协商</p>
+                <p class="hf-stage-body">冲突本身不预测分开，「冲突后能不能修回来」才预测。修复包含：约定暂停、说自己的感受、提一个具体请求。</p>
+                <p class="hf-stage-trap"><b>常见误判</b>把「不吵了」当成「解决了」——压下去的分歧会换个方式回来。</p>
+                <div class="hf-stage-links">
+                  <a href="/love-learning.html?course=67">冲突中的暂停</a>
+                  <a href="/love-learning.html?course=85">生活方向与兼容性</a>
+                </div>
+              </li>
+            </ol>
+          </section>
+
+          <section class="hf-sec" aria-labelledby="hfAbilityTitle">
+            <div class="hf-ability">
+              <div class="hf-ability-copy">
+                <span class="hf-sec-num">03</span>
+                <h2 id="hfAbilityTitle">看见自己变强，<br>比被告知「你很好」有用</h2>
+                <p>八项能力来自行为自评和情境判断。不打吸引力分，也不预测谁会喜欢你——它只回答一件事：哪个动作你已经能稳定做到，哪个还需要练。</p>
+                <a href="#abilities" data-view="abilities">查看完整八项 <span aria-hidden="true">→</span></a>
+                <p class="hf-ability-foot">分数只回答「这个动作我能不能稳定做到」，会随练习更新。它不评价你这个人。</p>
+              </div>
+              <div class="hf-dims" id="hfDims" data-mode="empty" aria-live="polite">
+                <div class="hf-focus">
+                  <p class="hf-focus-label" id="hfFocusLabel">起点</p>
+                  <h3 class="hf-focus-name" id="hfFocusName">八项能力，先测一遍</h3>
+                  <div class="hf-focus-meter" id="hfFocusMeter" hidden>
+                    <span class="hf-focus-score" id="hfFocusScore">—</span>
+                    <span class="hf-focus-of">/ 100</span>
+                    <span class="hf-focus-track"><i id="hfFocusBar"></i></span>
+                  </div>
+                  <p class="hf-focus-diag" id="hfFocusDiag">6 分钟，24 道情境题。测完这里不会给你一个总分，而是指出：哪一项已经稳，哪一项最该先动。</p>
+                  <a class="hf-focus-cta" id="hfFocusCta" href="#abilities" data-view="abilities">开始自评 <span aria-hidden="true">→</span></a>
+                </div>
+
+                <div class="hf-rest" id="hfRest" hidden>
+                  <p class="hf-rest-title" id="hfRestTitle">其余七项</p>
+                  <div class="hf-dim" data-state="unrated" data-dim="appearance">
+                    <span class="hf-dim-name">外形与健康管理</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <div class="hf-dim" data-state="unrated" data-dim="voice">
+                    <span class="hf-dim-name">声音与现场表达</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <div class="hf-dim" data-state="unrated" data-dim="communication">
+                    <span class="hf-dim-name">沟通与兴趣表达</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <div class="hf-dim" data-state="unrated" data-dim="emotion">
+                    <span class="hf-dim-name">情绪与自我恢复</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <div class="hf-dim" data-state="unrated" data-dim="dating">
+                    <span class="hf-dim-name">邀约与约会安排</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <div class="hf-dim" data-state="unrated" data-dim="boundaries">
+                    <span class="hf-dim-name">边界与尊重</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <div class="hf-dim" data-state="unrated" data-dim="reliability">
+                    <span class="hf-dim-name">可靠与承诺</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <div class="hf-dim" data-state="unrated" data-dim="knowledge">
+                    <span class="hf-dim-name">知识与判断</span><span class="hf-dim-bar"><i></i></span><span class="hf-dim-val">—</span>
+                  </div>
+                  <p class="hf-dims-note"><span id="hfDimsStatus">已评估 8 / 8 项</span><span>满分 100 · 不是吸引力评分</span></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="hf-sec" id="how" aria-labelledby="hfHowTitle">
+            <header class="hf-sec-head">
+              <span class="hf-sec-num">04</span>
+              <h2 id="hfHowTitle">看懂不等于会，<br>练过才算</h2>
+              <p class="hf-sec-desc">模板解决的是「这一句怎么回」。这里练的是：换个场景、换个人、隔一周，你还能不能做出来。</p>
+            </header>
+            <div class="hf-method">
+              <div>
+                <p class="hf-method-n">01</p>
+                <h3>先自己答，再看示范</h3>
+                <p>提取练习比反复阅读更能把东西留下来。所以顺序永远是：你先写一句，再看反馈。看懂了，不等于会了。</p>
+                <cite>Karpicke &amp; Roediger, 2008</cite>
+              </div>
+              <div>
+                <p class="hf-method-n">02</p>
+                <h3>每一句都有具体反馈</h3>
+                <p>没有反馈的重复只是把旧习惯练得更熟。每轮会指出这句话哪里有效、哪里可能被读成压力，而不是给一个「情商分」。</p>
+                <cite>刻意练习研究 · Ericsson 等</cite>
+              </div>
+              <div>
+                <p class="hf-method-n">03</p>
+                <h3>同一个动作，换个场景再做</h3>
+                <p>间隔与变式让能力迁移到真实场合。同一句话在微信、当面、吵完架之后说，效果完全不同——所以要分别练。</p>
+                <cite>间隔效应与学习迁移研究</cite>
+              </div>
+            </div>
+          </section>
+
+          <section class="hf-sec" aria-labelledby="hfMoreTitle">
+            <header class="hf-sec-head">
+              <span class="hf-sec-num">05</span>
+              <h2 id="hfMoreTitle">按你手上有的，<br>选一条路</h2>
+              <p class="hf-sec-desc">五条入口，按你手上有的东西选：几分钟、一段真实对话，或者一次想弄明白的困惑。</p>
+            </header>
+            <div class="hf-stages" style="grid-template-columns:repeat(4,minmax(0,1fr));list-style:none;margin:0;padding:0;">
+              <li class="hf-stage">
+                <span class="hf-stage-n">A</span>
+                <h3>只有几分钟</h3>
+                <p class="hf-stage-body">做一次「每日小练习」，一个动作，写完就有反馈。</p>
+                <div class="hf-stage-links"><a href="#practice" data-view="practice">每日小练习</a></div>
+              </li>
+              <li class="hf-stage">
+                <span class="hf-stage-n">B</span>
+                <h3>手上有一段真实对话</h3>
+                <p class="hf-stage-body">贴进复盘，先分清哪些是事实、哪些是你的解释。</p>
+                <div class="hf-stage-links"><a href="#real" data-view="real">现实互动复盘</a></div>
+              </li>
+              <li class="hf-stage">
+                <span class="hf-stage-n">C</span>
+                <h3>想先系统看一遍</h3>
+                <p class="hf-stage-body">179 课按主题排好，可以先读，也可以跳着找当前需要的。</p>
+                <div class="hf-stage-links"><a href="/love-learning.html">全部课程</a><a href="/love-learning.html?view=books">书架与资料</a></div>
+              </li>
+              <li class="hf-stage">
+                <span class="hf-stage-n">D</span>
+                <h3>不确定自己卡在哪</h3>
+                <p class="hf-stage-body">做一次情境自检，用八项能力定位最该先练的两个。</p>
+                <div class="hf-stage-links"><a href="#abilities" data-view="abilities">能力画像</a><a href="/intake-quiz.html">沟通情境自检</a></div>
+              </li>
+            </div>
+          </section>
+
         </section>
+
         <section class="panel workspace-view" data-view-panel="practice" hidden><div id="dailyTrainingPanel"></div><div id="intakePanel"></div></section>
         <section class="panel workspace-view" data-view-panel="journey" hidden><div id="dateJourneyPanel"></div></section>
         <section class="panel workspace-view" data-view-panel="real" hidden><div id="realPracticePanel"></div></section>
+        <section class="panel workspace-view" data-view-panel="abilities" hidden><div id="abilityAssessmentPanel"></div></section>
         <section class="panel coach-panel workspace-view" data-panel="coach" data-view-panel="coach" hidden><section class="relationship-intelligence-card" aria-labelledby="relationshipIntelligenceTitle">
           <div class="ri-head">
             <div>
@@ -104,7 +323,7 @@
           </div>
           <label class="ri-consent-control">
             <input id="relationshipIntelligenceConsent" type="checkbox" />
-            <span><b>允许保存匿名结构化记忆</b><small>不保存原始聊天，可随时关闭并清除。</small></span>
+            <span><b>允许保存结构化复盘记忆</b><small>不保存原始聊天，仅保存经规则脱敏的摘要；勿填第三方个人信息，可随时关闭并清除。</small></span>
           </label>
           <div id="relationshipIntelligencePanel" aria-live="polite"></div>
         </section>
@@ -132,7 +351,7 @@
           <button class="btn small" id="planBtn">生成计划</button>
         </div>
         <div class="plan-panel" id="planPanel"></div><div id="textbookPanel"></div></section>
-        <section class="panel workspace-view" data-view-panel="growth" hidden><div id="growthPanel"></div><div id="mistakesPanel"></div><div class="workspace-actions"><button class="btn" id="sessionReportBtn" type="button">生成会话复盘</button></div><div id="sessionReportPanel"></div><div class="section-title progress-title">
+        <section class="panel workspace-view" data-view-panel="growth" hidden><div id="growthPanel"></div><div id="mistakesPanel"></div><div id="memoryPanel"></div><div class="workspace-actions"><button class="btn" id="sessionReportBtn" type="button">生成会话复盘</button></div><div id="sessionReportPanel"></div><div class="section-title progress-title">
           <div>
             <p class="eyebrow">Training Score</p>
             <h2>教练评分 / 成长日志</h2>
@@ -189,6 +408,28 @@
           <span>切换女方角色</span>
           <select id="personaSelect"></select>
         </label>
+
+        <details class="voice-settings" id="voiceSettings">
+          <summary>语音朗读（本地模型 · 离线）</summary>
+          <label class="field">
+            <span>语音引擎</span>
+            <select id="ttsEngineSelect"></select>
+          </label>
+          <label class="field">
+            <span>女方音色</span>
+            <select id="ttsVoiceSelect"></select>
+          </label>
+          <label class="check-field">
+            <input type="checkbox" id="ttsAutoPlay" />
+            <span>生成回复后自动朗读</span>
+          </label>
+          <div class="workspace-actions">
+            <button class="btn small" id="ttsTestBtn" type="button">试听</button>
+            <button class="btn small ghost" id="ttsStopBtn" type="button">停止朗读</button>
+          </div>
+          <p class="voice-status" id="ttsStatus">正在检查本地语音服务…</p>
+          <p class="note">两套模型都在本机运行，不联网、不产生费用。ChatTTS 更拟真（占显存、首句稍慢），Kokoro 更轻快（纯 CPU）。首次使用需双击项目根目录「启动语音服务.cmd」；每条女方消息旁也有「朗读」按钮。</p>
+        </details>
 
         <details class="avatar-editor"><summary>头像设置</summary>
           <div class="avatar-editor-head">
@@ -326,8 +567,14 @@
       </section>
 
     </div>
-    <footer class="site-footer">HeartFlow · 恋爱成长学习与练习</footer>
   </main>
+
+  <footer class="site-footer">
+    <b>HeartFlow · 恋爱成长课</b>
+    <span>这是一个沟通练习工具，不是心理治疗，也不预测任何关系的结果。涉及安全、法律或健康问题时，请优先联系当地专业机构。</span>
+    <span>所有练习记录默认只保存在这台设备的浏览器里。</span>
+  </footer>
+
   <!-- 长篇阅读视图 -->
   <section id="longReader" class="long-reader hidden">
     <div class="long-reader-header">
@@ -387,6 +634,8 @@
 
   <input id="fileImport" type="file" accept="application/json" hidden />
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
-  <script type="module" src="/app.js?v=20261007-engineering-r1"></script>
+  <script src="/pet.js?v=20261031-pet3" defer></script>
+  <script type="module" src="/app.js?v=20261013-abilities-r1"></script>
+  <script type="module" src="/home.js?v=20261101-focus-r9"></script>
 </body>
 </html>

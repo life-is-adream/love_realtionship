@@ -99,6 +99,38 @@ test("updateMemoryState 合并风险区域", () => {
   assert.ok(result.learnedPreferences.riskAreas.includes("边界感"));
 });
 
+test("updateMemoryState：写入会话摘要，关系档案面板才有可看可删的记录", () => {
+  const base = createDefaultEnhancedMemory();
+  const messages = [
+    { type: "me", text: "周末想去看展吗" },
+    { type: "her", text: "好呀，周六下午" }
+  ];
+  const result = updateMemoryState(base, { topics: ["看展"] }, messages, { coachScore: { total: 78 } });
+  assert.equal(result.conversationSummaries.length, 1);
+  const summary = result.conversationSummaries[0];
+  assert.equal(summary.messageCount, 2);
+  assert.equal(summary.avgScore, 78, "教练评分应进入摘要");
+  assert.match(summary.summary, /我发送了 1 条/);
+});
+
+test("updateMemoryState：空消息不产生摘要", () => {
+  const base = createDefaultEnhancedMemory();
+  const result = updateMemoryState(base, { topics: ["电影"] }, []);
+  assert.equal(result.conversationSummaries.length, 0);
+});
+
+test("updateMemoryState：摘要按 maxConversationSummaries 裁剪", () => {
+  let mem = createDefaultEnhancedMemory();
+  for (let i = 0; i < 25; i += 1) {
+    // 每轮消息条数递增，用来识别裁剪后保留的是哪几轮
+    const messages = Array.from({ length: i + 1 }, (_, n) => ({ type: "me", text: `m${n}` }));
+    mem = updateMemoryState(mem, {}, messages);
+  }
+  assert.equal(mem.conversationSummaries.length, 20, "上限应取自 MEMORY_CONFIG.maxConversationSummaries");
+  assert.equal(mem.conversationSummaries[0].messageCount, 6, "最早的 5 轮应被裁掉");
+  assert.equal(mem.conversationSummaries.at(-1).messageCount, 25, "保留最近的，裁掉最早的");
+});
+
 // ── buildMemoryInjection ──────────────────────────────────────────────────────
 
 test("buildMemoryInjection 空记忆返回空字符串", () => {
@@ -124,6 +156,17 @@ test("buildMemoryInjection 包含增强记忆", () => {
   const result = buildMemoryInjection(mem);
   assert.ok(result.includes("常见话题"));
   assert.ok(result.includes("需注意的维度"));
+});
+
+test("buildMemoryInjection：最近一次会话摘要进入上下文（可见即生效）", () => {
+  const mem = createDefaultEnhancedMemory();
+  mem.conversationSummaries = [
+    { date: "2026-10-20", messageCount: 2, summary: "第一轮摘要", topics: [], avgScore: 0 },
+    { date: "2026-10-21", messageCount: 3, summary: "第二轮摘要", topics: [], avgScore: 80 }
+  ];
+  const result = buildMemoryInjection(mem);
+  assert.ok(result.includes("最近一次会话摘要：第二轮摘要"), result);
+  assert.ok(!result.includes("第一轮摘要"), "只进最近一次，避免上下文膨胀");
 });
 
 // ── buildConversationSummary ──────────────────────────────────────────────────

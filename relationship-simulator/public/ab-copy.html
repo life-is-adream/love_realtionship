@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>首屏文案对照 · A / B</title>
+<link rel="stylesheet" href="/shell.css?v=20261101-focus-r9" />
+<style>
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+  }
+  .ab-wrap {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 56px 28px 80px;
+  }
+  .ab-head { max-width: 640px; margin-bottom: 44px; }
+  .ab-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--rose);
+  }
+  .ab-kicker::before {
+    content: "";
+    width: 26px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.55;
+  }
+  .ab-head h1 {
+    margin: 0 0 16px;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 3.2vw, 36px);
+    font-weight: 600;
+    line-height: 1.42;
+  }
+  .ab-head p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--ink-3);
+  }
+
+  .ab-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 44px;
+    align-items: start;
+  }
+  .ab-tag {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    margin-bottom: 14px;
+  }
+  .ab-tag b {
+    font-family: var(--font-num);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--rose);
+  }
+  .ab-tag span {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+  .ab-tag i {
+    margin-left: auto;
+    font-style: normal;
+    font-size: 10.5px;
+    letter-spacing: 0.1em;
+    color: var(--ink-4);
+    border: 1px solid var(--hair-2);
+    border-radius: 99px;
+    padding: 2px 9px;
+  }
+
+  .ab-card {
+    position: relative;
+    padding: 26px 28px 20px;
+    background: var(--card);
+    border: 1px solid var(--hair);
+    border-radius: var(--r);
+    box-shadow: var(--e3);
+  }
+  .ab-card::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    left: 28px;
+    width: 44px;
+    height: 3px;
+    border-radius: 0 0 2px 2px;
+    background: var(--blush);
+  }
+  .ab-card-eyebrow {
+    margin: 0 0 8px;
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    color: var(--rose);
+  }
+  .ab-card h2 {
+    margin: 0 0 4px;
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.45;
+  }
+  .ab-card-sub {
+    margin: 0 0 14px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink-3);
+  }
+  .ab-opt {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 10px;
+    padding: 13px 0;
+    border-top: 1px solid var(--hair);
+  }
+  .ab-opt:last-of-type { padding-bottom: 4px; }
+  .ab-opt .n {
+    font-family: var(--font-num);
+    font-size: 11px;
+    line-height: 1.9;
+    color: var(--ink-4);
+  }
+  .ab-opt .t {
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: var(--ink-2);
+  }
+  .ab-line { display: block; }
+  .ab-line + .ab-line { margin-top: 1px; }
+  .ab-line b {
+    font-weight: 600;
+    color: var(--ink-3);
+    margin-right: 6px;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+  }
+  .ab-tail {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--font-kai);
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .ab-foot {
+    margin: 14px 0 0;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--ink-4);
+  }
+
+  .ab-note {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hair);
+  }
+  .ab-note h3 {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+  }
+  .ab-note p {
+    margin: 0 0 10px;
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: var(--ink-2);
+  }
+  .ab-note p:last-child { margin-bottom: 0; }
+  .ab-note em {
+    font-style: normal;
+    color: var(--rose);
+    font-weight: 600;
+  }
+
+  .ab-how {
+    margin-top: 56px;
+    padding: 30px 32px;
+    border-radius: var(--r);
+    background: var(--card-2);
+    border: 1px solid var(--hair);
+  }
+  .ab-how h2 {
+    margin: 0 0 14px;
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .ab-how ol {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    line-height: 1.95;
+    color: var(--ink-2);
+  }
+  .ab-how li { margin-bottom: 6px; }
+  .ab-how b { color: var(--ink); }
+  .ab-verdict {
+    margin-top: 26px;
+    padding-top: 18px;
+    border-top: 1px solid var(--hair-2);
+    font-size: 12.5px;
+    line-height: 1.85;
+    color: var(--ink-2);
+  }
+  .ab-verdict strong { color: var(--ink); }
+
+  @media (max-width: 860px) {
+    .ab-grid { grid-template-columns: minmax(0, 1fr); gap: 34px; }
+    .ab-wrap { padding: 36px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+<main class="ab-wrap">
+  <header class="ab-head">
+    <p class="ab-kicker">首屏文案 · 两版对照</p>
+    <h1>同一个页面，两句话。<br>差别在用户认不认得出自己。</h1>
+    <p>下面两版定位卡，内容都指向同一批课程入口，只是描述方式不同。A 是当前线上版本，B 换成了具体对话。请只判断一件事：<strong>哪一版更容易让人心里冒出「这就是我」</strong>。</p>
+  </header>
+
+  <div class="ab-grid">
+    <section>
+      <div class="ab-tag">
+        <b>A</b><span>当前版本 · 处境描述</span><i>线上</i>
+      </div>
+      <div class="ab-card">
+        <p class="ab-card-eyebrow">先定位</p>
+        <h2>你现在最接近哪一句？</h2>
+        <p class="ab-card-sub">不用选得准。挑一句最像的，我先给你这一步该练的东西。</p>
+
+        <div class="ab-opt"><span class="n">01</span><span class="t">还没认识什么人，想先有自然的相遇</span></div>
+        <div class="ab-opt"><span class="n">02</span><span class="t">在聊，但聊几句就没话了</span></div>
+        <div class="ab-opt"><span class="n">03</span><span class="t">想约她出来，但开不了口</span></div>
+        <div class="ab-opt"><span class="n">04</span><span class="t">关系不明，猜不透她怎么想</span></div>
+        <div class="ab-opt"><span class="n">05</span><span class="t">在一起了，但总在同一个地方吵</span></div>
+
+        <p class="ab-foot">都看不清？那就从下面这个动作开始，练完再回来定位。</p>
+      </div>
+      <div class="ab-note">
+        <h3>这一版在赌什么</h3>
+        <p>赌「<em>概括准确</em>」：五个处境覆盖足够广，谁都能对上号，没有一句会让人不舒服或被冒犯。</p>
+        <p>代价是：它像问卷选项，不像一句人话。用户读的时候在<strong>分类自己</strong>，而不是<strong>想起某个晚上</strong>。</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="ab-tag">
+        <b>B</b><span>待验证 · 对话片段</span><i>备选</i>
+      </div>
+      <div class="ab-card">
+        <p class="ab-card-eyebrow">先定位</p>
+        <h2>这些对话，你熟吗？</h2>
+        <p class="ab-card-sub">不用挑得准。选一段最像的，我先给你这一步该练的东西。</p>
+
+        <div class="ab-opt"><span class="n">01</span><span class="t">周末一个人在房间里待了一整天，想认识人，又不知道从哪开始。</span></div>
+        <div class="ab-opt">
+          <span class="n">02</span>
+          <span class="t">
+            <span class="ab-line"><b>她</b>「今天好累啊」</span>
+            <span class="ab-line"><b>你</b>「那早点休息」</span>
+            <span class="ab-tail">—— 然后就没有然后了。</span>
+          </span>
+        </div>
+        <div class="ab-opt"><span class="n">03</span><span class="t">消息打了三遍又删掉。想约，但怕被拒之后连话都说不上。</span></div>
+        <div class="ab-opt"><span class="n">04</span><span class="t">她回得很快，但从不主动找你。你不知道这算什么关系。</span></div>
+        <div class="ab-opt"><span class="n">05</span><span class="t">同一件事吵到第三次，每次都以「你根本不在乎我」收场。</span></div>
+
+        <p class="ab-foot">都看不清？那就从下面这个动作开始，练完再回来定位。</p>
+      </div>
+      <div class="ab-note">
+        <h3>这一版在赌什么</h3>
+        <p>赌「<em>具体比抽象更容易被认出</em>」：情境化记忆比概念检索快，读到第 02 条会先笑一下，然后说「就是我」。</p>
+        <p>代价是：更长、更重，会占掉首屏高度；而且具体的另一面是<strong>可能不普适</strong>——没经历过这段对话的人会觉得被排除在外。</p>
+      </div>
+    </section>
+  </div>
+
+  <section class="ab-how">
+    <h2>怎么验（5 个人就够）</h2>
+    <ol>
+      <li>找 <b>3–5 个目标用户</b>，不要找同事、不要找懂产品的人。</li>
+      <li>把这两张卡并排给他们，只说一句：「这两版是同一个东西的入口，你哪一句最像你自己？」</li>
+      <li>记录三件事：<b>选 A 还是 B</b>、<b>选的速度</b>（犹豫超过 3 秒说明没有一句打中）、<b>有没有念出某一句</b>（念出来通常意味着被击中）。</li>
+      <li>如果 5 个人里有 <b>3 个以上选 B 且能指出具体哪一句</b>，换 B。如果选得平均、或者都说「差不多」，说明 B 的具体性没换来识别度，保留 A。</li>
+    </ol>
+    <p class="ab-verdict"><strong>我的判断：</strong>我倾向 B，但不敢直接上线。理由是我对 B 的把握来自学习心理学里的「情境化提取」，不是来自真实用户；而这恰好是整页最贵的一环——用户点不点第一条，决定了他会不会继续往下看。</p>
+  </section>
+</main>
+</body>
+</html>

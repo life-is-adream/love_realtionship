@@ -8,9 +8,11 @@
     "start:bg": "node scripts/start-bg.mjs",
     "dev": "node server/index.js",
     "check:circular": "node scripts/check-circular.mjs",
+    "check:conventions": "node scripts/check-conventions.mjs",
     "build:index": "node scripts/build-long-index.mjs",
     "test:journey": "node --test test/relationship-intelligence-journey.test.mjs",
-    "test": "node --test"
+    "test:unit": "node --test",
+    "test": "node --test && node scripts/check-circular.mjs && node scripts/check-conventions.mjs"
   },
   "engines": {
     "node": ">=18"

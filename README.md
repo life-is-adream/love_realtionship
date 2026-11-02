@@ -34,13 +34,15 @@ npm start
 
 浏览器访问 `http://localhost:3000`。模型 Key 只放在本地 `.env`，不要提交或回显。
 
-`npm run build:index` 已对齐到 `public/modules/content/long-content-index.js`，长篇原文变更后重新运行即可。
+`npm run build:index` 生成 `public/modules/content/long-content-manifest.js` 和 `public/modules/content/long-content/chapter-XX.js`，长篇原文变更后重新运行即可。
 
 ### HeartFlow 与 Runtime 的连接
 
 HeartFlow 现在通过本地 `POST /api/relationship-intelligence` 调用同一套 `runRelationshipLoop`，不再只是拥有两套互不相连的实现。浏览器会展示有界的证据、工作状态、五分类决策和下一步；该接口是确定性本地分析，不调用远程模型，也不会返回原始聊天。
 
-匿名结构化长期记忆默认关闭。用户在界面明确开启后，产品才会保存 `case_` 匿名标识和经过校验的观察摘要；关闭时会清除该结构化记忆。`POST /api/chat` 与它是两条不同的边界：只有前者可能根据 `.env` 调用模型服务。
+结构化复盘记忆默认关闭。用户在界面明确开启后，产品才保存 `case_` 受控标识和经校验、规则脱敏的观察摘要；规则无法识别所有姓名或组合信息，因此不能保证自由文本完全匿名，需自行复核并避免第三方个人信息。关闭时清除该结构化记忆。`POST /api/chat` 和用户主动触发的 `POST /api/search` 可根据 `.env` 调用上游；本地 Relationship Intelligence 不调用远程模型。
+
+联网搜索始终执行 HTTP(S) URL 和域名白名单校验，只展示“参考来源”，不把域名匹配视为观点核验。模型搜索目前只支持 MiMo Chat Completions 与已开通的搜索插件；Responses 或冲突配置在发请求前返回 `503 search_api_mode_unsupported`。需要使用其它搜索接口时可独立配置 `SEARCH_ENDPOINT` / `SEARCH_API_KEY`；主聊天对 Responses 的支持保持原有范围。
 
 ## 课程自动化
 

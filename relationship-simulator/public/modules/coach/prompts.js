@@ -103,6 +103,12 @@ export function buildSystemPrompt(persona, memory, options = {}) {
     parts.push("");
   }
 
+  // 注入对方投入度分层策略（core/investment.js 生成；只描述可观测行为）
+  if (memory._tierInjection) {
+    parts.push(memory._tierInjection);
+    parts.push("");
+  }
+
   // 真诚度 / 语气强度调节（可选）
   const toneGuidance = buildToneGuidance(options.tone);
   if (toneGuidance) {
@@ -124,6 +130,137 @@ export function buildSystemPrompt(persona, memory, options = {}) {
   );
 
   return parts.join("\n");
+}
+
+/**
+ * 她的演出规则：只出微信文本，禁止教练腔泄漏进回复。
+ *
+ * 合并 prompt 时代 she 与教练同在一次调用里，她的回复会带上分析口吻与
+ * 建议腔；这段规则把「她」独立出来，并规定多条气泡的分隔方式。
+ */
+function buildHerPerformanceRules(options = {}) {
+  const lines = [
+    "【本轮你是她本人】只输出她接下来发出的微信消息。",
+    "- 不做分析、不评分、不给建议、不解释你为什么这么回。",
+    "- 通常一句话，最多两句；口语、短句，不用书面语的句号和分点。",
+    "- 想连发多条时用反斜杠分隔（例：哈哈哈确实\\那我明天问你），前端会拆成多条气泡。",
+    "- 不写括号动作描写（如（笑）（低头）），不堆表情符号。",
+    "- 不复述对方原话，不说「我听到你说」「我先记下」这类元话语。",
+    "- 不出现「建议」「推荐」「评分」「阶段」「投入度」这些教练词。",
+    "- 只回应对方最新那一条；可以接话也可以不接，不必把每个信息点都回应完。",
+    "- 严格按角色设定里的语言风格说话，不要用通用 AI 腔。"
+  ];
+  if (options.mode === "pua") {
+    lines.push("- 本轮按手法清单演示一种可识别手法，但仍只输出她的消息文本，不要自曝手法名称。");
+  }
+  return lines.join("\n");
+}
+
+/**
+ * 构建「她」的系统提示词（独立于教练）
+ *
+ * 顺序即缓存友好顺序：稳定的演出规则与人设在前，每轮可变的记忆与投入度在后。
+ *
+ * @param {Object} persona - 当前角色对象
+ * @param {Object} memory - 角色记忆（可带 _enhancedInjection / _tierInjection）
+ * @param {Object} [options] - { mode }
+ * @returns {string}
+ */
+export function buildHerSystemPrompt(persona, memory = {}, options = {}) {
+  const parts = [
+    buildHerPerformanceRules(options),
+    "",
+    "你的角色设定：" + (persona.systemRole || persona.logic || ""),
+    "角色标签：" + (persona.tags || []).join("、"),
+    ""
+  ];
+
+  if (options.mode === "pua") {
+    parts.push(buildPuaAwarenessPrompt());
+    parts.push("");
+  }
+
+  parts.push(
+    "关系背景：" + (memory.background || ""),
+    "她的兴趣：" + (memory.interests || ""),
+    "边界/禁忌：" + (memory.boundaries || ""),
+    ""
+  );
+
+  if (memory._enhancedInjection) {
+    parts.push(memory._enhancedInjection);
+    parts.push("");
+  }
+  if (memory._tierInjection) {
+    parts.push(memory._tierInjection);
+    parts.push("");
+  }
+
+  return parts.join("\n");
+}
+
+/** 发给她的生成任务指令：只要文本，禁止 JSON。 */
+export function buildHerTaskPrompt() {
+  return [
+    "请只输出她接下来发出的微信消息。",
+    "不要输出 JSON、不要输出引号、不要输出多条候选、不要输出教练点评。",
+    "如果她该结束本轮，就输出自然的收尾句，不要强行推进话题。"
+  ].join("\n");
+}
+
+/**
+ * 构建「教练」的系统提示词：她的回复已确定，教练只分析并给男方建议。
+ *
+ * @param {Object} persona - 当前角色对象
+ * @param {Object} memory - 角色记忆
+ * @param {Object} [options] - { mode, tone }
+ * @returns {string}
+ */
+export function buildCoachSystemPrompt(persona, memory = {}, options = {}) {
+  const isPuaMode = options.mode === "pua";
+  const parts = [
+    "你是中文恋爱沟通教练。本轮女方回复已由系统给出，你只做分析与男方回复建议，不改写她的话、不替她说话。",
+    buildRelationshipCoachSkillPrompt(isPuaMode),
+    buildWeaknessAwarenessPrompt(),
+    "角色设定（仅用于理解她的行为，不要复述进建议）：" + (persona.systemRole || persona.logic || ""),
+    ""
+  ];
+
+  if (memory._tierInjection) {
+    parts.push(memory._tierInjection);
+    parts.push("");
+  }
+
+  // 真诚度/语气强度调节的是「男方该怎么说」，属教练侧 A/B/C，不影响她的演出。
+  const toneGuidance = buildToneGuidance(options.tone);
+  if (toneGuidance) {
+    parts.push(toneGuidance);
+    parts.push("");
+  }
+
+  parts.push(buildCoachTaskPrompt(isPuaMode));
+  return parts.join("\n");
+}
+
+/**
+ * 教练本轮任务指令：herReply 作为已知输入，不再要求模型生成。
+ */
+export function buildCoachTaskPrompt(isPuaMode = false) {
+  return [
+    "基于完整对话与下面这条已确定的女方回复，生成本轮教练分析与男方回复建议。",
+    "只输出一个合法 JSON 对象，不要 Markdown，不要代码块，不要解释。",
+    "要求：",
+    "1. 分析对象是「我」最新那一条消息，以及她这条回复所反映的可观察信号。",
+    isPuaMode
+      ? "2. PUA 识别训练模式下：女方本轮演示的手法写进 herIntent，识别信号写进 risk，防御回应写进 recommendation。"
+      : "2. 保持尊重、同意与边界，不操控、不 PUA、不制造焦虑。",
+    "3. 如果信息不足，也要给出能承接当前话题的建议，并在 unknowns 里写明未知。",
+    "JSON 字段：herIntent, yourGoal, judgement, risk, replyOptions, recommendation, coachScore, evidenceReasoning。",
+    "evidenceReasoning 必须包含 observations（行为事实字符串数组）、hypotheses（最多两个 {explanation,support:[],counter:[]}）、unknowns（未知字符串数组）；模拟生成的回应标明为虚构情境，不能充当现实结果。",
+    "herIntent 仅概述可观察回应或虚构演示手法；yourGoal 仅使用用户明确提供的目标。缺少证据时保持未知，不从回复速度、性别或单次信号断言心理。",
+    "replyOptions 只保留 A/B/C 三项，并且每一项都必须是男方对她这条回复的直接回应，不能继续回应更早的旧消息。",
+    "A/B/C 必须是可直接发送的聊天文本，不要写教练点评，不要用「我听到你说」「我先记下」，不要把她的回复原文整段复制进建议。"
+  ].join("\n");
 }
 
 /**

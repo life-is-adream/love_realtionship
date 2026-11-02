@@ -7,7 +7,7 @@ test("空状态说明本地分析和长期记忆边界", () => {
 
   assert.match(html, /等待本地分析/);
   assert.match(html, /不会调用远程模型/);
-  assert.match(html, /未开启匿名长期记忆/);
+  assert.match(html, /未开启长期记忆/);
 });
 
 test("加载态和错误态有独立、非阻断提示", () => {
@@ -42,7 +42,8 @@ test("分析结果显示决策、状态、证据、动作与限制", () => {
   assert.match(html, /当前互惠程度仍不明确/);
   assert.match(html, /只做一个最小、可逆的观察/);
   assert.match(html, /不是心理诊断/);
-  assert.match(html, /已开启匿名结构化记忆/);
+  assert.match(html, /已开启结构化复盘记忆/);
+  assert.match(html, /不能识别全部姓名/);
 });
 
 test("所有 runtime 文本在插入 HTML 前转义", () => {

@@ -71,12 +71,20 @@ test("已持久化知悉状态的访问不再显示横幅", () => {
   assert.equal(banner.innerHTML, "");
 });
 
-test("localStorage 不可用时按已知悉处理（不阻塞、不重复弹）", () => {
+test("localStorage 不可用时按未知悉处理（fail-closed，合规声明必须显示）", () => {
   const throwing = { getItem() { throw new Error("blocked"); }, setItem() { throw new Error("blocked"); } };
-  assert.equal(hasAcknowledgedCompliance(throwing), true);
+  // 合规声明失败方向必须是 fail-closed：读不到状态就当作"未告知"，横幅照常显示。
+  assert.equal(hasAcknowledgedCompliance(throwing), false);
   const banner = fakeBanner();
   const result = initComplianceBanner({ getElement: () => banner, storage: throwing });
-  assert.equal(result.visible, false);
+  assert.equal(result.visible, true);
+  assert.match(banner.innerHTML, /AI 模拟声明/);
+  // 写入失败仍可关闭横幅（本次会话内），只是不持久化。
+  const clickHandlers = banner.__ackButton.__listeners.click;
+  assert.ok(Array.isArray(clickHandlers) && clickHandlers.length === 1);
+  clickHandlers[0]();
+  assert.equal(banner.className, "compliance-banner hidden");
+  assert.equal(banner.innerHTML, "");
 });
 
 test("页面无横幅挂载点或 getElement 为空时安全跳过", () => {

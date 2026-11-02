@@ -2,6 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { r1ViolationsFor } from "./helpers/conventions.mjs";
 
 import {
   REPORT_DIM_KEYS,
@@ -354,7 +355,8 @@ test("UI 接线：复制/保存动作齐备，保存走 mutate + recordTrainingE
 });
 
 test("UI 接线：render-session-report 全部插值过 escapeHtml 且零 LLM", () => {
-  assert.match(reportModuleSource, /escapeHtml/);
+  // 同 mistakes.test.mjs：转义由 R1 实际执行，源码正则断言只保留零 LLM 检查。
+  assert.deepEqual(r1ViolationsFor("public/modules/render/render-session-report.js"), [], "render-session-report 存在未转义的 HTML 插值");
   assert.doesNotMatch(reportModuleSource, /callLLM|api-client/);
   assert.doesNotMatch(pureModuleSource, /callLLM|fetch\(|localStorage\.|document\./);
 });
@@ -403,7 +405,7 @@ test("markdown：含对方视角回放节与题眼句，空回放给明确提示
   assert.match(empty, /游戏可以重来，现实没有存档/, "题眼句在空会话也要出现");
 });
 
-test("UI 接线：报告卡渲染对方视角回放区块、题眼句收尾、插值过 escapeHtml", () => {
+test("UI 接线：报告卡渲染对方视角回放区块、题眼句收尾", () => {
   assert.match(reportModuleSource, /renderHerReplay\(report\.herReplay\)/);
   assert.match(reportModuleSource, /session-report-replay/);
   assert.match(reportModuleSource, /游戏可以重来，现实没有存档/);

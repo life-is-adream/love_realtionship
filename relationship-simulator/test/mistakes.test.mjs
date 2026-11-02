@@ -2,6 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { r1ViolationsFor } from "./helpers/conventions.mjs";
 
 import {
   MISTAKES_LIMIT,
@@ -262,7 +263,9 @@ test("UI 接线：错题行三个操作按钮齐备，解决/删除均走 confir
 });
 
 test("UI 接线：render-mistakes 全部插值过 escapeHtml 且写路径走 mutate + recordTrainingEvent", () => {
-  assert.match(renderMistakesSource, /escapeHtml/);
+  // 转义纪律由 check-conventions 的 R1 实际执行（作用域分析 + 白名单），
+  // 不再用 `assert.match(source, /escapeHtml/)` 这种假断言——文件里出现过一次即可通过。
+  assert.deepEqual(r1ViolationsFor("public/modules/render/render-mistakes.js"), [], "render-mistakes 存在未转义的 HTML 插值");
   assert.match(renderMistakesSource, /recordTrainingEvent\(state\.learning/);
   assert.match(renderMistakesSource, /type: "mistake-rewrite"/);
   assert.match(renderMistakesSource, /buildCoachScore\(/, "重写评分应复用本地四维教练（零 LLM）");

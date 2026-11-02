@@ -34,5 +34,7 @@ export function loadScenario(scenarioId, { switchPersona = () => {}, onChanged =
     onChanged();
   }
   if (scenario.contextHint && $("goal")) { $("goal").value = scenario.contextHint; $("goal").dataset.personaSynced = "false"; }
-  $("apiStatus").textContent = `已加载剧本：${scenario.title}`;
+  // 与上面几处一致做空值保护：面板未挂载时不能抛错，否则整个载入流程被一条状态提示打断。
+  const status = $("apiStatus");
+  if (status) status.textContent = `已加载剧本：${scenario.title}`;
 }

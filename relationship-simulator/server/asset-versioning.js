@@ -1,5 +1,5 @@
 // 本地可编辑应用使用统一模块版本，避免新入口配上浏览器里的旧依赖。
-export const APP_ASSET_VERSION = "20261007-engineering-r1";
+export const APP_ASSET_VERSION = "20261013-abilities-r1";
 
 export function versionModuleSpecifier(specifier, version = APP_ASSET_VERSION) {
   if (!/^\.\.?\//.test(specifier)) return specifier;

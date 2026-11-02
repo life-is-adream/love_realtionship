@@ -4,6 +4,7 @@
  * The module deliberately does not know about the DOM or the application state.
  * That keeps model responses and local fallbacks interchangeable in later phases.
  */
+import { clampScore } from "../core/number.js";
 
 export const ANALYSIS_SCORE_KEYS = Object.freeze([
   "naturalness",
@@ -112,12 +113,6 @@ function normalizeList(value) {
     .filter(Boolean);
 }
 
-function clampScore(value) {
-  const number = Number(value);
-  return Number.isFinite(number)
-    ? Math.max(0, Math.min(100, Math.round(number)))
-    : 0;
-}
 
 function parseObject(value) {
   if (isRecord(value)) return value;

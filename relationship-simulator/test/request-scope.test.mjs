@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { createRequestScope } from "../public/modules/core/request-scope.js";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
+import { runCoachFloatSearch } from "../public/modules/render/coach-float-search.js";
+import { parseHerBubbles, joinHerReply } from "../public/modules/coach/her-reply.js";
 
 test("同一通道的后发请求取代先发请求，旧 finish 不影响新任务", () => {
   const scope = createRequestScope(() => "context");
@@ -37,8 +39,49 @@ test("不同功能可以独立工作，cancelAll 一次取消全部", () => {
   assert.equal(a.signal.aborted && b.signal.aborted, true);
 });
 
+test("关闭搜索只取消搜索通道，旧finish不影响重开的搜索或其它模型请求", () => {
+  const scope = createRequestScope(() => "same");
+  const chat = scope.begin("chat");
+  const search = scope.begin("coach-search");
+  scope.cancel("coach-search");
+  assert.equal(search.signal.aborted, true);
+  assert.equal(search.isCurrent(), false);
+  assert.equal(chat.isCurrent(), true);
+  const reopened = scope.begin("coach-search");
+  search.finish();
+  assert.equal(reopened.isCurrent(), true);
+  scope.cancel("missing");
+  assert.equal(chat.isCurrent(), true);
+});
+
 // 执行 app.js 的真实生成函数，用可控 Promise 模拟乱序响应，不调用任何模型。
 const source = await readFile(new URL("../public/app.js", import.meta.url), "utf8");
+
+test("真实app搜索使用共享scope，关闭悬浮面板中断搜索但保留聊天请求", async () => {
+  const scope = createRequestScope(() => "context");
+  const chat = scope.begin("chat");
+  const resultTarget = { innerHTML: "" };
+  const panel = { innerHTML: "", classList: { toggle: () => true } };
+  const controls = new Map([["coachFloatPanel", panel], ["stage", { value: "第一次邀约" }], ["coachFloatBtn", { classList: { toggle() {} } }]]);
+  let complete, signal;
+  const env = {
+    state: { lastAnalysis: {} }, modelRequests: scope, $: (id) => controls.get(id),
+    buildCoachFloatHtml: () => "", buildCoachFloatData: () => ({}),
+    runCoachFloatSearchView: (options) => runCoachFloatSearch({ ...options, target: resultTarget,
+      search: (_query, searchOptions) => { signal = searchOptions.signal; return new Promise((resolve) => { complete = resolve; }); }
+    })
+  };
+  vm.createContext(env);
+  vm.runInContext(source.slice(source.indexOf("function renderCoachFloat("), source.indexOf("function renderAnalysisPanel(")), env);
+  const task = env.runCoachFloatSearch();
+  env.toggleCoachFloat();
+  assert.equal(signal.aborted, true);
+  assert.equal(chat.isCurrent(), true);
+  resultTarget.innerHTML = "closed panel";
+  complete({ results: [{ title: "late", url: "https://apa.org/late" }], filtered: 0 });
+  await task;
+  assert.equal(resultTarget.innerHTML, "closed panel");
+});
 const dialogueFunctions = source.slice(source.indexOf("async function askAi("), source.indexOf("function renderDiffHtml("));
 function mountGeneration() {
   let context = "old-conversation";
@@ -50,10 +93,15 @@ function mountGeneration() {
   }]));
   const env = {
     modelRequests: scope, STALE_RESULT: Symbol("stale"), isGenerating: false, MIMO_MODEL: "fake",
-    state: {}, $: (name) => controls.get(name), uiValues: () => ({}),
-    savePersonaMemory() {}, appendMineIfNew() {}, afterChatRender() {}, buildMessages: async () => [],
+    state: {}, $: (name) => controls.get(name), uiValues: () => ({}), isRelationshipStopped: () => false,
+    savePersonaMemory() {}, appendMineIfNew() {}, afterChatRender() {},
+    // 拆双角色后 askAi 走两次调用：先她的文本，再教练 JSON。
+    buildGenerationContext: async () => ({ persona: { name: "她" }, memory: {}, messages: [], ui: {} }),
+    buildHerMessages: () => [], buildCoachMessages: () => [],
+    parseHerBubbles, joinHerReply, commitHerReply() {},
     callLLM: () => new Promise((resolve, reject) => pending.push({ resolve, reject })),
     parseModelContent: () => ({ herReply: "synthetic reply" }),
+    localAnalyze: () => ({ herReply: "local reply", coachScore: { total: 70 } }),
     commitAnalysis: (value) => { commits++; return value; },
     mutate: () => { mutations++; }, localFallback: () => { fallbacks++; return {}; },
     invalidatePreflight() {}, preflightRevision: 0, capturePreflightContext: () => context
@@ -61,8 +109,25 @@ function mountGeneration() {
   vm.createContext(env);
   vm.runInContext(dialogueFunctions, env);
   vm.runInContext(source.slice(source.indexOf("async function nextTurn("), source.indexOf("function exportSession(")), env);
-  return { env, pending, controls, scope, stats: () => ({ commits, fallbacks, mutations }), change: () => { context = "new-conversation"; scope.cancelAll(); } };
+  // 双调用序列的推进：结算一次调用，等下一次调用把 promise 排进 pending。
+  const tick = () => new Promise(setImmediate);
+  const settle = async (index, content) => { pending[index].resolve({ content }); await tick(); };
+  return { env, pending, controls, scope, tick, settle, stats: () => ({ commits, fallbacks, mutations }), change: () => { context = "new-conversation"; scope.cancelAll(); }, bumpContext: () => { context = "with-her-reply"; } };
 }
+
+test("她的回复落盘改变会话上下文后，教练分析结果仍必须提交", async () => {
+  // 回归：commitHerReply 会往 messages 追加一条，会话上下文随之变化。
+  // 若教练调用沿用她的 ticket 做过期判断，结果回来必被判过期丢弃——整轮只剩她的回复。
+  const ui = mountGeneration();
+  ui.env.commitHerReply = () => ui.bumpContext();
+  const task = ui.env.askAi({ silent: true });
+  await ui.tick();
+  await ui.settle(0, "早啊");
+  await ui.settle(1, "{\"judgement\":\"ok\"}");
+  const result = await task;
+  assert.equal(ui.stats().commits, 1, "教练分析不能被自己刚落的回复判成过期");
+  assert.equal(result.herReply, "早啊");
+});
 
 test("会话切换后旧模型成功或失败均不会写分析、错误或触发本地兜底", async () => {
   for (const fail of [false, true]) {
@@ -71,7 +136,7 @@ test("会话切换后旧模型成功或失败均不会写分析、错误或触�
     await new Promise(setImmediate);
     ui.change();
     if (fail) ui.pending[0].reject(new Error("old failure"));
-    else ui.pending[0].resolve({ content: "old reply" });
+    else await ui.settle(0, "old reply");
     await task;
     assert.deepEqual(ui.stats(), { commits: 0, fallbacks: 0, mutations: 0 });
     assert.equal(ui.env.isGenerating, false);
@@ -81,10 +146,12 @@ test("会话切换后旧模型成功或失败均不会写分析、错误或触�
 test("同会话两次 askAi 乱序返回时只提交后发请求", async () => {
   const ui = mountGeneration();
   const first = ui.env.askAi();
-  await new Promise(setImmediate);
+  await ui.tick();
   const second = ui.env.askAi();
-  await new Promise(setImmediate);
-  ui.pending[1].resolve({ content: "new" });
+  await ui.tick();
+  // 先发请求（pending[0]）已过期；后发请求（pending[1] 她的回复 + pending[2] 教练分析）完整提交。
+  await ui.settle(1, "new");
+  await ui.settle(2, "{\"judgement\":\"new\"}");
   await second;
   ui.pending[0].resolve({ content: "old" });
   await first;
@@ -121,12 +188,29 @@ test("然后只有成功时清空草稿，调用失败保留输入且不使用�
     const task = ui.env.nextTurn();
     await new Promise(setImmediate);
     if (fail) ui.pending[0].reject(new Error("synthetic failure"));
-    else ui.pending[0].resolve({ content: "reply" });
+    else {
+      // 双调用成功才算一轮完成：她的回复 + 教练分析都返回。
+      await ui.settle(0, "reply");
+      await ui.settle(1, "{\"judgement\":\"ok\"}");
+    }
     await task;
     assert.equal(ui.stats().fallbacks, 0);
     assert.equal(ui.stats().commits, fail ? 0 : 1);
     assert.equal(ui.controls.get("userInput").value, fail ? "kept draft" : "");
   }
+});
+
+test("教练分析失败时保留已生成的她的回复，只用本地评估补分析", async () => {
+  const ui = mountGeneration();
+  const task = ui.env.askAi({ silent: true });
+  await ui.tick();
+  await ui.settle(0, "哈哈确实\\那我明天问你");
+  ui.pending[1].reject(new Error("coach down"));
+  const result = await task;
+  assert.equal(ui.stats().commits, 1, "不回退到本地整轮兜底");
+  assert.equal(ui.stats().fallbacks, 0);
+  assert.equal(result.coachScore.total, 70, "教练字段由本地评估补齐");
+  assert.equal(result.herReply, "哈哈确实 那我明天问你", "她的模型回复不被本地模板覆盖");
 });
 
 test("输入或会话变化后，消息优化和行动计划不覆盖新页面", async () => {
@@ -195,7 +279,7 @@ function mountPreflight() {
     buildOptimizerPrompt: () => ({}), escapeHtml: (value) => String(value || ""), renderDiffHtml: () => "", renderTiming() {},
     callLLM: ({ signal }) => new Promise((resolve, reject) => pending.push({ resolve, reject, signal })),
     renderStageProgress() {}, renderPersonaControls() {}, renderCoachFloat() {}, renderChat() {}, afterChatRender() {},
-    renderAnalysisPanel() {}, renderActionPlan() {}, renderScenarioList() {}, renderIntelligencePanel() {}
+    renderAnalysisPanel() {}, renderActionPlan() {}, renderScenarioList() {}, renderIntelligencePanel() {}, renderMemoryPanel() {}, renderAbilityAssessment() {}
   };
   vm.createContext(env);
   vm.runInContext(source.slice(source.indexOf("function uiValues("), source.indexOf("function afterChatRender(")), env);

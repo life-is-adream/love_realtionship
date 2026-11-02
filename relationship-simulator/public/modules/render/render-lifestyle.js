@@ -9,6 +9,7 @@
  */
 
 import { $, escapeHtml } from "../core/dom.js";
+import { shanghaiDate } from "../core/date.js";
 import { getState, mutate } from "../core/state.js";
 import { renderKnowledgeSources } from "./render-presentation-knowledge.js";
 import {
@@ -256,10 +257,9 @@ function formatKg(kg) {
   return Number.isFinite(value) ? value.toFixed(1) : "";
 }
 
-/** 本地日期字符串 YYYY-MM-DD（与训练/体重条目的 date 口径一致） */
+/** 当天日期键 YYYY-MM-DD（统一走 Asia/Shanghai 口径，与训练/体重条目的 date 一致） */
 function todayKey() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  return shanghaiDate();
 }
 
 /** 本地日期字符串加减天数（跨月安全，UTC 日序号换算不受时区偏移影响） */

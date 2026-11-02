@@ -6,6 +6,7 @@
  */
 
 export const MICRO_TRAINING_SOURCE = "micro-training-v1";
+import { shanghaiDate } from "../core/date.js";
 
 export const TRAINING_DIMENSIONS = Object.freeze([
   "initiative",
@@ -75,10 +76,8 @@ function dateKey(value) {
 
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return null;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  // 日期键统一 Asia/Shanghai（core/date.js 是唯一口径），不再用设备本地 getFullYear 自拼。
+  return shanghaiDate(date);
 }
 
 function dateToDayNumber(key) {

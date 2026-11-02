@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>人格与价值观自测 · 六维版</title>
+<style>
+  :root{
+    --ink:#22201e; --sub:#6d6560; --faint:#9c948e;
+    --line:#e6e0d8; --bg:#faf8f4; --card:#fffefb;
+    --accent:#a8502f; --accent-soft:#f8ece6;
+    --green:#3c6650; --green-soft:#edf3ee;
+    --blue:#3a5878; --blue-soft:#eaf0f6;
+    --amber:#8a6116; --amber-soft:#faf2df;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:15px; line-height:1.7; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:640px; margin:0 auto; padding:44px 22px 80px;}
+  h1{font-size:25px; font-weight:600; margin:0 0 10px; line-height:1.4; letter-spacing:-.01em;}
+  h2{font-size:16px; font-weight:600; margin:0 0 8px; line-height:1.5;}
+  .kicker{font-size:12px; letter-spacing:.1em; color:var(--faint); margin-bottom:14px;}
+  .lead{color:var(--sub); margin:0 0 26px; font-size:15px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px; margin-bottom:14px;}
+  .btn{display:inline-block; border:none; border-radius:10px; padding:13px 26px; font-size:15px;
+    font-weight:600; background:var(--accent); color:#fff; cursor:pointer; font-family:inherit;
+    transition:opacity .15s;}
+  .btn:hover{opacity:.88;}
+  .btn.ghost{background:transparent; color:var(--sub); border:1px solid var(--line);}
+  .btn:disabled{opacity:.35; cursor:default;}
+  .rules{font-size:14px; color:var(--sub); margin:0; padding-left:18px;}
+  .rules li{margin-bottom:6px;}
+  .progress-outer{height:4px; background:var(--line); border-radius:4px; overflow:hidden; margin-bottom:8px;}
+  .progress-inner{height:100%; background:var(--accent); width:0; transition:width .25s ease;}
+  .meta{display:flex; justify-content:space-between; font-size:12px; color:var(--faint); margin-bottom:22px;}
+  .scale-hint{display:flex; justify-content:space-between; font-size:11.5px; color:var(--faint); margin-bottom:14px;}
+  .q{padding:16px 0; border-bottom:1px solid var(--line);}
+  .q:last-child{border-bottom:none;}
+  .q-text{font-size:15px; margin-bottom:12px; line-height:1.65;}
+  .opts{display:flex; gap:8px;}
+  .opt{flex:1; height:38px; border-radius:8px; border:1px solid var(--line); background:#fff;
+    color:var(--sub); font-size:14px; font-family:inherit; cursor:pointer; transition:all .12s;}
+  .opt:hover{border-color:var(--accent);}
+  .opt.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600;}
+  .nav{display:flex; gap:10px; margin-top:22px;}
+  .nav .btn{flex:1; text-align:center;}
+  .hidden{display:none !important;}
+  .dim{margin-bottom:26px;}
+  .dim-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;}
+  .dim-name{font-size:15px; font-weight:600;}
+  .dim-score{font-size:13px; color:var(--faint); font-variant-numeric:tabular-nums;}
+  .bar{height:8px; background:#efe9e1; border-radius:5px; overflow:hidden; margin-bottom:9px;}
+  .bar-fill{height:100%; border-radius:5px; width:0; transition:width .7s cubic-bezier(.2,.7,.3,1);}
+  .dim-note{font-size:14px; color:var(--sub); margin:0; line-height:1.7;}
+  .tagline{display:inline-block; font-size:11.5px; font-weight:600; padding:2px 9px;
+    border-radius:20px; margin-left:8px; vertical-align:2px;}
+  .t-high{background:var(--accent-soft); color:var(--accent);}
+  .t-mid{background:var(--blue-soft); color:var(--blue);}
+  .t-low{background:var(--green-soft); color:var(--green);}
+  .combo{background:var(--amber-soft); border-radius:10px; padding:18px 20px; margin-bottom:12px;}
+  .combo h3{margin:0 0 8px; font-size:15.5px; font-weight:600; color:#6a4a11;}
+  .combo p{margin:0; font-size:14px; color:#5d4413; line-height:1.75;}
+  .footnote{font-size:12.5px; color:var(--faint); line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section id="intro">
+    <div class="kicker">六维自测 · 30 题 · 约 6 分钟</div>
+    <h1>人格与价值观自测</h1>
+    <p class="lead">这不是 MBTI，也不是性格标签。它测的是六种<strong>默认反应</strong>——你在没时间思考的时候，会怎么动。</p>
+    <div class="card">
+      <h2>怎么答</h2>
+      <ul class="rules">
+        <li>按<strong>你实际会做的</strong>选，不是按你觉得应该的选。</li>
+        <li>不用纠结，第一反应通常最准。</li>
+        <li>1 = 完全不符合，5 = 完全符合，3 = 说不好。</li>
+        <li>三十题是一次性算总分的，中间别停。</li>
+      </ul>
+    </div>
+    <button class="btn" onclick="start()">开始</button>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="progress-outer"><div class="progress-inner" id="prog"></div></div>
+    <div class="meta"><span id="pageLabel">第 1 页 / 共 6 页</span><span id="countLabel">0 / 30</span></div>
+    <div class="scale-hint"><span>1 完全不符合</span><span>3 说不好</span><span>5 完全符合</span></div>
+    <div id="questions"></div>
+    <div class="nav">
+      <button class="btn ghost" id="prevBtn" onclick="prev()">上一页</button>
+      <button class="btn" id="nextBtn" onclick="next()">下一页</button>
+    </div>
+  </section>
+
+  <section id="result" class="hidden">
+    <div class="kicker">结果</div>
+    <h1 id="resTitle">你的六维画像</h1>
+    <p class="lead" id="resLead"></p>
+    <div id="dims"></div>
+    <div id="combos"></div>
+    <div class="card">
+      <h2>怎么用这份结果</h2>
+      <p class="dim-note">这些分数不是判决，是<strong>默认设置</strong>。默认设置解释了你在没意识到的时候会怎么动，但不决定你下一次怎么动。改一个维度，通常不是靠想通，是靠换一个具体做法。</p>
+    </div>
+    <button class="btn ghost" onclick="location.reload()">重新测一次</button>
+    <p class="footnote" style="margin-top:26px;">本测试基于行为倾向的自我报告，不构成心理诊断。分数只反映你此刻的自我描述，会随状态变化。</p>
+  </section>
+
+</div>
+
+<script>
+const QS = [
+  {t:"做一件重要的事之前，我必须先大致看到它会不会成。", d:0, r:false},
+  {t:"如果一件事前景不明，我宁愿先放着。", d:0, r:false},
+  {t:"我可以为一个看不清结果的事情，投入几个月。", d:0, r:true},
+  {t:"别人说「试试看嘛」，我会觉得这话没什么用。", d:0, r:false},
+  {t:"我更怕「做了没用」，而不是「没做后悔」。", d:0, r:false},
+
+  {t:"有些很多年前的事，我还会在夜里重新想一遍。", d:1, r:false},
+  {t:"我能干净地结束一段关系，不回头看。", d:1, r:true},
+  {t:"没得到解释的结束，比明确的拒绝更让我难受。", d:1, r:false},
+  {t:"我会反复回想自己当时该说什么。", d:1, r:false},
+  {t:"事情过去很久，我仍会为它找一个新的解释。", d:1, r:false},
+
+  {t:"一想到可能尴尬或被拒绝，我就会把话咽回去。", d:2, r:false},
+  {t:"我能带着紧张，把该说的话说完。", d:2, r:true},
+  {t:"情绪上来时，我第一反应是离开那个场景。", d:2, r:false},
+  {t:"我常常在事情开始前，就替它想好退路。", d:2, r:false},
+  {t:"难处理的消息，我会先放几天再说。", d:2, r:false},
+
+  {t:"想要什么，我会直接说出口。", d:3, r:false},
+  {t:"我常用暗示或玩笑，来表达真实想法。", d:3, r:true},
+  {t:"被拒绝后，我能平静地再问一次。", d:3, r:false},
+  {t:"我宁愿自己消化，也不愿让别人为难。", d:3, r:true},
+  {t:"我很清楚自己在一段关系里想要什么。", d:3, r:false},
+
+  {t:"关系出问题时，我第一反应是找自己的错。", d:4, r:false},
+  {t:"别人情绪不好，我会想是不是我做错了什么。", d:4, r:false},
+  {t:"我能分清「这件事没成」和「我这个人不行」。", d:4, r:true},
+  {t:"我常觉得自己在重要的人面前不够好。", d:4, r:false},
+  {t:"被拒绝时，我更多是难过，而不是怀疑自己。", d:4, r:true},
+
+  {t:"我需要重要的人认可我，才觉得自己是对的。", d:5, r:false},
+  {t:"我自己认定的事，别人不认同也不太动摇我。", d:5, r:true},
+  {t:"别人对我的评价，会影响我一整天的心情。", d:5, r:false},
+  {t:"我做事的标准，主要来自我自己。", d:5, r:true},
+  {t:"如果没人知道我做了什么，我会觉得白做了。", d:5, r:false}
+];
+
+const PAGES = [[0,5,10,15,20],[25,1,6,11,16],[21,26,2,7,12],[17,22,27,3,8],[13,18,23,28,4],[9,14,19,24,29]];
+const DIMS = [
+  {n:"结果依赖", c:"#a8502f", hi:"你需要先看到结果，才肯动。这不是懒，是你不愿意把力气花在看不见回报的地方。代价是：有些地图，要走进去才画得出来。", mid:"你能忍一段不确定，但心里需要一个止损点。", lo:"你可以在没有答案的时候先迈一步——在这个维度上，这属于少数。"},
+  {n:"执念强度", c:"#8a6116", hi:"没结束的事会一直占着你的内存。你缺的不是道理，是一个句号。而句号通常不在你手里。", mid:"你会回头看，但不会一直站在原地。", lo:"你能翻篇。代价是有时候翻得太快，没处理完就走了。"},
+  {n:"回避倾向", c:"#3a5878", hi:"你的第一反应是撤。撤是有效的止痛，但它会让「没做的事」越积越多，最后变成对自己的失望。", mid:"你会先观察，再决定进退。", lo:"你能待在不舒服里，这是很稀缺的能力。"},
+  {n:"需求表达", c:"#3c6650", hi:"你说得出口。这让你少了很多本可以避免的误会。", mid:"你能说，但要挑时机、挑人。", lo:"你习惯让对方猜，猜不到就自己消化。这套系统运行成本极高，而且几乎从不成功。"},
+  {n:"自我归因", c:"#96382f", hi:"你把别人的情绪当成自己的责任。这让你在关系里长期处于负债状态——明明没欠谁，却总在还。", mid:"你能分清，但需要一点时间。", lo:"你能把「事没成」和「我不行」分开，这让你恢复得比别人快。"},
+  {n:"价值来源", c:"#5f4a7a", hi:"你的价值感需要一个外部签名。这意味着某一个人，可以决定你一天的好坏。", mid:"你在意评价，但不完全依赖。", lo:"你自己的标准就够用。代价是有时候不太听劝。"}
+];
+
+let answers = new Array(30).fill(0);
+let page = 0;
+
+function start(){
+  document.getElementById('intro').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  render();
+  window.scrollTo(0,0);
+}
+
+function render(){
+  const list = PAGES[page];
+  const box = document.getElementById('questions');
+  box.innerHTML = list.map(i => {
+    const opts = [1,2,3,4,5].map(v =>
+      `<button class="opt ${answers[i]===v?'on':''}" onclick="pick(${i},${v})">${v}</button>`
+    ).join('');
+    return `<div class="q"><div class="q-text">${QS[i].t}</div><div class="opts">${opts}</div></div>`;
+  }).join('');
+  const done = answers.filter(v=>v>0).length;
+  document.getElementById('prog').style.width = (done/30*100)+'%';
+  document.getElementById('pageLabel').textContent = `第 ${page+1} 页 / 共 6 页`;
+  document.getElementById('countLabel').textContent = `${done} / 30`;
+  document.getElementById('prevBtn').style.visibility = page===0 ? 'hidden' : 'visible';
+  document.getElementById('nextBtn').textContent = page===5 ? '看结果' : '下一页';
+  window.scrollTo(0,0);
+}
+
+function pick(i,v){
+  answers[i]=v;
+  render();
+}
+
+function next(){
+  const list = PAGES[page];
+  if(list.some(i=>answers[i]===0)){
+    alert('这一页还有没答的题。');
+    return;
+  }
+  if(page<5){ page++; render(); }
+  else { compute(); }
+}
+
+function prev(){
+  if(page>0){ page--; render(); }
+}
+
+function compute(){
+  const sums=[0,0,0,0,0,0];
+  QS.forEach((q,i)=>{
+    sums[q.d] += q.r ? (6-answers[i]) : answers[i];
+  });
+  const scores = sums.map(s=>Math.round((s-5)/20*100));
+  showResult(scores);
+}
+
+function level(s){ return s>=65?'high':(s<=40?'low':'mid'); }
+
+function showResult(scores){
+  document.getElementById('quiz').classList.add('hidden');
+  const res = document.getElementById('result');
+  res.classList.remove('hidden');
+
+  const order = scores.map((s,i)=>({s,i})).sort((a,b)=>b.s-a.s);
+  const top = DIMS[order[0].i].n, second = DIMS[order[1].i].n, low = DIMS[order[5].i].n;
+  document.getElementById('resLead').innerHTML =
+    `你最强的两项是<strong>${top}</strong>和<strong>${second}</strong>，最松的一项是<strong>${low}</strong>。下面每一条都按你选的分数生成，不是通用描述。`;
+
+  document.getElementById('dims').innerHTML = scores.map((s,i)=>{
+    const d = DIMS[i], lv = level(s);
+    const tag = lv==='high'?'<span class="tagline t-high">偏高</span>':(lv==='low'?'<span class="tagline t-low">偏低</span>':'<span class="tagline t-mid">居中</span>');
+    return `<div class="dim">
+      <div class="dim-head"><span class="dim-name">${d.n}${tag}</span><span class="dim-score">${s}</span></div>
+      <div class="bar"><div class="bar-fill" data-w="${s}" style="background:${d.c}"></div></div>
+      <p class="dim-note">${lv==='high'?d.hi:(lv==='low'?d.lo:d.mid)}</p>
+    </div>`;
+  }).join('');
+
+  const C=[];
+  if(scores[0]>=65 && scores[1]>=65 && scores[2]>=60){
+    C.push({h:'「预判—撤退—反刍」闭环',
+      p:'你先把结果算一遍，算出来不乐观；于是不行动；不行动，就没有新信息；没有新信息，你只能反复回想旧的画面。三个环节互相供能，转得越久越难停。这个环断在任何一处都行，但最容易断的是第一处——先承认「我算的那个结果，只是我算的」。'});
+  }
+  if(scores[4]>=65 && scores[5]>=65){
+    C.push({h:'自我价值外包',
+      p:'你的分数显示：别人的情绪你要负责，别人的认可你要争取。两件事叠起来，等于把「我好不好」的定价权交给了在场的人。于是一个人的沉默，就能让你整晚不安。这不是脆弱，是定价权放错了地方。'});
+  }
+  if(scores[3]<=40 && scores[2]>=60){
+    C.push({h:'想要，但不说',
+      p:'你不太直接表达需求，同时又倾向回避。结果是：你想要的从来没被清楚说出口，对方自然给不了，然后你把这当成「果然不行」的证据。这套循环里，对方其实一直在猜，而你一直在扣分。'});
+  }
+  if(scores[1]>=70 && scores[3]>=60){
+    C.push({h:'能开口，但放不下',
+      p:'你敢说，但说完就搁在心里反复回放。对你来说，一次把话讲清楚，比十次试探更省。反复试探只会让你多出十个需要消化的片段。'});
+  }
+  if(C.length===0){
+    C.push({h:'没有明显的死结',
+      p:'你的六个维度没有形成互相锁死的结构。这意味着你现在的卡顿，更可能来自某一件具体的事，而不是一套固定的模式。具体的事，处理具体的那一件就行。'});
+  }
+
+  document.getElementById('combos').innerHTML = C.slice(0,2).map(c=>
+    `<div class="combo"><h3>${c.h}</h3><p>${c.p}</p></div>`
+  ).join('');
+
+  window.scrollTo(0,0);
+  setTimeout(()=>{
+    document.querySelectorAll('.bar-fill').forEach(el=>{
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 60);
+}
+</script>
+</body>
+</html>

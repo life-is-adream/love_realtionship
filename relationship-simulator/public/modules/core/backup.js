@@ -58,8 +58,8 @@ export function buildBackup(state, storage = globalThis.localStorage) {
       raw = null; // localStorage 不可用时该键按缺失处理
     }
     if (key === STATE_STORAGE_KEY) {
-      // 主状态以调用方传入的 state 为准（调用方已跑 serializeStateForStorage）。
-      data[key] = JSON.stringify(state ?? null);
+      // 模块自身核验保存同意，避免其它调用方传入本页临时状态时进入备份。
+      data[key] = JSON.stringify(state ? serializeStateForStorage(state) : null);
       continue;
     }
     // 全量快照：白名单内每个键都出现在 data 中，缺失的键记为 null（恢复时按删除处理）。

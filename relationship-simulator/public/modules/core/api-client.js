@@ -1,34 +1,52 @@
-import { buildSystemPrompt } from "../coach/prompts.js";
+import { buildHerSystemPrompt, buildHerTaskPrompt, buildCoachSystemPrompt } from "../coach/prompts.js";
 import { DEFAULT_MODEL, API_ENDPOINTS, DEFAULT_TEMPERATURE } from "./config.js";
 import { sanitizeOutboundMessages } from "./privacy.js";
 
-/**
- * 构建 LLM 调用消息列表
- * @param {Object} persona - 角色对象
- * @param {Object} memory - 角色记忆
- * @param {Array<Object>} messages - 对话消息列表
- * @param {Object} [uiValues] - UI 参数
- * @param {string} [uiValues.stage] - 当前阶段
- * @param {string} [uiValues.styleBias] - 风格偏好
- * @param {string} [uiValues.goal] - 当前目标
- * @param {Object} [uiValues.tone] - 真诚度/语气强度调节 {sincerity, toneIntensity}
- * @param {string} [uiValues.mode] - 训练模式："anti"（反PUA 训练）｜"pua"（PUA 识别训练）
- * @param {Object} [uiValues.textbookContext] - 教材上下文
- * @returns {Array<{role: string, content: string}>}
- */
-export function buildMessages(persona, memory, messages, uiValues = {}) {
-  const conversation = (Array.isArray(messages) ? messages : []).filter((item) => item && item.text);
-  const result = [{ role: "system", content: buildSystemPrompt(persona, memory, { tone: uiValues.tone, mode: uiValues.mode }) }];
-  for (const message of conversation) {
+/** 把会话消息映射为消息角色：她=assistant、我=user；无文本的条目跳过。 */
+function toHistoryMessages(messages, personaName) {
+  const history = [];
+  for (const message of (Array.isArray(messages) ? messages : [])) {
+    if (!message || !message.text) continue;
     if (message.type === "her") {
-      result.push({ role: "assistant", content: `${message.who || persona.name}：${message.text}` });
+      history.push({ role: "assistant", content: `${message.who || personaName}：${message.text}` });
     } else {
-      result.push({ role: "user", content: `我：${message.text}` });
+      history.push({ role: "user", content: `我：${message.text}` });
     }
   }
+  return history;
+}
+
+/**
+ * 构建「她」的消息列表：只产出微信文本回复，不含教练技能契约与 JSON 要求。
+ * @param {Object} persona - 角色对象
+ * @param {Object} memory - 角色记忆（含 _enhancedInjection / _tierInjection）
+ * @param {Array<Object>} messages - 对话消息列表
+ * @param {Object} [uiValues] - UI 参数（用到 mode）
+ * @returns {Array<{role: string, content: string}>}
+ */
+export function buildHerMessages(persona, memory, messages, uiValues = {}) {
+  return [
+    { role: "system", content: buildHerSystemPrompt(persona, memory, { mode: uiValues.mode }) },
+    ...toHistoryMessages(messages, persona.name),
+    { role: "user", content: buildHerTaskPrompt() }
+  ];
+}
+
+/**
+ * 构建「教练」的消息列表：她的回复作为已知输入，教练只产出分析 JSON。
+ * @param {Object} params
+ * @param {Object} params.persona - 角色对象
+ * @param {Object} params.memory - 角色记忆
+ * @param {Array<Object>} params.messages - 对话消息列表
+ * @param {string} params.herReply - 已确定的女方回复
+ * @param {Object} [params.uiValues] - UI 参数（stage/styleBias/goal/tone/mode/textbookContext）
+ * @returns {Array<{role: string, content: string}>}
+ */
+export function buildCoachMessages({ persona, memory, messages, herReply, uiValues = {} }) {
+  const result = [{ role: "system", content: buildCoachSystemPrompt(persona, memory, { tone: uiValues.tone, mode: uiValues.mode }) }];
+  result.push(...toHistoryMessages(messages, persona.name));
   const userPrompt = [
-    "请继续生成下一轮内容。",
-    "本轮锚点：只根据完整对话中最后一条我的消息生成女方下一句；然后让 A/B/C 直接回应你刚生成的 herReply。",
+    `她本轮的回复（已确定，不要改写、不要替她说话）：${String(herReply || "").trim()}`,
     `当前阶段：${uiValues.stage || ""}`,
     `风格偏好：${uiValues.styleBias || ""}`,
     `当前目标：${uiValues.goal || ""}`,
@@ -89,16 +107,17 @@ export async function checkHealth() {
 }
 
 /**
- * 联网搜索（可选增强，默认关闭）。
- * 只发送查询词，绝不发送对话内容；服务端按白名单过滤并审计。
+ * 联网搜索（双引擎：默认 MiMo 模型联网搜索，配置 SEARCH_ENDPOINT 后走外部搜索 API）。
+ * 只发送查询词，绝不发送对话内容；服务端验证引用 URL 并按域名白名单过滤。
  * @param {string} query 查询词（最长 120 字符）
- * @returns {Promise<{results: Array<{title: string, url: string, snippet: string}>, filtered: number}>}
+ * @returns {Promise<{results: Array<{title: string, url: string, snippet: string}>, filtered: number, sourcePolicy?: "allowlist", engine?: string, model?: string, note?: string}>}
  */
-export async function searchWeb(query) {
+export async function searchWeb(query, { signal } = {}) {
   const res = await fetch("/api/search", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query })
+    body: JSON.stringify({ query }),
+    signal
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.message || `HTTP ${res.status}`);

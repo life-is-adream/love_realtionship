@@ -126,6 +126,9 @@ export const defaultState = {
   personaMemory: {},
   trainingMode: "anti", // "anti" = 反PUA 训练（默认）｜"pua" = PUA 识别训练（防御研究）
   messages: structuredClone(builtInPersonas.lin.starterMessages),
+  // 对方投入度（L0 观望 – L4 共建）：由 messages 派生，仅描述可观测行为，不推断心理。
+  // 归一化见 core/investment.js；每次落盘时由 core/state.js 的 persistState 重算。
+  relationshipTier: { level: 0, label: "观望", score: 0, confidence: "low", evidence: [], sampleSize: 0, updatedAt: null },
   trainingLog: [],
   mistakes: [], // F2 错题本：条目契约见 core/mistakes.js（上限 200，超限丢最旧）
   lastAnalysis: null,
@@ -201,6 +204,8 @@ export const DEFAULT_TEMPERATURE = 1.0;
 /** localStorage 键名 */
 export const STORAGE_KEYS = {
   state: "heartflow-state",
+  /** 载入失败时原始字符串的隔离副本：保留用户档案，避免被默认态覆盖 */
+  stateQuarantine: "heartflow-state-quarantine",
   activeTab: "heartflow-active-tab",
   longReadProgress: "heartflow-long-read-progress",
   stageOverride: "heartflow-stage-override",
@@ -208,7 +213,9 @@ export const STORAGE_KEYS = {
   stageValue: "heartflow-stage-value",
   complianceAck: "heartflow-ai-compliance-ack",
   /** F3 入学测试画像：quiz 独立页写入、主应用读取的独立键（主 state 之外，备份白名单自动纳入） */
-  intakeProfile: "heartflow-intake-profile"
+  intakeProfile: "heartflow-intake-profile",
+  /** 语音朗读偏好：音色/自动朗读/语速（本地 TTS，不进入主 state） */
+  voicePrefs: "heartflow-voice-prefs"
 };
 
 /** 记忆系统配置 */

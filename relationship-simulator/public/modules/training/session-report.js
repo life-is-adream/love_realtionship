@@ -17,6 +17,7 @@
  */
 
 import { MISTAKE_COLLECT_RULES } from "../core/mistakes.js";
+import { clampScoreOrNull } from "../core/number.js";
 import { findWeakestDim, MISTAKE_DIM_LABELS } from "./mistake-patterns.js";
 
 /** 报告四维键（沿用错题本命名，drive 对应教练引擎的 momentum/推进力） */
@@ -446,9 +447,7 @@ function formatPercent(coverage) {
 
 /** 显式排除 null/undefined/"" 的分数标准化（Number(null) === 0 陷阱，F2 已踩过） */
 function normalizeScore(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const num = Number(value);
-  return Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : null;
+  return clampScoreOrNull(value);
 }
 
 function toIso(value) {

@@ -8,76 +8,81 @@ const originalFetch = global.fetch;
 
 // 导入模块
 const apiModule = await import("../public/modules/core/api-client.js");
-const { buildMessages, callLLM, checkHealth } = apiModule;
+const { buildHerMessages, buildCoachMessages, callLLM, checkHealth, searchWeb } = apiModule;
 
-// ── buildMessages ─────────────────────────────────────────────────────────────
+test("searchWeb 向 fetch 传入取消信号且请求体只有查询词", async (t) => {
+  const prior = global.fetch;
+  t.after(() => { global.fetch = prior; });
+  const controller = new AbortController();
+  let request;
+  global.fetch = async (url, options) => {
+    request = { url, options };
+    return { ok: true, json: async () => ({ results: [], filtered: 0 }) };
+  };
+  await searchWeb("公开沟通研究", { signal: controller.signal });
+  assert.equal(request.url, "/api/search");
+  assert.equal(request.options.signal, controller.signal);
+  assert.deepEqual(JSON.parse(request.options.body), { query: "公开沟通研究" });
+});
 
-test("buildMessages 构建 system 消息", () => {
-  const persona = { name: "林知夏", systemRole: "你是一个测试角色" };
-  const memory = { background: "测试背景", interests: "测试兴趣", boundaries: "测试边界" };
-  const messages = [{ type: "me", text: "你好", who: "我" }];
-  const result = buildMessages(persona, memory, messages, { stage: "初聊", styleBias: "A", goal: "测试" });
+// ── 拆双角色：她 / 教练 两条独立消息链 ────────────────────────────────────────
+
+const splitPersona = { name: "林知夏", systemRole: "角色设定文本", tags: ["慢热"] };
+const splitMemory = { background: "测试背景", interests: "测试兴趣", boundaries: "测试边界" };
+const splitMessages = [
+  { type: "me", text: "你好", who: "我" },
+  { type: "her", text: "", who: "林知夏" },
+  null,
+  { type: "her", text: "嗨", who: "林知夏" }
+];
+
+test("buildHerMessages 的 system 里不含教练技能契约与 JSON 要求", () => {
+  const result = buildHerMessages(splitPersona, splitMemory, splitMessages, { mode: "anti" });
   assert.equal(result[0].role, "system");
-  assert.ok(result[0].content);
+  const system = result[0].content;
+  assert.ok(system.includes("角色设定文本"));
+  assert.ok(!system.includes("恋爱沟通教练技能契约"), "她不该拿到教练契约");
+  assert.ok(!system.includes("JSON 字段"), "她不该被要求输出 JSON");
+  assert.ok(!system.includes("replyOptions"), "她不该看到 A/B/C 字段");
 });
 
-test("buildMessages 包含用户消息", () => {
-  const persona = { name: "林知夏", systemRole: "角色" };
-  const memory = { background: "", interests: "", boundaries: "" };
-  const messages = [
-    { type: "me", text: "你好", who: "我" },
-    { type: "her", text: "嗨", who: "林知夏" }
-  ];
-  const result = buildMessages(persona, memory, messages);
-  const userMsg = result.find((m) => m.role === "user" && m.content.includes("我"));
-  assert.ok(userMsg);
-  assert.ok(userMsg.content.includes("你好"));
+test("buildHerMessages 映射历史并过滤无文本消息，末尾只要一条微信文本", () => {
+  const result = buildHerMessages(splitPersona, splitMemory, splitMessages);
+  assert.deepEqual(result.map((item) => item.role), ["system", "user", "assistant", "user"]);
+  assert.ok(result[1].content.includes("我：你好"));
+  assert.ok(result[2].content.includes("林知夏：嗨"));
+  assert.ok(result.at(-1).content.includes("不要输出 JSON"));
 });
 
-test("buildMessages 包含助手消息", () => {
-  const persona = { name: "林知夏", systemRole: "角色" };
-  const memory = { background: "", interests: "", boundaries: "" };
-  const messages = [
-    { type: "me", text: "你好", who: "我" },
-    { type: "her", text: "嗨", who: "林知夏" }
-  ];
-  const result = buildMessages(persona, memory, messages);
-  const assistantMsg = result.find((m) => m.role === "assistant");
-  assert.ok(assistantMsg);
-  assert.ok(assistantMsg.content.includes("林知夏"));
+test("buildHerMessages 在 PUA 识别模式下带上手法清单且仍只要文本", () => {
+  const result = buildHerMessages(splitPersona, splitMemory, [], { mode: "pua" });
+  assert.ok(result[0].content.includes("不要自曝手法名称"));
 });
 
-test("buildMessages 过滤无文本消息", () => {
-  const persona = { name: "林知夏", systemRole: "角色" };
-  const memory = { background: "", interests: "", boundaries: "" };
-  const messages = [
-    { type: "me", text: "你好", who: "我" },
-    { type: "her", text: "", who: "林知夏" },
-    null
-  ];
-  const result = buildMessages(persona, memory, messages);
-  // Only the valid message should be included (plus system + user prompt)
-  const nonSystem = result.filter((m) => m.role !== "system");
-  assert.ok(nonSystem.length >= 1);
+test("buildCoachMessages 把她的回复作为已知输入并保留教练契约", () => {
+  const result = buildCoachMessages({
+    persona: splitPersona, memory: splitMemory, messages: splitMessages,
+    herReply: "哈哈是呀", uiValues: { stage: "初聊", goal: "自然推进" }
+  });
+  assert.ok(result[0].content.includes("恋爱沟通教练技能契约"));
+  assert.ok(result[0].content.includes("JSON 字段"));
+  const last = result.at(-1);
+  assert.ok(last.content.includes("她本轮的回复（已确定，不要改写、不要替她说话）：哈哈是呀"));
+  assert.ok(last.content.includes("当前阶段：初聊"));
 });
 
-test("buildMessages 末尾包含用户提示词", () => {
-  const persona = { name: "林知夏", systemRole: "角色" };
-  const memory = { background: "", interests: "", boundaries: "" };
-  const result = buildMessages(persona, memory, [], { stage: "初聊", styleBias: "A", goal: "自然推进" });
-  const lastMsg = result[result.length - 1];
-  assert.equal(lastMsg.role, "user");
-  assert.ok(lastMsg.content.includes("请继续生成"));
-  assert.ok(lastMsg.content.includes("初聊"));
+test("buildCoachMessages 教材上下文存在时加入参考，真诚度调节落在教练侧", () => {
+  const result = buildCoachMessages({
+    persona: splitPersona, memory: splitMemory, messages: [],
+    herReply: "嗯", uiValues: { textbookContext: { excerpts: [{ text: "教材参考内容" }] }, tone: { sincerity: 90 } }
+  });
+  assert.ok(result.at(-1).content.includes("教材参考"));
+  assert.ok(result[0].content.includes("【本轮表达调节】"));
 });
 
-test("buildMessages 教材上下文存在时加入参考", () => {
-  const persona = { name: "林知夏", systemRole: "角色" };
-  const memory = { background: "", interests: "", boundaries: "" };
-  const textbookContext = { excerpts: [{ text: "教材参考内容" }] };
-  const result = buildMessages(persona, memory, [], { textbookContext });
-  const lastMsg = result[result.length - 1];
-  assert.ok(lastMsg.content.includes("教材参考"));
+test("她的消息链不含真诚度调节：调节的是男方建议不是她的演出", () => {
+  const result = buildHerMessages(splitPersona, splitMemory, [], { tone: { sincerity: 90 } });
+  assert.ok(!result[0].content.includes("【本轮表达调节】"));
 });
 
 // ── callLLM ───────────────────────────────────────────────────────────────────

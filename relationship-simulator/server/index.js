@@ -5,13 +5,14 @@ import { PORT, LLM_API_KEY, LLM_ENDPOINT, LLM_MODEL, maskEndpoint } from "./conf
 import { handleLongContent } from "./routes-longContent.js";
 import { handleSearch } from "./searchProxy.js";
 import { handleRelationshipIntelligence } from "./relationshipIntelligence.js";
+import { handleTts, handleTtsHealth } from "./voiceProxy.js";
 import { resolveCorsOrigin, sendJson, sendText } from "./http.js";
 import { serveStatic } from "./staticServer.js";
 import { createRequestHandler, isDirectEntry } from "./request-handler.js";
 
 export const server = createServer(createRequestHandler({
   resolveCorsOrigin, sendJson, sendText, handleHealth, handleChat, handleSearch,
-  handleRelationshipIntelligence, handleLongContent, serveStatic
+  handleRelationshipIntelligence, handleLongContent, handleTts, handleTtsHealth, serveStatic
 }));
 
 if (isDirectEntry(import.meta.url)) {

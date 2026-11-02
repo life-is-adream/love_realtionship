@@ -14,10 +14,13 @@ export function renderChat({ afterRender = () => {} } = {}) {
     const recallButton = message.type === "me" && message.source === "user"
       ? `<button class="msg-recall" type="button" data-recall-index="${index}" aria-label="撤回这条消息" title="撤回这条消息">撤回</button>`
       : "";
+    const speakButton = message.type === "her"
+      ? `<button class="msg-speak" type="button" data-speak-index="${index}" aria-label="朗读这条消息" title="用本地语音朗读这条消息">朗读</button>`
+      : "";
     div.innerHTML = `
       <div class="msg-head"><span class="who">${escapeHtml(speaker)}</span>
         ${sourceLabel ? `<span class="msg-source source-${escapeHtml(message.source)}">${escapeHtml(sourceLabel)}</span>` : ""}
-        ${recallButton}
+        ${speakButton}${recallButton}
       </div>
       <div class="msg-body">${escapeHtml(message.text)}</div>`;
     chat.appendChild(div);

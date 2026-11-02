@@ -52,8 +52,8 @@ function buildHypothesesHtml(hypotheses) {
 export function buildRelationshipIntelligenceHtml(value) {
   const state = normalizeRelationshipIntelligenceState(value);
   const consentText = state.consent
-    ? "已开启匿名结构化记忆；只保存通过校验的观察摘要，不保存原始聊天。"
-    : "未开启匿名长期记忆；当前结果仅在本次页面会话中显示。";
+    ? "已开启结构化复盘记忆；保存经规则脱敏的观察摘要，不保存原始聊天。规则不能识别全部姓名和身份细节，请勿填写第三方个人信息。"
+    : "未开启长期记忆；当前结果仅在本次页面会话中显示。";
 
   if (!state.lastResult) {
     return `${emptyStateHtml(state)}<p class="ri-consent-note ${state.consent ? "is-on" : ""}">${escapeHtml(consentText)}</p>`;

@@ -78,7 +78,9 @@ Local Intelligence panel
 
 ## Data flow and privacy
 
-真实回放默认本地处理；先由 `runtime/conversation/analyzer.mjs` 提取观察特征，出站到模型前要脱敏并限制摘要/摘录。`runtime/memory/memory-store.mjs` 只有在用户同意后才写入匿名事实，原始聊天不进入长期记忆。Case ID 使用匿名标识，第三方敏感信息默认不持久化。未同意时，Relationship Intelligence 的 `lastResult` 只存在于当前页面内存，`saveState()` 会从 localStorage 副本中移除它。
+真实回放默认本地处理；先由 `runtime/conversation/analyzer.mjs` 提取观察特征，出站到模型前要脱敏并限制摘要/摘录。`runtime/memory/memory-store.mjs` 只有在用户同意后才写入经规则脱敏的摘要，原始聊天对象不进入长期记忆。Case ID 使用受控标识，标识/所有文本字段均验证，旧记忆重建时不信任原隐私声明。规则无法证明自由文本完全匿名，Memory/Reflection 的隐私状态明确 `anonymized:false`、`manualReviewRequired:true`。未同意时，Relationship Intelligence 的 `lastResult` 只存在于当前页面内存，`saveState()` 会从 localStorage 副本中移除它。
+
+`POST /api/search` 也是模型或搜索服务出站边界：用户主动触发，固定枚举查询，引用按 URL 与域名政策过滤。搜索使用与模型生成相同的请求归属机制，关闭或切换上下文后取消并忽略旧结果。已检测的明确停止联系/关系结束优先于推进信号；普通暂时停聊保持关系状态并暂停行动。
 
 HeartFlow 原有的手工角色记忆仍服务于角色模拟；自动提取的 `_enhanced` 记忆已与 runtime 共用同一显式同意开关。两者用途不同，不应把角色设定当作 runtime 的关系事实。医疗和法律信息带辖区、来源和核验日期。
 

@@ -7,6 +7,8 @@ import {
 } from "../intelligence/state.js";
 import { normalizeLifestyle } from "../training/lifestyle.js";
 import { normalizePracticeState, toPersistedPracticeState } from "../training/real-practice.js";
+import { toPersistedAbilityAssessment } from "../training/ability-assessment.js";
+import { deriveRelationshipTier, normalizeRelationshipTier } from "./investment.js";
 
 /**
  * @typedef {Object} AppState
@@ -63,6 +65,8 @@ import { normalizePracticeState, toPersistedPracticeState } from "../training/re
 
 let currentState = null;
 let mutationInProgress = false;
+// 本次加载发生过什么：仅在解析/读取失败时写入，供装配层提示"已保留原始副本"。
+let lastLoadIssue = null;
 
 function clone(value) {
   return typeof structuredClone === "function" ? structuredClone(value) : JSON.parse(JSON.stringify(value));
@@ -104,7 +108,22 @@ export function normalizeState(next) {
     return message;
   });
   if (!normalized.lastGenerationMeta || typeof normalized.lastGenerationMeta !== "object") normalized.lastGenerationMeta = null;
+  normalized.relationshipTier = normalizeRelationshipTier(normalized.relationshipTier);
   return normalized;
+}
+
+/**
+ * 把载入失败的原始字符串复制到隔离键，避免随后任意一次写入覆盖掉唯一副本。
+ * 隔离本身失败（配额满、存储不可用）不得影响重置流程。
+ */
+function quarantineStoredState() {
+  try {
+    if (typeof localStorage === "undefined") return;
+    const raw = localStorage.getItem(STORAGE_KEYS.state);
+    if (typeof raw === "string") localStorage.setItem(STORAGE_KEYS.stateQuarantine, raw);
+  } catch {
+    /* 隔离写入失败：仍然重置，保证界面可用 */
+  }
 }
 
 /**
@@ -112,13 +131,25 @@ export function normalizeState(next) {
  * @returns {AppState}
  */
 export function loadState() {
+  lastLoadIssue = null;
   try {
     const stored = typeof localStorage === "undefined" ? null : JSON.parse(localStorage.getItem(STORAGE_KEYS.state));
     currentState = normalizeState(stored || clone(defaultState));
   } catch {
+    quarantineStoredState();
+    lastLoadIssue = { at: new Date().toISOString(), reason: "state-parse-failed" };
     currentState = normalizeState(clone(defaultState));
   }
   return currentState;
+}
+
+/**
+ * 返回最近一次 loadState 的异常信息；无异常时为 null。
+ * 重置之后不清空：它描述的是"本次加载发生过什么"。
+ * @returns {{at: string, reason: string}|null}
+ */
+export function getStateLoadIssue() {
+  return lastLoadIssue;
 }
 
 /**
@@ -138,6 +169,8 @@ function persistState(state) {
   state.learning = normalizeLearningState(state.learning);
   state.relationshipPractice = normalizePracticeState(state.relationshipPractice);
   state.lifestyle = normalizeLifestyle(state.lifestyle);
+  // 投入度由消息派生：每次落盘重算，保证与对话同步（纯函数，无外部依赖）
+  state.relationshipTier = deriveRelationshipTier(state.messages, state.relationshipTier);
   if (typeof localStorage !== "undefined") {
     localStorage.setItem(STORAGE_KEYS.state, JSON.stringify(serializeStateForStorage(state)));
   }
@@ -150,6 +183,8 @@ function persistState(state) {
  */
 export function serializeStateForStorage(state) {
   const persisted = clone(state);
+  persisted.learning = normalizeLearningState(persisted.learning);
+  persisted.learning.abilityAssessment = toPersistedAbilityAssessment(persisted.learning.abilityAssessment);
   persisted.relationshipPractice = toPersistedPracticeState(persisted.relationshipPractice);
   persisted.relationshipIntelligence = toPersistedRelationshipIntelligenceState(
     persisted.relationshipIntelligence

@@ -8,6 +8,7 @@
  */
 
 import { MEMORY_CONFIG, EMOTION_CONFIG } from "./config.js";
+import { shanghaiDate } from "./date.js";
 
 // ── 类型定义（仅供 IDE 提示） ─────────────────────────────────────────────────
 
@@ -130,9 +131,10 @@ export function extractMemoryFromConversation(messages, lastAnalysis = null) {
  * @param {EnhancedMemory} enhanced - 现有增强记忆
  * @param {Object} updates - extractMemoryFromConversation 的返回值
  * @param {Array<{type: string, text: string}>} messages - 完整消息列表
+ * @param {Object} [analysis] - 本轮教练分析（取 coachScore 计入会话摘要）
  * @returns {EnhancedMemory} 更新后的增强记忆
  */
-export function updateMemoryState(enhanced, updates, messages = []) {
+export function updateMemoryState(enhanced, updates, messages = [], analysis = null) {
   const result = { ...enhanced };
   if (!result.interactionHistory) result.interactionHistory = createDefaultEnhancedMemory().interactionHistory;
   if (!result.memoryTimeline) result.memoryTimeline = [];
@@ -186,6 +188,14 @@ export function updateMemoryState(enhanced, updates, messages = []) {
     }
   }
 
+  // 会话摘要：关系档案面板的「对话摘要」区块由此填充。不写入就没有可看、可删的记录。
+  if (Array.isArray(messages) && messages.length > 0) {
+    result.conversationSummaries.push(buildConversationSummary(messages, analysis));
+    if (result.conversationSummaries.length > MEMORY_CONFIG.maxConversationSummaries) {
+      result.conversationSummaries = result.conversationSummaries.slice(-MEMORY_CONFIG.maxConversationSummaries);
+    }
+  }
+
   // 裁剪时间线
   if (result.memoryTimeline.length > MEMORY_CONFIG.maxTimelineEvents) {
     result.memoryTimeline = result.memoryTimeline.slice(-MEMORY_CONFIG.maxTimelineEvents);
@@ -220,6 +230,21 @@ export function buildMemoryInjection(enhanced) {
     parts.push(`优势维度：${enhanced.learnedPreferences.strengths.join("、")}`);
   }
 
+  // 近期记忆时间线（最后 3 条）与最近一次会话摘要：让「关系档案」面板里可见的
+  // 条目真正参与生成，用户删除某条后它就不再出现在这里（可见即生效）。
+  if (Array.isArray(enhanced.memoryTimeline) && enhanced.memoryTimeline.length) {
+    const recent = enhanced.memoryTimeline
+      .slice(-3)
+      .map((item) => String(item?.content || "").trim())
+      .filter(Boolean);
+    if (recent.length) parts.push(`近期记忆：${recent.join("；")}`);
+  }
+  if (Array.isArray(enhanced.conversationSummaries) && enhanced.conversationSummaries.length) {
+    const latest = enhanced.conversationSummaries.at(-1);
+    const text = String(latest?.summary || "").trim();
+    if (text) parts.push(`最近一次会话摘要：${text}`);
+  }
+
   return parts.join("\n");
 }
 
@@ -237,7 +262,7 @@ export function buildConversationSummary(messages, analysis = null) {
   const avgScore = analysis?.coachScore?.total ?? 0;
 
   return {
-    date: new Date().toISOString().slice(0, 10),
+    date: shanghaiDate(),
     messageCount: messages.length,
     summary: `我发送了 ${meMsgs.length} 条，对方发送了 ${herMsgs.length} 条。${topics.length ? `涉及话题：${topics.join("、")}` : ""}`,
     topics,

@@ -21,7 +21,7 @@
 
 长篇教材阅读、本地分析、消息优化、本地回放、每日训练、成长画像和本地教材检索不需要 API Key；模型生成、介入练习、行动计划、阶段判断以及用户主动请求的 MiMo 增强需要可用的模型配置。
 
-真实聊天回放默认只在浏览器内存中处理。输入发送给 MiMo 前必须有明确按钮动作，并且只发送脱敏后的摘要和最多两条短摘录；原始回放不会写入学习状态。Relationship Intelligence 的本地分析不调用 MiMo；未勾选匿名记忆同意时，分析结果不会写入 localStorage。没有模型、网络或索引结果时，核心训练功能仍使用本地规则运行。
+真实聊天回放默认只在浏览器内存中处理。输入发送给 MiMo 前必须有明确按钮动作，并且只发送脱敏后的摘要和最多两条短摘录；原始回放不会写入学习状态。Relationship Intelligence 的本地分析不调用 MiMo；未勾选复盘记忆同意时，分析结果不会写入 localStorage。规则脱敏不能识别所有姓名或组合信息，不代表自由文本已完全匿名，请勿填写第三方个人信息。没有模型、网络或索引结果时，核心训练功能仍使用本地规则运行。
 
 ## 启动
 
@@ -164,6 +164,7 @@ node --test
 - `GET /api/long-content/:chapter`：读取第 1–10 章长篇原文，章节号严格校验，供阅读视图按章懒加载。
 - `POST /api/relationship-intelligence`：本地调用共享 `runRelationshipLoop`；最多读取最近 80 条有界消息，不调用远程模型，不返回原始消息。
 - `POST /api/chat`：转发模型请求。API Key 只从服务端 `.env` 或当前请求的受控字段读取，前端默认不保存 Key。
+- `POST /api/search`：用户主动搜索公开依据。配置 `SEARCH_ENDPOINT` / `SEARCH_API_KEY` 时优先走外部搜索；否则使用 MiMo Chat Completions 的搜索插件。模型搜索不支持 Responses，返回受控 `503 search_api_mode_unsupported`；未知成功响应结构返回 `502 search_response_unsupported`。全部引用始终检查 HTTP(S) URL 和 `SEARCH_ALLOWED_DOMAINS`，不把域名匹配声明为观点已核验，不透出无可用引用的模型摘要。
 
 ## 目录说明
 
@@ -195,3 +196,15 @@ npm run check:circular
 - Windows 启停脚本通过 `scripts/process-identity.ps1` 核验项目入口、服务标识及 PID 归属。旧的相对路径或 inline 启动方式可能无法通过严格身份核验，需要人工核实原进程。
 
 本轮验证、回归覆盖和剩余限制见 [工程验收记录](../docs/verification/2026-10-09-engineering-hardening.md)。
+
+## 个人恋爱能力画像
+
+从学习目录进入“个人恋爱能力画像”（`#abilities`）。八个方面分别覆盖外形与健康管理、声音与现场表达、沟通与兴趣表达、情绪与自我稳定、社交与约会执行、边界与关系经营、生活独立与可靠性、生理心理与关系知识。
+
+每项包含两个行为自评和一个情境题。可以部分提交；未知项不记零分，24 项全部完成后才显示等权综合分。评分是产品规则下的初评，每项可展开查看依据、对应的 0–4 级标准与下一步训练。关键题错误优先提示“关键知识待补”，不会被其它高分抵消评级。
+
+可选择最多两个训练重点，保留首次基线和最近 29 次复评；相同提交不重复记录。默认只保留在本页，明确勾选保存后才把枚举答案存入此浏览器，撤回保存会清除评估。健身、护肤与现实复盘只作为匿名复核材料，不直接增加能力分。
+
+实现分为 `training/ability-rubric.js`（版本化规则）、`training/ability-assessment.js`（纯评分和记录）、`training/ability-context.js`（匿名复核摘要）及 `render/render-ability-assessment.js`（界面）。状态位于 `learning.abilityAssessment`，统一复用 store、导出备份和恢复路径。
+
+详细验证见 [能力画像验收记录](../docs/verification/2026-10-13-personal-ability-assessment.md)。

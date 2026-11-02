@@ -17,7 +17,7 @@ function dependencies(overrides = {}) {
     sendJson: (res, status, body) => { res.writeHead(status, { "Content-Type": "application/json" }); res.end(JSON.stringify(body)); },
     sendText: (res, status, body) => { res.writeHead(status); res.end(body); },
     handleHealth: fail, handleChat: fail, handleSearch: fail,
-    handleRelationshipIntelligence: fail, handleLongContent: fail, serveStatic: fail,
+    handleRelationshipIntelligence: fail, handleLongContent: fail, handleTts: fail, handleTtsHealth: fail, serveStatic: fail,
     ...overrides
   };
 }
@@ -28,7 +28,8 @@ test("每个异步路由的拒绝都得到受控 500，服务继续响应", asyn
   t.after(() => new Promise(resolve => server.close(resolve)));
   for (const [method, url] of [
     ["GET", "/api/health"], ["POST", "/api/chat"], ["POST", "/api/search"],
-    ["POST", "/api/relationship-intelligence"], ["GET", "/api/long-content/1"], ["GET", "/index.html"]
+    ["POST", "/api/relationship-intelligence"], ["GET", "/api/long-content/1"], ["GET", "/index.html"],
+    ["POST", "/api/tts"], ["GET", "/api/tts/health"]
   ]) {
     const result = await new Promise((resolve, reject) => {
       const req = request({ host: "127.0.0.1", port: server.address().port, path: url, method }, res => {
@@ -113,7 +114,7 @@ async function offlineModules(t) {
   await writeFile(path.join(dir, "package.json"), '{"type":"module"}');
   await writeFile(path.join(dir, "config.js"), `
 export const PORT=3000, LLM_API_KEY="offline-placeholder", LLM_API_MODE="responses", LLM_ENDPOINT="https://offline.invalid", LLM_MODEL="offline-model", LLM_MAX_COMPLETION_TOKENS=1000, LLM_REASONING_EFFORT="medium", LLM_TEMPERATURE=0.7, LLM_TOP_P=1;
-export const SEARCH_ALLOWED_DOMAINS=["example.test"], SEARCH_API_KEY="offline-placeholder", SEARCH_ENABLED=true, SEARCH_ENDPOINT="https://offline.invalid";
+export const SEARCH_ALLOWED_DOMAINS=["example.test"], SEARCH_API_KEY="offline-placeholder", SEARCH_ENABLED=true, SEARCH_ENDPOINT="https://offline.invalid", SEARCH_MODEL="offline-model", SEARCH_ALLOWED_DOMAINS_EXPLICIT=true;
 export const maskEndpoint=()=>"masked-offline-endpoint";
 `);
   return {

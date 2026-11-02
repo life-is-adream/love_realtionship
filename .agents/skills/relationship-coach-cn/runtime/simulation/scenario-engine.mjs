@@ -53,6 +53,20 @@ function messageMeta(text) {
   return { length: value.length, questionCount, pressureCount, concretePlan };
 }
 
+function exitResponseMeta(text) {
+  const value = String(text || "").trim();
+  const clauses = value.split(/[，,。.!！?？；;\n]/u);
+  const renewalAttempt = clauses.some((clause) => {
+    const positive = clause.replace(/(?:不再讨论|不会再|不想再|不愿再|不要再|不打算再|不再|不)(?:和你|跟你|与你)?(?:联系你?|找你|见你|约你|见面|复合|挽回|等你|聊聊|讨论复合)/gu, "");
+    const directedAtOther = /再(?:见面|聊聊|约你|给.{0,4}机会)|(?:联系|约|找|见)你|一起见面|(?:我们|和你|跟你).{0,16}(?:见面|聊天|一起(?:去|看|吃|喝))|复合|挽回|回心转意|你.{0,8}回来|给我.{0,4}机会/u.test(positive);
+    const ownRecovery = /(?:和|跟)(?:朋友|家人|同事|亲友)|我.{0,8}(?:自己|一个人)(?:去|看|做|喝|吃|散步)/u.test(positive);
+    const invitation = /(?:能不能|可不可以|可以|想|一起|今晚|明晚|明天|后天|周末|下周|再).{0,12}(?:见(?:面|一下)|喝(?:一)?杯(?:咖啡)?|喝咖啡|吃(?:个|顿)?饭|看电影|聊聊)|(?:见(?:面|一下)|喝(?:一)?杯(?:咖啡)?|喝咖啡|吃(?:个|顿)?饭|看电影).{0,8}(?:吗|好吗|可以|行吗)|(?:今晚|明晚|明天|后天|周末|下周|周[一二三四五六日天]).{0,8}(?:有空|方便)(?:吗|么|不)/u.test(positive);
+    return directedAtOther || (invitation && !ownRecovery);
+  });
+  const acknowledgesExit = /尊重(?:你|你的决定)|接受(?:你|你的决定)|不再(?:联系|见面)|不会再(?:联系|约你|找你)|结束|退出|照顾自己|自己恢复|祝你|告别/u.test(value);
+  return { renewalAttempt, acknowledgesExit };
+}
+
 export function listScenarios() {
   return clone(SCENARIOS);
 }
@@ -82,20 +96,26 @@ export function critiqueResponse(session, response) {
   if (!session || session.phase !== "awaiting_user") throw new TypeError("scenario is not awaiting a user response");
   const meta = messageMeta(response);
   if (!meta.length) throw new TypeError("response is required");
+  const scenario = getScenario(session.scenarioId);
+  if (!scenario) throw new RangeError(`unknown scenario: ${session.scenarioId}`);
+  const ended = scenario.id === "breakup-recovery";
+  const exitMeta = ended ? exitResponseMeta(response) : null;
   const points = {
     naturalness: meta.length >= 4 && meta.length <= 100 ? 2 : 1,
     questionDensity: meta.questionCount <= 1 ? 2 : meta.questionCount === 2 ? 1 : 0,
     listening: /听起来|我理解|你刚才|确实|原来|谢谢你说/u.test(String(response)) ? 2 : 1,
-    boundaryAwareness: meta.pressureCount === 0 ? 2 : 0,
-    momentum: meta.concretePlan ? 2 : 1,
+    boundaryAwareness: meta.pressureCount > 0 || exitMeta?.renewalAttempt ? 0 : ended ? (exitMeta.acknowledgesExit ? 2 : 1) : 2,
+    momentum: ended ? (exitMeta.renewalAttempt || meta.pressureCount > 0 ? 0 : exitMeta.acknowledgesExit ? 2 : 1) : meta.concretePlan ? 2 : 1,
     overExplanation: meta.length > 120 || meta.questionCount >= 3 ? 0 : 2
   };
   const priorities = [];
-  if (points.boundaryAwareness === 0) priorities.push("先去掉施压、证明和追责语言");
+  if (ended && exitMeta.renewalAttempt) priorities.push("关系已经明确结束，停止重新邀约或挽回，练习尊重退出和自我恢复");
+  if (meta.pressureCount > 0) priorities.push("先去掉施压、证明和追责语言");
   if (points.questionDensity === 0) priorities.push("一次只保留一个问题，并给对方退出空间");
   if (points.listening < 2) priorities.push("先回应对方已经说出的事实，再表达自己的话题");
-  if (points.momentum < 2) priorities.push("需要推进时给出一个具体但可拒绝的选项");
-  if (!priorities.length) priorities.push("保持这条表达的具体性，等待对方真实回应");
+  if (points.momentum < 2 && !ended) priorities.push("需要推进时给出一个具体但可拒绝的选项");
+  if (ended && !exitMeta.acknowledgesExit && !exitMeta.renewalAttempt) priorities.push("明确承认关系已结束，把下一步放在停止联系和照顾自己");
+  if (!priorities.length) priorities.push(ended ? "保持对结束决定的尊重，停止推进，把注意力转向自己的生活和支持" : "保持这条表达的具体性，等待对方真实回应");
   return {
     session: {
       ...clone(session),
