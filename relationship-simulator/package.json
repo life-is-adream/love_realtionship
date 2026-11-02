@@ -12,7 +12,8 @@
     "build:index": "node scripts/build-long-index.mjs",
     "test:journey": "node --test test/relationship-intelligence-journey.test.mjs",
     "test:unit": "node --test",
-    "test": "node --test && node scripts/check-circular.mjs && node scripts/check-conventions.mjs"
+    "test": "node --test && node scripts/check-circular.mjs && node scripts/check-conventions.mjs",
+    "eval:behavior": "node scripts/eval-behavior.mjs"
   },
   "engines": {
     "node": ">=18"
