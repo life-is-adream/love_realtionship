@@ -1,0 +1,16 @@
+{
+  "completedDate": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "isolatedService": true,
+  "realDotenvDisabled": true,
+  "outboundFetchDisabled": true,
+  "checks": [
+    "synthetic self exit: UI decision EXIT/state EXIT",
+    "exit plan: stopped notice and plan button disabled",
+    "consent default off, bounded redaction scope notice visible",
+    "search missing config: controlled unavailable notice before any upstream request",
+    "mobile configured 390x844: observed391, clientWidth376/scrollWidth376, no horizontal overflow",
+    "browser console errors observed: zero"
+  ],
+  "originalPort3000Restarted": false
+}

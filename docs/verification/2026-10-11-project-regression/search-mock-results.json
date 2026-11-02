@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-11",
+  "timezone": "Asia/Shanghai",
+  "realUpstreamCalls": 0,
+  "readEnv": false,
+  "records": [
+    {
+      "case": "implicit-whitelist-and-scheme",
+      "status": 200,
+      "acceptedUrls": [
+        "https://random-blog.invalid/advice",
+        "javascript:void(0)",
+        "data:text/html,synthetic"
+      ],
+      "filtered": 0,
+      "requestShape": {
+        "messages": true,
+        "input": false,
+        "toolType": "web_search"
+      },
+      "passes": true
+    },
+    {
+      "case": "render-label-and-unsafe-url",
+      "authorityLabel": true,
+      "unsafeSchemeAnchor": true,
+      "passes": true
+    },
+    {
+      "case": "filtered-source-summary-fallback",
+      "filtered": 1,
+      "unverifiedSummaryStillReturned": true,
+      "passes": true
+    },
+    {
+      "case": "responses-mode-adapter",
+      "status": 200,
+      "modelRequestAlwaysMessages": true,
+      "responseOutputIgnored": true,
+      "passes": true
+    },
+    {
+      "case": "plugin-disabled-controlled-error",
+      "status": 503,
+      "passes": true
+    },
+    {
+      "case": "no-key-no-dispatch",
+      "status": 503,
+      "networkCalls": 0,
+      "passes": true
+    },
+    {
+      "case": "model-body-disconnect",
+      "aborted": true,
+      "writes": 0,
+      "listeners": 0,
+      "passes": true
+    },
+    {
+      "case": "search-overlap-overwrites-latest",
+      "staleResponseWins": true,
+      "passes": true
+    }
+  ]
+}

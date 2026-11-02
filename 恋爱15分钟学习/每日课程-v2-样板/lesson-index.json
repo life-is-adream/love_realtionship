@@ -1,0 +1,2959 @@
+{
+ "schema": "love-course-index/v2",
+ "generated_by": "恋爱15分钟学习/每日课程-v2-样板/build_index.py",
+ "note": "只做索引，不改动任何原课；status=keep 表示原课保留，merge/compress 由 P3 填写",
+ "layers": {
+  "M1": "吸引与选择",
+  "M2": "信号与不确定性",
+  "M3": "依恋与情绪调节",
+  "M4": "沟通与修复",
+  "M5": "承诺与维持"
+ },
+ "seasons": {
+  "S1": "第一季 进入关系（1–100）",
+  "S2": "第二季 长期经营（101–160）",
+  "S3": "第三季 批判性识别（161–179）"
+ },
+ "modules": {
+  "1": "起点与场景",
+  "2": "聊天与联系",
+  "3": "邀约与初约",
+  "4": "拒绝与自我价值",
+  "5": "依恋与边界",
+  "6": "风险与稳定",
+  "7": "社交与方法库",
+  "8": "信号与自我调节",
+  "9": "沟通与修复",
+  "10": "关系制度",
+  "11": "自查与结课",
+  "12": "承诺与婚前",
+  "13": "婚姻头几年",
+  "14": "生育与育儿",
+  "15": "危机与照护",
+  "16": "中年与晚年",
+  "17": "批判性识别"
+ },
+ "lessons": [
+  {
+   "id": 1,
+   "date": "2026-07-18",
+   "title": "先别急着追人",
+   "file": "每日课程/2026-07-18-第01课-先别急着追人.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M3",
+   "concepts": [
+    "准备度",
+    "自我稳定"
+   ],
+   "review_week": 1,
+   "status": "keep"
+  },
+  {
+   "id": 2,
+   "date": "2026-07-19",
+   "title": "先找到能重复出现的场景",
+   "file": "每日课程/2026-07-19-第02课-先找到能重复出现的场景.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M1",
+   "concepts": [
+    "曝光效应",
+    "功能性距离"
+   ],
+   "review_week": 1,
+   "status": "keep"
+  },
+  {
+   "id": 3,
+   "date": "2026-07-20",
+   "title": "把自己整理到“可被认识”",
+   "file": "每日课程/2026-07-20-第03课-把自己整理到“可被认识”.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M1",
+   "concepts": [
+    "可被认识",
+    "呈现成本"
+   ],
+   "review_week": 1,
+   "status": "keep"
+  },
+  {
+   "id": 4,
+   "date": "2026-07-21",
+   "title": "自我介绍不要像简历",
+   "file": "每日课程/2026-07-21-第04课-自我介绍不要像简历.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M2",
+   "concepts": [
+    "自我介绍",
+    "披露节奏"
+   ],
+   "review_week": 1,
+   "status": "keep"
+  },
+  {
+   "id": 5,
+   "date": "2026-07-22",
+   "title": "先听懂，再继续聊",
+   "file": "每日课程/2026-07-22-第05课-先听懂，再继续聊.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M4",
+   "concepts": [
+    "倾听",
+    "理解先于回应"
+   ],
+   "review_week": 1,
+   "status": "keep"
+  },
+  {
+   "id": 6,
+   "date": "2026-07-23",
+   "title": "用共同情境开场",
+   "file": "每日课程/2026-07-23-第06课-用共同情境开场.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M2",
+   "concepts": [
+    "共同情境",
+    "开场"
+   ],
+   "review_week": 1,
+   "status": "keep"
+  },
+  {
+   "id": 7,
+   "date": "2026-07-24",
+   "title": "在群体里建立熟悉感",
+   "file": "每日课程/2026-07-24-第07课-在群体里建立熟悉感.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M1",
+   "concepts": [
+    "群体熟悉感",
+    "重复接触"
+   ],
+   "review_week": 2,
+   "status": "keep"
+  },
+  {
+   "id": 8,
+   "date": "2026-07-25",
+   "title": "加微信是下一步，不是战利品",
+   "file": "每日课程/2026-07-25-第08课-加微信是下一步，不是战利品.md",
+   "season": "S1",
+   "module": 1,
+   "module_name": "起点与场景",
+   "layer": "M2",
+   "concepts": [
+    "联系方式",
+    "入口非战利品"
+   ],
+   "review_week": 2,
+   "status": "keep"
+  },
+  {
+   "id": 9,
+   "date": "2026-07-26",
+   "title": "第一次线上联系要短而有上下文",
+   "file": "每日课程/2026-07-26-第09课-第一次线上联系要短而有上下文.md",
+   "season": "S1",
+   "module": 2,
+   "module_name": "聊天与联系",
+   "layer": "M2",
+   "concepts": [
+    "线上首联",
+    "上下文"
+   ],
+   "review_week": 2,
+   "status": "keep"
+  },
+  {
+   "id": 10,
+   "date": "2026-07-27",
+   "title": "聊天从关键词展开",
+   "file": "每日课程/2026-07-27-第10课-聊天从关键词展开.md",
+   "season": "S1",
+   "module": 2,
+   "module_name": "聊天与联系",
+   "layer": "M4",
+   "concepts": [
+    "关键词展开",
+    "话题延伸"
+   ],
+   "review_week": 2,
+   "status": "keep"
+  },
+  {
+   "id": 11,
+   "date": "2026-07-28",
+   "title": "适度自我披露",
+   "file": "每日课程/2026-07-28-第11课-适度自我披露.md",
+   "season": "S1",
+   "module": 2,
+   "module_name": "聊天与联系",
+   "layer": "M2",
+   "concepts": [
+    "自我披露",
+    "互惠"
+   ],
+   "review_week": 2,
+   "status": "keep"
+  },
+  {
+   "id": 12,
+   "date": "2026-07-29",
+   "title": "不要靠一个信号判断她喜不喜欢你",
+   "file": "每日课程/2026-07-29-第12课-不要靠一个信号判断她喜不喜欢你.md",
+   "season": "S1",
+   "module": 2,
+   "module_name": "聊天与联系",
+   "layer": "M2",
+   "concepts": [
+    "单一信号",
+    "归因"
+   ],
+   "review_week": 2,
+   "status": "keep"
+  },
+  {
+   "id": 13,
+   "date": "2026-07-30",
+   "title": "提出一次清楚的邀约",
+   "file": "每日课程/2026-07-30-第13课-提出一次清楚的邀约.md",
+   "season": "S1",
+   "module": 3,
+   "module_name": "邀约与初约",
+   "layer": "M2",
+   "concepts": [
+    "明确邀约",
+    "可拒绝"
+   ],
+   "review_week": 3,
+   "status": "keep"
+  },
+  {
+   "id": 14,
+   "date": "2026-07-31",
+   "title": "设计一场低压力第一次约会",
+   "file": "每日课程/2026-07-31-第14课-设计一场低压力第一次约会.md",
+   "season": "S1",
+   "module": 3,
+   "module_name": "邀约与初约",
+   "layer": "M1",
+   "concepts": [
+    "低压力约会",
+    "场景设计"
+   ],
+   "review_week": 3,
+   "status": "keep"
+  },
+  {
+   "id": 15,
+   "date": "2026-08-01",
+   "title": "第一次约会要观察什么",
+   "file": "每日课程/2026-08-01-第15课-第一次约会要观察什么.md",
+   "season": "S1",
+   "module": 3,
+   "module_name": "邀约与初约",
+   "layer": "M2",
+   "concepts": [
+    "初次观察",
+    "互动质量"
+   ],
+   "review_week": 3,
+   "status": "keep"
+  },
+  {
+   "id": 16,
+   "date": "2026-08-02",
+   "title": "约会后跟进，不要立刻索要答案",
+   "file": "每日课程/2026-08-02-第16课-约会后跟进，不要立刻索要答案.md",
+   "season": "S1",
+   "module": 3,
+   "module_name": "邀约与初约",
+   "layer": "M2",
+   "concepts": [
+    "跟进",
+    "不索要答案"
+   ],
+   "review_week": 3,
+   "status": "keep"
+  },
+  {
+   "id": 17,
+   "date": "2026-08-03",
+   "title": "第二次约会看兼容性，不只看刺激",
+   "file": "每日课程/2026-08-03-第17课-第二次约会看兼容性，不只看刺激.md",
+   "season": "S1",
+   "module": 3,
+   "module_name": "邀约与初约",
+   "layer": "M1",
+   "concepts": [
+    "第二次约会",
+    "兼容性"
+   ],
+   "review_week": 3,
+   "status": "keep"
+  },
+  {
+   "id": 18,
+   "date": "2026-08-04",
+   "title": "表达好感，而不是制造暧昧",
+   "file": "每日课程/2026-08-04-第18课-表达好感，而不是制造暧昧.md",
+   "season": "S1",
+   "module": 3,
+   "module_name": "邀约与初约",
+   "layer": "M2",
+   "concepts": [
+    "表达好感",
+    "不含糊"
+   ],
+   "review_week": 3,
+   "status": "keep"
+  },
+  {
+   "id": 19,
+   "date": "2026-08-05",
+   "title": "体面处理拒绝",
+   "file": "每日课程/2026-08-05-第19课-体面处理拒绝.md",
+   "season": "S1",
+   "module": 4,
+   "module_name": "拒绝与自我价值",
+   "layer": "M3",
+   "concepts": [
+    "拒绝",
+    "体面退出"
+   ],
+   "review_week": 4,
+   "status": "keep"
+  },
+  {
+   "id": 20,
+   "date": "2026-08-06",
+   "title": "停止把回复速度当自我价值",
+   "file": "每日课程/2026-08-06-第20课-停止把回复速度当自我价值.md",
+   "season": "S1",
+   "module": 4,
+   "module_name": "拒绝与自我价值",
+   "layer": "M3",
+   "concepts": [
+    "回复速度",
+    "自我价值"
+   ],
+   "review_week": 4,
+   "status": "keep"
+  },
+  {
+   "id": 21,
+   "date": "2026-08-07",
+   "title": "理解依恋，不给自己贴死标签",
+   "file": "每日课程/2026-08-07-第21课-理解依恋，不给自己贴死标签.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M3",
+   "concepts": [
+    "依恋策略",
+    "升级降级"
+   ],
+   "review_week": 4,
+   "status": "keep"
+  },
+  {
+   "id": 22,
+   "date": "2026-08-08",
+   "title": "边界是我的行动规则",
+   "file": "每日课程/2026-08-08-第22课-边界是我的行动规则.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M5",
+   "concepts": [
+    "边界",
+    "我的规则"
+   ],
+   "review_week": 4,
+   "status": "keep"
+  },
+  {
+   "id": 23,
+   "date": "2026-08-09",
+   "title": "用非暴力沟通说清楚一件事",
+   "file": "每日课程/2026-08-09-第23课-用非暴力沟通说清楚一件事.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M4",
+   "concepts": [
+    "非暴力沟通",
+    "观察感受需要请求"
+   ],
+   "review_week": 4,
+   "status": "keep"
+  },
+  {
+   "id": 24,
+   "date": "2026-08-10",
+   "title": "冲突中先识别循环",
+   "file": "每日课程/2026-08-10-第24课-冲突中先识别循环.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M4",
+   "concepts": [
+    "冲突循环",
+    "识别循环"
+   ],
+   "review_week": 4,
+   "status": "keep"
+  },
+  {
+   "id": 25,
+   "date": "2026-08-11",
+   "title": "先问对方想被听见还是想解决",
+   "file": "每日课程/2026-08-11-第25课-先问对方想被听见还是想解决.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M4",
+   "concepts": [
+    "倾听需求",
+    "被听见≠被解决"
+   ],
+   "review_week": 5,
+   "status": "keep"
+  },
+  {
+   "id": 26,
+   "date": "2026-08-12",
+   "title": "亲密接触必须有明确同意",
+   "file": "每日课程/2026-08-12-第26课-亲密接触必须有明确同意.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M4",
+   "concepts": [
+    "同意",
+    "可撤回"
+   ],
+   "review_week": 5,
+   "status": "keep"
+  },
+  {
+   "id": 27,
+   "date": "2026-08-13",
+   "title": "恋爱中的钱要早谈、慢谈、明谈",
+   "file": "每日课程/2026-08-13-第27课-恋爱中的钱要早谈、慢谈、明谈.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M5",
+   "concepts": [
+    "金钱",
+    "早谈慢谈明谈"
+   ],
+   "review_week": 5,
+   "status": "keep"
+  },
+  {
+   "id": 28,
+   "date": "2026-08-14",
+   "title": "明确关系，不靠滑入",
+   "file": "每日课程/2026-08-14-第28课-明确关系，不靠滑入.md",
+   "season": "S1",
+   "module": 5,
+   "module_name": "依恋与边界",
+   "layer": "M5",
+   "concepts": [
+    "明确关系",
+    "拒绝滑入"
+   ],
+   "review_week": 5,
+   "status": "keep"
+  },
+  {
+   "id": 29,
+   "date": "2026-08-15",
+   "title": "识别危险关系，而不是只研究吸引",
+   "file": "每日课程/2026-08-15-第29课-识别危险关系，而不是只研究吸引.md",
+   "season": "S1",
+   "module": 6,
+   "module_name": "风险与稳定",
+   "layer": "M5",
+   "concepts": [
+    "危险关系",
+    "风险识别"
+   ],
+   "review_week": 5,
+   "status": "keep"
+  },
+  {
+   "id": 30,
+   "date": "2026-08-16",
+   "title": "让关系变得更稳定",
+   "file": "每日课程/2026-08-16-第30课-让关系变得更稳定.md",
+   "season": "S1",
+   "module": 6,
+   "module_name": "风险与稳定",
+   "layer": "M5",
+   "concepts": [
+    "关系稳定",
+    "可预测性"
+   ],
+   "review_week": 5,
+   "status": "keep"
+  },
+  {
+   "id": 31,
+   "date": "2026-08-17",
+   "title": "从恋爱学习转向自己的关系原则",
+   "file": "每日课程/2026-08-17-第31课-从恋爱学习转向自己的关系原则.md",
+   "season": "S1",
+   "module": 6,
+   "module_name": "风险与稳定",
+   "layer": "M5",
+   "concepts": [
+    "关系原则",
+    "个人准则"
+   ],
+   "review_week": 6,
+   "status": "keep"
+  },
+  {
+   "id": 32,
+   "date": "2026-08-18",
+   "title": "从群体聊天过渡到一对一",
+   "file": "每日课程/2026-08-18-第32课-从群体聊天过渡到一对一.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "群体转一对一",
+    "信号升级"
+   ],
+   "review_week": 6,
+   "status": "keep"
+  },
+  {
+   "id": 33,
+   "date": "2026-08-19",
+   "title": "通过朋友认识，不把介绍当保证",
+   "file": "每日课程/2026-08-19-第33课-通过朋友认识，不把介绍当保证.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M1",
+   "concepts": [
+    "朋友介绍",
+    "社交网络"
+   ],
+   "review_week": 6,
+   "status": "keep"
+  },
+  {
+   "id": 34,
+   "date": "2026-08-20",
+   "title": "问更好的问题",
+   "file": "每日课程/2026-08-20-第34课-问更好的问题.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M4",
+   "concepts": [
+    "提问",
+    "开放问题"
+   ],
+   "review_week": 6,
+   "status": "keep"
+  },
+  {
+   "id": 35,
+   "date": "2026-08-21",
+   "title": "适度幽默，不拿人开刀",
+   "file": "每日课程/2026-08-21-第35课-适度幽默，不拿人开刀.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M4",
+   "concepts": [
+    "幽默",
+    "不拿人开刀"
+   ],
+   "review_week": 6,
+   "status": "keep"
+  },
+  {
+   "id": 36,
+   "date": "2026-08-22",
+   "title": "讲一个短故事",
+   "file": "每日课程/2026-08-22-第36课-讲一个短故事.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "短故事",
+    "自我呈现"
+   ],
+   "review_week": 6,
+   "status": "keep"
+  },
+  {
+   "id": 37,
+   "date": "2026-08-23",
+   "title": "处理聊天中的停顿",
+   "file": "每日课程/2026-08-23-第37课-处理聊天中的停顿.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M4",
+   "concepts": [
+    "聊天停顿",
+    "留白"
+   ],
+   "review_week": 7,
+   "status": "keep"
+  },
+  {
+   "id": 38,
+   "date": "2026-08-24",
+   "title": "把邀约放在互惠之后",
+   "file": "每日课程/2026-08-24-第38课-把邀约放在互惠之后.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "邀约时机",
+    "互惠先行"
+   ],
+   "review_week": 7,
+   "status": "keep"
+  },
+  {
+   "id": 39,
+   "date": "2026-08-25",
+   "title": "建立健康的消息节奏",
+   "file": "每日课程/2026-08-25-第39课-建立健康的消息节奏.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "消息节奏",
+    "频率"
+   ],
+   "review_week": 7,
+   "status": "keep"
+  },
+  {
+   "id": 40,
+   "date": "2026-08-26",
+   "title": "整理一个诚实的线上形象",
+   "file": "每日课程/2026-08-26-第40课-整理一个诚实的线上形象.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "线上形象",
+    "诚实呈现"
+   ],
+   "review_week": 7,
+   "status": "keep"
+  },
+  {
+   "id": 41,
+   "date": "2026-08-27",
+   "title": "线上交友的第一条消息",
+   "file": "每日课程/2026-08-27-第41课-线上交友的第一条消息.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "线上开场",
+    "低投入试探"
+   ],
+   "review_week": 7,
+   "status": "keep"
+  },
+  {
+   "id": 42,
+   "date": "2026-08-28",
+   "title": "学会结束低质量线上互动",
+   "file": "每日课程/2026-08-28-第42课-学会结束低质量线上互动.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "低质量互动",
+    "退出"
+   ],
+   "review_week": 7,
+   "status": "keep"
+  },
+  {
+   "id": 43,
+   "date": "2026-08-29",
+   "title": "电话或视频聊天的边界",
+   "file": "每日课程/2026-08-29-第43课-电话或视频聊天的边界.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M4",
+   "concepts": [
+    "电话视频",
+    "媒介边界"
+   ],
+   "review_week": 8,
+   "status": "keep"
+  },
+  {
+   "id": 44,
+   "date": "2026-08-30",
+   "title": "安排约会时确认细节",
+   "file": "每日课程/2026-08-30-第44课-安排约会时确认细节.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M4",
+   "concepts": [
+    "约会细节",
+    "确认预期"
+   ],
+   "review_week": 8,
+   "status": "keep"
+  },
+  {
+   "id": 45,
+   "date": "2026-08-31",
+   "title": "处理约会费用",
+   "file": "每日课程/2026-08-31-第45课-处理约会费用.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M5",
+   "concepts": [
+    "约会费用",
+    "分摊规则"
+   ],
+   "review_week": 8,
+   "status": "keep"
+  },
+  {
+   "id": 46,
+   "date": "2026-09-01",
+   "title": "约会中的安全计划",
+   "file": "每日课程/2026-09-01-第46课-约会中的安全计划.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M5",
+   "concepts": [
+    "约会安全",
+    "预案"
+   ],
+   "review_week": 8,
+   "status": "keep"
+  },
+  {
+   "id": 47,
+   "date": "2026-09-02",
+   "title": "尊重身体距离的变化",
+   "file": "每日课程/2026-09-02-第47课-尊重身体距离的变化.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M4",
+   "concepts": [
+    "身体距离",
+    "渐进确认"
+   ],
+   "review_week": 8,
+   "status": "keep"
+  },
+  {
+   "id": 48,
+   "date": "2026-09-03",
+   "title": "第二次邀约如何不变成压力",
+   "file": "每日课程/2026-09-03-第48课-第二次邀约如何不变成压力.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "二次邀约",
+    "不施压"
+   ],
+   "review_week": 8,
+   "status": "keep"
+  },
+  {
+   "id": 49,
+   "date": "2026-09-04",
+   "title": "区分好感和投射",
+   "file": "每日课程/2026-09-04-第49课-区分好感和投射.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M2",
+   "concepts": [
+    "好感与投射",
+    "理想化"
+   ],
+   "review_week": 9,
+   "status": "keep"
+  },
+  {
+   "id": 50,
+   "date": "2026-09-05",
+   "title": "约会后决定是否继续",
+   "file": "每日课程/2026-09-05-第50课-约会后决定是否继续.md",
+   "season": "S1",
+   "module": 7,
+   "module_name": "社交与方法库",
+   "layer": "M5",
+   "concepts": [
+    "是否继续",
+    "决策"
+   ],
+   "review_week": 9,
+   "status": "keep"
+  },
+  {
+   "id": 51,
+   "date": "2026-09-06",
+   "title": "把自我价值从恋爱结果中分开",
+   "file": "每日课程/2026-09-06-第51课-把自我价值从恋爱结果中分开.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M3",
+   "concepts": [
+    "自我价值",
+    "与结果解耦"
+   ],
+   "review_week": 9,
+   "status": "keep"
+  },
+  {
+   "id": 52,
+   "date": "2026-09-07",
+   "title": "需要感与索取感",
+   "file": "每日课程/2026-09-07-第52课-需要感与索取感.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M3",
+   "concepts": [
+    "需要感",
+    "索取与请求"
+   ],
+   "review_week": 9,
+   "status": "keep"
+  },
+  {
+   "id": 53,
+   "date": "2026-09-08",
+   "title": "拒绝后的恢复计划",
+   "file": "每日课程/2026-09-08-第53课-拒绝后的恢复计划.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M3",
+   "concepts": [
+    "拒绝恢复",
+    "情绪处理"
+   ],
+   "review_week": 9,
+   "status": "keep"
+  },
+  {
+   "id": 54,
+   "date": "2026-09-09",
+   "title": "识别嫉妒的事实与故事",
+   "file": "每日课程/2026-09-09-第54课-识别嫉妒的事实与故事.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M2",
+   "concepts": [
+    "嫉妒",
+    "事实与故事"
+   ],
+   "review_week": 9,
+   "status": "keep"
+  },
+  {
+   "id": 55,
+   "date": "2026-09-10",
+   "title": "停止社交比较",
+   "file": "每日课程/2026-09-10-第55课-停止社交比较.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M3",
+   "concepts": [
+    "社交比较",
+    "参照系"
+   ],
+   "review_week": 10,
+   "status": "keep"
+  },
+  {
+   "id": 56,
+   "date": "2026-09-11",
+   "title": "情绪调节的五分钟流程",
+   "file": "每日课程/2026-09-11-第56课-情绪调节的五分钟流程.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M3",
+   "concepts": [
+    "情绪调节",
+    "五分钟流程"
+   ],
+   "review_week": 10,
+   "status": "keep"
+  },
+  {
+   "id": 57,
+   "date": "2026-09-12",
+   "title": "练习安全型行为",
+   "file": "每日课程/2026-09-12-第57课-练习安全型行为.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M3",
+   "concepts": [
+    "安全型行为",
+    "可预测回应"
+   ],
+   "review_week": 10,
+   "status": "keep"
+  },
+  {
+   "id": 58,
+   "date": "2026-09-13",
+   "title": "停止讨好，开始互惠",
+   "file": "每日课程/2026-09-13-第58课-停止讨好，开始互惠.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M5",
+   "concepts": [
+    "讨好",
+    "互惠"
+   ],
+   "review_week": 10,
+   "status": "keep"
+  },
+  {
+   "id": 59,
+   "date": "2026-09-14",
+   "title": "建立可执行的择偶标准",
+   "file": "每日课程/2026-09-14-第59课-建立可执行的择偶标准.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M1",
+   "concepts": [
+    "择偶标准",
+    "可执行"
+   ],
+   "review_week": 10,
+   "status": "keep"
+  },
+  {
+   "id": 60,
+   "date": "2026-09-15",
+   "title": "识别自己的依恋触发点",
+   "file": "每日课程/2026-09-15-第60课-识别自己的依恋触发点.md",
+   "season": "S1",
+   "module": 8,
+   "module_name": "信号与自我调节",
+   "layer": "M3",
+   "concepts": [
+    "依恋触发点",
+    "自我监测"
+   ],
+   "review_week": 10,
+   "status": "keep"
+  },
+  {
+   "id": 61,
+   "date": "2026-09-16",
+   "title": "共情不是替对方下结论",
+   "file": "每日课程/2026-09-16-第61课-共情不是替对方下结论.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "共情",
+    "不替人下结论"
+   ],
+   "review_week": 11,
+   "status": "keep"
+  },
+  {
+   "id": 62,
+   "date": "2026-09-17",
+   "title": "提出具体请求",
+   "file": "每日课程/2026-09-17-第62课-提出具体请求.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "具体请求",
+    "可执行"
+   ],
+   "review_week": 11,
+   "status": "keep"
+  },
+  {
+   "id": 63,
+   "date": "2026-09-18",
+   "title": "表达不同意见而不攻击人格",
+   "file": "每日课程/2026-09-18-第63课-表达不同意见而不攻击人格.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "不同意见",
+    "不攻击人格"
+   ],
+   "review_week": 11,
+   "status": "keep"
+  },
+  {
+   "id": 64,
+   "date": "2026-09-19",
+   "title": "接受建设性反馈",
+   "file": "每日课程/2026-09-19-第64课-接受建设性反馈.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "建设性反馈",
+    "接收"
+   ],
+   "review_week": 11,
+   "status": "keep"
+  },
+  {
+   "id": 65,
+   "date": "2026-09-20",
+   "title": "道歉要包含改变",
+   "file": "每日课程/2026-09-20-第65课-道歉要包含改变.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "道歉",
+    "含改变"
+   ],
+   "review_week": 11,
+   "status": "keep"
+  },
+  {
+   "id": 66,
+   "date": "2026-09-21",
+   "title": "修复不是立刻翻篇",
+   "file": "每日课程/2026-09-21-第66课-修复不是立刻翻篇.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "修复",
+    "不是翻篇"
+   ],
+   "review_week": 11,
+   "status": "keep"
+  },
+  {
+   "id": 67,
+   "date": "2026-09-22",
+   "title": "使用有时间点的暂停",
+   "file": "每日课程/2026-09-22-第67课-使用有时间点的暂停.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "生理淹没",
+    "暂停四要素"
+   ],
+   "review_week": 12,
+   "status": "keep"
+  },
+  {
+   "id": 68,
+   "date": "2026-09-23",
+   "title": "区分冷静空间和冷暴力",
+   "file": "每日课程/2026-09-23-第68课-区分冷静空间和冷暴力.md",
+   "season": "S1",
+   "module": 9,
+   "module_name": "沟通与修复",
+   "layer": "M4",
+   "concepts": [
+    "冷静空间vs冷暴力",
+    "回来"
+   ],
+   "review_week": 12,
+   "status": "keep"
+  },
+  {
+   "id": 69,
+   "date": "2026-09-24",
+   "title": "异地关系需要终点和计划",
+   "file": "每日课程/2026-09-24-第69课-异地关系需要终点和计划.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "异地",
+    "终点与计划"
+   ],
+   "review_week": 12,
+   "status": "keep"
+  },
+  {
+   "id": 70,
+   "date": "2026-09-25",
+   "title": "先建立伴侣友谊",
+   "file": "每日课程/2026-09-25-第70课-先建立伴侣友谊.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "伴侣友谊",
+    "积极互动"
+   ],
+   "review_week": 12,
+   "status": "keep"
+  },
+  {
+   "id": 71,
+   "date": "2026-09-26",
+   "title": "隐私与透明的区别",
+   "file": "每日课程/2026-09-26-第71课-隐私与透明的区别.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "隐私与透明",
+    "区分"
+   ],
+   "review_week": 12,
+   "status": "keep"
+  },
+  {
+   "id": 72,
+   "date": "2026-09-27",
+   "title": "联系频率要协商",
+   "file": "每日课程/2026-09-27-第72课-联系频率要协商.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "联系频率",
+    "协商"
+   ],
+   "review_week": 12,
+   "status": "keep"
+  },
+  {
+   "id": 73,
+   "date": "2026-09-28",
+   "title": "个人时间不是拒绝关系",
+   "file": "每日课程/2026-09-28-第73课-个人时间不是拒绝关系.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "个人时间",
+    "非拒绝"
+   ],
+   "review_week": 13,
+   "status": "keep"
+  },
+  {
+   "id": 74,
+   "date": "2026-09-29",
+   "title": "谈性之前先谈价值和安全",
+   "file": "每日课程/2026-09-29-第74课-谈性之前先谈价值和安全.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M4",
+   "concepts": [
+    "性沟通",
+    "价值与安全"
+   ],
+   "review_week": 13,
+   "status": "keep"
+  },
+  {
+   "id": 75,
+   "date": "2026-09-30",
+   "title": "同意可以随时改变",
+   "file": "每日课程/2026-09-30-第75课-同意可以随时改变.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M4",
+   "concepts": [
+    "同意可变",
+    "撤回"
+   ],
+   "review_week": 13,
+   "status": "keep"
+  },
+  {
+   "id": 76,
+   "date": "2026-10-01",
+   "title": "性健康信息要可靠",
+   "file": "每日课程/2026-10-01-第76课-性健康信息要可靠.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "性健康",
+    "信息来源"
+   ],
+   "review_week": 13,
+   "status": "keep"
+  },
+  {
+   "id": 77,
+   "date": "2026-10-02",
+   "title": "身体形象与亲密压力",
+   "file": "每日课程/2026-10-02-第77课-身体形象与亲密压力.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M3",
+   "concepts": [
+    "身体形象",
+    "亲密压力"
+   ],
+   "review_week": 13,
+   "status": "keep"
+  },
+  {
+   "id": 78,
+   "date": "2026-10-03",
+   "title": "处理色情与浪漫脚本的影响",
+   "file": "每日课程/2026-10-03-第78课-处理色情与浪漫脚本的影响.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M2",
+   "concepts": [
+    "浪漫脚本",
+    "媒介影响"
+   ],
+   "review_week": 13,
+   "status": "keep"
+  },
+  {
+   "id": 79,
+   "date": "2026-10-04",
+   "title": "拒绝性压力和情感勒索",
+   "file": "每日课程/2026-10-04-第79课-拒绝性压力和情感勒索.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M4",
+   "concepts": [
+    "性压力",
+    "情感勒索"
+   ],
+   "review_week": 14,
+   "status": "keep"
+  },
+  {
+   "id": 80,
+   "date": "2026-10-05",
+   "title": "体面而安全地结束关系",
+   "file": "每日课程/2026-10-05-第80课-体面而安全地结束关系.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "结束关系",
+    "体面安全"
+   ],
+   "review_week": 14,
+   "status": "keep"
+  },
+  {
+   "id": 81,
+   "date": "2026-10-06",
+   "title": "建立关系仪式",
+   "file": "每日课程/2026-10-06-第81课-建立关系仪式.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "关系仪式",
+    "维持行为"
+   ],
+   "review_week": 14,
+   "status": "keep"
+  },
+  {
+   "id": 82,
+   "date": "2026-10-07",
+   "title": "具体表达欣赏",
+   "file": "每日课程/2026-10-07-第82课-具体表达欣赏.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "欣赏",
+    "资本化"
+   ],
+   "review_week": 14,
+   "status": "keep"
+  },
+  {
+   "id": 83,
+   "date": "2026-10-08",
+   "title": "识别你们反复争吵的主题",
+   "file": "每日课程/2026-10-08-第83课-识别你们反复争吵的主题.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M4",
+   "concepts": [
+    "反复争吵",
+    "核心主题"
+   ],
+   "review_week": 14,
+   "status": "keep"
+  },
+  {
+   "id": 84,
+   "date": "2026-10-09",
+   "title": "建立金钱透明机制",
+   "file": "每日课程/2026-10-09-第84课-建立金钱透明机制.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "金钱透明",
+    "机制"
+   ],
+   "review_week": 14,
+   "status": "keep"
+  },
+  {
+   "id": 85,
+   "date": "2026-10-10",
+   "title": "谈城市、工作和生活方向",
+   "file": "每日课程/2026-10-10-第85课-谈城市、工作和生活方向.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "城市与职业",
+    "方向协商"
+   ],
+   "review_week": 15,
+   "status": "keep"
+  },
+  {
+   "id": 86,
+   "date": "2026-10-11",
+   "title": "处理双方家庭边界",
+   "file": "每日课程/2026-10-11-第86课-处理双方家庭边界.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "家庭边界",
+    "原生家庭"
+   ],
+   "review_week": 15,
+   "status": "keep"
+  },
+  {
+   "id": 87,
+   "date": "2026-10-12",
+   "title": "评估婚姻准备度",
+   "file": "每日课程/2026-10-12-第87课-评估婚姻准备度.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "婚姻准备度",
+    "评估"
+   ],
+   "review_week": 15,
+   "status": "keep"
+  },
+  {
+   "id": 88,
+   "date": "2026-10-13",
+   "title": "谈生育与不生育选择",
+   "file": "每日课程/2026-10-13-第88课-谈生育与不生育选择.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "生育选择",
+    "协商"
+   ],
+   "review_week": 15,
+   "status": "keep"
+  },
+  {
+   "id": 89,
+   "date": "2026-10-14",
+   "title": "协商家务与照护",
+   "file": "每日课程/2026-10-14-第89课-协商家务与照护.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "家务照护",
+    "分工公平"
+   ],
+   "review_week": 15,
+   "status": "keep"
+  },
+  {
+   "id": 90,
+   "date": "2026-10-15",
+   "title": "进行一次关系检查",
+   "file": "每日课程/2026-10-15-第90课-进行一次关系检查.md",
+   "season": "S1",
+   "module": 10,
+   "module_name": "关系制度",
+   "layer": "M5",
+   "concepts": [
+    "关系检查",
+    "定期复盘"
+   ],
+   "review_week": 15,
+   "status": "keep"
+  },
+  {
+   "id": 91,
+   "date": "2026-10-16",
+   "title": "建立红旗和黄旗系统",
+   "file": "每日课程/2026-10-16-第91课-建立红旗和黄旗系统.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M5",
+   "concepts": [
+    "红旗黄旗",
+    "分级"
+   ],
+   "review_week": 16,
+   "status": "keep"
+  },
+  {
+   "id": 92,
+   "date": "2026-10-17",
+   "title": "审计操控性技巧",
+   "file": "每日课程/2026-10-17-第92课-审计操控性技巧.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M5",
+   "concepts": [
+    "操控审计",
+    "识别"
+   ],
+   "review_week": 16,
+   "status": "keep"
+  },
+  {
+   "id": 93,
+   "date": "2026-10-18",
+   "title": "健康主导是什么",
+   "file": "每日课程/2026-10-18-第93课-健康主导是什么.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M5",
+   "concepts": [
+    "健康主导",
+    "责任非支配"
+   ],
+   "review_week": 16,
+   "status": "keep"
+  },
+  {
+   "id": 94,
+   "date": "2026-10-19",
+   "title": "用决策表代替恋爱脑",
+   "file": "每日课程/2026-10-19-第94课-用决策表代替恋爱脑.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M5",
+   "concepts": [
+    "决策表",
+    "反恋爱脑"
+   ],
+   "review_week": 16,
+   "status": "keep"
+  },
+  {
+   "id": 95,
+   "date": "2026-10-20",
+   "title": "写一份关系契约草案",
+   "file": "每日课程/2026-10-20-第95课-写一份关系契约草案.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M5",
+   "concepts": [
+    "关系契约",
+    "草案"
+   ],
+   "review_week": 16,
+   "status": "keep"
+  },
+  {
+   "id": 96,
+   "date": "2026-10-21",
+   "title": "设计一次关系实验",
+   "file": "每日课程/2026-10-21-第96课-设计一次关系实验.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M5",
+   "concepts": [
+    "关系实验",
+    "小步验证"
+   ],
+   "review_week": 16,
+   "status": "keep"
+  },
+  {
+   "id": 97,
+   "date": "2026-10-22",
+   "title": "建立长期社交管线",
+   "file": "每日课程/2026-10-22-第97课-建立长期社交管线.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M1",
+   "concepts": [
+    "社交管线",
+    "长期入口"
+   ],
+   "review_week": 17,
+   "status": "keep"
+  },
+  {
+   "id": 98,
+   "date": "2026-10-23",
+   "title": "建立自己的表达脚本库",
+   "file": "每日课程/2026-10-23-第98课-建立自己的表达脚本库.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M4",
+   "concepts": [
+    "表达脚本库",
+    "工具化"
+   ],
+   "review_week": 17,
+   "status": "keep"
+  },
+  {
+   "id": 99,
+   "date": "2026-10-24",
+   "title": "制定下一个30天行动计划",
+   "file": "每日课程/2026-10-24-第99课-制定下一个30天行动计划.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M5",
+   "concepts": [
+    "30天计划",
+    "行动设计"
+   ],
+   "review_week": 17,
+   "status": "keep"
+  },
+  {
+   "id": 100,
+   "date": "2026-10-25",
+   "title": "结课：成为更清楚、更稳定的人",
+   "file": "每日课程/2026-10-25-第100课-结课：成为更清楚、更稳定的人.md",
+   "season": "S1",
+   "module": 11,
+   "module_name": "自查与结课",
+   "layer": "M3",
+   "concepts": [
+    "结课",
+    "整合"
+   ],
+   "review_week": 17,
+   "status": "keep"
+  },
+  {
+   "id": 101,
+   "date": "2026-10-26",
+   "title": "从恋爱走向长期承诺",
+   "file": "每日课程/2026-10-26-第101课-从恋爱走向长期承诺.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "长期承诺",
+    "过渡"
+   ],
+   "review_week": 17,
+   "status": "keep"
+  },
+  {
+   "id": 102,
+   "date": "2026-10-27",
+   "title": "看承诺信号，不看口号",
+   "file": "每日课程/2026-10-27-第102课-看承诺信号，不看口号.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "承诺信号",
+    "行为非口号"
+   ],
+   "review_week": 17,
+   "status": "keep"
+  },
+  {
+   "id": 103,
+   "date": "2026-10-28",
+   "title": "用心理博弈保护长期选择",
+   "file": "每日课程/2026-10-28-第103课-用心理博弈保护长期选择.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "心理博弈",
+    "保护选择"
+   ],
+   "review_week": 18,
+   "status": "keep"
+  },
+  {
+   "id": 104,
+   "date": "2026-10-29",
+   "title": "谈价值观，而不是互相说服",
+   "file": "每日课程/2026-10-29-第104课-谈价值观，而不是互相说服.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "价值观",
+    "不互相说服"
+   ],
+   "review_week": 18,
+   "status": "keep"
+  },
+  {
+   "id": 105,
+   "date": "2026-10-30",
+   "title": "订婚前的清单",
+   "file": "每日课程/2026-10-30-第105课-订婚前的清单.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "订婚清单",
+    "决策"
+   ],
+   "review_week": 18,
+   "status": "keep"
+  },
+  {
+   "id": 106,
+   "date": "2026-10-31",
+   "title": "求婚应是共同方向，不是突袭压力",
+   "file": "每日课程/2026-10-31-第106课-求婚应是共同方向，不是突袭压力.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "求婚",
+    "共同方向"
+   ],
+   "review_week": 18,
+   "status": "keep"
+  },
+  {
+   "id": 107,
+   "date": "2026-11-01",
+   "title": "规划婚礼，不让婚礼吞掉婚姻",
+   "file": "每日课程/2026-11-01-第107课-规划婚礼，不让婚礼吞掉婚姻.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "婚礼",
+    "不吞掉婚姻"
+   ],
+   "review_week": 18,
+   "status": "keep"
+  },
+  {
+   "id": 108,
+   "date": "2026-11-02",
+   "title": "办理婚姻手续前的法律与身份意识",
+   "file": "每日课程/2026-11-02-第108课-办理婚姻手续前的法律与身份意识.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "法律身份",
+    "手续"
+   ],
+   "review_week": 18,
+   "status": "keep"
+  },
+  {
+   "id": 109,
+   "date": "2026-11-03",
+   "title": "婚前咨询是预防，不是关系失败",
+   "file": "每日课程/2026-11-03-第109课-婚前咨询是预防，不是关系失败.md",
+   "season": "S2",
+   "module": 12,
+   "module_name": "承诺与婚前",
+   "layer": "M5",
+   "concepts": [
+    "婚前咨询",
+    "预防"
+   ],
+   "review_week": 19,
+   "status": "keep"
+  },
+  {
+   "id": 110,
+   "date": "2026-11-04",
+   "title": "同居前先谈生活规则",
+   "file": "每日课程/2026-11-04-第110课-同居前先谈生活规则.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "同居规则",
+    "生活契约"
+   ],
+   "review_week": 19,
+   "status": "keep"
+  },
+  {
+   "id": 111,
+   "date": "2026-11-05",
+   "title": "婚姻第一年：从浪漫转向协调",
+   "file": "每日课程/2026-11-05-第111课-婚姻第一年：从浪漫转向协调.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "第一年",
+    "浪漫转协调"
+   ],
+   "review_week": 19,
+   "status": "keep"
+  },
+  {
+   "id": 112,
+   "date": "2026-11-06",
+   "title": "把家务分成完整责任",
+   "file": "每日课程/2026-11-06-第112课-把家务分成完整责任.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "家务",
+    "完整责任"
+   ],
+   "review_week": 19,
+   "status": "keep"
+  },
+  {
+   "id": 113,
+   "date": "2026-11-07",
+   "title": "婚后财务的透明与自主",
+   "file": "每日课程/2026-11-07-第113课-婚后财务的透明与自主.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "婚后财务",
+    "透明与自主"
+   ],
+   "review_week": 19,
+   "status": "keep"
+  },
+  {
+   "id": 114,
+   "date": "2026-11-08",
+   "title": "婚姻中的性与亲密变化",
+   "file": "每日课程/2026-11-08-第114课-婚姻中的性与亲密变化.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M4",
+   "concepts": [
+    "婚后性",
+    "变化"
+   ],
+   "review_week": 19,
+   "status": "keep"
+  },
+  {
+   "id": 115,
+   "date": "2026-11-09",
+   "title": "婚姻冲突的共同规则",
+   "file": "每日课程/2026-11-09-第115课-婚姻冲突的共同规则.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M4",
+   "concepts": [
+    "冲突规则",
+    "共同约定"
+   ],
+   "review_week": 20,
+   "status": "keep"
+  },
+  {
+   "id": 116,
+   "date": "2026-11-10",
+   "title": "婚后修复的四个步骤",
+   "file": "每日课程/2026-11-10-第116课-婚后修复的四个步骤.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M4",
+   "concepts": [
+    "修复四步",
+    "流程"
+   ],
+   "review_week": 20,
+   "status": "keep"
+  },
+  {
+   "id": 117,
+   "date": "2026-11-11",
+   "title": "夫妻也需要隐私",
+   "file": "每日课程/2026-11-11-第117课-夫妻也需要隐私.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "夫妻隐私",
+    "边界"
+   ],
+   "review_week": 20,
+   "status": "keep"
+  },
+  {
+   "id": 118,
+   "date": "2026-11-12",
+   "title": "婚姻中的双方家庭边界",
+   "file": "每日课程/2026-11-12-第118课-婚姻中的双方家庭边界.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "家庭边界",
+    "双方父母"
+   ],
+   "review_week": 20,
+   "status": "keep"
+  },
+  {
+   "id": 119,
+   "date": "2026-11-13",
+   "title": "婚姻与职业选择",
+   "file": "每日课程/2026-11-13-第119课-婚姻与职业选择.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "职业选择",
+    "协商"
+   ],
+   "review_week": 20,
+   "status": "keep"
+  },
+  {
+   "id": 120,
+   "date": "2026-11-14",
+   "title": "生育决定与共同责任",
+   "file": "每日课程/2026-11-14-第120课-生育决定与共同责任.md",
+   "season": "S2",
+   "module": 13,
+   "module_name": "婚姻头几年",
+   "layer": "M5",
+   "concepts": [
+    "生育决定",
+    "共同责任"
+   ],
+   "review_week": 20,
+   "status": "keep"
+  },
+  {
+   "id": 121,
+   "date": "2026-11-15",
+   "title": "面对生育困难",
+   "file": "每日课程/2026-11-15-第121课-面对生育困难.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M3",
+   "concepts": [
+    "生育困难",
+    "支持"
+   ],
+   "review_week": 21,
+   "status": "keep"
+  },
+  {
+   "id": 122,
+   "date": "2026-11-16",
+   "title": "孕期伴侣支持",
+   "file": "每日课程/2026-11-16-第122课-孕期伴侣支持.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M5",
+   "concepts": [
+    "孕期支持",
+    "角色变化"
+   ],
+   "review_week": 21,
+   "status": "keep"
+  },
+  {
+   "id": 123,
+   "date": "2026-11-17",
+   "title": "产后关系与睡眠危机",
+   "file": "每日课程/2026-11-17-第123课-产后关系与睡眠危机.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M3",
+   "concepts": [
+    "产后",
+    "睡眠危机"
+   ],
+   "review_week": 21,
+   "status": "keep"
+  },
+  {
+   "id": 124,
+   "date": "2026-11-18",
+   "title": "建立共同育儿立场",
+   "file": "每日课程/2026-11-18-第124课-建立共同育儿立场.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M5",
+   "concepts": [
+    "育儿立场",
+    "统一"
+   ],
+   "review_week": 21,
+   "status": "keep"
+  },
+  {
+   "id": 125,
+   "date": "2026-11-19",
+   "title": "管教孩子不等于惩罚伴侣",
+   "file": "每日课程/2026-11-19-第125课-管教孩子不等于惩罚伴侣.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M4",
+   "concepts": [
+    "管教",
+    "不惩罚伴侣"
+   ],
+   "review_week": 21,
+   "status": "keep"
+  },
+  {
+   "id": 126,
+   "date": "2026-11-20",
+   "title": "让育儿劳动公平可见",
+   "file": "每日课程/2026-11-20-第126课-让育儿劳动公平可见.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M5",
+   "concepts": [
+    "育儿劳动",
+    "公平可见"
+   ],
+   "review_week": 21,
+   "status": "keep"
+  },
+  {
+   "id": 127,
+   "date": "2026-11-21",
+   "title": "祖辈参与和边界",
+   "file": "每日课程/2026-11-21-第127课-祖辈参与和边界.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M5",
+   "concepts": [
+    "祖辈",
+    "边界"
+   ],
+   "review_week": 22,
+   "status": "keep"
+  },
+  {
+   "id": 128,
+   "date": "2026-11-22",
+   "title": "儿童成长阶段的夫妻协作",
+   "file": "每日课程/2026-11-22-第128课-儿童成长阶段的夫妻协作.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M5",
+   "concepts": [
+    "成长阶段",
+    "协作"
+   ],
+   "review_week": 22,
+   "status": "keep"
+  },
+  {
+   "id": 129,
+   "date": "2026-11-23",
+   "title": "在养育中保留伴侣时间",
+   "file": "每日课程/2026-11-23-第129课-在养育中保留伴侣时间.md",
+   "season": "S2",
+   "module": 14,
+   "module_name": "生育与育儿",
+   "layer": "M5",
+   "concepts": [
+    "伴侣时间",
+    "保留"
+   ],
+   "review_week": 22,
+   "status": "keep"
+  },
+  {
+   "id": 130,
+   "date": "2026-11-24",
+   "title": "面对疾病与照护",
+   "file": "每日课程/2026-11-24-第130课-面对疾病与照护.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M3",
+   "concepts": [
+    "疾病照护",
+    "长期压力"
+   ],
+   "review_week": 22,
+   "status": "keep"
+  },
+  {
+   "id": 131,
+   "date": "2026-11-25",
+   "title": "伴侣心理健康支持",
+   "file": "每日课程/2026-11-25-第131课-伴侣心理健康支持.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M3",
+   "concepts": [
+    "心理健康",
+    "支持边界"
+   ],
+   "review_week": 22,
+   "status": "keep"
+  },
+  {
+   "id": 132,
+   "date": "2026-11-26",
+   "title": "处理成瘾与反复失信",
+   "file": "每日课程/2026-11-26-第132课-处理成瘾与反复失信.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "成瘾",
+    "反复失信"
+   ],
+   "review_week": 22,
+   "status": "keep"
+  },
+  {
+   "id": 133,
+   "date": "2026-11-27",
+   "title": "婚姻中的暴力与控制",
+   "file": "每日课程/2026-11-27-第133课-婚姻中的暴力与控制.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "暴力控制",
+    "安全优先"
+   ],
+   "review_week": 23,
+   "status": "keep"
+  },
+  {
+   "id": 134,
+   "date": "2026-11-28",
+   "title": "发现不忠后的第一步",
+   "file": "每日课程/2026-11-28-第134课-发现不忠后的第一步.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "不忠",
+    "第一步"
+   ],
+   "review_week": 23,
+   "status": "keep"
+  },
+  {
+   "id": 135,
+   "date": "2026-11-29",
+   "title": "信任重建的条件",
+   "file": "每日课程/2026-11-29-第135课-信任重建的条件.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "信任重建",
+    "条件"
+   ],
+   "review_week": 23,
+   "status": "keep"
+  },
+  {
+   "id": 136,
+   "date": "2026-11-30",
+   "title": "考虑分居或离婚",
+   "file": "每日课程/2026-11-30-第136课-考虑分居或离婚.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "分居离婚",
+    "决策"
+   ],
+   "review_week": 23,
+   "status": "keep"
+  },
+  {
+   "id": 137,
+   "date": "2026-12-01",
+   "title": "工作异地与婚姻维持",
+   "file": "每日课程/2026-12-01-第137课-工作异地与婚姻维持.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "异地婚姻",
+    "维持"
+   ],
+   "review_week": 23,
+   "status": "keep"
+  },
+  {
+   "id": 138,
+   "date": "2026-12-02",
+   "title": "处理文化与信仰差异",
+   "file": "每日课程/2026-12-02-第138课-处理文化与信仰差异.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "文化信仰",
+    "差异"
+   ],
+   "review_week": 23,
+   "status": "keep"
+  },
+  {
+   "id": 139,
+   "date": "2026-12-03",
+   "title": "照护双方父母的公平",
+   "file": "每日课程/2026-12-03-第139课-照护双方父母的公平.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M5",
+   "concepts": [
+    "照护父母",
+    "公平"
+   ],
+   "review_week": 24,
+   "status": "keep"
+  },
+  {
+   "id": 140,
+   "date": "2026-12-04",
+   "title": "建立照护者边界",
+   "file": "每日课程/2026-12-04-第140课-建立照护者边界.md",
+   "season": "S2",
+   "module": 15,
+   "module_name": "危机与照护",
+   "layer": "M3",
+   "concepts": [
+    "照护者边界",
+    "耗竭"
+   ],
+   "review_week": 24,
+   "status": "keep"
+  },
+  {
+   "id": 141,
+   "date": "2026-12-05",
+   "title": "应对中年变化",
+   "file": "每日课程/2026-12-05-第141课-应对中年变化.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M3",
+   "concepts": [
+    "中年变化",
+    "身份"
+   ],
+   "review_week": 24,
+   "status": "keep"
+  },
+  {
+   "id": 142,
+   "date": "2026-12-06",
+   "title": "中老年身体与性健康",
+   "file": "每日课程/2026-12-06-第142课-中老年身体与性健康.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M4",
+   "concepts": [
+    "中老年性健康",
+    "身体变化"
+   ],
+   "review_week": 24,
+   "status": "keep"
+  },
+  {
+   "id": 143,
+   "date": "2026-12-07",
+   "title": "面对慢性病共同生活",
+   "file": "每日课程/2026-12-07-第143课-面对慢性病共同生活.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "慢性病",
+    "共同生活"
+   ],
+   "review_week": 24,
+   "status": "keep"
+  },
+  {
+   "id": 144,
+   "date": "2026-12-08",
+   "title": "面对身体残障与依赖变化",
+   "file": "每日课程/2026-12-08-第144课-面对身体残障与依赖变化.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M3",
+   "concepts": [
+    "残障",
+    "依赖变化"
+   ],
+   "review_week": 24,
+   "status": "keep"
+  },
+  {
+   "id": 145,
+   "date": "2026-12-09",
+   "title": "共同面对丧失",
+   "file": "每日课程/2026-12-09-第145课-共同面对丧失.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M3",
+   "concepts": [
+    "丧失",
+    "哀伤"
+   ],
+   "review_week": 25,
+   "status": "keep"
+  },
+  {
+   "id": 146,
+   "date": "2026-12-10",
+   "title": "规划退休生活",
+   "file": "每日课程/2026-12-10-第146课-规划退休生活.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "退休",
+    "规划"
+   ],
+   "review_week": 25,
+   "status": "keep"
+  },
+  {
+   "id": 147,
+   "date": "2026-12-11",
+   "title": "晚年财务与遗产安排",
+   "file": "每日课程/2026-12-11-第147课-晚年财务与遗产安排.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "晚年财务",
+    "遗产"
+   ],
+   "review_week": 25,
+   "status": "keep"
+  },
+  {
+   "id": 148,
+   "date": "2026-12-12",
+   "title": "住房与空间的老年调整",
+   "file": "每日课程/2026-12-12-第148课-住房与空间的老年调整.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "住房空间",
+    "调整"
+   ],
+   "review_week": 25,
+   "status": "keep"
+  },
+  {
+   "id": 149,
+   "date": "2026-12-13",
+   "title": "维持老年社交网络",
+   "file": "每日课程/2026-12-13-第149课-维持老年社交网络.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "老年社交",
+    "网络"
+   ],
+   "review_week": 25,
+   "status": "keep"
+  },
+  {
+   "id": 150,
+   "date": "2026-12-14",
+   "title": "晚年数字与隐私安全",
+   "file": "每日课程/2026-12-14-第150课-晚年数字与隐私安全.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "数字隐私",
+    "安全"
+   ],
+   "review_week": 25,
+   "status": "keep"
+  },
+  {
+   "id": 151,
+   "date": "2026-12-15",
+   "title": "共同意义与精神生活",
+   "file": "每日课程/2026-12-15-第151课-共同意义与精神生活.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "共同意义",
+    "精神生活"
+   ],
+   "review_week": 26,
+   "status": "keep"
+  },
+  {
+   "id": 152,
+   "date": "2026-12-16",
+   "title": "保留长期关系中的新鲜感",
+   "file": "每日课程/2026-12-16-第152课-保留长期关系中的新鲜感.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M1",
+   "concepts": [
+    "新鲜感",
+    "自我扩展"
+   ],
+   "review_week": 26,
+   "status": "keep"
+  },
+  {
+   "id": 153,
+   "date": "2026-12-17",
+   "title": "把感谢变成长期习惯",
+   "file": "每日课程/2026-12-17-第153课-把感谢变成长期习惯.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "感谢",
+    "习惯化"
+   ],
+   "review_week": 26,
+   "status": "keep"
+  },
+  {
+   "id": 154,
+   "date": "2026-12-18",
+   "title": "原谅有条件，信任要重建",
+   "file": "每日课程/2026-12-18-第154课-原谅有条件，信任要重建.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "原谅",
+    "决定vs情绪"
+   ],
+   "review_week": 26,
+   "status": "keep"
+  },
+  {
+   "id": 155,
+   "date": "2026-12-19",
+   "title": "接受有些问题只能管理",
+   "file": "每日课程/2026-12-19-第155课-接受有些问题只能管理.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "只能管理的问题",
+    "接纳"
+   ],
+   "review_week": 26,
+   "status": "keep"
+  },
+  {
+   "id": 156,
+   "date": "2026-12-20",
+   "title": "老年照护中的决策权",
+   "file": "每日课程/2026-12-20-第156课-老年照护中的决策权.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "老年照护决策",
+    "决策权"
+   ],
+   "review_week": 26,
+   "status": "keep"
+  },
+  {
+   "id": 157,
+   "date": "2026-12-21",
+   "title": "面对伴侣死亡的预先沟通",
+   "file": "每日课程/2026-12-21-第157课-面对伴侣死亡的预先沟通.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M3",
+   "concepts": [
+    "伴侣死亡",
+    "预先沟通"
+   ],
+   "review_week": 27,
+   "status": "keep"
+  },
+  {
+   "id": 158,
+   "date": "2026-12-22",
+   "title": "面对伴侣离世后的生活",
+   "file": "每日课程/2026-12-22-第158课-面对伴侣离世后的生活.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M3",
+   "concepts": [
+    "丧偶后生活",
+    "重建"
+   ],
+   "review_week": 27,
+   "status": "keep"
+  },
+  {
+   "id": 159,
+   "date": "2026-12-23",
+   "title": "留下共同的生活遗产",
+   "file": "每日课程/2026-12-23-第159课-留下共同的生活遗产.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "共同遗产",
+    "意义"
+   ],
+   "review_week": 27,
+   "status": "keep"
+  },
+  {
+   "id": 160,
+   "date": "2026-12-24",
+   "title": "白头偕老：把关系活成共同选择",
+   "file": "每日课程/2026-12-24-第160课-白头偕老：把关系活成共同选择.md",
+   "season": "S2",
+   "module": 16,
+   "module_name": "中年与晚年",
+   "layer": "M5",
+   "concepts": [
+    "白头偕老",
+    "共同选择"
+   ],
+   "review_week": 27,
+   "status": "keep"
+  },
+  {
+   "id": 161,
+   "date": "2026-12-25",
+   "title": "把欲望需要和计划分开",
+   "file": "每日课程/2026-12-25-第161课-把欲望需要和计划分开.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M3",
+   "concepts": [
+    "欲望需要计划",
+    "自我管理"
+   ],
+   "review_week": 27,
+   "status": "keep"
+  },
+  {
+   "id": 162,
+   "date": "2026-12-26",
+   "title": "从共同情境开始认识人",
+   "file": "每日课程/2026-12-26-第162课-从共同情境开始认识人.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M2",
+   "concepts": [
+    "共同情境",
+    "认识"
+   ],
+   "review_week": 27,
+   "status": "keep"
+  },
+  {
+   "id": 163,
+   "date": "2026-12-27",
+   "title": "把吸引流程还原为互相了解",
+   "file": "每日课程/2026-12-27-第163课-把吸引流程还原为互相了解.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M2",
+   "concepts": [
+    "吸引流程",
+    "还原了解"
+   ],
+   "review_week": 28,
+   "status": "keep"
+  },
+  {
+   "id": 164,
+   "date": "2026-12-28",
+   "title": "让邀约保留双方的自由",
+   "file": "每日课程/2026-12-28-第164课-让邀约保留双方的自由.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M2",
+   "concepts": [
+    "邀约自由",
+    "可拒绝"
+   ],
+   "review_week": 28,
+   "status": "keep"
+  },
+  {
+   "id": 165,
+   "date": "2026-12-29",
+   "title": "审查性别脚本",
+   "file": "每日课程/2026-12-29-第165课-审查性别脚本.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M2",
+   "concepts": [
+    "性别脚本",
+    "审查"
+   ],
+   "review_week": 28,
+   "status": "keep"
+  },
+  {
+   "id": 166,
+   "date": "2026-12-30",
+   "title": "成熟气质是责任不是支配",
+   "file": "每日课程/2026-12-30-第166课-成熟气质是责任不是支配.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M5",
+   "concepts": [
+    "成熟气质",
+    "责任"
+   ],
+   "review_week": 28,
+   "status": "keep"
+  },
+  {
+   "id": 167,
+   "date": "2026-12-31",
+   "title": "拆解测试游戏价值话术",
+   "file": "每日课程/2026-12-31-第167课-拆解测试游戏价值话术.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M5",
+   "concepts": [
+    "测试游戏话术",
+    "证据审查"
+   ],
+   "review_week": 28,
+   "status": "keep"
+  },
+  {
+   "id": 168,
+   "date": "2027-01-01",
+   "title": "在伤害扩大前识别关系风险",
+   "file": "每日课程/2027-01-01-第168课-在伤害扩大前识别关系风险.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M5",
+   "concepts": [
+    "关系风险",
+    "早期识别"
+   ],
+   "review_week": 28,
+   "status": "keep"
+  },
+  {
+   "id": 169,
+   "date": "2027-01-02",
+   "title": "区分意见经验和证据",
+   "file": "每日课程/2027-01-02-第169课-区分意见经验和证据.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M2",
+   "concepts": [
+    "意见经验证据",
+    "区分"
+   ],
+   "review_week": 29,
+   "status": "keep"
+  },
+  {
+   "id": 170,
+   "date": "2027-01-03",
+   "title": "价值观差异要放到桌面上",
+   "file": "每日课程/2027-01-03-第170课-价值观差异要放到桌面上.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M5",
+   "concepts": [
+    "价值观差异",
+    "上桌"
+   ],
+   "review_week": 29,
+   "status": "keep"
+  },
+  {
+   "id": 171,
+   "date": "2027-01-04",
+   "title": "尊重身体的多样性",
+   "file": "每日课程/2027-01-04-第171课-尊重身体的多样性.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M3",
+   "concepts": [
+    "身体多样性",
+    "去客体化"
+   ],
+   "review_week": 29,
+   "status": "keep"
+  },
+  {
+   "id": 172,
+   "date": "2027-01-05",
+   "title": "建立性健康信息素养",
+   "file": "每日课程/2027-01-05-第172课-建立性健康信息素养.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M5",
+   "concepts": [
+    "性健康素养",
+    "信息"
+   ],
+   "review_week": 29,
+   "status": "keep"
+  },
+  {
+   "id": 173,
+   "date": "2027-01-06",
+   "title": "把安全性行为提前计划",
+   "file": "每日课程/2027-01-06-第173课-把安全性行为提前计划.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M4",
+   "concepts": [
+    "安全性行为",
+    "事前计划"
+   ],
+   "review_week": 29,
+   "status": "keep"
+  },
+  {
+   "id": 174,
+   "date": "2027-01-07",
+   "title": "把古代性学材料当作历史阅读",
+   "file": "每日课程/2027-01-07-第174课-把古代性学材料当作历史阅读.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M2",
+   "concepts": [
+    "古代性学",
+    "历史阅读"
+   ],
+   "review_week": 29,
+   "status": "keep"
+  },
+  {
+   "id": 175,
+   "date": "2027-01-08",
+   "title": "识别失控模式并知道何时求助",
+   "file": "每日课程/2027-01-08-第175课-识别失控模式并知道何时求助.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M3",
+   "concepts": [
+    "失控模式",
+    "求助"
+   ],
+   "review_week": 30,
+   "status": "keep"
+  },
+  {
+   "id": 176,
+   "date": "2027-01-09",
+   "title": "把断联用于恢复而不是操纵",
+   "file": "每日课程/2027-01-09-第176课-把断联用于恢复而不是操纵.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M3",
+   "concepts": [
+    "断联",
+    "恢复非操纵"
+   ],
+   "review_week": 30,
+   "status": "keep"
+  },
+  {
+   "id": 177,
+   "date": "2027-01-10",
+   "title": "识别摧毁自尊的情感操控",
+   "file": "每日课程/2027-01-10-第177课-识别摧毁自尊的情感操控.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M5",
+   "concepts": [
+    "情感操控",
+    "自尊摧毁"
+   ],
+   "review_week": 30,
+   "status": "keep"
+  },
+  {
+   "id": 178,
+   "date": "2027-01-11",
+   "title": "拒绝团体围猎和暗示施压",
+   "file": "每日课程/2027-01-11-第178课-拒绝团体围猎和暗示施压.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M5",
+   "concepts": [
+    "团体围猎",
+    "施压"
+   ],
+   "review_week": 30,
+   "status": "keep"
+  },
+  {
+   "id": 179,
+   "date": "2027-01-12",
+   "title": "把情感口号还原为可观察行为",
+   "file": "每日课程/2027-01-12-第179课-把情感口号还原为可观察行为.md",
+   "season": "S3",
+   "module": 17,
+   "module_name": "批判性识别",
+   "layer": "M2",
+   "concepts": [
+    "情感口号",
+    "可观察行为"
+   ],
+   "review_week": 30,
+   "status": "keep"
+  }
+ ],
+ "supplements": [
+  {
+   "id": "M1-01",
+   "layer": "M1",
+   "module": 1,
+   "title": "相似、互补与匹配",
+   "insert_after": "第 17 课之后",
+   "file": "新增课/新增-M1-01-相似互补与匹配.md",
+   "status": "new"
+  },
+  {
+   "id": "M1-02",
+   "layer": "M1",
+   "module": 3,
+   "title": "心跳加速不等于心动（唤醒误归因）",
+   "insert_after": "第 14 课之后",
+   "file": "新增课/新增-M1-02-心跳加速不等于心动.md",
+   "status": "new"
+  },
+  {
+   "id": "M1-03",
+   "layer": "M1",
+   "module": 3,
+   "title": "第一次见面能看出什么（薄片判断）",
+   "insert_after": "第 15 课之后",
+   "file": "新增课/新增-M1-03-第一次见面能看出什么.md",
+   "status": "new"
+  },
+  {
+   "id": "M4-01",
+   "layer": "M4",
+   "module": 9,
+   "title": "修复尝试",
+   "insert_after": "第 66 课之后",
+   "file": "新增课/新增-M4-01-修复尝试.md",
+   "status": "new"
+  },
+  {
+   "id": "M4-02",
+   "layer": "M4",
+   "module": 9,
+   "title": "两种解释（归因风格）",
+   "insert_after": "第 83 课之前",
+   "file": "新增课/新增-M4-02-两种解释.md",
+   "status": "new"
+  },
+  {
+   "id": "M4-03",
+   "layer": "M4",
+   "module": 13,
+   "title": "吵架的内容常由身体状态决定",
+   "insert_after": "第 115 课之前",
+   "file": "新增课/新增-M4-03-吵架的内容常由身体状态决定.md",
+   "status": "new"
+  }
+ ],
+ "supplement_note": "补齐 S1 的 M1（8%）与 S2 的 M4（8%）两个结构性缺口；不改原编号，按 insert_after 挂载"
+}

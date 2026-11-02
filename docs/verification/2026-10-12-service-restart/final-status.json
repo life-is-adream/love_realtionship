@@ -1,0 +1,14 @@
+{
+  "verifiedAtShanghai": "2026-10-12T12:46:24.8814487+08:00",
+  "processAlive": true,
+  "pidFileMatchesUniqueListener": true,
+  "absoluteEntryVerified": true,
+  "healthOk": true,
+  "service": "heartflow",
+  "stderrBytes": 0,
+  "browserHomeLoaded": true,
+  "browserModelConnectionLabel": "configured, not verified",
+  "browserConsoleErrorCount": 0,
+  "realModelCalls": 0,
+  "realSearchCalls": 0
+}

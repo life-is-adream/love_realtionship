@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "restarted": true,
+  "newAbsoluteEntryIdentityVerified": true,
+  "processChanged": true,
+  "listenerCount": 1,
+  "healthOk": true,
+  "service": "heartflow",
+  "apiMode": "chat_completions",
+  "hasApiKey": true
+}

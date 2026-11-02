@@ -1,0 +1,71 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "httpRequests": 12,
+  "passed": 12,
+  "failed": 0,
+  "realModelCalls": 0,
+  "realSearchCalls": 0,
+  "checks": [
+    {
+      "name": "health identity",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "explicit no-contact overrides stale plan",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "temporary pause is not permanent exit",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "memory and goal sanitize every known field",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "first consented observation",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "new content preserves observation",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "same request retry is idempotent",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "new signals keep new decision summary",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "new signal retry remains idempotent",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "no consent produces no memory patch",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "empty input is controlled 400",
+      "status": 400,
+      "passed": true
+    },
+    {
+      "name": "non-anonymous case identifier is controlled 400",
+      "status": 400,
+      "passed": true
+    }
+  ]
+}

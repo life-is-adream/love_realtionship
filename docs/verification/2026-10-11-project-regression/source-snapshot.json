@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-11",
+  "timezone": "Asia/Shanghai",
+  "gitHead": "6a225ac",
+  "branch": "main",
+  "dirtyFiles": [
+    {
+      "path": "relationship-simulator/public/modules/core/api-client.js",
+      "sha256": "2D9CA4C14FBE12D709E063659BB0A9488AFDA64F067D34113040B16785EBDD81"
+    },
+    {
+      "path": "relationship-simulator/public/modules/render/coach-float-search.js",
+      "sha256": "86BC37BD14763A16D2CE7E32E46A823DC842C9C230BD88EFDABF1E6047332D76"
+    },
+    {
+      "path": "relationship-simulator/server/config.js",
+      "sha256": "8DDB9A90B67A0F5E56E3A4C64E1C03E1D90798DEE5249119558C2F2713F800B4"
+    },
+    {
+      "path": "relationship-simulator/server/searchProxy.js",
+      "sha256": "CB642074F83C5687E1C519B9F06C9CE6894B61086C9977577AC7AA3AF6855B8D"
+    },
+    {
+      "path": "relationship-simulator/test/server-lifecycle.test.mjs",
+      "sha256": "E1FE00DF23E8A46F855B16B8BB085D690EBECE3AF255B3A7DCF3AE38D977DC73"
+    }
+  ]
+}

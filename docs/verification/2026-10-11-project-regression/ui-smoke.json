@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-11",
+  "timezone": "Asia/Shanghai",
+  "service": "isolated-copy; real dotenv disabled; all outbound fetch disabled",
+  "checks": [
+    "home: offline model status correct",
+    "real practice: six plans and consent off",
+    "real practice: rejection stops advancement and preserves unknown outcomes",
+    "journey: three scenes and six stages",
+    "journey: self-exit stays stopped",
+    "knowledge: fourteen cards and fifteen displayed sources",
+    "mobile knowledge: configured width390, observed width391, scrollWidth376, no horizontal overflow",
+    "course: search returns lessons86/118, lesson86 opens full original; learned count remains0",
+    "mobile reader: scrollWidth391 equals clientWidth391; no horizontal overflow",
+    "browser console errors: zero"
+  ]
+}

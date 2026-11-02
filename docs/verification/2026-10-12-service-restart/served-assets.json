@@ -1,0 +1,40 @@
+{
+  "timeShanghai": "2026-10-12T12:40:58.5699058+08:00",
+  "assets": [
+    {
+      "path": "/modules/render/coach-float-search.js",
+      "status": 200,
+      "repairMarkersPresent": true,
+      "cacheControl": [
+        "no-cache"
+      ]
+    },
+    {
+      "path": "/modules/render/render-intelligence.js",
+      "status": 200,
+      "repairMarkersPresent": true,
+      "cacheControl": [
+        "no-cache"
+      ]
+    },
+    {
+      "path": "/modules/render/render-coach.js",
+      "status": 200,
+      "repairMarkersPresent": true,
+      "cacheControl": [
+        "no-cache"
+      ]
+    },
+    {
+      "path": "/app.js",
+      "status": 200,
+      "repairMarkersPresent": true,
+      "cacheControl": [
+        "no-cache"
+      ]
+    }
+  ],
+  "indexStatus": 200,
+  "indexPrivacyLabelUpdated": true,
+  "stderrBytes": 0
+}
