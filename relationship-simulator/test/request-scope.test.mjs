@@ -88,13 +88,19 @@ function mountGeneration() {
   const scope = createRequestScope(() => context);
   const pending = [];
   let commits = 0, fallbacks = 0, mutations = 0;
-  const controls = new Map(["apiStatus", "endpoint", "apiKey", "generateHerBtn", "retryModelBtn", "nextBtn", "userInput"].map((name) => [name, {
-    value: "", textContent: name, disabled: false, classList: { add() {}, remove() {} }, focus() {}
-  }]));
+  const controls = new Map(["apiStatus", "endpoint", "apiKey", "generateHerBtn", "retryModelBtn", "nextBtn", "userInput"].map((name) => {
+    // classList 要能真的记账：进行中状态是取消入口成立的前提，不能只是个空壳。
+    const classes = new Set();
+    return [name, {
+      value: "", textContent: name, disabled: false,
+      classList: { add: (c) => classes.add(c), remove: (c) => classes.delete(c), has: (c) => classes.has(c) },
+      focus() {}
+    }];
+  }));
   const env = {
     modelRequests: scope, STALE_RESULT: Symbol("stale"), isGenerating: false, MIMO_MODEL: "fake",
     HER_LANE: { thinking: { type: "disabled" }, maxCompletionTokens: 200 },
-    COACH_LANE: { responseFormat: { type: "json_object" } },
+    COACH_LANE: { thinking: { type: "disabled" }, responseFormat: { type: "json_object" } },
     state: {}, $: (name) => controls.get(name), uiValues: () => ({}), isRelationshipStopped: () => false,
     savePersonaMemory() {}, appendMineIfNew() {}, afterChatRender() {},
     // 拆双角色后 askAi 走两次调用：先她的文本，再教练 JSON。
@@ -106,7 +112,9 @@ function mountGeneration() {
     localAnalyze: () => ({ herReply: "local reply", coachScore: { total: 70 } }),
     commitAnalysis: (value) => { commits++; return value; },
     mutate: () => { mutations++; }, localFallback: () => { fallbacks++; return {}; },
-    invalidatePreflight() {}, preflightRevision: 0, capturePreflightContext: () => context
+    invalidatePreflight() {}, preflightRevision: 0, capturePreflightContext: () => context,
+    // vm.createContext 给出的新上下文没有浏览器定时器；generateHerDialogue 用它显示已等秒数。
+    setInterval: () => 1, clearInterval: () => {}
   };
   vm.createContext(env);
   vm.runInContext(dialogueFunctions, env);
@@ -131,9 +139,10 @@ test("她的回复落盘改变会话上下文后，教练分析结果仍必须�
   assert.equal(result.herReply, "早啊");
 });
 
-test("两条通道各带自己的预算：她关思考，教练开 JSON 模式", async () => {
-  // 混用会同时踩两个坑：给她开思考→每轮多等十几秒；不给教练开 JSON 模式→输出偶发不是合法 JSON，
-  // 整轮 A/B/C 落到本地模板。这两条约束都只在这里被机械地守住。
+test("两条通道各带自己的预算：她只要文本，教练要 JSON 且都关思考", async () => {
+  // 混用会同时踩三个坑：开思考→角色每轮多等十几秒、教练多等几十秒甚至触发 504；
+  // 不给教练开 JSON 模式→输出偶发不是合法 JSON，整轮 A/B/C 落到本地模板；
+  // 给角色开 JSON 模式→她不再输出微信文本而是吐结构。
   const ui = mountGeneration();
   const task = ui.env.askAi({ silent: true });
   await ui.tick();
@@ -144,7 +153,22 @@ test("两条通道各带自己的预算：她关思考，教练开 JSON 模式",
   assert.equal(ui.pending[0].options.maxCompletionTokens, 200);
   assert.equal("responseFormat" in ui.pending[0].options, false, "角色通道输出纯文本，不能要 JSON 模式");
   assert.deepEqual(ui.pending[1].options.responseFormat, { type: "json_object" }, "教练通道必须开 JSON 模式");
-  assert.equal("thinking" in ui.pending[1].options, false, "教练通道保留思考，不套用角色预算");
+  assert.deepEqual(ui.pending[1].options.thinking, { type: "disabled" }, "教练通道思考已由 A/B 实测判定为纯延迟代价");
+});
+
+test("取消提示必须区分「她已经回过一句」和「什么都没发生」", () => {
+  const cases = [
+    { messages: [{ type: "me", text: "周末有个画展" }], expect: "已取消本轮模型调用，没有写入任何内容。" },
+    { messages: [{ type: "me", text: "周末有个画展" }, { type: "her", text: "哪个画展呀" }], expect: "已取消教练分析；她这一轮的回复已经落盘，保留在对话里。" },
+    { messages: [], expect: "已取消本轮模型调用，没有写入任何内容。" }
+  ];
+  for (const testCase of cases) {
+    const ui = mountGeneration();
+    ui.env.state = { messages: testCase.messages };
+    ui.env.cancelGeneration();
+    // 角色通道先完成、教练通道还在跑时取消，说「都不会写入」是假话。
+    assert.equal(ui.controls.get("apiStatus").textContent, testCase.expect);
+  }
 });
 
 test("会话切换后旧模型成功或失败均不会写分析、错误或触发本地兜底", async () => {
@@ -176,25 +200,31 @@ test("同会话两次 askAi 乱序返回时只提交后发请求", async () => {
   assert.deepEqual(ui.stats(), { commits: 1, fallbacks: 0, mutations: 0 });
 });
 
-test("生成和然后共享按钮锁，重复触发不启动请求，取消不会兜底或清空草稿", async () => {
+test("生成中的重复触发不启动请求，就地取消不兜底也不清空草稿", async () => {
   for (const firstMethod of ["generateHerDialogue", "nextTurn"]) {
     for (const fail of [false, true]) {
       const ui = mountGeneration();
       ui.controls.get("userInput").value = "kept draft";
       const task = ui.env[firstMethod]();
       await new Promise(setImmediate);
-      for (const name of ["generateHerBtn", "retryModelBtn", "nextBtn"]) assert.equal(ui.controls.get(name).disabled, true);
+      // 锁的语义变了：generate 按钮不再 disabled，而是变成取消入口。
+      // 防重复靠 isGenerating，不再靠「点不动」——所以这两条必须分开验。
+      assert.equal(ui.controls.get("generateHerBtn").disabled, false, "生成按钮要能被点到，才能就地取消");
+      assert.equal(ui.controls.get("generateHerBtn").classList.has("is-busy"), true, "必须显示进行中状态");
+      for (const name of ["retryModelBtn", "nextBtn"]) assert.equal(ui.controls.get(name).disabled, true);
       await ui.env[firstMethod === "nextTurn" ? "generateHerDialogue" : "nextTurn"]();
-      assert.equal(ui.pending.length, 1);
+      assert.equal(ui.pending.length, 1, "生成中再次触发不能启动第二个请求");
       assert.equal(ui.env.isGenerating, true);
+      ui.env.cancelGeneration();
       ui.change();
       if (fail) ui.pending[0].reject(new Error("cancelled request"));
       else ui.pending[0].resolve({ content: "late reply" });
       await task;
-      assert.deepEqual(ui.stats(), { commits: 0, fallbacks: 0, mutations: 0 });
-      assert.equal(ui.controls.get("userInput").value, "kept draft");
+      assert.deepEqual(ui.stats(), { commits: 0, fallbacks: 0, mutations: 0 }, "取消后不得提交分析、不得走本地兜底");
+      assert.equal(ui.controls.get("userInput").value, "kept draft", "取消不能吞掉用户草稿");
       assert.equal(ui.env.isGenerating, false);
       for (const name of ["generateHerBtn", "retryModelBtn", "nextBtn"]) assert.equal(ui.controls.get(name).disabled, false);
+      assert.equal(ui.controls.get("generateHerBtn").classList.has("is-busy"), false, "结束后必须解除进行中状态");
     }
   }
 });

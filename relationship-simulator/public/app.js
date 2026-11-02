@@ -74,11 +74,16 @@ const MIMO_MODEL = DEFAULT_MODEL;
  */
 const HER_LANE = Object.freeze({ thinking: { type: "disabled" }, maxCompletionTokens: 200 });
 /**
- * 教练通道仍开思考（分析质量需要），但要锁死输出格式：
- * 实测 5 用例下自由文本输出的教练 JSON 有 1/5 解析失败并落到本地模板，
- * 开 MiMo 的 json_object 后同样 5 用例 0 次失败，其余四项判定指标无退化。
+ * 教练通道预算：开 MiMo 的 JSON 模式，并同样关闭思考。
+ *
+ * JSON 模式：实测 5 用例下自由文本有 1/5 教练 JSON 解析失败并整轮落到本地模板，
+ * 开 JSON 模式后 0/5 失败。
+ * 关思考：5 用例 A/B（同提示词、同裁判配置）——教练 P50 73.97s → 24.22s，
+ * 最慢 88.56s → 49.06s，一轮 504 超时 → 0 次，输出 token −38%；
+ * 四项行为判定「回答问题 / 可发送 / 三条有别 / 像真人」从 3~4/5 全部升到 5/5，
+ * 即关掉思考没有换来质量下降。数据见 docs/verification/ab-p0-arm*.md。
  */
-const COACH_LANE = Object.freeze({ responseFormat: { type: "json_object" } });
+const COACH_LANE = Object.freeze({ thinking: { type: "disabled" }, responseFormat: { type: "json_object" } });
 // 长篇索引自拆包（P2-13）后为懒加载；manifest 预取用于"对照长篇复盘"链接的章节标题。
 let manifestChapters = [];
 let isGenerating = false;
@@ -468,7 +473,17 @@ async function generateHerDialogue(options = {}) {
   const retryBtn = $("retryModelBtn");
   const nextBtn = $("nextBtn");
   const originalLabel = genBtn?.textContent;
-  if (genBtn) { genBtn.disabled = true; genBtn.classList.add("is-busy"); genBtn.textContent = "生成中…"; }
+  // 上游一轮可能要 25~50s，超时加重试能到 240s。按钮不能只是禁掉：
+  // 用户既看不出是慢还是卡死，也没有就地取消的手段（原来只能切会话，会丢掉这一轮）。
+  const startedAt = Date.now();
+  let elapsedTimer = null;
+  if (genBtn) {
+    genBtn.classList.add("is-busy");
+    genBtn.textContent = "生成中…（点击取消）";
+    elapsedTimer = setInterval(() => {
+      genBtn.textContent = `已等 ${Math.round((Date.now() - startedAt) / 1000)}s · 点击取消`;
+    }, 1000);
+  }
   if (retryBtn) retryBtn.disabled = true;
   if (nextBtn) nextBtn.disabled = true;
   try {
@@ -482,11 +497,24 @@ async function generateHerDialogue(options = {}) {
     $("apiStatus").textContent = "MiMo 失败，已切换到本地兜底：" + error.message;
     return localFallback(error.message);
   } finally {
+    if (elapsedTimer) clearInterval(elapsedTimer);
     isGenerating = false;
-    if (genBtn) { genBtn.disabled = false; genBtn.classList.remove("is-busy"); genBtn.textContent = originalLabel || "生成女方对话"; }
+    if (genBtn) { genBtn.classList.remove("is-busy"); genBtn.textContent = originalLabel || "生成女方对话"; }
     if (retryBtn) retryBtn.disabled = false;
     if (nextBtn) nextBtn.disabled = false;
   }
+}
+
+/** 就地取消本轮：中断在飞的模型调用，让 generateHerDialogue 走 STALE_RESULT 退出。 */
+function cancelGeneration() {
+  // 取消时她那句可能已经落盘了（角色通道先完成、教练通道还在跑），
+  // 说「都不会写入」是假话。最后一条是她的回复就说明这一轮已经出过她的声音。
+  const messages = Array.isArray(state.messages) ? state.messages : [];
+  const herReplyAlreadyLanded = messages.at(-1)?.type === "her";
+  modelRequests.cancelAll();
+  $("apiStatus").textContent = herReplyAlreadyLanded
+    ? "已取消教练分析；她这一轮的回复已经落盘，保留在对话里。"
+    : "已取消本轮模型调用，没有写入任何内容。";
 }
 
 function renderDiffHtml(before, after) {
@@ -812,7 +840,11 @@ window.RelationshipLLM = {
 };
 
 $("retryModelBtn")?.addEventListener("click", () => generateHerDialogue({ allowLocalFallback: false }));
-$("generateHerBtn")?.addEventListener("click", () => generateHerDialogue());
+$("generateHerBtn")?.addEventListener("click", () => {
+  // 生成中时这个按钮就是取消入口；不再靠 disabled 假装它不可用。
+  if (isGenerating) { cancelGeneration(); return; }
+  generateHerDialogue();
+});
 $("sendMineBtn")?.addEventListener("click", sendMine);
 $("modeBtnAnti")?.addEventListener("click", () => trainingModeController.setMode("anti"));
 $("modeBtnPua")?.addEventListener("click", () => trainingModeController.setMode("pua", { ask: true }));

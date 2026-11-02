@@ -25,6 +25,8 @@ const OUT = opt("out", "");
 const RUN = flag("yes");
 /** --coach-json：给教练通道开 MiMo 的 JSON 模式，用来和默认输出做 A/B 对比。 */
 const COACH_JSON = flag("coach-json");
+/** --coach-nothinking：教练通道也关思考，用来量「推理 token ↔ 延迟 ↔ 质量」的交换比。 */
+const COACH_NO_THINKING = flag("coach-nothinking");
 
 /** 与 public/app.js 的 HER_LANE 保持一致；改这里必须同步改那边。 */
 const HER_LANE = Object.freeze({ thinking: { type: "disabled" }, maxCompletionTokens: 200 });
@@ -110,7 +112,7 @@ function report(rows, totals) {
     "",
     `- 生成时间：${new Date().toISOString()}`,
     `- 模型：${totals.model}｜用例：${rows.length}｜单用例调用：角色 + 教练 + 裁判 = 3 次`,
-    `- 教练通道输出模式：${COACH_JSON ? "response_format=json_object（MiMo JSON 模式）" : "默认（纯文本要求模型自己吐 JSON）"}`,
+    `- 教练通道输出模式：${COACH_JSON ? "json_object" : "默认文本"}｜思考：${COACH_NO_THINKING ? "关闭" : "开启（默认）"}`,
     "- 判定口径：`answered_question` 等四项由模型裁判给出，`her_first_ms` 为角色通道实测耗时。",
     "- 价格假设：输入 ¥1/M、输出 ¥2/M（**未核实缓存价，量级估计**）。",
     "",
@@ -216,6 +218,7 @@ async function main() {
       const coachResult = await callLLM({
         ...api,
         ...(COACH_JSON ? { responseFormat: { type: "json_object" } } : {}),
+        ...(COACH_NO_THINKING ? { thinking: { type: "disabled" } } : {}),
         messages: buildCoachMessages({ persona, memory, history, herReply, uiValues: { stage: testCase.stage, goal: testCase.goal, latestMine: testCase.mine } })
       });
       const coachMs = Date.now() - coachStart;
