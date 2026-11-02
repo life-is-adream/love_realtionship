@@ -8,10 +8,24 @@ function shortQuote(value, fallback = "她刚才的回复") {
   return text.length > 24 ? `${text.slice(0, 24)}…` : text;
 }
 
+/**
+ * 取「我」上一条消息的内容主干，作为回答她提问的唯一素材。
+ * 本地兜底不能凭空编事实，所以只能用用户自己已经说过的话。
+ */
+function answerSeed(value) {
+  const text = cleanText(value).replace(/[“”]/g, "");
+  if (!text) return "我刚才说的那件事";
+  const clause = text.split(/[，,。！？~、]/).map(cleanText).find((part) => part.length >= 3) || text;
+  return clause.length > 18 ? `${clause.slice(0, 18)}…` : clause;
+}
+
 function classifyReply(text) {
   if (/天晚了|早点休息|晚安|先睡|睡了|明天再聊|下次聊|先这样|不早了/.test(text)) return "closing";
   if (/不想|不用|别问|改天|再说|需要.{0,4}(?:空间|安静|休息)|先不|不方便|算了|拒绝/.test(text)) return "boundary";
   if (/累|忙|加班|工作|开会|赶|没电|低落|难受|睡不着|状态不好/.test(text)) return "energy";
+  // 提问必须排在 plan 之前：她问「周六有空吗」时，正确动作是回答问题本身，
+  // 而不是套用「按你舒服的时间来」这种回避答案的日程模板。
+  if (/[？?]/.test(text)) return "question";
   if (/周[一二三四五六日天]|明天|后天|几点|时间|见面|约|咖啡|散步|可以.{0,5}吗/.test(text)) return "plan";
   if (/吃|喝|饭|菜|面|粉|咖啡|奶茶|书|电影|纪录片|音乐|展览|猫|狗|跑步|散步/.test(text)) return "interest";
   if (/哈哈|开心|高兴|不错|喜欢|期待|有意思|好玩/.test(text)) return "positive";
@@ -49,6 +63,14 @@ export function buildReplyOptionsForHer(style, latestHer = "", latestMine = "") 
       B: `收到，今天先不开复盘大会，给你的电量留点余额。`,
       C: `你现在更想安静一会儿，还是聊点和工作无关的轻松话题？`
     };
+  } else if (context === "question") {
+    // 她问的是「我」上一条消息里的内容，所以答案只能取自用户已经说过的话。
+    const answer = answerSeed(mine);
+    texts = {
+      A: `${answer}——就这个意思。你要是对其余类型更感兴趣，我们换一个也行。`,
+      B: `${answer}，说得有点糙，具体我见面给你补个详细介绍。`,
+      C: `${answer}。你是想先搞清楚内容，还是先定个不赶时间的安排？`
+    };
   } else if (context === "plan") {
     texts = {
       A: `好，我们按你舒服的时间来，临近时再确认一次就行。`,
@@ -68,10 +90,12 @@ export function buildReplyOptionsForHer(style, latestHer = "", latestMine = "") 
       C: `你说“${quote}”时听起来很确定，是最近才有的感觉吗？`
     };
   } else {
+    // 这三句以前是「我听到你说／我先记下／不急着抢答」——教练元话语，
+    // 而 isUsableModelReplyOptions 正好把这类措辞判为不可发送，等于自产自发都被自己否掉。
     texts = {
-      A: `我听到你说“${quote}”了。你愿意的话，可以再跟我说一点。`,
-      B: `收到，“${quote}”这句我先记下，不急着抢答。`,
-      C: `关于“${quote}”，你更想继续聊它，还是换个轻松一点的话题？`
+      A: `你说的“${quote}”我挺想听下去的，先不岔开话题。`,
+      B: `“${quote}”这句有点意思，我脑子里已经冒出一个不太靠谱的想法了。`,
+      C: `关于“${quote}”，你是怎么开始对这个感兴趣的？`
     };
   }
 

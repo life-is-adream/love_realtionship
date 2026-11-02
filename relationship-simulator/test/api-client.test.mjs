@@ -115,6 +115,23 @@ test("callLLM 不接受非法 thinking 值，也不凭空加输出上限", async
   } finally { global.fetch = prior; }
 });
 
+test("callLLM 只把 json_object 作为 response_format 出站（教练通道靠它消除解析失败）", async () => {
+  const prior = global.fetch;
+  try {
+    const sent = [];
+    global.fetch = async (_url, options) => {
+      sent.push(JSON.parse(options.body));
+      return { ok: true, status: 200, text: async () => JSON.stringify({ choices: [{ message: { content: "{}" } }] }) };
+    };
+    await callLLM({ messages: [{ role: "user", content: "x" }], responseFormat: { type: "json_object" } });
+    await callLLM({ messages: [{ role: "user", content: "x" }], responseFormat: { type: "text" } });
+    await callLLM({ messages: [{ role: "user", content: "x" }] });
+    assert.deepEqual(sent[0].response_format, { type: "json_object" });
+    assert.equal("response_format" in sent[1], false, "非 json_object 的格式不应出站");
+    assert.equal("response_format" in sent[2], false, "未请求时不应凭空加 response_format");
+  } finally { global.fetch = prior; }
+});
+
 test("callLLM 成功调用返回解析内容", async () => {
   global.fetch = async () => ({
     ok: true,

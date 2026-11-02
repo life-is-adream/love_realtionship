@@ -94,13 +94,14 @@ function mountGeneration() {
   const env = {
     modelRequests: scope, STALE_RESULT: Symbol("stale"), isGenerating: false, MIMO_MODEL: "fake",
     HER_LANE: { thinking: { type: "disabled" }, maxCompletionTokens: 200 },
+    COACH_LANE: { responseFormat: { type: "json_object" } },
     state: {}, $: (name) => controls.get(name), uiValues: () => ({}), isRelationshipStopped: () => false,
     savePersonaMemory() {}, appendMineIfNew() {}, afterChatRender() {},
     // 拆双角色后 askAi 走两次调用：先她的文本，再教练 JSON。
     buildGenerationContext: async () => ({ persona: { name: "她" }, memory: {}, messages: [], ui: {} }),
     buildHerMessages: () => [], buildCoachMessages: () => [],
     parseHerBubbles, joinHerReply, commitHerReply() {},
-    callLLM: () => new Promise((resolve, reject) => pending.push({ resolve, reject })),
+    callLLM: (options) => new Promise((resolve, reject) => pending.push({ options, resolve, reject })),
     parseModelContent: () => ({ herReply: "synthetic reply" }),
     localAnalyze: () => ({ herReply: "local reply", coachScore: { total: 70 } }),
     commitAnalysis: (value) => { commits++; return value; },
@@ -128,6 +129,22 @@ test("她的回复落盘改变会话上下文后，教练分析结果仍必须�
   const result = await task;
   assert.equal(ui.stats().commits, 1, "教练分析不能被自己刚落的回复判成过期");
   assert.equal(result.herReply, "早啊");
+});
+
+test("两条通道各带自己的预算：她关思考，教练开 JSON 模式", async () => {
+  // 混用会同时踩两个坑：给她开思考→每轮多等十几秒；不给教练开 JSON 模式→输出偶发不是合法 JSON，
+  // 整轮 A/B/C 落到本地模板。这两条约束都只在这里被机械地守住。
+  const ui = mountGeneration();
+  const task = ui.env.askAi({ silent: true });
+  await ui.tick();
+  await ui.settle(0, "早啊");
+  await ui.settle(1, "{\"judgement\":\"ok\"}");
+  await task;
+  assert.deepEqual(ui.pending[0].options.thinking, { type: "disabled" }, "角色通道必须关思考");
+  assert.equal(ui.pending[0].options.maxCompletionTokens, 200);
+  assert.equal("responseFormat" in ui.pending[0].options, false, "角色通道输出纯文本，不能要 JSON 模式");
+  assert.deepEqual(ui.pending[1].options.responseFormat, { type: "json_object" }, "教练通道必须开 JSON 模式");
+  assert.equal("thinking" in ui.pending[1].options, false, "教练通道保留思考，不套用角色预算");
 });
 
 test("会话切换后旧模型成功或失败均不会写分析、错误或触发本地兜底", async () => {

@@ -74,7 +74,11 @@ export function normalizeAnalysis(obj, raw, context = {}) {
   const latestMine = context.latestMine ?? getLatestMineText(context.typedInput || "");
   const styleBias = context.styleBias || "mix";
   const goal = context.goal || "继续推进自然对话。";
-  const herReply = obj.herReply || obj.herText || obj.reply || obj["女方下一句"] || obj["女方回复"] || "";
+  // 角色通道已把她的回复定稿并落盘，教练契约里不再有 herReply 字段，所以这条已知回复
+  // 必须由调用方经 context.herReply 传入。缺了它就会退化成「原始 JSON 的首行」，
+  // 于是 judgement/risk 里的「时间、见面、约」会被当成她说的话：
+  // 本地兜底选错分支、校验器拿垃圾文本比对。
+  const herReply = context.herReply || obj.herReply || obj.herText || obj.reply || obj["女方下一句"] || obj["女方回复"] || "";
   const normalizedHerReply = firstReplyLine(herReply) || firstReplyLine(raw);
   const replyOptions = normalizeReplyOptions(obj.replyOptions || obj.choices || obj["A/B/C回复"]);
   const useModelOptions = isUsableModelReplyOptions(replyOptions, normalizedHerReply, latestMine);
@@ -101,7 +105,7 @@ export function parsePlainTextFallback(raw, context = {}) {
   const extractedJudgement = extractJsonLikeString(raw, "judgement");
   const extractedRisk = extractJsonLikeString(raw, "risk");
   const extractedReplyOptions = extractJsonLikeReplyOptions(raw);
-  const herReply = extractedHerReply || firstReplyLine(raw) || "哈哈，谢谢~ 你也挺会说话的。你平时也经常参加这种活动吗？";
+  const herReply = context.herReply || extractedHerReply || firstReplyLine(raw) || "哈哈，谢谢~ 你也挺会说话的。你平时也经常参加这种活动吗？";
   const normalizedHerReply = firstReplyLine(herReply);
   const useModelOptions = isUsableModelReplyOptions(extractedReplyOptions, normalizedHerReply, latestMine);
   return {
@@ -123,13 +127,16 @@ export function localAnalyze(modelError = "", uiValues = {}) {
   const persona = getCurrentPersona();
   const memory = getPersonaMemory(persona);
   const latestMine = getLatestMineText(uiValues.typedInput || "");
-  const previousHer = [...state.messages].reverse().find((message) => message.type === "her")?.text || "";
+  // 教练调用失败时她的回复已经生成并落盘：兜底建议必须回应「那一条」，
+  // 不能再让本地重新虚构一条她没说的话去驱动 A/B/C。
+  const knownReply = String(uiValues.herReply || "").trim();
+  const previousHer = knownReply || [...state.messages].reverse().find((message) => message.type === "her")?.text || "";
   const style = uiValues.styleBias || "mix";
   const stage = uiValues.stage || "";
   const mode = state.trainingMode === "pua" ? "pua" : "anti";
-  const herReply = mode === "pua"
+  const herReply = knownReply || (mode === "pua"
     ? selectLocalPuaReply({ latestMine, previousHer, messageCount: state.messages.length })
-    : buildLocalHerReply(persona, memory, latestMine, previousHer, uiValues);
+    : buildLocalHerReply(persona, memory, latestMine, previousHer, uiValues));
   const background = String(memory.background || "").replace(/[。！？\s]+$/, "");
   if (mode === "pua") {
     return {

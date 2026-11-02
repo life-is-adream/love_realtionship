@@ -153,8 +153,11 @@ test("chat_completions 模式透传 thinking 且拒绝非法值；responses 模�
   assert.deepEqual((await drive(chatModules, { ...base, thinking: { type: "disabled" }, max_completion_tokens: 200 })).thinking, { type: "disabled" }, "MiMo 思考默认开启，关不掉就等于每轮多花 29 个推理 token");
   assert.equal((await drive(chatModules, base)).max_completion_tokens, 1000, "未指定时用配置默认值");
   assert.equal("thinking" in await drive(chatModules, { ...base, thinking: { type: "yolo" } }), false);
+  assert.deepEqual((await drive(chatModules, { ...base, response_format: { type: "json_object" } })).response_format, { type: "json_object" }, "教练通道靠 JSON 模式消除「输出不是合法 JSON」导致的本地兜底");
+  assert.equal("response_format" in await drive(chatModules, { ...base, response_format: "json_object" }), false, "字符串形式的 response_format 不应出站");
   const responsesModules = await offlineModules(t, "responses");
   assert.equal("thinking" in await drive(responsesModules, { ...base, thinking: { type: "disabled" } }), false, "responses 模式用 reasoning.effort，不发 thinking");
+  assert.equal("response_format" in await drive(responsesModules, { ...base, response_format: { type: "json_object" } }), false, "responses 模式用 text.format，不沿用 chat 的 response_format");
 });
 
 test("LLM 和搜索在客户端断开时取消读取中的上游响应体", async (t) => {

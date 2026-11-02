@@ -73,6 +73,12 @@ const MIMO_MODEL = DEFAULT_MODEL;
  * 关闭后 1.80s（48 个输出 token 里 29 个是推理 token）。教练分析通道不在此列。
  */
 const HER_LANE = Object.freeze({ thinking: { type: "disabled" }, maxCompletionTokens: 200 });
+/**
+ * 教练通道仍开思考（分析质量需要），但要锁死输出格式：
+ * 实测 5 用例下自由文本输出的教练 JSON 有 1/5 解析失败并落到本地模板，
+ * 开 MiMo 的 json_object 后同样 5 用例 0 次失败，其余四项判定指标无退化。
+ */
+const COACH_LANE = Object.freeze({ responseFormat: { type: "json_object" } });
 // 长篇索引自拆包（P2-13）后为懒加载；manifest 预取用于"对照长篇复盘"链接的章节标题。
 let manifestChapters = [];
 let isGenerating = false;
@@ -421,15 +427,19 @@ async function askAi({ silent = false } = {}) {
     try {
       const coachResult = await callLLM({
         ...api,
+        ...COACH_LANE,
         signal: coachTicket.signal,
         messages: buildCoachMessages({ persona, memory, messages, herReply, uiValues: ui })
       });
       if (!coachTicket.isCurrent()) return STALE_RESULT;
-      analysis = { ...parseModelContent(coachResult.content, ui), herReply };
+      // herReply 必须进解析上下文：教练契约本身不输出这条回复，不传就会被当成「缺字段」，
+      // 兜底 A/B/C 会拿原始 JSON 文本去判断她在说什么。
+      const coachContext = { ...ui, herReply };
+      analysis = { ...parseModelContent(coachResult.content, coachContext), herReply };
     } catch (coachError) {
       if (!coachTicket.isCurrent()) return STALE_RESULT;
       coachDegraded = true;
-      analysis = { ...localAnalyze(`教练分析失败：${coachError.message}`, ui), herReply };
+      analysis = { ...localAnalyze(`教练分析失败：${coachError.message}`, { ...ui, herReply }), herReply };
     }
     $("apiStatus").textContent = coachDegraded
       ? "她已由模型回复；教练分析未通过，已用本地评估补上。"

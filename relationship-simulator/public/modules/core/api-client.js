@@ -71,13 +71,15 @@ export function buildCoachMessages({ persona, memory, messages, herReply, uiValu
  * @param {number} [options.maxCompletionTokens] - 输出上限；不传则用服务端默认
  * @returns {Promise<{raw: Object, content: string}>}
  */
-export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", model = DEFAULT_MODEL, messages, temperature = DEFAULT_TEMPERATURE, thinking, maxCompletionTokens, signal }) {
+export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", model = DEFAULT_MODEL, messages, temperature = DEFAULT_TEMPERATURE, thinking, maxCompletionTokens, responseFormat, signal }) {
   // 唯一出站边界：所有消息在离开浏览器前统一脱敏（邮箱/网址/电话/长数字）。
   const { messages: safeMessages, hits: redactionHits } = sanitizeOutboundMessages(messages);
   const payload = { model, messages: safeMessages, temperature };
   if (apiKey) payload.apiKey = apiKey;
   if (thinking?.type === "disabled" || thinking?.type === "enabled") payload.thinking = { type: thinking.type };
   if (Number.isFinite(maxCompletionTokens)) payload.max_completion_tokens = maxCompletionTokens;
+  // 只放行 json_object：教练通道要求模型输出合法 JSON，实测会偶发解析失败而落到本地模板。
+  if (responseFormat?.type === "json_object") payload.response_format = { type: "json_object" };
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
