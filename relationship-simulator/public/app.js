@@ -68,6 +68,11 @@ import { speakText, stopSpeaking, maybeAutoSpeak, TTS_ENGINES, voicesFor, getVoi
 
 let state = loadState();
 const MIMO_MODEL = DEFAULT_MODEL;
+/**
+ * 角色回复通道预算：实测 MiMo-V2.6-Flash 思考默认开启时完整回复 14.97s，
+ * 关闭后 1.80s（48 个输出 token 里 29 个是推理 token）。教练分析通道不在此列。
+ */
+const HER_LANE = Object.freeze({ thinking: { type: "disabled" }, maxCompletionTokens: 200 });
 // 长篇索引自拆包（P2-13）后为懒加载；manifest 预取用于"对照长篇复盘"链接的章节标题。
 let manifestChapters = [];
 let isGenerating = false;
@@ -400,7 +405,7 @@ async function askAi({ silent = false } = {}) {
     const api = { endpoint: $("endpoint").value, apiKey: $("apiKey").value, model: MIMO_MODEL, signal: ticket.signal };
 
     // 调用一：只要她的微信文本。先落盘、先渲染、先朗读——用户不必等教练分析。
-    const herResult = await callLLM({ ...api, messages: buildHerMessages(persona, memory, messages, ui) });
+    const herResult = await callLLM({ ...api, ...HER_LANE, messages: buildHerMessages(persona, memory, messages, ui) });
     if (!ticket.isCurrent()) return STALE_RESULT;
     const bubbles = parseHerBubbles(herResult.content, persona.name);
     if (!bubbles.length) throw new Error("模型未返回女方对话。");

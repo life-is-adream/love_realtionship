@@ -93,6 +93,7 @@ function mountGeneration() {
   }]));
   const env = {
     modelRequests: scope, STALE_RESULT: Symbol("stale"), isGenerating: false, MIMO_MODEL: "fake",
+    HER_LANE: { thinking: { type: "disabled" }, maxCompletionTokens: 200 },
     state: {}, $: (name) => controls.get(name), uiValues: () => ({}), isRelationshipStopped: () => false,
     savePersonaMemory() {}, appendMineIfNew() {}, afterChatRender() {},
     // 拆双角色后 askAi 走两次调用：先她的文本，再教练 JSON。

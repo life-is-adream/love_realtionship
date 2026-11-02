@@ -105,7 +105,7 @@ test("已断开的客户端不会启动上游，成功和失败均释放监听�
 
 // Copy only the reviewed source modules to a fixture with a synthetic config.
 // Importing the real config would read the user's .env, even with fetch mocked.
-async function offlineModules(t) {
+async function offlineModules(t, apiMode = "responses") {
   const dir = await mkdtemp(path.join(tmpdir(), "heartflow-upstream-"));
   const modules = ["http.js", "upstream-request.js", "llmProxy.js", "searchProxy.js", "rateLimit.js", "healthRoute.js"];
   const files = [...modules, "package.json", "config.js"];
@@ -113,7 +113,7 @@ async function offlineModules(t) {
   await Promise.all(modules.map(async file => writeFile(path.join(dir, file), await readFile(new URL(`../server/${file}`, import.meta.url)))));
   await writeFile(path.join(dir, "package.json"), '{"type":"module"}');
   await writeFile(path.join(dir, "config.js"), `
-export const PORT=3000, LLM_API_KEY="offline-placeholder", LLM_API_MODE="responses", LLM_ENDPOINT="https://offline.invalid", LLM_MODEL="offline-model", LLM_MAX_COMPLETION_TOKENS=1000, LLM_REASONING_EFFORT="medium", LLM_TEMPERATURE=0.7, LLM_TOP_P=1;
+export const PORT=3000, LLM_API_KEY="offline-placeholder", LLM_API_MODE="${apiMode}", LLM_ENDPOINT="https://offline.invalid", LLM_MODEL="offline-model", LLM_MAX_COMPLETION_TOKENS=1000, LLM_REASONING_EFFORT="medium", LLM_TEMPERATURE=0.7, LLM_TOP_P=1;
 export const SEARCH_ALLOWED_DOMAINS=["example.test"], SEARCH_API_KEY="offline-placeholder", SEARCH_ENABLED=true, SEARCH_ENDPOINT="https://offline.invalid", SEARCH_MODEL="offline-model", SEARCH_ALLOWED_DOMAINS_EXPLICIT=true;
 export const maskEndpoint=()=>"masked-offline-endpoint";
 `);
@@ -123,6 +123,39 @@ export const maskEndpoint=()=>"masked-offline-endpoint";
     health: await import(pathToFileURL(path.join(dir, "healthRoute.js")))
   };
 }
+
+test("chat_completions 模式透传 thinking 且拒绝非法值；responses 模式不带它", async (t) => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  const upstream = () => ({
+    status: 200,
+    ok: true,
+    headers: { get: () => "application/json" },
+    text: async () => JSON.stringify({ choices: [{ message: { content: "早啊" } }] })
+  });
+  const drive = async (modules, body) => {
+    let payload;
+    globalThis.fetch = async (_url, options) => {
+      payload = JSON.parse(options.body);
+      return upstream();
+    };
+    const req = Object.assign(new PassThrough(), { socket: { remoteAddress: "127.0.0.1" }, headers: {} });
+    const res = Object.assign(new EventEmitter(), {
+      writableEnded: false, destroyed: false, writeHead: () => {}, end: () => {}
+    });
+    const task = modules.chat.handleChat(req, res);
+    req.end(JSON.stringify(body));
+    await task;
+    return payload;
+  };
+  const chatModules = await offlineModules(t, "chat_completions");
+  const base = { messages: [{ role: "user", content: "offline test" }] };
+  assert.deepEqual((await drive(chatModules, { ...base, thinking: { type: "disabled" }, max_completion_tokens: 200 })).thinking, { type: "disabled" }, "MiMo 思考默认开启，关不掉就等于每轮多花 29 个推理 token");
+  assert.equal((await drive(chatModules, base)).max_completion_tokens, 1000, "未指定时用配置默认值");
+  assert.equal("thinking" in await drive(chatModules, { ...base, thinking: { type: "yolo" } }), false);
+  const responsesModules = await offlineModules(t, "responses");
+  assert.equal("thinking" in await drive(responsesModules, { ...base, thinking: { type: "disabled" } }), false, "responses 模式用 reasoning.effort，不发 thinking");
+});
 
 test("LLM 和搜索在客户端断开时取消读取中的上游响应体", async (t) => {
   const modules = await offlineModules(t);

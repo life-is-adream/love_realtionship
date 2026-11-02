@@ -91,6 +91,8 @@ export async function handleChat(req, res, { serverApiKey = LLM_API_KEY } = {}) 
   } else {
     upstreamPayload.messages = messages;
     upstreamPayload.max_completion_tokens = maxOutputTokens;
+    // MiMo-V2.6-Flash 的思考默认开启；不透传就永远关不掉（实测占 48 个输出 token 里的 29 个）。
+    if (body.thinking && ["disabled", "enabled"].includes(body.thinking.type)) upstreamPayload.thinking = { type: body.thinking.type };
   }
   if (body.response_format && typeof body.response_format === "object") {
     if (LLM_API_MODE === "responses") upstreamPayload.text = { format: body.response_format };

@@ -87,6 +87,34 @@ test("她的消息链不含真诚度调节：调节的是男方建议不是她�
 
 // ── callLLM ───────────────────────────────────────────────────────────────────
 
+test("callLLM 透传 thinking 与输出上限（角色回复通道靠它把 15s 压到 1.8s）", async () => {
+  const prior = global.fetch;
+  try {
+    let sent;
+    global.fetch = async (_url, options) => {
+      sent = JSON.parse(options.body);
+      return { ok: true, status: 200, text: async () => JSON.stringify({ choices: [{ message: { content: "早啊" } }] }) };
+    };
+    await callLLM({ messages: [{ role: "user", content: "x" }], thinking: { type: "disabled" }, maxCompletionTokens: 200 });
+    assert.deepEqual(sent.thinking, { type: "disabled" });
+    assert.equal(sent.max_completion_tokens, 200);
+  } finally { global.fetch = prior; }
+});
+
+test("callLLM 不接受非法 thinking 值，也不凭空加输出上限", async () => {
+  const prior = global.fetch;
+  try {
+    let sent;
+    global.fetch = async (_url, options) => {
+      sent = JSON.parse(options.body);
+      return { ok: true, status: 200, text: async () => JSON.stringify({ choices: [{ message: { content: "早啊" } }] }) };
+    };
+    await callLLM({ messages: [{ role: "user", content: "x" }], thinking: { type: "yolo" }, maxCompletionTokens: Number.NaN });
+    assert.equal("thinking" in sent, false, `非法 thinking 值不应出站：${JSON.stringify(sent.thinking)}`);
+    assert.equal("max_completion_tokens" in sent, false);
+  } finally { global.fetch = prior; }
+});
+
 test("callLLM 成功调用返回解析内容", async () => {
   global.fetch = async () => ({
     ok: true,

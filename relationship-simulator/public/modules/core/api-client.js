@@ -67,13 +67,17 @@ export function buildCoachMessages({ persona, memory, messages, herReply, uiValu
  * @param {string} [options.model] - 模型名称
  * @param {Array<{role: string, content: string}>} options.messages - 消息列表
  * @param {number} [options.temperature] - 温度参数
+ * @param {{type: "disabled"|"enabled"}} [options.thinking] - 思维链开关；角色回复通道关闭以换取延迟
+ * @param {number} [options.maxCompletionTokens] - 输出上限；不传则用服务端默认
  * @returns {Promise<{raw: Object, content: string}>}
  */
-export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", model = DEFAULT_MODEL, messages, temperature = DEFAULT_TEMPERATURE, signal }) {
+export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", model = DEFAULT_MODEL, messages, temperature = DEFAULT_TEMPERATURE, thinking, maxCompletionTokens, signal }) {
   // 唯一出站边界：所有消息在离开浏览器前统一脱敏（邮箱/网址/电话/长数字）。
   const { messages: safeMessages, hits: redactionHits } = sanitizeOutboundMessages(messages);
   const payload = { model, messages: safeMessages, temperature };
   if (apiKey) payload.apiKey = apiKey;
+  if (thinking?.type === "disabled" || thinking?.type === "enabled") payload.thinking = { type: thinking.type };
+  if (Number.isFinite(maxCompletionTokens)) payload.max_completion_tokens = maxCompletionTokens;
   const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
