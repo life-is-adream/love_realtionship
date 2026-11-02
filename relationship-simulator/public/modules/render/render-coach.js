@@ -113,6 +113,19 @@ function addCurrentMistake() {
     : "这条消息已存在未解决的同文错题，未重复收集。";
 }
 
+/**
+ * A/B/C 来源必须明示（静默降级会让用户把本地模板当成模型产出）。
+ * 本地兜底只能复述用户自己说过的话，她追问而他没提过的细节兜底无从得知，
+ * 所以她在提问时必须提醒「这是骨架，需要你自己补」，否则用户会原样发出一条没回答问题的建议。
+ */
+export function replySourceNote(source, herReply = "") {
+  if (source === "model") return "ABC 由 MiMo 生成";
+  if (/[？?]/.test(String(herReply || ""))) {
+    return "MiMo 的 ABC 不合格，已用本地模板兜底。模板只会复述你已经说过的内容，她追问的细节请你自己补进去再发送。";
+  }
+  return "MiMo 的 ABC 不合格，已使用本地兜底。";
+}
+
 export function renderAnalysis(data, { showReviewComparison = () => "", openLongReader = () => {}, onAfterRender = () => {} } = {}) {
   const analysis = $("analysis");
   const choices = $("choices");
@@ -133,7 +146,7 @@ export function renderAnalysis(data, { showReviewComparison = () => "", openLong
     div.innerHTML = `<div class="choice-head"><strong>${escapeHtml(choice.label)}</strong><button class="btn small" data-choice="${escapeHtml(choice.key)}">采用</button></div><p>${escapeHtml(choice.text)}</p><div class="note">${escapeHtml(choice.effect || "")}</div>`;
     choices.appendChild(div);
   }
-  if ((data.replyOptions || []).length) choices.insertAdjacentHTML("afterbegin", `<div class="note reply-source-note">${data.replyOptionsSource === "model" ? "ABC 由 MiMo 生成" : "MiMo 的 ABC 不合格，已使用本地兜底"}</div>`);
+  if ((data.replyOptions || []).length) choices.insertAdjacentHTML("afterbegin", `<div class="note reply-source-note">${escapeHtml(replySourceNote(data.replyOptionsSource, data.herReply))}</div>`);
   choices.querySelectorAll("button[data-choice]").forEach((button) => button.addEventListener("click", () => {
     const picked = (data.replyOptions || []).find((item) => item.key === button.dataset.choice);
     if (picked) { $("userInput").value = picked.text; $("userInput").focus(); }

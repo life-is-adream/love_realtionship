@@ -64,12 +64,13 @@ export function buildReplyOptionsForHer(style, latestHer = "", latestMine = "") 
       C: `你现在更想安静一会儿，还是聊点和工作无关的轻松话题？`
     };
   } else if (context === "question") {
-    // 她问的是「我」上一条消息里的内容，所以答案只能取自用户已经说过的话。
+    // 她问的那一点，本地只能拿「我」上一条已说过的话来答。所以三条都只复述已确定的部分，
+    // 不声称她知道或不知道任何细节——本地兜底没有权利替用户编造事实。
     const answer = answerSeed(mine);
     texts = {
-      A: `${answer}——就这个意思。你要是对其余类型更感兴趣，我们换一个也行。`,
-      B: `${answer}，说得有点糙，具体我见面给你补个详细介绍。`,
-      C: `${answer}。你是想先搞清楚内容，还是先定个不赶时间的安排？`
+      A: `${answer}。这个是我已经定下来的部分，剩下的按你的偏好来。`,
+      B: `${answer}，我先交个底，省得你被我一句笼统的话糊过去。`,
+      C: `${answer}。你更在意内容、地点还是时间？我照你在意的那部分再补。`
     };
   } else if (context === "plan") {
     texts = {

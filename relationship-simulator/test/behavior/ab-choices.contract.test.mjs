@@ -6,6 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { parseModelContent } from "../../public/modules/coach/parser.js";
 import { buildReplyOptionsForHer, isUsableModelReplyOptions } from "../../public/modules/coach/replies.js";
+import { replySourceNote } from "../../public/modules/render/render-coach.js";
 
 /** 教练通道按新契约不输出 herReply；judgement/risk 里常出现「时间、见面、约」这类词。 */
 const coachJsonWithoutReply = (options) => JSON.stringify({
@@ -97,4 +98,40 @@ test("教练调用失败时，兜底回应真实那一条回复而不是重新�
 
   // 显示与落盘必须同源：herReply 永远等于角色通道已提交的那一条。
   assert.equal(result.herReply, committed);
+});
+
+// ── P1-1 / P1-2：本地兜底不得假装知道答案 ──────────────────────────────────────
+
+const QUESTION_HER = "还挺近的，什么类型的展？";
+
+test("提问兜底只复述用户说过的内容，不新增事实", () => {
+  const options = buildReplyOptionsForHer("mix", QUESTION_HER, "周末有个画展，要不要一起去看？");
+
+  for (const item of options) {
+    assert.match(item.text, /周末有个画展/, `兜底建议偏离了用户已说过的内容：${item.text}`);
+    // 她问的维度（哪位画家/哪个馆）用户从没说过，本地无权替他说出来。
+    assert.doesNotMatch(item.text, /画家|美术馆|馆长|周一|周三|免费|门票/);
+  }
+});
+
+test("提问兜底的三条动作互不相同", () => {
+  const options = buildReplyOptionsForHer("mix", QUESTION_HER, "周末有个画展，要不要一起去看？");
+  const actions = options.map((item) => {
+    if (/按你的偏好来/.test(item.text)) return "交底+交回偏好";
+    if (/交个底/.test(item.text)) return "交底+承诺补充";
+    if (/你更在意/.test(item.text)) return "交底+征询维度";
+    return "未识别";
+  });
+
+  assert.deepEqual(actions, ["交底+交回偏好", "交底+承诺补充", "交底+征询维度"], "三条兜底必须是三个不同动作");
+  const questionEnding = options.filter((item) => /[？?]$/.test(item.text)).length;
+  assert.ok(questionEnding <= 1, `以问句结尾的建议有 ${questionEnding} 条，最多一条`);
+});
+
+test("她在提问时，本地兜底必须在界面上说明自己是骨架", () => {
+  assert.equal(replySourceNote("model", QUESTION_HER), "ABC 由 MiMo 生成");
+  assert.match(replySourceNote("local", QUESTION_HER), /模板只会复述你已经说过的内容/);
+  assert.match(replySourceNote("local", QUESTION_HER), /请你自己补进去再发送/);
+  // 她没提问时不必制造这种提醒，否则用户会以为所有兜底都缺信息。
+  assert.equal(replySourceNote("local", "今天挺累的"), "MiMo 的 ABC 不合格，已使用本地兜底。");
 });

@@ -1,8 +1,12 @@
 /**
  * Prompt 构建纯函数模块
  *
- * 从 app.js 迁移 buildSystemPrompt / buildRelationshipCoachSkillPrompt / buildGenerationTaskPrompt，
+ * 从 app.js 迁移 buildRelationshipCoachSkillPrompt 等纯函数，
  * 改为纯函数（依赖以参数传入），新增介入练习、阶段判断、剧本初始化 prompt。
+ *
+ * 「她」与「教练」是两条独立通道，各自的 system/task prompt 成对提供；
+ * 早期那条把两件事合并成一次调用的 buildSystemPrompt / buildGenerationTaskPrompt 已删除，
+ * 它要求模型同时输出 herReply，与教练契约冲突，是拆分后残留的第二真理来源。
  *
  * 所有函数不依赖 app.js 的闭包变量（state、$() 等），所需数据一律通过参数传入。
  *
@@ -17,7 +21,7 @@ import { buildPuaAwarenessPrompt } from "../training/pua-awareness.js";
 export { buildPuaAwarenessPrompt };
 
 /** Prompt 版本号，供训练日志可选记录 */
-export const PROMPT_VERSION = "1.1.0";
+export const PROMPT_VERSION = "1.2.0";
 
 /**
  * 恋爱沟通教练技能契约
@@ -39,97 +43,6 @@ export function buildRelationshipCoachSkillPrompt(isPuaMode = false) {
     "- 如果 herReply 含有问题，A/B/C 应先直接回应她的问题，再按各自风格自然延伸；每项控制在 1—2 句。",
     "- 如果她说晚安、早点休息、明天再聊或类似结束语，A/B/C 都应自然收尾，不再追问，不强行推进邀约。"
   ].join("\n");
-}
-
-/**
- * 生成任务指令
- * 替代 app.js 原 buildGenerationTaskPrompt()
- * @param {boolean} [isPuaMode=false] - 是否处于 PUA 识别训练模式
- */
-export function buildGenerationTaskPrompt(isPuaMode = false) {
-  return [
-    "请基于上面的对话继续生成下一句女方回复。",
-    "只输出一个合法 JSON 对象，不要 Markdown，不要代码块，不要解释。",
-    "要求：",
-    "1. 女方回复要短、自然、像真人微信，不要生硬复述上下文。",
-    "2. 回复必须延续刚才的话题，不能突然失忆或跑题。",
-    isPuaMode
-      ? "3. PUA 识别训练模式下：女方按手法清单演示一种可识别手法；herIntent 标注手法名称，risk 给出识别信号，recommendation 给出防御回应。"
-      : "3. 保持尊重、同意与边界，不要操控、PUA、暗示施压。",
-    "4. 如果信息不足，也要给出一个能承接当前话题的自然回复。",
-    "JSON 字段：herReply, herIntent, yourGoal, judgement, risk, replyOptions, recommendation, coachScore, evidenceReasoning。",
-    "evidenceReasoning 必须包含 observations（行为事实字符串数组）、hypotheses（最多两个 {explanation,support:[],counter:[]}）、unknowns（未知字符串数组）；模拟生成的回应标明为虚构情境，不能充当现实结果。",
-    "herIntent 仅概述可观察回应或虚构演示手法；yourGoal 仅使用用户明确提供的目标。缺少证据时保持未知，不从回复速度、性别或单次信号断言心理。",
-    "replyOptions 只保留 A/B/C 三项，并且每一项都必须是男方对本次 herReply 的直接回复，不能继续回应生成 herReply 之前的旧消息。",
-    "A/B/C 必须是可直接发送的聊天文本，不要写教练点评，不要用‘我听到你说’、‘我先记下’、‘不急着抢答’，不要把 herReply 原文整段复制进建议。"
-  ].join("\n");
-}
-
-/**
- * 构建主聊天系统提示词
- * 替代 app.js 原 buildSystemPrompt()
- *
- * @param {Object} persona - 当前角色对象（getCurrentPersona() 返回值）
- * @param {Object} memory - 角色记忆（getPersonaMemory() 返回值）
- * @param {Object} [options] - 附加选项
- * @param {string} [options.mode] - 训练模式："anti"（反PUA 训练，默认）｜"pua"（PUA 识别训练）
- * @param {{sincerity?: number, toneIntensity?: number}} [options.tone] - 真诚度 / 语气强度调节
- * @returns {string} 系统提示词
- * @version 1.1.0
- */
-export function buildSystemPrompt(persona, memory, options = {}) {
-  const isPuaMode = options.mode === "pua";
-  const parts = [
-    "你是中文恋爱沟通教练与女方角色模拟器。",
-    buildRelationshipCoachSkillPrompt(isPuaMode),
-    buildWeaknessAwarenessPrompt(),
-    "你的角色设定：" + (persona.systemRole || persona.logic),
-    "角色标签：" + (persona.tags || []).join("、"),
-    "关系背景：" + memory.background,
-    "她的兴趣：" + memory.interests,
-    "边界/禁忌：" + memory.boundaries,
-    ""
-  ];
-
-  // PUA 识别训练模式：注入可识别手法演示指令（仅防御研究用途）
-  if (isPuaMode) {
-    parts.push(buildPuaAwarenessPrompt());
-    parts.push("");
-  }
-
-  // 注入增强记忆（自动提取的对话洞察）
-  if (memory._enhancedInjection) {
-    parts.push(memory._enhancedInjection);
-    parts.push("");
-  }
-
-  // 注入对方投入度分层策略（core/investment.js 生成；只描述可观测行为）
-  if (memory._tierInjection) {
-    parts.push(memory._tierInjection);
-    parts.push("");
-  }
-
-  // 真诚度 / 语气强度调节（可选）
-  const toneGuidance = buildToneGuidance(options.tone);
-  if (toneGuidance) {
-    parts.push(toneGuidance);
-    parts.push("");
-  }
-
-  parts.push("输出要求：",
-    "1. 女方回复要自然、短、像真人微信。",
-    "2. 同时给出 A/B/C 三种不同风格的男方回复建议。",
-    "3. 区分行为事实、可能解释、反证和未知，使用用户明确目标；未经核实不判断真人内心。",
-    isPuaMode
-      ? "4. PUA 识别训练模式下：herIntent 必须标注女方本轮使用的可识别手法名称；risk 给出识别信号；recommendation 给出防御回应与健康替代做法。"
-      : "4. 不要操控、不要 PUA、不要制造焦虑、尊重边界。",
-    "5. 必须按指定 JSON 字段输出，不要 Markdown，不要解释。",
-    "",
-    "JSON 字段：",
-    buildGenerationTaskPrompt(isPuaMode)
-  );
-
-  return parts.join("\n");
 }
 
 /**
@@ -259,7 +172,10 @@ export function buildCoachTaskPrompt(isPuaMode = false) {
     "evidenceReasoning 必须包含 observations（行为事实字符串数组）、hypotheses（最多两个 {explanation,support:[],counter:[]}）、unknowns（未知字符串数组）；模拟生成的回应标明为虚构情境，不能充当现实结果。",
     "herIntent 仅概述可观察回应或虚构演示手法；yourGoal 仅使用用户明确提供的目标。缺少证据时保持未知，不从回复速度、性别或单次信号断言心理。",
     "replyOptions 只保留 A/B/C 三项，并且每一项都必须是男方对她这条回复的直接回应，不能继续回应更早的旧消息。",
-    "A/B/C 必须是可直接发送的聊天文本，不要写教练点评，不要用「我听到你说」「我先记下」，不要把她的回复原文整段复制进建议。"
+    "A/B/C 必须是三个互不相同的沟通动作，而不是一句话的三种说法：A 承接她的内容并给出你的态度；B 用轻松或幽默的方式把同一件事说出来；C 提出一个她容易接的具体问题或下一步。",
+    "三条里最多只能有一条以问句结尾；如果任意两条去掉语气词和标点之后表达的是同一个意思，就视为不合格，必须换成不同的动作。",
+    "A/B/C 必须是可直接发送的聊天文本，不要写教练点评，不要用「我听到你说」「我先记下」，不要把她的回复原文整段复制进建议。",
+    "如果她这条回复里有明确的问题，A 必须先把那个问题答掉（用「我」最新那条消息里已经出现的信息，没有就直说还没定），再决定要不要补一个开放问题。"
   ].join("\n");
 }
 
@@ -434,25 +350,6 @@ export function buildToneGuidance(options = {}) {
     else lines.push("语气强度：低。保持低压、给足空间，避免任何施压或催促。");
   }
   return ["【本轮表达调节】", ...lines].join("\n");
-}
-
-export function buildCoachPrompt(context = {}) {
-  const textbook = context.textbookContext;
-  const optionalTextbook = textbook?.excerpts?.length
-    ? [
-        "",
-        "教材参考（仅用于解释，不得编造教材内容）：",
-        String(textbook.summary || ""),
-        ...textbook.excerpts.slice(0, 2).map((item) => `${item.chapterTitle || "章节"} / ${item.reviewPointId || "复盘点"}：${item.text || ""}`)
-      ].join("\n")
-    : "";
-  return {
-    system: [
-      buildSystemPrompt(context.persona || {}, context.memory || {}),
-      optionalTextbook
-    ].filter(Boolean).join("\n"),
-    user: String(context.user || "")
-  };
 }
 
 /**
