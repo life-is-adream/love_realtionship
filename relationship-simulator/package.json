@@ -13,7 +13,8 @@
     "test:journey": "node --test test/relationship-intelligence-journey.test.mjs",
     "test:unit": "node --test",
     "test": "node --test && node scripts/check-circular.mjs && node scripts/check-conventions.mjs",
-    "eval:behavior": "node scripts/eval-behavior.mjs"
+    "eval:behavior": "node scripts/eval-behavior.mjs",
+    "eval:grounding": "node scripts/eval-grounding.mjs"
   },
   "engines": {
     "node": ">=18"
