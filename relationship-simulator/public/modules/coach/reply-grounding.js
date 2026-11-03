@@ -42,6 +42,21 @@ const SELF_SUBJECT = /(?:^|[，,、\s])(?:我们|咱们|我|你|您|大家|这�
 // 世界事实断言，不能因为句首有个「我」就免检。
 const RECOLLECTION = /我记得|我印象|印象中|好像|应该是|我记着|之前看过|查过/;
 
+/**
+ * 第一人称处境断言 —— 2026-11-03 人工盲评抓出的第二类缺口，比假日程更伤。
+ * 她只说「周四要交读书报告，你呢」，教练却写「我这边也快了，明天要交一个课程作业」：
+ * 用户从没说过自己有这个截止日。照抄发出去，就是替用户对真实的人撒谎。
+ * 这类句子既无「上次说/约好」的回忆框架，也无「可以吗/要不要」的征询框架，
+ * 会被下面的提议分支当成合法新方案放过 —— 所以必须单独判。
+ *
+ * 取舍（用户批准）：不靠词面区分「陈述处境」与「陈述新提议」，而是
+ * **第一人称 + 台账里没有的实体 + 无提议/决策框架 => 一律标注，但不拦原文**。
+ * 误标代价只是一行提醒；漏标代价是假话无声通过。
+ */
+// 不用 \b：中文不属于 \w，\b 在「。我」这种位置根本不成立，会整条漏掉。
+const FIRST_PERSON = /我|咱/;
+const DECISION_FRAME = /那就|就来|定在|暂定|约在|我陪你|我按你|我配合|先|改天|看你|你那边|方便的话|随时|或者|不如|要不要|可以吗|好不好|怎么样|行吗/;
+
 const clean = (value) => String(value || "").replace(/\s+/g, " ").trim();
 const squash = (value) => String(value || "").replace(/\s+/g, "").toLowerCase();
 
@@ -85,7 +100,7 @@ function sourceIdsFor(ledger, entities) {
  */
 export function auditReplyOption(option, ledger) {
   const text = clean(option?.text || option?.reply || option?.content);
-  if (!text) return { key: option?.key || "", text: "", assertedFacts: [], proposals: [], sourceMessageIds: [], findings: [], needsUserFill: false };
+  if (!text) return { key: option?.key || "", text: "", assertedFacts: [], proposals: [], sourceMessageIds: [], findings: [], confirmations: [], needsUserFill: false, needsUserConfirm: false };
 
   const times = uniqueMatches(text, TIME_PATTERN);
   const places = [...uniqueMatches(text, PLACE_PATTERN), ...meetAtEntities(text)];
@@ -145,6 +160,17 @@ export function auditReplyOption(option, ledger) {
     }
   }
 
+  // 第一人称处境标注：主语和实体常常分在不同小句里（中文逗号连读），所以按整条判断，
+  // 只有「决策/征询框架」才整条豁免 —— 那是用户自己在提新方案，不是替他编处境。
+  const blockedEntities = new Set(findings.map((finding) => finding.entity));
+  const confirmations = [];
+  if (FIRST_PERSON.test(text) && !DECISION_FRAME.test(text)) {
+    for (const entity of [...times, ...places]) {
+      if (blockedEntities.has(entity) || hasLedgerSupport(ledger, entity)) continue;
+      confirmations.push({ entity, clause: text, reason: "这句新增了对话里没出现过的、关于你自己的信息" });
+    }
+  }
+
   const uniqueAsserted = [...new Set(assertedFacts)];
   return {
     key: option?.key || "",
@@ -155,7 +181,9 @@ export function auditReplyOption(option, ledger) {
     // 有 assertedFacts 但查不出 mid 说明台账缺 mid，此时必须让调用方看见，不能假装可追溯。
     sourceMessageIds: uniqueAsserted.length ? sourceIdsFor(ledger, uniqueAsserted) : [],
     findings,
-    needsUserFill: findings.length > 0
+    confirmations,
+    needsUserFill: findings.length > 0,
+    needsUserConfirm: confirmations.length > 0
   };
 }
 
@@ -234,6 +262,7 @@ export function groundReplyOptions(options, ledger) {
 
   const findings = audited.flatMap((item) => item.findings || []);
   const blockedKeys = audited.filter((item) => item.needsUserFill).map((item) => item.key);
+  const confirmKeys = audited.filter((item) => item.needsUserConfirm).map((item) => item.key);
 
   // 三条全都被降级 = 模型这一轮基本没在按台账说话；整套退回本地兜底比留下三份骨架有用。
   const allBlocked = audited.length > 0 && blockedKeys.length === audited.length;
@@ -243,21 +272,31 @@ export function groundReplyOptions(options, ledger) {
     options: audited,
     findings,
     blockedKeys,
+    confirmKeys,
     needsUserFill: blockedKeys.length > 0,
+    needsUserConfirm: confirmKeys.length > 0,
     rejectReason: allBlocked ? "A/B/C 均含未见于会话证据的既成事实断言" : ""
   };
 }
 
 /** 供 UI 标注「哪几条需要你补信息」。 */
 export function groundingNote(result) {
-  if (!result?.needsUserFill) return "";
-  const keys = (result.blockedKeys || []).join("、");
-  const hasPlaceholder = (result.options || [])
-    .filter((item) => item.needsUserFill)
-    .some((item) => /【[^】]*】/.test(String(item.text || "")));
-  // 措辞必须和实际发生的一致：带实体的捏造换成【待确认】占位；
-  // 只捏造了「约定」本身时换成先确认的写法，句子里并没有占位符可填。
-  return hasPlaceholder
-    ? `其中 ${keys} 提到会话里没出现过的时间或地点，已换成【待你确认】占位；发送前请把真实信息填进去。`
-    : `其中 ${keys} 把会话里没出现过的安排说成了既定事实，已改成先向你确认的说法；发送前请按实际情况改写。`;
+  const parts = [];
+  if (result?.needsUserFill) {
+    const keys = (result.blockedKeys || []).join("、");
+    const hasPlaceholder = (result.options || [])
+      .filter((item) => item.needsUserFill)
+      .some((item) => /【[^】]*】/.test(String(item.text || "")));
+    // 措辞必须和实际发生的一致：带实体的捏造换成【待确认】占位；
+    // 只捏造了「约定」本身时换成先确认的写法，句子里并没有占位符可填。
+    parts.push(hasPlaceholder
+      ? `其中 ${keys} 提到会话里没出现过的时间或地点，已换成【待你确认】占位；发送前请把真实信息填进去。`
+      : `其中 ${keys} 把会话里没出现过的安排说成了既定事实，已改成先向你确认的说法；发送前请按实际情况改写。`);
+  }
+  // 标注类：原文没改，但这句话里有关于你自己的新信息是你没说过的。
+  // 单独一句是因为它的后果不同 —— 照抄等于对真实的人撒谎，不是"信息不全"。
+  if (result?.needsUserConfirm) {
+    parts.push(`其中 ${(result.confirmKeys || []).join("、")} 替你新增了对话里没出现过的个人情况（截止日、加班、行程等）；发送前请核对是不是你的真实情况，不是就删掉那半句。`);
+  }
+  return parts.join(" ");
 }

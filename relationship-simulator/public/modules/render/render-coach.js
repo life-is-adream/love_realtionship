@@ -119,9 +119,23 @@ function addCurrentMistake() {
  * 本地兜底只能复述用户自己说过的话，她追问而他没提过的细节兜底无从得知，
  * 所以她在提问时必须提醒「这是骨架，需要你自己补」，否则用户会原样发出一条没回答问题的建议。
  */
+/**
+ * 单条建议的「替你编了个人情况」提醒。
+ * 只提醒不改原文是有意为之：分不清「陈述处境」与「陈述新提议」时，
+ * 误杀一条好建议的代价比漏掉一条假话低 —— 假话还有这句话兜着。
+ */
+export function choiceConfirmNote(choice) {
+  const items = choice?.confirmations || [];
+  if (!items.length) return "";
+  const entities = [...new Set(items.map((item) => item.entity))].join("、");
+  return `⚠ 这句里的「${entities}」是对话中没出现过的、关于你自己的信息；发送前请核对是否属实，不属实就删掉那半句。`;
+}
+
 export function replySourceNote(source, herReply = "", grounding = null) {
   // 三种状态必须分开说，否则会出现「已经落盘的是本地模板，却告诉用户已改成占位符」这种假话。
-  const flagged = source === "model" && grounding?.needsUserFill;
+  // 三类状态要分开说：被改写成占位的、被整条拒绝的、以及**原文没改但替你编了个人情况**的。
+  // 最后一种最容易漏 —— 屏幕上文字一切正常，用户照抄就把假话说出去了。
+  const flagged = source === "model" && (grounding?.needsUserFill || grounding?.needsUserConfirm);
   if (source === "model") {
     return `ABC 由 MiMo 生成${flagged ? ` ${groundingNote(grounding)}` : ""}`;
   }
@@ -151,7 +165,10 @@ export function renderAnalysis(data, { showReviewComparison = () => "", openLong
   for (const choice of data.replyOptions || []) {
     const div = document.createElement("div");
     div.className = "choice";
-    div.innerHTML = `<div class="choice-head"><strong>${escapeHtml(choice.label)}</strong><button class="btn small" data-choice="${escapeHtml(choice.key)}">采用</button></div><p>${escapeHtml(choice.text)}</p><div class="note">${escapeHtml(choice.effect || "")}</div>`;
+    // 标注必须落在具体那一条上：只给一句汇总提示，用户会照着另一条把假话发出去。
+    const confirmNote = choiceConfirmNote(choice);
+    const noteText = [choice.effect || "", confirmNote].filter(Boolean).join(" ");
+    div.innerHTML = `<div class="choice-head"><strong>${escapeHtml(choice.label)}</strong><button class="btn small" data-choice="${escapeHtml(choice.key)}">采用</button></div><p>${escapeHtml(choice.text)}</p><div class="note${confirmNote ? " choice-confirm" : ""}">${escapeHtml(noteText)}</div>`;
     choices.appendChild(div);
   }
   if ((data.replyOptions || []).length) choices.insertAdjacentHTML("afterbegin", `<div class="note reply-source-note">${escapeHtml(replySourceNote(data.replyOptionsSource, data.herReply, data.grounding))}</div>`);

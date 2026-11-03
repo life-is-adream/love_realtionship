@@ -390,3 +390,98 @@ test("评测脚本遇到非 JSON 输出时返回空而不是假装有数据", as
   assert.deepEqual(extractModelOptions("她：好的"), []);
   assert.deepEqual(extractModelOptions('{"judgement":"没有选项字段"}'), []);
 });
+
+// ── 第一人称处境标注（2026-11-03 人工盲评抓出的第二类缺口）──────────────────
+// 她只说「周四要交一个读书报告，你呢」，用户从没说过自己有别的截止日。
+// 教练却写「我这边也快了，明天要交一个课程作业」—— 照抄发出去就是替用户撒谎。
+// 这类句子既无回忆框架也无征询框架，旧规则把它当成合法新提议放过了。
+test("替用户新增个人处境要标注，但不改原文", () => {
+  const ledger = ledgerFrom(["我：这周是不是又快 deadline 了？", "她：嗯周四要交一个读书报告，你呢"]);
+  const audit = auditReplyOption(
+    { key: "A", text: "周四交读书报告，那这几天有的忙了。我这边也快了，明天要交一个课程作业。" },
+    ledger
+  );
+  assert.equal(audit.needsUserConfirm, true, JSON.stringify(audit));
+  assert.ok(audit.confirmations.some((c) => c.entity === "明天"), JSON.stringify(audit.confirmations));
+  // 关键取舍：只提醒不改写。分不清「陈述处境」和「陈述新提议」时，误杀的代价更高。
+  assert.equal(audit.text, "周四交读书报告，那这几天有的忙了。我这边也快了，明天要交一个课程作业。");
+  assert.equal(audit.findings.length, 0, "标注类不该升级为拦截");
+});
+
+test("决策/征询框架不算替用户编处境（避免误杀合法新提议）", () => {
+  const ledger = ledgerFrom(["我：周末有个画展，要不要一起去看？", "她：可以啊，几点的"]);
+  for (const text of [
+    "那就周六下午两点。",
+    "周六下午两点可以吗？",
+    "暂定周日，你那边方便的话我再调整。",
+    "不如约个周六，我配合你的时间。"
+  ]) {
+    const audit = auditReplyOption({ key: "A", text }, ledger);
+    assert.equal(audit.needsUserConfirm, false, `合法新提议被误标：${text} => ${JSON.stringify(audit.confirmations)}`);
+  }
+});
+
+test("她的日程被复述时不该算到用户头上", () => {
+  const ledger = ledgerFrom(["我：你最近忙吗", "她：周四要交读书报告"]);
+  const audit = auditReplyOption({ key: "A", text: "周四那个读书报告，你写得怎么样了？" }, ledger);
+  assert.equal(audit.needsUserConfirm, false, JSON.stringify(audit.confirmations));
+  assert.equal(audit.findings.length, 0);
+});
+
+test("标注会汇进 confirmKeys，并在提示语里单独说明", () => {
+  const ledger = ledgerFrom(["我：你下班一般几点？", "她：六点多吧，看当天事多不多"]);
+  const result = groundReplyOptions(
+    [
+      { key: "A", text: "六点多确实算正常下班了，我们这边有时候加班到七八点。" },
+      { key: "B", text: "那你到家一般还做饭吗？" },
+      { key: "C", text: "我一般七点半左右能喘口气。" }
+    ],
+    ledger
+  );
+  assert.equal(result.ok, true, "标注类不该导致整套退回本地");
+  assert.deepEqual(result.confirmKeys, ["A", "C"], JSON.stringify(result.confirmKeys));
+  const note = groundingNote(result);
+  assert.match(note, /替你新增了对话里没出现过的个人情况/, note);
+  assert.match(note, /发送前请核对/, note);
+});
+
+test("同一句里已被拦截的实体不再重复标注（拦截优先于标注）", () => {
+  const ledger = ledgerFrom(["我：周末有空一起坐坐", "她：好呀"]);
+  const result = groundReplyOptions(
+    [
+      { key: "A", text: "就去上次说好的那家咖啡馆吧，我明天下午也有空。" },
+      { key: "B", text: "不如找家店坐坐，你那边方便的话我来订？" },
+      { key: "C", text: "我一般七点半以后才有空，到时候直接过去。" }
+    ],
+    ledger
+  );
+  const a = result.options.find((item) => item.key === "A");
+  // 「上次说好」是回忆框架，整句按断言处理：咖啡馆和明天都升级为拦截。
+  assert.equal(a.needsUserFill, true);
+  assert.deepEqual(a.findings.map((f) => f.entity).sort(), ["明天", "咖啡馆"].sort());
+  assert.deepEqual(a.confirmations, [], "已拦截的实体不该再出一份标注");
+
+  // C 没有回忆框架，第一人称新增时间只标注、不拦。
+  const c = result.options.find((item) => item.key === "C");
+  assert.equal(c.needsUserFill, false, JSON.stringify(c.findings));
+  assert.equal(c.needsUserConfirm, true, JSON.stringify(c));
+  assert.ok(c.confirmations.some((conf) => conf.entity === "七点半"), JSON.stringify(c.confirmations));
+});
+
+// R7：渲染模块必须有行为测试。标注如果只存在于数据里而没进 UI，等于没告诉用户。
+test("标注要落到具体那一条建议上，而不是只有一句汇总", async () => {
+  const { choiceConfirmNote } = await import("../public/modules/render/render-coach.js");
+  const ledger = ledgerFrom(["我：这周是不是又快 deadline 了？", "她：嗯周四要交一个读书报告，你呢"]);
+  const [audit] = groundReplyOptions(
+    [{ key: "A", text: "我这边也快了，明天要交一个课程作业。" }],
+    ledger
+  ).options;
+  const note = choiceConfirmNote(audit);
+  assert.match(note, /明天/, note);
+  assert.match(note, /关于你自己的信息/, note);
+  assert.match(note, /发送前请核对/, note);
+  // 原文不能被改写 —— 这是标注类与拦截类的分界。
+  assert.equal(audit.text, "我这边也快了，明天要交一个课程作业。");
+  assert.equal(choiceConfirmNote({ key: "B", text: "正常一条", confirmations: [] }), "");
+  assert.equal(choiceConfirmNote(undefined), "");
+});
