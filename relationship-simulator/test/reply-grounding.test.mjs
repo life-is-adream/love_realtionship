@@ -26,7 +26,7 @@ function ledgerFrom(lines) {
   return buildEvidenceLedger(messages);
 }
 
-test("负例 50 条：把未发生的安排写成既成事实，必须全部报出 findings（A-03 要求 0 漏检）", () => {
+test("全部负例：把未发生的安排写成既成事实，必须逐条报出 findings（A-03 要求 0 漏检）", () => {
   const misses = [];
   for (const item of negatives.cases) {
     const ledger = ledgerFrom(item.conversation);
@@ -47,7 +47,7 @@ test("负例的每条都确实缺少台账支持（防止 fixture 与对话自�
   }
 });
 
-test("正例 20 条：新提出的时间地点不得被误杀（A-03 门槛 ≥95%）", () => {
+test("全部正例：新提出的时间地点不得被误杀（A-03 门槛 ≥95%）", () => {
   const blocked = [];
   for (const item of positives.cases) {
     const ledger = ledgerFrom(item.conversation);

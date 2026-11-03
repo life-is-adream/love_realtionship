@@ -28,6 +28,20 @@ const ASSERTION = /早就?[定订]|已经?[定订约]|约好|说好|商定|就�
 // 提议框架：新方案、征询、假设。出现即视为未主张既成事实。
 const PROPOSAL = /可以吗|可不可以|好不好|行不行|行吗|方便吗|怎么样|要不要|要不|不如|或者|暂定|先定|定个|约个|找个|挑个|看你|你那边|方便的话|随时|改天|如果|要是|假设|理想的话|我建议|不妨|吗？|\?|？/;
 
+/**
+ * 外部世界的日程断言。真实抽样里抓到一次漏检：
+ * 台账只有「周末有个画展」，模型写「画展是周六下午两点开始，你那边方便吗？」——
+ * 句尾的问句让整句被当成提议放过了，但「周六下午两点开始」是对**展览日程**的事实断言，
+ * 不是用户的提议。提议框架不能给这类断言免检。
+ * 主语必须是外部事物；「我们周六下午两点开始」仍然是合法提议。
+ */
+const EXTERNAL_SUBJECT = /画展|展览|展会|展|电影|影片|纪录片|片|演出|演唱会|话剧|音乐剧|音乐节|脱口秀|会议|例会|培训|课|活动|店|餐厅|馆|商场|博物馆|美术馆|图书馆|影院|剧场|书店|猫咖|健身房|景区|场馆/;
+const SCHEDULE_PREDICATE = /开始|开场|开幕|开展|闭幕|结束|散场|开放|营业|关门|打烊|截止|排片|场次|上映|闭馆|截止报名/;
+const SELF_SUBJECT = /(?:^|[，,、\s])(?:我们|咱们|我|你|您|大家|这边|那边)/;
+// 「我们周六两点开始」是用户的计划，合法；但「我记得你们馆周一闭馆」是第一人称包装的
+// 世界事实断言，不能因为句首有个「我」就免检。
+const RECOLLECTION = /我记得|我印象|印象中|好像|应该是|我记着|之前看过|查过/;
+
 const clean = (value) => String(value || "").replace(/\s+/g, " ").trim();
 const squash = (value) => String(value || "").replace(/\s+/g, "").toLowerCase();
 
@@ -84,6 +98,20 @@ export function auditReplyOption(option, ledger) {
   const assertedFacts = [];
   const proposals = [];
 
+  // 先查「对外部世界的事实断言」：这类句子即使带问句尾巴也不属于提议框架，
+  // 不能走下面的提议豁免。按小句切分，避免「我们…开始」被同一句里别处的展览名误伤。
+  for (const clause of text.split(/[，,。；;!！~、]/)) {
+    const hasSchedule = SCHEDULE_PREDICATE.test(clause);
+    if (!hasSchedule || !EXTERNAL_SUBJECT.test(clause)) continue;
+    if (SELF_SUBJECT.test(clause) && !RECOLLECTION.test(clause)) continue;
+    const clauseTimes = uniqueMatches(clause, TIME_PATTERN);
+    for (const entity of clauseTimes) {
+      if (!hasLedgerSupport(ledger, entity)) {
+        findings.push({ type: "fabricated_time", entity, severity: "block", reason: "断言了对话里没出现过的场馆日程" });
+      }
+    }
+  }
+
   // 只有在「既成事实框架」里缺证据才算捏造；提议框架下缺证据是正常的新方案。
   if (assertion && !proposal) {
     for (const entity of [...times, ...places]) {
@@ -109,7 +137,9 @@ export function auditReplyOption(option, ledger) {
       if (span) findings.push({ type: "fabricated_arrangement", entity: span, severity: "block" });
     }
   } else {
+    const flagged = new Set(findings.map((finding) => finding.entity));
     for (const entity of [...times, ...places, ...objects]) {
+      if (flagged.has(entity)) continue;
       if (hasLedgerSupport(ledger, entity)) assertedFacts.push(entity);
       else proposals.push(entity);
     }
