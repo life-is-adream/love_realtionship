@@ -36,13 +36,14 @@ const PERSONA = builtInPersonas[opt("persona", "lin")] || builtInPersonas.lin;
 
 /** 与 public/app.js 完全一致；改那边必须同步改这里，否则测的是另一个配置。 */
 const HER_LANE = Object.freeze({ thinking: { type: "disabled" }, maxCompletionTokens: 200 });
-const COACH_LANE = Object.freeze({ thinking: { type: "disabled" }, responseFormat: { type: "json_object" } });
+const COACH_LANE = Object.freeze({ thinking: { type: "disabled" }, responseFormat: { type: "json_object" }, maxCompletionTokens: 1500 });
 
 const PRICE_INPUT_PER_M = 1;
 const PRICE_OUTPUT_PER_M = 2;
 const CHARS_PER_TOKEN = 1.4;
 /** 教练通道生产配置没有输出上限，这里用历史观测值做预算，报告里必须标明它不是上限。 */
-const COACH_COMPLETION_BUDGET_TOKENS = 900;
+/** 教练通道已有上限 1500；典型用量取 2026-11-03 实测中位数，两者分别给出预估与最坏上界。 */
+const COACH_TYPICAL_COMPLETION_TOKENS = 503;
 
 // 用例设计原则：故意「不给足信息」。用户只说了意愿、没说时间地点，
 // 才是教练最容易开始编的现场 —— 拿信息齐全的对话去测等于把缺陷藏起来。
@@ -77,9 +78,9 @@ function printBudget() {
   console.log("=== A-03 真实抽样：执行前预算（规范 §12.2）===");
   console.log(`目标模型：MiMo（由本地代理转发，具体版本以服务端 .env 为准）`);
   console.log(`测试集版本：eval-grounding v1，用例 ${activeCases.length} 条（共 ${CASES.length} 条可用）`);
-  console.log(`角色：${PERSONA.name}｜教练通道配置：thinking=disabled + json_object（与 app.js COACH_LANE 一致）`);
+  console.log(`角色：${PERSONA.name}｜教练通道配置：thinking=disabled + json_object + 输出上限 ${COACH_LANE.maxCompletionTokens}（与 app.js COACH_LANE 一致）`);
   console.log(`请求上限：${TOTAL_REQUESTS} 次（每用例 角色1 + 教练1；无 LLM 裁判调用）`);
-  console.log(`单请求输出：角色通道上限 ${HER_LANE.maxCompletionTokens} tokens；教练通道生产无上限，按历史观测 ${COACH_COMPLETION_BUDGET_TOKENS} tokens 估`);
+  console.log(`单请求输出：角色上限 ${HER_LANE.maxCompletionTokens}（实测仅 4–19）；教练上限 ${COACH_LANE.maxCompletionTokens}（实测中位 ${COACH_TYPICAL_COMPLETION_TOKENS}）`);
 
   let herChars = 0;
   let coachChars = 0;
@@ -90,12 +91,15 @@ function printBudget() {
   }
   const herTokens = Math.ceil(herChars / CHARS_PER_TOKEN);
   const coachTokens = Math.ceil(coachChars / CHARS_PER_TOKEN);
-  const completionTokens = activeCases.length * (HER_LANE.maxCompletionTokens + COACH_COMPLETION_BUDGET_TOKENS);
-  const cost = (herTokens + coachTokens) / 1e6 * PRICE_INPUT_PER_M + completionTokens / 1e6 * PRICE_OUTPUT_PER_M;
+  const inputCost = (herTokens + coachTokens) / 1e6 * PRICE_INPUT_PER_M;
+  const typicalOutput = activeCases.length * (HER_LANE.maxCompletionTokens + COACH_TYPICAL_COMPLETION_TOKENS);
+  const worstOutput = activeCases.length * (HER_LANE.maxCompletionTokens + COACH_LANE.maxCompletionTokens);
+  const typicalCost = inputCost + typicalOutput / 1e6 * PRICE_OUTPUT_PER_M;
+  const worstCost = inputCost + worstOutput / 1e6 * PRICE_OUTPUT_PER_M;
 
   console.log(`实测 prompt 字符数（本地构造真实消息，非猜）：角色 ${herChars} + 教练 ${coachChars} ≈ 输入 ${herTokens + coachTokens} tokens`);
-  console.log(`预估输入+输出合计：约 ${((herTokens + coachTokens + completionTokens) / 1000).toFixed(1)}k tokens`);
-  console.log(`费用量级：≈ ¥${cost.toFixed(3)}（输入 ¥${PRICE_INPUT_PER_M}/M、输出 ¥${PRICE_OUTPUT_PER_M}/M；**未核对官方现价与缓存价，不保证**）`);
+  console.log(`费用：典型 ≈ ¥${typicalCost.toFixed(3)}｜最坏上界 ≈ ¥${worstCost.toFixed(3)}（教练全部跑满 ${COACH_LANE.maxCompletionTokens} 上限）`);
+  console.log(`价格假设：输入 ¥${PRICE_INPUT_PER_M}/M、输出 ¥${PRICE_OUTPUT_PER_M}/M；**未核对官方现价与缓存价，不保证**`);
   console.log(`日志存放：${path.resolve(OUT)}（只存本轮短对话与模型原文，不含 API Key）`);
   console.log(`本地代理：${BASE_URL}`);
   console.log("\n这是干跑：没有发出任何请求。确认要花钱请加 --yes。");

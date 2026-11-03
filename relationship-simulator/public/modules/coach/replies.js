@@ -138,10 +138,11 @@ export function isUsableModelReplyOptions(options, latestHer = "", latestMine = 
   const mine = cleanText(latestMine);
   if (texts.some((text) => text === her || text === mine)) return false;
 
-  // 三条里最多一条以问句结尾（A-03）：两条都在提问，用户拿到的其实是同一个动作的两种说法，
-  // 而且一次问两件事会把她逼成回答机器。只数句尾，句中提问不算。
+  // 硬门槛是 ≤2，不是 ≤1：2026-11-03 真实抽样里 12 轮有 2 轮因为两条问句被整套判死，
+  // 而那两轮的动作分布其实合格 —— 问句数量不是「三条是否互不相同」的好代理指标。
+  // ≤1 保留为提示词引导目标（见 prompts.js），本地模板仍按 ≤1 自检。
   const questionCount = texts.filter((text) => /[？?]\s*$/.test(text)).length;
-  if (questionCount > 1) return false;
+  if (questionCount > 2) return false;
 
   // These are coaching explanations, not something the user should send.
   const metaCount = texts.filter((text) => /我听到你说|我先记下|不急着抢答|你愿意的话，可以再跟我说一点/.test(text)).length;

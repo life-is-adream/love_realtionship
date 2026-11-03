@@ -82,8 +82,16 @@ const HER_LANE = Object.freeze({ thinking: { type: "disabled" }, maxCompletionTo
  * 最慢 88.56s → 49.06s，一轮 504 超时 → 0 次，输出 token −38%；
  * 四项行为判定「回答问题 / 可发送 / 三条有别 / 像真人」从 3~4/5 全部升到 5/5，
  * 即关掉思考没有换来质量下降。数据见 docs/verification/ab-p0-arm*.md。
+ * 输出上限 1500：2026-11-03 A-03 真实抽样 12 轮实测 completion 为 375–655（中位 503），
+ * 唯一一次 62.4s 长尾跑到 4096 并 finish_reason=length（撞供应商默认上限，JSON 被截断）。
+ * 1500 = 最大合法观测值的 2.3 倍，留足 P3 记忆注入与 P5 教材上下文变长的余量，
+ * 同时把失控轮次砍掉 63%。改这个数必须重新量，不要凭感觉调。
  */
-const COACH_LANE = Object.freeze({ thinking: { type: "disabled" }, responseFormat: { type: "json_object" } });
+const COACH_LANE = Object.freeze({
+  thinking: { type: "disabled" },
+  responseFormat: { type: "json_object" },
+  maxCompletionTokens: 1500
+});
 // 长篇索引自拆包（P2-13）后为懒加载；manifest 预取用于"对照长篇复盘"链接的章节标题。
 let manifestChapters = [];
 let isGenerating = false;

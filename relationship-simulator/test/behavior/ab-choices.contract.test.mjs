@@ -136,7 +136,7 @@ test("她在提问时，本地兜底必须在界面上说明自己是骨架", ()
   assert.equal(replySourceNote("local", "今天挺累的"), "MiMo 的 ABC 不合格，已使用本地兜底。");
 });
 
-// A-03「最多一条以问句结尾」此前只在 question 分支被顺带覆盖过一次，
+// 本地模板自我要求比模型硬门槛更严（≤1 而非 ≤2）：模板是我们自己写的，没有理由做不到。
 // interest / positive 分支各产过两条问句而无人拦截 —— 这里做全分支扫描。
 test("所有分支的本地兜底：三条互不相同、且至多一条以问句结尾", () => {
   const herLines = [
@@ -160,11 +160,23 @@ test("所有分支的本地兜底：三条互不相同、且至多一条以问�
   }
 });
 
-test("模型给的三条里有两条以问句结尾 => 判为不合格，退回本地兜底", () => {
+test("模型三条里有两条以问句结尾 => 仍然采用（硬门槛已放宽到 ≤2）", () => {
+  // 2026-11-03 真实抽样：12 轮有 2 轮因两条问句被整套判死，而那两轮动作分布其实合格。
+  // 问句数量不是「三条是否互不相同」的好代理指标，所以硬门槛降到 ≤2，≤1 只作提示词引导。
   const json = coachJsonWithoutReply([
     { key: "A", text: "周六下午两点你方便吗？" },
     { key: "B", text: "要不要先去喝点东西？" },
     { key: "C", text: "那我先订个位置，临近再跟你确认。" }
+  ]);
+  const result = parseModelContent(json, { herReply: "好呀", latestMine: "周末有空一起吃饭" });
+  assert.equal(result.replyOptionsSource, "model");
+});
+
+test("模型三条全部以问句结尾 => 判为不合格，退回本地兜底", () => {
+  const json = coachJsonWithoutReply([
+    { key: "A", text: "周六下午两点你方便吗？" },
+    { key: "B", text: "要不要先去喝点东西？" },
+    { key: "C", text: "或者改到周日，你看怎么样？" }
   ]);
   const result = parseModelContent(json, { herReply: "好呀", latestMine: "周末有空一起吃饭" });
   assert.equal(result.replyOptionsSource, "local");

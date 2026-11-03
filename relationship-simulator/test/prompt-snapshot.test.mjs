@@ -158,7 +158,7 @@ test("buildCoachTaskPrompt 规定 A/B/C 是三个互不相同的沟通动作", (
   // 行为评测实测 abc_distinct 只有 2/5，裁判反复指出「A 和 B 是同一动作两种说法」。
   // 这三行是把该结论写回契约，删掉任何一条都会让指标回到旧状态。
   assert.match(prompt, /三个互不相同的沟通动作/);
-  assert.match(prompt, /最多只能有一条以问句结尾/);
+  assert.match(prompt, /尽量只有一条以问句结尾/);
   assert.match(prompt, /同一个意思，就视为不合格/);
   assert.match(prompt, /A 必须先把那个问题答掉/);
   assert.match(prompt, /A\/B\/C/);
@@ -327,7 +327,7 @@ test("buildToneGuidance 是纯函数", () => {
 
 test("PROMPT_VERSION 已导出且为字符串", () => {
   assert.ok(typeof PROMPT_VERSION === "string");
-  assert.equal(PROMPT_VERSION, "1.3.0");
+  assert.equal(PROMPT_VERSION, "1.4.0");
 });
 
 // P1 事实约束必须留在教练任务指令里：审计只拦得住词面可辨的捏造，
