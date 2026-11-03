@@ -9,6 +9,7 @@ import { normalizeLifestyle } from "../training/lifestyle.js";
 import { normalizePracticeState, toPersistedPracticeState } from "../training/real-practice.js";
 import { toPersistedAbilityAssessment } from "../training/ability-assessment.js";
 import { deriveRelationshipTier, normalizeRelationshipTier } from "./investment.js";
+import { assignMessageIds } from "./message-ids.js";
 
 /**
  * @typedef {Object} AppState
@@ -395,9 +396,12 @@ export function buildLocalHerReply(persona, memory, latestMine, previousHer, uiV
  * @returns {Array<MessageObject>}
  */
 export function normalizeMessages(messages) {
-  return (Array.isArray(messages) ? messages : [])
-    .filter((message) => message && typeof message.text === "string")
-    .map((message) => ({ ...message, source: message.source || "" }));
+  // 先补齐稳定 mid（幂等、由内容推导），再补 source 默认值。
+  return assignMessageIds(
+    (Array.isArray(messages) ? messages : [])
+      .filter((message) => message && typeof message.text === "string")
+      .map((message) => ({ ...message, source: message.source || "" }))
+  );
 }
 
 /**

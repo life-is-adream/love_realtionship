@@ -13,6 +13,7 @@ import {
   applyBackup
 } from "../public/modules/core/backup.js";
 import { STORAGE_KEYS, defaultState } from "../public/modules/core/config.js";
+import { assignMessageIds } from "../public/modules/core/message-ids.js";
 
 function createMemoryStorage(initial = {}) {
   const map = new Map(Object.entries(initial));
@@ -71,13 +72,31 @@ test("buildBackup→validateBackup→applyBackup 往返一致", () => {
   assert.equal(result.ok, true);
   assert.deepEqual(result.applied.sort(), [...Object.keys(backup.data)].sort());
   // applyBackup 会跑 normalizeState（补默认值、迁移 learning），做语义级往返比对而非字节级比对。
+  // sampleState 故意用「无 mid 的旧档案」形状：往返后由内容稳定推导出 mid，
+  // 因此比对基准是同一次推导的结果，而不是原始字面对象。
   const restored = JSON.parse(target.getItem(STORAGE_KEYS.state));
   assert.equal(restored.personaId, "xu");
-  assert.deepEqual(restored.messages, sampleState.messages);
+  assert.deepEqual(restored.messages, assignMessageIds(sampleState.messages));
   assert.deepEqual(restored.trainingLog, sampleState.trainingLog);
   assert.equal(restored.learning.schemaVersion, 2);
   assert.equal(target.getItem(STORAGE_KEYS.activeTab), "coach");
   assert.equal(target.getItem(STORAGE_KEYS.stageValue), "熟悉建立期");
+});
+
+// A-07 的前置：mid 是证据引用锚点，跨备份/恢复与重复加载都必须恒定，否则 ledger 指向的消息会漂移。
+test("mid 在备份往返与重复加载中保持恒定", () => {
+  const normalized = { ...structuredClone(sampleState), messages: assignMessageIds(sampleState.messages) };
+  const originalMids = normalized.messages.map((m) => m.mid);
+  assert.ok(originalMids.every((mid) => typeof mid === "string" && mid.startsWith("m-")));
+
+  const backup = buildBackup(normalized, createMemoryStorage());
+  const target = createMemoryStorage();
+  const result = applyBackup(backup, target);
+  assert.equal(result.ok, true);
+  assert.deepEqual(JSON.parse(target.getItem(STORAGE_KEYS.state)).messages.map((m) => m.mid), originalMids);
+
+  // 再次加载同一份状态：不得重新编号，也不得产生冲突。
+  assert.deepEqual(assignMessageIds(assignMessageIds(normalized.messages)).map((m) => m.mid), originalMids);
 });
 
 test("applyBackup 将备份中缺失（null）的键恢复为不存在", () => {

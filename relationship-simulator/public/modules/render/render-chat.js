@@ -1,4 +1,5 @@
 import { $, escapeHtml, getMessageSourceLabel } from "../core/dom.js";
+import { pushMessage } from "../core/conversation.js";
 import { getCurrentPersona, getState, mutate } from "../core/state.js";
 
 export function renderChat({ afterRender = () => {} } = {}) {
@@ -53,7 +54,7 @@ export function recallMine(index) {
 export function appendMine({ afterRender = () => {} } = {}) {
   const text = $("userInput")?.value.trim();
   if (!text) return false;
-  mutate((state) => { state.messages.push({ who: "我", type: "me", text, source: "user", createdAt: new Date().toISOString() }); });
+  mutate((state) => { pushMessage(state, { who: "我", type: "me", text, source: "user" }); });
   renderChat({ afterRender });
   return true;
 }
@@ -64,7 +65,7 @@ export function appendMineIfNew({ afterRender = () => {} } = {}) {
   const state = getState();
   const last = state.messages[state.messages.length - 1];
   if (last?.type === "me" && last.text === text) return false;
-  mutate((s) => { s.messages.push({ who: "我", type: "me", text, source: "user", createdAt: new Date().toISOString() }); });
+  mutate((s) => { pushMessage(s, { who: "我", type: "me", text, source: "user" }); });
   renderChat({ afterRender });
   return true;
 }
@@ -75,7 +76,7 @@ export function appendHerIfNeeded(text, source = "model", { afterRender = () => 
   const state = getState();
   const last = state.messages[state.messages.length - 1];
   if (last?.type === "her" && last.text === reply) return false;
-  mutate((s) => { s.messages.push({ who: getCurrentPersona().name, type: "her", text: reply, source, createdAt: new Date().toISOString() }); });
+  mutate((s) => { pushMessage(s, { who: getCurrentPersona().name, type: "her", text: reply, source }); });
   renderChat({ afterRender });
   return true;
 }
