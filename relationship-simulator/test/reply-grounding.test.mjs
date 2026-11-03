@@ -349,3 +349,44 @@ test("两条同一种捏造同时被降级时，不得塌成一字不差的两�
   }
   assert.ok(checked.length >= 3, `只覆盖了 ${checked.length} 种捏造类型，测试没有真正铺开：${checked.join(",")}`);
 });
+
+// 2026-11-03 真实抽样翻车的复盘：脚本把 extractJsonObject 的返回值当对象取 .replyOptions，
+// 而它返回的是字符串 —— 于是 12 个用例审计到 0 条，白跑 24 次付费请求，
+// 报告还会印出「捏造率 0%」看着像通过。这条测试用生产形状的 JSON 免费钉住取数路径。
+test("评测脚本能从生产形状的教练 JSON 里取到模型原始三条", async () => {
+  const { extractModelOptions } = await import("../scripts/eval-grounding.mjs");
+  const coachRaw = JSON.stringify({
+    herIntent: "她没有直接答应，属于留有余地的中性回应。",
+    yourGoal: "把邀约说清楚",
+    judgement: "阶段是初聊，她的投入程度偏低。",
+    risk: "若追问那你什么时候有空，会变成查户口式施压。",
+    replyOptions: [
+      { key: "A", text: "那周六下午两点可以吗？" },
+      { key: "B", text: "就去上次说好的那家咖啡馆吧。" },
+      { key: "C", text: "你更想白天还是晚上，我配合你。" }
+    ],
+    recommendation: "先 A。",
+    coachScore: { total: 72 },
+    evidenceReasoning: { observations: ["她回复了两个字加一句补充"], unknowns: ["她周末是否真有安排"] }
+  });
+
+  const options = extractModelOptions(coachRaw);
+  assert.equal(options.length, 3, `取到 ${options.length} 条，评测分母将为 0`);
+  assert.deepEqual(options.map((item) => item.key), ["A", "B", "C"]);
+
+  // 取到之后必须真的能审计：B 里的「上次说好的那家咖啡馆」是捏造。
+  const ledger = buildEvidenceLedger([
+    { mid: "m-1", type: "me", text: "周末有个画展，要不要一起去看？", source: "user" },
+    { mid: "m-2", type: "her", text: "周末可能有点事，我先看看时间再回你", source: "model" }
+  ]);
+  const audits = options.map((option) => auditReplyOption(option, ledger));
+  assert.equal(audits.filter((a) => a.findings.length).length, 1, JSON.stringify(audits.map((a) => a.findings)));
+  assert.equal(audits[1].findings[0].type, "fabricated_place");
+});
+
+test("评测脚本遇到非 JSON 输出时返回空而不是假装有数据", async () => {
+  const { extractModelOptions } = await import("../scripts/eval-grounding.mjs");
+  assert.deepEqual(extractModelOptions(""), []);
+  assert.deepEqual(extractModelOptions("她：好的"), []);
+  assert.deepEqual(extractModelOptions('{"judgement":"没有选项字段"}'), []);
+});

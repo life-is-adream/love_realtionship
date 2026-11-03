@@ -15,11 +15,12 @@
 // 密钥不进这个脚本：请求走本地代理，钥匙只存在于服务端 .env。
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { builtInPersonas } from "../public/modules/core/config.js";
 import { buildHerMessages, buildCoachMessages, callLLM } from "../public/modules/core/api-client.js";
 import { parseHerBubbles, joinHerReply } from "../public/modules/coach/her-reply.js";
-import { parseModelContent, extractJsonObject, normalizeReplyOptions } from "../public/modules/coach/parser.js";
+import { parseModelContent, parseLooseJson, normalizeReplyOptions } from "../public/modules/coach/parser.js";
 import { buildEvidenceLedger } from "../public/modules/coach/evidence-ledger.js";
 import { auditReplyOption, groundReplyOptions } from "../public/modules/coach/reply-grounding.js";
 
@@ -100,8 +101,19 @@ function printBudget() {
   console.log("\n这是干跑：没有发出任何请求。确认要花钱请加 --yes。");
 }
 
-function useFor(raw) {
-  const usage = raw?.usage || {};
+/**
+ * 从教练原文取模型的**原始** A/B/C（未经本地兜底替换）。
+ * 单独导出是为了能被免费回归测试钉住：上一轮真实抽样就是因为这里取到 0 条，
+ * 白花了 24 次请求还差点把「0% 捏造」当成通过。
+ * @returns {Array<{key:string,text:string}>}
+ */
+export function extractModelOptions(coachRaw) {
+  const obj = parseLooseJson(coachRaw);
+  if (!obj) return [];
+  return normalizeReplyOptions(obj.replyOptions || obj.choices || obj["A/B/C回复"]);
+}
+
+function useFor(raw) {  const usage = raw?.usage || {};
   return {
     prompt: Number(usage.prompt_tokens ?? 0),
     completion: Number(usage.completion_tokens ?? 0),
@@ -139,10 +151,12 @@ async function runCase(api, item) {
 
   // 先量模型本身：直接对模型原始 A/B/C 做审计，绕开 parser 的本地兜底。
   // 否则测的是「兜底模板有多干净」，而不是「模型有没有编事」—— 那是两个完全不同的结论。
-  const obj = extractJsonObject(record.coachRaw);
-  const rawOptions = obj ? normalizeReplyOptions(obj.replyOptions || obj.choices) : [];
+  const obj = parseLooseJson(record.coachRaw);
+  const rawOptions = extractModelOptions(record.coachRaw);
   record.rawOptionCount = rawOptions.length;
   if (!obj) record.errors.push("教练输出未能解析为 JSON");
+  // 解析成功但取不到选项 = 键名或结构变了，此时分母为 0，任何比率都是假的。
+  else if (!rawOptions.length) record.errors.push("JSON 解析成功但没取到 replyOptions，评测分母为 0");
 
   const ledger = buildEvidenceLedger(conversation);
   record.audits = rawOptions.map((option) => auditReplyOption(option, ledger));
@@ -163,8 +177,10 @@ function summarize(records) {
   return {
     cases: records.length,
     options: allAudits.length,
+    /** 分母为 0 时任何比率都没有意义，必须显式标失效而不是报 0%。 */
+    measurementValid: allAudits.length > 0,
     fabricatedOptions: fabricated.length,
-    fabricationRate: allAudits.length ? (fabricated.length / allAudits.length * 100).toFixed(1) : "0",
+    fabricationRate: allAudits.length ? (fabricated.length / allAudits.length * 100).toFixed(1) : "n/a",
     byType: fabricated.flatMap((a) => a.findings).reduce((acc, f) => ({ ...acc, [f.type]: (acc[f.type] || 0) + 1 }), {}),
     fellBackToLocal: records.filter((r) => r.shownSource === "local").length,
     truncated: truncated.length,
@@ -186,6 +202,12 @@ function renderReport(records, stats) {
     "",
     "## 结论指标",
     "",
+    ...(stats.measurementValid ? [] : [
+      "**⚠ 本次测量失效：审计器看到 0 条模型选项，分母为 0。**",
+      "下面的 0 不代表「模型没有捏造」，只代表脚本没取到数据 —— 不能据此判定 A-03。",
+      "先修脚本/键名，再重跑。",
+      ""
+    ]),
     "| 指标 | 值 |",
     "| --- | --- |",
     `| 模型 A/B/C 总条数 | ${stats.options} |`,
@@ -225,6 +247,29 @@ function renderReport(records, stats) {
 }
 
 async function main() {
+  // 离线重算：从已落盘的原文重新出报告，0 次请求。买了的数据不该因为脚本改进而要再买一次。
+  const recompute = opt("recompute", "");
+  if (recompute) {
+    const { readFile } = await import("node:fs/promises");
+    const lines = (await readFile(path.resolve(recompute), "utf8")).split("\n").filter(Boolean);
+    const records = lines.map((line) => {
+      const saved = JSON.parse(line);
+      const conversation = [
+        { mid: "m-seed", type: "me", who: "我", text: saved.seed, source: "user" }
+      ];
+      if (saved.herReply) conversation.push({ mid: "m-her", type: "her", who: PERSONA.name, text: saved.herReply, source: "model" });
+      const ledger = buildEvidenceLedger(conversation);
+      const options = extractModelOptions(saved.coachRaw || "");
+      return { ...saved, audits: options.map((option) => auditReplyOption(option, ledger)) };
+    });
+    const stats = summarize(records);
+    await mkdir(path.dirname(path.resolve(OUT)), { recursive: true });
+    await writeFile(path.resolve(OUT), renderReport(records, stats), "utf8");
+    console.log(JSON.stringify(stats, null, 2));
+    console.log(`离线重算自 ${recompute}（0 次请求）；报告：${path.resolve(OUT)}`);
+    return;
+  }
+
   if (!RUN) {
     printBudget();
     return;
@@ -257,10 +302,20 @@ async function main() {
   }
 
   const stats = summarize(records);
+  await mkdir(path.dirname(path.resolve(OUT)), { recursive: true });
   await writeFile(path.resolve(OUT), renderReport(records, stats), "utf8");
+  // 原文单独落盘：这一批是花钱买的数据，任何后续解析/展示 bug 都不该再要求重跑。
+  const rawPath = path.resolve(OUT).replace(/\.md$/, "") + "-raw.jsonl";
+  await writeFile(rawPath, records.map((r) => JSON.stringify(r)).join("\n"), "utf8");
   console.log("\n" + JSON.stringify(stats, null, 2));
   console.log(`报告：${path.resolve(OUT)}`);
+  console.log(`模型原文（可离线重算，不必再付费）：${rawPath}`);
+  if (!stats.measurementValid) {
+    console.log("⚠ 分母为 0：本次没有量到任何模型选项，A-03 不能据此判定。原文已落盘，修脚本后离线重算即可。");
+  }
   console.log("「人工盲评」栏未填之前，A-03 不能标为通过。");
 }
 
-await main();
+// 只有直接执行才跑主流程；测试要 import 里面的提取函数，不能顺带打预算或发请求。
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMain) await main();
