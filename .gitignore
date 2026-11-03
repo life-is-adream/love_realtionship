@@ -58,3 +58,8 @@ relationship-simulator/voice/models/
 relationship-simulator/voice/wheels/
 relationship-simulator/voice/logs/
 relationship-simulator/voice/*.tmp
+
+# 手工备份副本与 Agent 运行日志（2026-11-03 因 git add -A 被误纳入版本控制后补规则）
+# 与既有的 _relationship_coach_cn_backup_*/ 、.trae/ 、.codex/ 同一类：本地时点产物，不入库。
+relationship-simulator/_backup-*/
+relationship-simulator/.agent-runs/

@@ -13,13 +13,26 @@
 - 该信息宣称落地了 `evidence-ledger.js`、`reply-grounding.js` 与「50 条负例 + 20 条正例 fixture」。
 - `git log --all -- relationship-simulator/public/modules/coach/evidence-ledger.js relationship-simulator/public/modules/coach/reply-grounding.js relationship-simulator/test/fixtures` 返回空 —— **这些产物当时不存在，也从未进入任何历史版本**。
 - 那次提交实际只包含 `message-ids.js` 这条真实工作（由 `cc7c90b` 正式落地）。
-- 同一提交用 `git add -A` 把 **80 个与本项目无关的文件**纳入版本控制（`恋爱15分钟学习/`、`恋爱咨询平台/server.py`、`retrieval.py`、`pet-concept-chibi.jpg`、`_backup-20261101/` 等）。根因：仓库根目录是父目录 `E:\一门给年轻人的恋爱成长课`，不是 `relationship-simulator`。这与 P0 记录里「不动用户未提交 WIP」的承诺直接冲突。
+- 同一提交用 `git add -A` 新增了 **92 个文件**（全部为状态 A）。根因：仓库根目录是父目录 `E:\一门给年轻人的恋爱成长课`，不是 `relationship-simulator`。这与 P0 记录里「不动用户未提交 WIP」的承诺冲突。
+- **但我最初把危害说重了，这里更正。** 逐类核对后，92 个里绝大多数是仓库正当内容：
+
+| 分组 | 数量 | 判定 |
+| --- | --- | --- |
+| `恋爱15分钟学习/` | 50 | **应当入库** —— `.gitignore` 明写它是 love-learning 的声明源数据 |
+| `docs/`（verification 与 plans） | 24 | **应当入库** —— 与已追踪的 `docs/coach-calibration-baseline.md` 等同为项目记录 |
+| `relationship-simulator/.agent-runs/` | 9 | 不该入库（Agent 运行日志，同类 `.trae/`、`.codex/` 已被忽略）→ 已移除追踪 |
+| `relationship-simulator/_backup-20261101/` | 3 | 不该入库（手工备份副本，同类 `_*_backup_*/` 已被忽略）→ 已移除追踪 |
+| `恋爱咨询平台/` | 4 | 待用户判定（独立 Python 服务，是否属于本仓库策略未知） |
+| `Kaito救赎行动手册.html`、`pet-concept-chibi.jpg` | 2 | 待用户判定 |
+
+  真正的违规是**程序性的**（未经逐文件审阅就 `git add -A` 卷入未追踪 WIP），而不是「污染了 80 个无关文件」。
 
 当前处置：
 
 - `707b3ed` **未被推送**（`main` 领先 `origin/main` 37 个提交），历史更正仍是纯本地操作。
 - 我没有执行任何 `reset` / `revert` / `filter-branch`：这些操作可丢弃工作，需用户明确授权。
 - 从 `cc7c90b` 起改为**逐文件显式 `git add`**，每次提交前打印暂存清单，并对暂存 diff 做密钥模式扫描（覆盖密钥前缀与承载密钥的常见环境变量名）；本阶段暂存内容 0 处真实密钥命中。
+- 2026-11-03 追加处置：`.agent-runs/` 与 `_backup-*/` 共 12 件已 `git rm --cached`（**磁盘文件保留**），并在仓库根 `.gitignore` 补两条规则堵住复发路径。仍未执行任何 `reset` / `revert` / `filter-branch`。
 
 ## 2. 本阶段真实交付物
 
