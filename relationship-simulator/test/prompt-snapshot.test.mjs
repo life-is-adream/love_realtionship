@@ -327,5 +327,15 @@ test("buildToneGuidance 是纯函数", () => {
 
 test("PROMPT_VERSION 已导出且为字符串", () => {
   assert.ok(typeof PROMPT_VERSION === "string");
-  assert.equal(PROMPT_VERSION, "1.2.0");
+  assert.equal(PROMPT_VERSION, "1.3.0");
+});
+
+// P1 事实约束必须留在教练任务指令里：审计只拦得住词面可辨的捏造，
+// 提示词是那一半「让模型一开始就别这么写」的职责，删掉它等于把负担全压到降级路径上。
+test("教练任务指令包含既成事实约束与提议/断言区分", () => {
+  const prompt = buildCoachTaskPrompt(false);
+  assert.ok(prompt.includes("【事实约束】"), prompt);
+  assert.ok(prompt.includes("上次说好的"), prompt);
+  assert.ok(prompt.includes("不能写成既定事实"), prompt);
+  assert.ok(prompt.includes("【时间待确认】"), prompt);
 });

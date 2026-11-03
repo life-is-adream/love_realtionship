@@ -79,14 +79,16 @@ export function buildReplyOptionsForHer(style, latestHer = "", latestMine = "") 
       C: `那我们先定一个大概范围，具体时间等临近了再一起确认，可以吗？`
     };
   } else if (context === "interest") {
+    // A 不追问、也不替她解读心理（「你是真的挺喜欢」是对她的断言），只说自己被带动到的反应。
+    // 追问交给 C，这样三条里只剩一个问句，符合「最多一条以问句结尾」。
     texts = {
-      A: `听你说“${quote}”，感觉你是真的挺喜欢。最吸引你的是哪一点？`,
+      A: `听你说“${quote}”，我都想跟着你去试试了。`,
       B: `你这么一说，我的待看待吃清单又多了一项。下次得听你做个简短推荐。`,
       C: `你会喜欢“${quote}”，更多是因为内容本身，还是当时的心情？`
     };
   } else if (context === "positive") {
     texts = {
-      A: `听你这么说，我也挺开心的。你当时最喜欢的是哪个瞬间？`,
+      A: `听你这么说，我也跟着开心起来。`,
       B: `哈哈，那我先把这点好心情收下，不继续抢你的话题。`,
       C: `你说“${quote}”时听起来很确定，是最近才有的感觉吗？`
     };
@@ -135,6 +137,11 @@ export function isUsableModelReplyOptions(options, latestHer = "", latestMine = 
   const her = cleanText(latestHer);
   const mine = cleanText(latestMine);
   if (texts.some((text) => text === her || text === mine)) return false;
+
+  // 三条里最多一条以问句结尾（A-03）：两条都在提问，用户拿到的其实是同一个动作的两种说法，
+  // 而且一次问两件事会把她逼成回答机器。只数句尾，句中提问不算。
+  const questionCount = texts.filter((text) => /[？?]\s*$/.test(text)).length;
+  if (questionCount > 1) return false;
 
   // These are coaching explanations, not something the user should send.
   const metaCount = texts.filter((text) => /我听到你说|我先记下|不急着抢答|你愿意的话，可以再跟我说一点/.test(text)).length;

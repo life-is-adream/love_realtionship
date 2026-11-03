@@ -3,6 +3,45 @@ import { buildReplyOptionsForHer, isUsableModelReplyOptions } from "./replies.js
 import { buildLocalHerReply, getCurrentPersona, getPersonaMemory, getLatestMineText, getState } from "../core/state.js";
 import { selectLocalPuaReply } from "../training/pua-awareness.js";
 import { normalizeCoachEvidence } from "./evidence-contract.js";
+import { buildEvidenceLedger } from "./evidence-ledger.js";
+import { groundReplyOptions } from "./reply-grounding.js";
+
+/**
+ * 证据台账：只读已落盘消息。调用方传 context.messages 时优先用，便于纯函数测试。
+ * 教练文本永不回填 —— 一次幻觉不能在下轮变成既成事实。
+ */
+function ledgerFor(context) {
+  const messages = Array.isArray(context.messages) ? context.messages : getState().messages;
+  return buildEvidenceLedger(messages);
+}
+
+/**
+ * 模型 A/B/C 的合格判定 = 结构校验 + 事实审计。
+ * 结构合格但把没发生的事说成约定，同样不能直接展示。
+ * 本地兜底也走同一次审计：模板只复述用户说过的话，理应零 findings，
+ * 真出了 findings 说明模板自己开始编事实，必须一起被降级而不是豁免。
+ * @returns {{from:string, options:Array, grounding:Object}}
+ */
+function selectReplyOptions(modelOptions, context) {
+  const ledger = ledgerFor(context);
+  const auditLocal = () => groundReplyOptions(
+    buildLocalReplyOptions(context.styleBias, context.latestMine, context.normalizedHerReply),
+    ledger
+  );
+
+  if (!isUsableModelReplyOptions(modelOptions, context.normalizedHerReply, context.latestMine)) {
+    const local = auditLocal();
+    return { from: "local", options: local.options, grounding: local };
+  }
+
+  const grounded = groundReplyOptions(modelOptions.slice(0, 3), ledger);
+  if (grounded.ok) return { from: "model", options: grounded.options, grounding: grounded };
+
+  // 三条全灭时保留模型那份审计结论：UI 要如实说「三条都被拒绝」，
+  // 不能退化成一句含糊的「结构不合格」，否则用户不知道刚才是事实问题还是格式问题。
+  const local = auditLocal();
+  return { from: "local", options: local.options, grounding: grounded };
+}
 
 /** 取对话中最近一条女方消息文本（供个人校准检测"理性回应情绪"） */
 function getPreviousHerText() {
@@ -81,7 +120,7 @@ export function normalizeAnalysis(obj, raw, context = {}) {
   const herReply = context.herReply || obj.herReply || obj.herText || obj.reply || obj["女方下一句"] || obj["女方回复"] || "";
   const normalizedHerReply = firstReplyLine(herReply) || firstReplyLine(raw);
   const replyOptions = normalizeReplyOptions(obj.replyOptions || obj.choices || obj["A/B/C回复"]);
-  const useModelOptions = isUsableModelReplyOptions(replyOptions, normalizedHerReply, latestMine);
+  const selected = selectReplyOptions(replyOptions, { latestMine, normalizedHerReply, styleBias, messages: context.messages });
   return {
     herReply: normalizedHerReply,
     evidenceReasoning: normalizeCoachEvidence(obj.evidenceReasoning, context.goal),
@@ -89,8 +128,9 @@ export function normalizeAnalysis(obj, raw, context = {}) {
     yourGoal: obj.yourGoal || obj["你的隐藏目标"] || goal,
     judgement: obj.judgement || obj["当前判断"] || raw.slice(0, 500),
     risk: obj.risk || obj["风险提醒"] || "无明确风险。",
-    replyOptions: useModelOptions ? replyOptions.slice(0, 3) : buildLocalReplyOptions(styleBias, latestMine, normalizedHerReply),
-    replyOptionsSource: useModelOptions ? "model" : "local",
+    replyOptions: selected.options,
+    replyOptionsSource: selected.from,
+    grounding: selected.grounding,
     recommendation: obj.recommendation || obj["推荐"] || "",
     coachScore: normalizeCoachScore(obj.coachScore || obj["教练评分"], latestMine, { ...obj, herLastMessage: getPreviousHerText() })
   };
@@ -107,7 +147,7 @@ export function parsePlainTextFallback(raw, context = {}) {
   const extractedReplyOptions = extractJsonLikeReplyOptions(raw);
   const herReply = context.herReply || extractedHerReply || firstReplyLine(raw) || "哈哈，谢谢~ 你也挺会说话的。你平时也经常参加这种活动吗？";
   const normalizedHerReply = firstReplyLine(herReply);
-  const useModelOptions = isUsableModelReplyOptions(extractedReplyOptions, normalizedHerReply, latestMine);
+  const selected = selectReplyOptions(extractedReplyOptions, { latestMine, normalizedHerReply, styleBias, messages: context.messages });
   return {
     herReply,
     evidenceReasoning: normalizeCoachEvidence(null, context.goal),
@@ -115,8 +155,9 @@ export function parsePlainTextFallback(raw, context = {}) {
     yourGoal: extractedGoal || context.goal || "继续推进自然对话。",
     judgement: extractedJudgement || raw.slice(0, 900),
     risk: extractedRisk || "模型未严格按 JSON 输出；已转为兼容模式。",
-    replyOptions: useModelOptions ? extractedReplyOptions.slice(0, 3) : buildLocalReplyOptions(styleBias, latestMine, normalizedHerReply),
-    replyOptionsSource: useModelOptions ? "model" : "local",
+    replyOptions: selected.options,
+    replyOptionsSource: selected.from,
+    grounding: selected.grounding,
     recommendation: extractJsonLikeString(raw, "recommendation") || "先看右侧 A/B/C，再选一条更像你本人说话方式的。",
     coachScore: normalizeCoachScore(null, latestMine, { risk: extractedRisk, judgement: extractedJudgement })
   };

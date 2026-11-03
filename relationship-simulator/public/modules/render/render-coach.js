@@ -1,5 +1,6 @@
 import { $, escapeHtml } from "../core/dom.js";
 import { coachEvidenceCards } from "../coach/evidence-contract.js";
+import { groundingNote } from "../coach/reply-grounding.js";
 import { buildHerVoice } from "../coach/her-voice.js";
 import { clampScore } from "../coach/coach.js";
 import { getCurrentPersona, getLatestMineText, getPersonaMemory, getState, mutate } from "../core/state.js";
@@ -118,8 +119,15 @@ function addCurrentMistake() {
  * 本地兜底只能复述用户自己说过的话，她追问而他没提过的细节兜底无从得知，
  * 所以她在提问时必须提醒「这是骨架，需要你自己补」，否则用户会原样发出一条没回答问题的建议。
  */
-export function replySourceNote(source, herReply = "") {
-  if (source === "model") return "ABC 由 MiMo 生成";
+export function replySourceNote(source, herReply = "", grounding = null) {
+  // 三种状态必须分开说，否则会出现「已经落盘的是本地模板，却告诉用户已改成占位符」这种假话。
+  const flagged = source === "model" && grounding?.needsUserFill;
+  if (source === "model") {
+    return `ABC 由 MiMo 生成${flagged ? ` ${groundingNote(grounding)}` : ""}`;
+  }
+  if (grounding && grounding.ok === false) {
+    return "MiMo 的 ABC 三条都把会话里没出现过的安排说成既定事实，整套不予采用，已改用本地兜底；模板只复述你说过的话，真实的时间地点请自己填进去。";
+  }
   if (/[？?]/.test(String(herReply || ""))) {
     return "MiMo 的 ABC 不合格，已用本地模板兜底。模板只会复述你已经说过的内容，她追问的细节请你自己补进去再发送。";
   }
@@ -146,7 +154,7 @@ export function renderAnalysis(data, { showReviewComparison = () => "", openLong
     div.innerHTML = `<div class="choice-head"><strong>${escapeHtml(choice.label)}</strong><button class="btn small" data-choice="${escapeHtml(choice.key)}">采用</button></div><p>${escapeHtml(choice.text)}</p><div class="note">${escapeHtml(choice.effect || "")}</div>`;
     choices.appendChild(div);
   }
-  if ((data.replyOptions || []).length) choices.insertAdjacentHTML("afterbegin", `<div class="note reply-source-note">${escapeHtml(replySourceNote(data.replyOptionsSource, data.herReply))}</div>`);
+  if ((data.replyOptions || []).length) choices.insertAdjacentHTML("afterbegin", `<div class="note reply-source-note">${escapeHtml(replySourceNote(data.replyOptionsSource, data.herReply, data.grounding))}</div>`);
   choices.querySelectorAll("button[data-choice]").forEach((button) => button.addEventListener("click", () => {
     const picked = (data.replyOptions || []).find((item) => item.key === button.dataset.choice);
     if (picked) { $("userInput").value = picked.text; $("userInput").focus(); }

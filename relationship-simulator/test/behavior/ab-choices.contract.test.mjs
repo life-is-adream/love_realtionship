@@ -135,3 +135,37 @@ test("她在提问时，本地兜底必须在界面上说明自己是骨架", ()
   // 她没提问时不必制造这种提醒，否则用户会以为所有兜底都缺信息。
   assert.equal(replySourceNote("local", "今天挺累的"), "MiMo 的 ABC 不合格，已使用本地兜底。");
 });
+
+// A-03「最多一条以问句结尾」此前只在 question 分支被顺带覆盖过一次，
+// interest / positive 分支各产过两条问句而无人拦截 —— 这里做全分支扫描。
+test("所有分支的本地兜底：三条互不相同、且至多一条以问句结尾", () => {
+  const herLines = [
+    "好呀", "周六下午两点可以吗", "那家咖啡馆我也想去", "明天可能加班", "哈哈你真有意思",
+    "我最近挺累的", "算了改天吧", "你喜欢吃什么", "晚安啦", "你平时爱看什么电影",
+    "今天好开心", "不想聊这个", "在干嘛呢", "我们改天再约吧", ""
+  ];
+  for (const her of herLines) {
+    for (const style of ["A", "B", "C", "mix"]) {
+      const options = buildReplyOptionsForHer(style, her, "周末有空一起吃饭");
+      const texts = options.map((item) => item.text);
+      assert.equal(new Set(texts).size, 3, `三条里出现重复文本：her="${her}" style=${style}`);
+      const questionEnding = texts.filter((text) => /[？?]\s*$/.test(text)).length;
+      assert.ok(questionEnding <= 1, `her="${her}" style=${style} 有 ${questionEnding} 条问句结尾：${texts.join(" / ")}`);
+      assert.equal(
+        isUsableModelReplyOptions(options, her, "周末有空一起吃饭"),
+        true,
+        `兜底模板通不过自己的校验：her="${her}" style=${style} => ${texts.join(" / ")}`
+      );
+    }
+  }
+});
+
+test("模型给的三条里有两条以问句结尾 => 判为不合格，退回本地兜底", () => {
+  const json = coachJsonWithoutReply([
+    { key: "A", text: "周六下午两点你方便吗？" },
+    { key: "B", text: "要不要先去喝点东西？" },
+    { key: "C", text: "那我先订个位置，临近再跟你确认。" }
+  ]);
+  const result = parseModelContent(json, { herReply: "好呀", latestMine: "周末有空一起吃饭" });
+  assert.equal(result.replyOptionsSource, "local");
+});
