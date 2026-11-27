@@ -13,7 +13,10 @@ const { recommendCourses } = await import(new URL("../../server/v2.js", import.m
 const modes = ["bm25", "semantic", "hybrid", "hybrid_rerank"];
 
 async function startService(servicePort, serviceRoot) {
-  const child = spawn(exe, ["serve", "--port", String(servicePort), "--root", serviceRoot], { cwd: root, stdio: "ignore" });
+  // 一致性脚本单实例批量请求，豁免限流；限流本身由 security-smoke 验证。
+  // 临时实例禁日志：进程 kill 后 Windows 可能短暂锁住 logs/*.log，导致清理临时目录 EBUSY。
+  const child = spawn(exe, ["serve", "--port", String(servicePort), "--root", serviceRoot],
+    { cwd: root, stdio: "ignore", env: { ...process.env, HF_RATE_LIMIT_DISABLE: "1", HF_LOG_DISABLE: "1" } });
   for (let i = 0; i < 60; i++) {
     await new Promise((r) => setTimeout(r, 100));
     try { if ((await fetch(`http://127.0.0.1:${servicePort}/api/v2/practice/scenarios`)).ok) return child; } catch {}

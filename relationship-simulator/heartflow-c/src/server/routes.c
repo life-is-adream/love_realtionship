@@ -70,6 +70,13 @@ static double clamp_num(const JNode *body, const char *key, const char *alt,
 
 static int rate_limited(const char *ip)
 {
+    /* 测试豁免：一致性脚本需在单实例上批量请求（C/Node 对照），
+     * 会远超正常用户的 24/分钟；设 HF_RATE_LIMIT_DISABLE=1 跳过。
+     * 生产默认不设，限流照常生效（安全冒烟仍验证 429）。 */
+    {
+        const char *off = getenv("HF_RATE_LIMIT_DISABLE");
+        if (off && (!strcmp(off, "1") || !_stricmp(off, "true"))) return 0;
+    }
 #ifdef _WIN32
     typedef struct { char ip[64]; DWORD start; int count; } Bucket;
     static Bucket buckets[128];
@@ -155,7 +162,6 @@ static JNode *clone_messages(const JNode *messages)
 
 static void route_chat(HfConn *c)
 {
-    char ip[64];
     JNode *body, *messages, *payload;
     const char *api_key;
     char *req_text;
@@ -164,12 +170,7 @@ static void route_chat(HfConn *c)
     char err[256];
     int rc;
 
-    peer_ip(c, ip, sizeof ip);
-    if (rate_limited(ip)) {
-        hf_send_error(c, 429, "rate_limited", "请求过于频繁，请稍后再试。");
-        return;
-    }
-
+    /* 限流已统一上移到 hf_route 入口，避免 SSE 分支被计两次。 */
     body = body_of(c);
     if (!body) return;
 
@@ -505,12 +506,8 @@ static void route_chat_stream(HfConn *c, JNode *body, const char *api_key)
     int rc, status = 0;
     char err[256];
 
-    peer_ip(c, ip, sizeof ip);
-    if (rate_limited(ip)) {
-        hf_send_error(c, 429, "rate_limited", "请求过于频繁，请稍后再试。");
-        return;
-    }
-
+    /* 限流已统一上移到 hf_route 入口。 */
+    (void)ip;
     messages = json_get(body, "messages");
     if (!messages || messages->type != JARR || json_len(messages) == 0) {
         hf_send_error(c, 400, "bad_request", "`messages` 必须是非空数组。");
@@ -1112,6 +1109,19 @@ void hf_route(HfConn *c)
     if (!hf_host_allowed(c->req.host[0] ? c->req.host : NULL)) {
         hf_send_error(c, 403, "host_forbidden", "此本机服务只接受本机地址的请求。");
         return;
+    }
+
+    /* 统一入口限流：覆盖所有 API 端点（含 v2、search、tts、relationship-intelligence），
+     * 不再只限 chat。health 探活与 CORS 预检不计入配额。
+     * 放在 host 校验之后、分发之前，SSE 与非流式各计一次（不再双计）。 */
+    if (strncmp(p, "/api/", 5) == 0 && strcmp(p, "/api/health") != 0 &&
+        strcmp(m, "OPTIONS") != 0) {
+        char ip[64];
+        peer_ip(c, ip, sizeof ip);
+        if (rate_limited(ip)) {
+            hf_send_error(c, 429, "rate_limited", "请求过于频繁，请稍后再试。");
+            return;
+        }
     }
 
     if (strcmp(m, "OPTIONS") == 0 && strncmp(p, "/api/", 5) == 0) {

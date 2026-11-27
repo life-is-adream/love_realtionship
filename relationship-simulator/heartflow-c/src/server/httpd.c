@@ -7,11 +7,105 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #ifdef _WIN32
 
+#include <direct.h>
+#include <io.h>
 #include <process.h>
 #include <ws2tcpip.h>
+
+/* 统一安全响应头。页面渲染模型输出与导入的聊天文本，必须限制脚本来源；
+ * 现有 index.html 全部外链脚本/样式，无 inline script，故 script-src 收紧到 self。
+ * data:/blob: 仅开放给图片与音频（截图导入、TTS 播放），不给脚本。 */
+/* ---- 访问日志 / 错误日志 ----
+ * 默认写到 <root>/logs/access.log 与 error.log；HF_LOG_DIR 可覆盖目录，
+ * HF_LOG_DISABLE=1 关闭。只记录 method/path/status/耗时/IP，绝不记录请求体或密钥。
+ * 多线程写文件用 CRITICAL_SECTION 保护，单行写入保持原子。 */
+static FILE *g_access_log = NULL;
+static FILE *g_error_log = NULL;
+static CRITICAL_SECTION g_log_cs;
+static int g_log_init = 0;
+
+static void log_init(void)
+{
+    char dir[600], path[700];
+    const char *env_dir, *env_off;
+    if (InterlockedCompareExchange((volatile LONG *)&g_log_init, 1, 0) != 0) return;
+    InitializeCriticalSection(&g_log_cs);
+    env_off = getenv("HF_LOG_DISABLE");
+    if (env_off && (!strcmp(env_off, "1") || !_stricmp(env_off, "true"))) return;
+    env_dir = getenv("HF_LOG_DIR");
+    if (env_dir && *env_dir) snprintf(dir, sizeof dir, "%s", env_dir);
+    else snprintf(dir, sizeof dir, "%s/logs", hf_cfg_root());
+    _mkdir(dir);  /* 目录不存在则创建，已存在会失败但无妨 */
+    snprintf(path, sizeof path, "%s/access.log", dir);
+    g_access_log = hf_fopen_utf8(path, "a");
+    snprintf(path, sizeof path, "%s/error.log", dir);
+    g_error_log = hf_fopen_utf8(path, "a");
+}
+
+static void log_line(FILE *f, const char *line)
+{
+    if (!f) return;
+    EnterCriticalSection(&g_log_cs);
+    fputs(line, f);
+    fflush(f);
+    LeaveCriticalSection(&g_log_cs);
+}
+
+static void log_timestamp(char *out, size_t n)
+{
+    long long ms = hf_now_ms();
+    time_t sec = (time_t)(ms / 1000);
+    struct tm t;
+    localtime_s(&t, &sec);
+    snprintf(out, n, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+             t.tm_year + 1900, t.tm_mon + 1, t.tm_mday,
+             t.tm_hour, t.tm_min, t.tm_sec, (int)(ms % 1000));
+}
+
+static void log_request(HfConn *c, long long elapsed_ms)
+{
+    char ts[40], line[1200], ip[64];
+    struct sockaddr_in a;
+    int len = sizeof a;
+    int status = c->last_status ? c->last_status : 200;
+
+    log_init();
+    if (!g_access_log && !g_error_log) return;
+
+    if (getpeername(c->fd, (struct sockaddr *)&a, &len) == 0)
+        snprintf(ip, sizeof ip, "%s", inet_ntoa(a.sin_addr));
+    else
+        snprintf(ip, sizeof ip, "-");
+    log_timestamp(ts, sizeof ts);
+    /* 末字段是请求体字节数（不含响应体；查问题看 status/耗时/路径已足够）。 */
+    snprintf(line, sizeof line,
+             "%s %s %s %s %d %lldms %lub\n",
+             ts, ip, c->req.method, c->req.path, status, elapsed_ms,
+             (unsigned long)c->req.content_length);
+    log_line(g_access_log, line);
+    if (status >= 400) log_line(g_error_log, line);
+}
+
+static void add_security_headers(HfBuf *head)
+{
+    hf_buf_printf(head,
+        "X-Content-Type-Options: nosniff\r\n"
+        "X-Frame-Options: DENY\r\n"
+        "Referrer-Policy: no-referrer\r\n"
+        "Permissions-Policy: geolocation=(), microphone=(), camera=()\r\n"
+        "Content-Security-Policy: default-src 'self'; "
+        "script-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: blob:; "
+        "media-src 'self' data: blob:; "
+        "font-src 'self' data:; "
+        "connect-src 'self'; "
+        "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'\r\n");
+}
 
 static const char *status_text(int s)
 {
@@ -254,6 +348,7 @@ void hf_send_bytes_ex(HfConn *c, int status, const char *ctype,
     HfBuf head;
     char cors[600];
 
+    c->last_status = status;
     hf_buf_init(&head);
     hf_buf_printf(&head, "HTTP/1.1 %d %s\r\n", status, status_text(status));
     hf_buf_printf(&head, "Content-Type: %s\r\n", ctype ? ctype : "application/octet-stream");
@@ -264,6 +359,7 @@ void hf_send_bytes_ex(HfConn *c, int status, const char *ctype,
         hf_cors_origin(c->req.origin, cors, sizeof cors);
         hf_buf_printf(&head, "Access-Control-Allow-Origin: %s\r\n", cors);
     }
+    add_security_headers(&head);
     hf_buf_printf(&head, "Connection: %s\r\n\r\n", c->keep_alive ? "keep-alive" : "close");
 
     send_all(c->fd, head.p, head.n);
@@ -319,6 +415,7 @@ void hf_sse_begin(HfConn *c)
     HfBuf head;
     char cors[600];
 
+    c->last_status = 200;
     hf_buf_init(&head);
     hf_buf_printf(&head, "HTTP/1.1 200 OK\r\n");
     hf_buf_printf(&head, "Content-Type: text/event-stream; charset=utf-8\r\n");
@@ -330,6 +427,7 @@ void hf_sse_begin(HfConn *c)
         hf_cors_origin(c->req.origin, cors, sizeof cors);
         hf_buf_printf(&head, "Access-Control-Allow-Origin: %s\r\n", cors);
     }
+    add_security_headers(&head);
     hf_buf_puts(&head, "\r\n");
     send_all(c->fd, head.p, head.n);
     hf_buf_free(&head);
@@ -369,7 +467,10 @@ static unsigned __stdcall conn_thread(void *arg)
     setsockopt(c->fd, SOL_SOCKET, SO_SNDTIMEO, (const char *)&tv, sizeof tv);
 
     for (guard = 0; guard < 200; guard++) {
+        long long t0;
         if (parse_request(c->fd, c) != 0) break;
+        t0 = hf_now_ms();
+        c->last_status = 0;
 
         if (c->req.too_large) {
             c->keep_alive = 0;
@@ -378,6 +479,7 @@ static unsigned __stdcall conn_thread(void *arg)
             hf_route(c);
         }
 
+        log_request(c, hf_now_ms() - t0);
         free(c->req.body);
         c->req.body = NULL;
         if (!c->keep_alive) break;

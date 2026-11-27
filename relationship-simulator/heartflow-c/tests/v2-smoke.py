@@ -75,6 +75,9 @@ class V2Smoke(unittest.TestCase):
             "LLM_MODEL": "synthetic-test-model",
             "VISION_MODEL": "synthetic-vision-model",
             "LLM_API_MODE": "chat_completions",
+            # C/Node 成对批量请求会远超 24/分钟，测试实例豁免限流；
+            # 限流本身由 security-smoke 单独验证。
+            "HF_RATE_LIMIT_DISABLE": "1",
         })
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         try:

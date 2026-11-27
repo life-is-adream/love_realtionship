@@ -29,6 +29,7 @@ typedef struct {
     HfSocket  fd;
     int       keep_alive;
     HfRequest req;
+    int       last_status;   /* 最近一次响应的 HTTP 状态，供访问日志使用 */
 } HfConn;
 
 int  hf_server_main(int argc, char **argv);

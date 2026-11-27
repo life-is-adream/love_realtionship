@@ -8,7 +8,10 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
 const port = Number(process.env.HF_PARITY_PORT || 3299);
 const exe = path.join(root, "heartflow-c", "hf.exe");
 const { analyzeV2 } = await import(new URL("../../server/v2.js", import.meta.url));
-const child = spawn(exe, ["serve", "--port", String(port), "--root", root], { cwd: root, stdio: "ignore" });
+// 一致性脚本单实例批量请求，豁免限流；限流本身由 security-smoke 验证。
+// 临时实例禁日志：进程 kill 后 Windows 可能短暂锁住 logs/*.log，导致清理临时目录 EBUSY。
+const child = spawn(exe, ["serve", "--port", String(port), "--root", root],
+  { cwd: root, stdio: "ignore", env: { ...process.env, HF_RATE_LIMIT_DISABLE: "1", HF_LOG_DISABLE: "1" } });
 const stop = () => { try { child.kill(); } catch {} };
 process.on("exit", stop);
 let ready = false;
