@@ -472,14 +472,21 @@ async function askAi({ silent = false } = {}) {
         herResult = await callLLMStream({
           ...api, ...HER_LANE, messages: herMessages,
           onReasoning: (text) => {
-            if (!ticket.isCurrent() || !streamBubble?.head) return;
+            if (!ticket.isCurrent()) return;
             if (!sawReasoning) { sawReasoning = true; $("apiStatus").textContent = "她正在思考…"; }
-            streamBubble.head.textContent = `思考中…（${text.length} 字）`;
+            // 流式期间其他渲染（如记忆面板刷新）可能重建 #chat，缓存的节点引用会失联。
+            // 每次实时按选择器取，保证更新的是页面上的当前气泡。
+            const head = document.querySelector?.("#chat .stream-bubble .msg-source");
+            if (head) head.textContent = `思考中…（${text.length} 字）`;
           },
           onDelta: (text) => {
-            if (!ticket.isCurrent() || !streamBubble?.body) return;
-            streamBubble.head.textContent = "正在输入…";
-            streamBubble.body.textContent = text;
+            if (!ticket.isCurrent()) return;
+            const bubble = document.querySelector?.("#chat .stream-bubble");
+            if (!bubble) return;
+            const head = bubble.querySelector(".msg-source");
+            const body = bubble.querySelector(".msg-body");
+            if (head) head.textContent = "正在输入…";
+            if (body) body.textContent = text;
             const chat = $("chat");
             if (chat) chat.scrollTop = chat.scrollHeight;
           }
