@@ -10,6 +10,7 @@ import { normalizePracticeState, toPersistedPracticeState } from "../training/re
 import { toPersistedAbilityAssessment } from "../training/ability-assessment.js";
 import { deriveRelationshipTier, normalizeRelationshipTier } from "./investment.js";
 import { assignMessageIds } from "./message-ids.js";
+import { normalizeRelationshipCases, toPersistedRelationshipCases } from "./relationship-cases.js";
 
 /**
  * @typedef {Object} AppState
@@ -90,6 +91,7 @@ export function getAllPersonas(custom = getState().customPersonas) {
  */
 export function normalizeState(next) {
   const normalized = { ...clone(defaultState), ...(next || {}) };
+  normalized.chatStyle = ["daily", "humorous", "gentle"].includes(normalized.chatStyle) ? normalized.chatStyle : "daily";
   if (!normalized.customPersonas || typeof normalized.customPersonas !== "object") normalized.customPersonas = {};
   if (!normalized.personaMemory || typeof normalized.personaMemory !== "object") normalized.personaMemory = {};
   if (!normalized.avatarOverrides || typeof normalized.avatarOverrides !== "object") normalized.avatarOverrides = {};
@@ -101,6 +103,7 @@ export function normalizeState(next) {
   if (!Array.isArray(normalized.trainingLog)) normalized.trainingLog = [];
   normalized.mistakes = normalizeMistakes(normalized.mistakes); // F2 错题本：载入时标准化 + 上限裁剪
   normalized.relationshipIntelligence = normalizeRelationshipIntelligenceState(normalized.relationshipIntelligence);
+  normalized.relationshipCases = normalizeRelationshipCases(normalized.relationshipCases);
   normalized.relationshipPractice = normalizePracticeState(normalized.relationshipPractice);
   normalized.learning = normalizeLearningState(normalized);
   normalized.lifestyle = normalizeLifestyle(normalized.lifestyle); // F5/F6 生活管理：健身+护肤记录规范化（grooming 占位容忍）
@@ -187,6 +190,7 @@ export function serializeStateForStorage(state) {
   persisted.learning = normalizeLearningState(persisted.learning);
   persisted.learning.abilityAssessment = toPersistedAbilityAssessment(persisted.learning.abilityAssessment);
   persisted.relationshipPractice = toPersistedPracticeState(persisted.relationshipPractice);
+  persisted.relationshipCases = toPersistedRelationshipCases(persisted.relationshipCases);
   persisted.relationshipIntelligence = toPersistedRelationshipIntelligenceState(
     persisted.relationshipIntelligence
   );

@@ -69,6 +69,7 @@ export function savePersonaMemory(showStatus = true) {
   const persona = getCurrentPersona();
   mutate((state) => {
     state.personaMemory[persona.id] = {
+      ...(state.personaMemory[persona.id] || {}),
       background: $("memoryBackground").value.trim(),
       interests: $("memoryInterests").value.trim(),
       boundaries: $("memoryBoundaries").value.trim()

@@ -25,6 +25,8 @@ export async function serveStatic(urlPath, res) {
   if (safePath.includes("\0")) return sendText(res, 400, "Bad Request");
   if (safePath === "/") safePath = "/index.html";
   safePath = safePath.replace(/^\/+/, "");
+  // 拒绝点文件/点目录，避免 .env、.git 等被 SPA 回退成 200 页面或被误读为静态资源。
+  if (safePath.split(/[\\/]/).some((segment) => segment.startsWith(".") && segment !== "." && segment !== "..")) return sendText(res, 404, "Not Found");
 
   const filePath = path.normalize(path.join(publicDir, safePath));
   // 用 path.sep 收尾比对，防止 publicDir 为前缀的兄弟目录（如 publicX）绕过遍历检查。

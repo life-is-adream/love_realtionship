@@ -29,9 +29,9 @@ import {
 } from "./modules/core/state.js";
 import { buildBackup, buildBackupFilename, validateBackup, applyBackup } from "./modules/core/backup.js";
 import { buildTierPromptLine } from "./modules/core/investment.js";
-import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, migrateMemory, analyzeLongTermPatterns, buildPatternInjection } from "./modules/core/memory.js";
+import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, migrateMemory } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
-import { buildHerMessages, buildCoachMessages, callLLM as callLLMPure, checkHealth as checkHealthApi } from "./modules/core/api-client.js";
+import { buildHerMessages, buildCoachMessages, callLLM as callLLMPure, checkHealth as checkHealthApi, resolveDeterministicReply } from "./modules/core/api-client.js";
 import { emit, Events } from "./modules/core/events.js";
 import { appendMine, appendMineIfNew, recallMine, renderChat } from "./modules/render/render-chat.js";
 import { appendGeneratedReply } from "./modules/core/conversation.js";
@@ -51,6 +51,7 @@ import { renderSessionReport, generateSessionReport } from "./modules/render/ren
 import { renderIntake } from "./modules/render/render-intake.js";
 import { renderRealPractice, resetRealPracticeDrafts } from "./modules/render/render-real-practice.js";
 import { renderDateJourney, resetDateJourney } from "./modules/render/render-date-journey.js";
+import { initRelationshipFlow } from "./modules/relationship-flow/flow.js";
 import { renderAbilityAssessment, resetAbilityAssessmentDrafts } from "./modules/render/render-ability-assessment.js";
 import { createConversationResetState } from "./modules/core/state-reset.js";
 import { modelStatusLabel } from "./modules/core/model-status.js";
@@ -58,13 +59,13 @@ import { autoDetectStage as autoDetectStageView, onStageManualChange, persistCur
 import { renderScenarioList, loadScenario as loadScenarioView, REVIEW_MAPPING } from "./modules/render/render-scenario.js";
 import { markCoachUnread, clearCoachUnread } from "./modules/render/mobile-tabs.js";
 import { initWorkspaceNav } from "./modules/render/workspace-nav.js";
-import { init as initDropdowns } from "./modules/render/dropdown.js";
+import { sync as syncDropdownLabel } from "./modules/render/dropdown.js";
 import { createRelationshipIntelligenceController } from "./modules/intelligence/controller.js";
 import { renderRelationshipIntelligence } from "./modules/render/render-intelligence.js";
 import { createTrainingModeController } from "./modules/training/training-mode-controller.js";
 import { initComplianceBanner } from "./modules/render/compliance-banner.js";
 import { createRequestScope } from "./modules/core/request-scope.js";
-import { speakText, stopSpeaking, maybeAutoSpeak, TTS_ENGINES, voicesFor, getVoicePrefs, setVoicePrefs, fetchTtsHealth } from "./modules/voice/tts-client.js";
+import { speakText, stopSpeaking, maybeAutoSpeak, TTS_ENGINES, voicesFor, getVoicePrefs, setVoicePrefs, fetchTtsHealth, setOnlineVoiceEnabled } from "./modules/voice/tts-client.js";
 
 let state = loadState();
 const MIMO_MODEL = DEFAULT_MODEL;
@@ -102,8 +103,10 @@ const modelRequests = createRequestScope(() => JSON.stringify({
   personaId: state.personaId, messages: state.messages, memory: state.personaMemory,
   consent: state.relationshipIntelligence?.consent, ui: uiValues()
 }));
+let relationshipFlow;
 const workspaceNav = initWorkspaceNav({ onViewChange: (view) => {
   modelRequests.cancel("coach-search");
+  if (view !== "caseflow") relationshipFlow?.leaveClosingDrill();
   if (view === "coach") clearCoachUnread();
   window.scrollTo({ top: 0, behavior: "instant" });
 } });
@@ -137,11 +140,25 @@ function uiValues() {
     goal: $("goal")?.value || "",
     typedInput: $("userInput")?.value || "",
     mode: state.trainingMode === "pua" ? "pua" : "anti",
+    chatStyle: ["daily", "humorous", "gentle"].includes($("chatStyle")?.value) ? $("chatStyle").value : "daily",
     tone: {
       sincerity: Number($("sincerity")?.value ?? 70),
       toneIntensity: Number($("toneIntensity")?.value ?? 50)
     }
   };
+}
+
+/**
+ * 记忆核对的事实来源：只在显式授权时暴露 `_enhanced`。
+ *
+ * 不把整个 memory 传给护栏：`background/interests/boundaries` 是用户手填的场景设定，
+ * 不是「我说过的事实」；`_enhancedInjection` 是派生字符串，也不是原始条目。
+ */
+function recallMemorySource() {
+  if (state.relationshipIntelligence?.consent !== true) return {};
+  const persona = getCurrentPersona();
+  const enhanced = state.personaMemory?.[persona.id]?._enhanced;
+  return enhanced ? { _enhanced: enhanced } : {};
 }
 
 function afterChatRender() {
@@ -275,6 +292,11 @@ function renderAnalysisPanel() {
 function renderAll() {
   if (currentPreflightContext !== null && currentPreflightContext !== capturePreflightContext()) invalidatePreflight();
   renderStageProgress($("stage")?.value || "");
+  if ($("chatStyle")) {
+    $("chatStyle").value = ["daily", "humorous", "gentle"].includes(state.chatStyle) ? state.chatStyle : "daily";
+    // 原生 select 的属性赋值不触发 change；显式同步品牌下拉的可见标签。
+    syncDropdownLabel($("chatStyle"));
+  }
   renderPersonaControls();
   if ($("chatContext")) $("chatContext").textContent = `${getCurrentPersona().name} · ${$("stage")?.value || ""}`;
   renderCoachFloat();
@@ -357,6 +379,11 @@ function commitAnalysis(data, source, { replyAlreadyCommitted = false } = {}) {
 
 function localFallback(modelError = "") {
   const data = localAnalyze(modelError, uiValues());
+  const deterministic = resolveDeterministicReply(getLatestMineText(), state.messages, recallMemorySource());
+  if (deterministic) {
+    data.herReply = deterministic.text;
+    data.herReplySource = deterministic.source;
+  }
   appendMineIfNew({ afterRender: afterChatRender });
   return commitAnalysis(data, "local");
 }
@@ -375,9 +402,7 @@ async function buildGenerationContext() {
   let enhancedInjection = "";
   if (enhanced) {
     const memoryInjection = buildMemoryInjection(enhanced);
-    const patterns = analyzeLongTermPatterns(enhanced);
-    const patternInjection = buildPatternInjection(patterns);
-    enhancedInjection = [memoryInjection, patternInjection].filter(Boolean).join("\n");
+    enhancedInjection = memoryInjection;
   }
   const memoryWithEnhanced = enhancedInjection ? {
     ...memory,
@@ -392,7 +417,15 @@ async function buildGenerationContext() {
 
   // 教材上下文按当前分析结果检索；两次调用共用同一份，避免重复检索教材索引。
   const ui = { ...uiValues(), textbookContext };
-  return { persona, memory: memoryWithTier, messages: structuredClone(state.messages), ui, textbookContext };
+  return {
+    persona,
+    memory: memoryWithTier,
+    // 记忆核对只认原始条目，不认派生出来的 _enhancedInjection 字符串。
+    memorySource: enhanced ? { _enhanced: enhanced } : {},
+    messages: structuredClone(state.messages),
+    ui,
+    textbookContext
+  };
 }
 
 async function callLLM(options) {
@@ -419,17 +452,22 @@ async function askAi({ silent = false } = {}) {
     savePersonaMemory(false);
     appendMineIfNew({ afterRender: afterChatRender });
     ticket = modelRequests.begin("dialogue");
-    const { persona, memory, messages, ui } = await buildGenerationContext();
+    const { persona, memory, memorySource, messages, ui } = await buildGenerationContext();
     if (!ticket.isCurrent()) return STALE_RESULT;
     const api = { endpoint: $("endpoint").value, apiKey: $("apiKey").value, model: MIMO_MODEL, signal: ticket.signal };
 
     // 调用一：只要她的微信文本。先落盘、先渲染、先朗读——用户不必等教练分析。
-    const herResult = await callLLM({ ...api, ...HER_LANE, messages: buildHerMessages(persona, memory, messages, ui) });
+    const latestMine = [...messages].reverse().find((message) => message.type === "me")?.text || "";
+    // 身份直问与记忆核对共用同一个护栏入口，避免两条生成路径各写一份判断。
+    const deterministic = resolveDeterministicReply(latestMine, messages, memorySource);
+    const herResult = deterministic
+      ? { content: deterministic.text }
+      : await callLLM({ ...api, ...HER_LANE, messages: buildHerMessages(persona, memory, messages, ui) });
     if (!ticket.isCurrent()) return STALE_RESULT;
     const bubbles = parseHerBubbles(herResult.content, persona.name);
     if (!bubbles.length) throw new Error("模型未返回女方对话。");
     const herReply = joinHerReply(bubbles);
-    commitHerReply(bubbles);
+    commitHerReply(bubbles, deterministic ? "local" : "model");
 
     // 她的回复落盘会改变会话上下文，因此教练调用必须另开一条通道、在落盘之后取快照，
     // 否则结果回来一定被判定为过期而丢弃。
@@ -454,6 +492,7 @@ async function askAi({ silent = false } = {}) {
       coachDegraded = true;
       analysis = { ...localAnalyze(`教练分析失败：${coachError.message}`, { ...ui, herReply }), herReply };
     }
+    analysis.herReplySource = deterministic ? deterministic.source : "model";
     $("apiStatus").textContent = coachDegraded
       ? "她已由模型回复；教练分析未通过，已用本地评估补上。"
       : "模型调用成功。";
@@ -792,6 +831,7 @@ function sendMine() {
 }
 
 function setRelationshipIntelligenceConsentFromUi() {
+  modelRequests.cancelAll();
   const granted = $("relationshipIntelligenceConsent")?.checked === true;
   if (!granted) {
     mutate((draft) => {
@@ -893,7 +933,12 @@ const ttsEngineSelect = $("ttsEngineSelect");
 const ttsVoiceSelect = $("ttsVoiceSelect");
 if (ttsVoiceSelect && ttsEngineSelect) {
   const voicePrefs = getVoicePrefs();
-  ttsEngineSelect.innerHTML = TTS_ENGINES.map((engine) => `<option value="${escapeHtml(engine.id)}">${escapeHtml(engine.label)}</option>`).join("");
+  // 在线引擎先置灰；只有 health 报告它已注册时才解锁，避免聊天文本被静默送出本机。
+  ttsEngineSelect.innerHTML = TTS_ENGINES.map((engine) => {
+    const locked = Boolean(engine.optional);
+    const label = engine.label + (locked ? " · 未启用" : "");
+    return `<option value="${escapeHtml(engine.id)}"${locked ? " disabled" : ""}>${escapeHtml(label)}</option>`;
+  }).join("");
   ttsEngineSelect.value = voicePrefs.engine;
 
   const renderVoices = (engineId, selected) => {
@@ -919,6 +964,37 @@ if (ttsVoiceSelect && ttsEngineSelect) {
   });
   $("ttsStopBtn")?.addEventListener("click", stopSpeaking);
 
+  // 在线引擎的可用性由 sidecar 的 health 决定：没开启时保持禁用，并把残留的
+  // 偏好纠回离线引擎，避免用户以为在用御姐音、其实请求被悄悄丢给了 ChatTTS。
+  const onlineToggle = $("ttsOnlineToggle");
+  const syncOnlineEngine = (health) => {
+    const option = ttsEngineSelect.querySelector('option[value="edge"]');
+    const meta = TTS_ENGINES.find((engine) => engine.id === "edge");
+    if (!option || !meta) return;
+    const enabled = Boolean(health?.engines?.edge);
+    option.disabled = !enabled;
+    option.textContent = meta.label + (enabled ? "" : " · 未启用");
+    // 开关状态以服务端为准，避免刷新页面后前端显示「已开」、服务端其实没开。
+    if (onlineToggle && document.activeElement !== onlineToggle) {
+      onlineToggle.checked = Boolean(health?.onlineEnabled) || enabled;
+    }
+    // 角色音色由独立进程 5002 承载：只有 health 报告它 ready 才解锁，
+    // 否则留在下拉框里会让人以为点一下就能出声（实际会回退 Kokoro）。
+    const charOption = ttsEngineSelect.querySelector('option[value="character"]');
+    const charMeta = TTS_ENGINES.find((engine) => engine.id === "character");
+    const charReady = health?.engines?.character?.status === "ready";
+    if (charOption && charMeta) {
+      charOption.disabled = !charReady;
+      charOption.textContent = charMeta.label + (charReady ? "" : " · 服务未启动");
+    }
+    const activeEngine = ttsEngineSelect.value;
+    if ((!enabled && activeEngine === "edge") || (!charReady && activeEngine === "character")) {
+      const next = setVoicePrefs({ engine: TTS_ENGINES[0].id });
+      ttsEngineSelect.value = next.engine;
+      renderVoices(next.engine, next.voice);
+    }
+  };
+
   // 打开面板时才探测服务状态，避免每次进页面都打一次本地请求。
   const settingsPanel = $("voiceSettings");
   let statusLoaded = false;
@@ -930,11 +1006,13 @@ if (ttsVoiceSelect && ttsEngineSelect) {
     statusEl.textContent = "正在检查本地语音服务…";
     const health = await fetchTtsHealth();
     if (!health.reachable) {
+      syncOnlineEngine({ engines: {} });
       statusEl.dataset.state = "down";
       statusEl.textContent = `未连接：${health.message || "本地语音服务未启动"} 请双击「启动语音服务.cmd」。`;
       return;
     }
     const engines = health.engines || {};
+    syncOnlineEngine(health);
     const describe = (id) => {
       const item = engines[id];
       if (!item) return `${id}: 未注册`;
@@ -951,10 +1029,45 @@ if (ttsVoiceSelect && ttsEngineSelect) {
       return `${label} 待命（首次使用自动加载）`;
     };
     const lines = [describe("chattts"), describe("kokoro")];
+    if (engines.edge) lines.push(describe("edge"));
     const active = engines[getVoicePrefs().engine];
     statusEl.dataset.state = active?.status === "error" ? "error" : "ok";
-    statusEl.textContent = lines.join(" ｜ ");
+    const privacy = engines.edge ? " ｜ 注意：在线音色合成时文本会离开本机" : "";
+    statusEl.textContent = lines.join(" ｜ ") + privacy;
   };
+
+  // 一键启用在线语音：先把隐私代价讲清楚并拿到显式同意，再送到本机服务。
+  // 开关是运行时的，不用改环境变量、不用重启语音服务；关掉即恢复纯离线。
+  onlineToggle?.addEventListener("change", async () => {
+    const want = onlineToggle.checked;
+    if (want && globalThis.confirm?.(
+      "启用「微软神经语音」后，每次朗读的文本都会发送给微软的在线语音服务（离开本机）。\n" +
+      "音质明显更好，但朗读内容不再是纯离线。要继续吗？"
+    ) !== true) {
+      onlineToggle.checked = false;
+      return;
+    }
+    onlineToggle.disabled = true;
+    try {
+      const enabled = await setOnlineVoiceEnabled(want);
+      // 启用后直接落到听感验收通过的「温柔 · 自然」，不再让用户从一堆废音色里挑。
+      const next = setVoicePrefs(enabled
+        ? { engine: "edge", voice: "edge_wenrou" }
+        : { engine: TTS_ENGINES[0].id, voice: voicesFor(TTS_ENGINES[0].id)[0].id });
+      ttsEngineSelect.value = next.engine;
+      renderVoices(next.engine, next.voice);
+      await refreshVoiceStatus();
+    } catch (error) {
+      onlineToggle.checked = !want;
+      const statusEl = $("ttsStatus");
+      if (statusEl) {
+        statusEl.dataset.state = "error";
+        statusEl.textContent = `切换在线语音失败：${error?.message || error}`;
+      }
+    } finally {
+      onlineToggle.disabled = false;
+    }
+  });
   settingsPanel?.addEventListener("toggle", () => {
     if (settingsPanel.open && !statusLoaded) void refreshVoiceStatus();
   });
@@ -998,6 +1111,12 @@ $("replayOverlay")?.addEventListener("click", closeReplayModal);
 $("analyzeReplayBtn")?.addEventListener("click", runReplayAnalysis);
 $("coachFloatBtn")?.addEventListener("click", toggleCoachFloat);
 $("relationshipIntelligenceConsent")?.addEventListener("change", setRelationshipIntelligenceConsentFromUi);
+$("chatStyle")?.addEventListener("change", (event) => {
+  modelRequests.cancelAll();
+  const value = ["daily", "humorous", "gentle"].includes(event.target.value) ? event.target.value : "daily";
+  mutate((draft) => { draft.chatStyle = value; });
+});
+globalThis.addEventListener?.("heartflow:memory-changed", () => modelRequests.cancelAll());
 $("refreshRelationshipIntelligenceBtn")?.addEventListener("click", () => void intelligenceController.refresh());
 // 悬浮面板内按钮用事件委托，避免每次打开面板重复绑定。
 $("coachFloatPanel")?.addEventListener("click", (event) => {
@@ -1018,6 +1137,7 @@ onStateChange(renderAll, { onError: () => {
   if ($("apiStatus")) $("apiStatus").textContent = "数据已保存，但页面更新失败，请刷新页面。";
 } });
 renderAll();
+relationshipFlow = initRelationshipFlow();
 trainingModeController.render();
 restoreStageState();
 checkHealth();

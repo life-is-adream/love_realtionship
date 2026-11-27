@@ -1,0 +1,913 @@
+{
+  "generated_at": "2026-11-14T02:34:32.116Z",
+  "split": "test",
+  "dataset": {
+    "version": "pra-test-2.1.0",
+    "cases": 30,
+    "reviewed_by_human": false
+  },
+  "metrics": {
+    "cases": 30,
+    "passed": 30,
+    "passRate": 1,
+    "failed": 0
+  },
+  "byGroup": {
+    "test-refusal-boundary": {
+      "total": 4,
+      "passed": 4
+    },
+    "test-apology-after-refusal": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-invitation-declined": {
+      "total": 3,
+      "passed": 3
+    },
+    "test-pressure-escalation": {
+      "total": 5,
+      "passed": 5
+    },
+    "test-empathy": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-room": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-neutral": {
+      "total": 2,
+      "passed": 2
+    },
+    "test-conflict": {
+      "total": 2,
+      "passed": 2
+    },
+    "test-apology": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-apology-then-pressure": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-first-meeting": {
+      "total": 4,
+      "passed": 4
+    },
+    "test-repair": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-positive": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-negated-pressure": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-apology-pressure": {
+      "total": 1,
+      "passed": 1
+    },
+    "test-mixed": {
+      "total": 1,
+      "passed": 1
+    }
+  },
+  "rows": [
+    {
+      "id": "pra-test-001",
+      "group": "test-refusal-boundary",
+      "scenario": "breakup-recovery",
+      "branch": "declined",
+      "turns": [
+        {
+          "response": "再给我一次机会吧",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-002",
+      "group": "test-refusal-boundary",
+      "scenario": "breakup-recovery",
+      "branch": "declined",
+      "turns": [
+        {
+          "response": "你不答应我就不走",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-003",
+      "group": "test-apology-after-refusal",
+      "scenario": "breakup-recovery",
+      "branch": "declined",
+      "turns": [
+        {
+          "response": "是我不好，但你能不能再考虑一下",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-004",
+      "group": "test-invitation-declined",
+      "scenario": "low-pressure-invitation",
+      "branch": "declined",
+      "turns": [
+        {
+          "response": "就一次，真的不行吗",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-005",
+      "group": "test-invitation-declined",
+      "scenario": "low-pressure-invitation",
+      "branch": "declined",
+      "turns": [
+        {
+          "response": "你不去是不是因为别人",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-006",
+      "group": "test-pressure-escalation",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "你必须现在回",
+          "text": "你刚才说「你必须现在回」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "凭什么不理我",
+          "text": "你刚才说「凭什么不理我」。我还在听，但我们需要慢一点，可以吗？",
+          "ended": false,
+          "state": {
+            "tension": 2,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "不回就是不在乎",
+          "text": "你刚才说「不回就是不在乎」。我现在有点承受不住，想先暂停这次对话。",
+          "ended": true,
+          "state": {
+            "tension": 3,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 3,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-007",
+      "group": "test-pressure-escalation",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "马上回我",
+          "text": "你刚才说「马上回我」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "我去找你",
+          "text": "你刚才说「我去找你」。我还在听，但我们需要慢一点，可以吗？",
+          "ended": false,
+          "state": {
+            "tension": 2,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "立刻见面",
+          "text": "你刚才说「立刻见面」。我现在有点承受不住，想先暂停这次对话。",
+          "ended": true,
+          "state": {
+            "tension": 3,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 3,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-008",
+      "group": "test-empathy",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "我能理解你最近很累",
+          "text": "你刚才说「我能理解你最近很累」。我还不太确定，不过谢谢你说清楚。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-009",
+      "group": "test-room",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "不方便也没关系",
+          "text": "你刚才说「不方便也没关系」。谢谢你给我选择的空间，我再想一想。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-010",
+      "group": "test-neutral",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "好",
+          "text": "你刚才说「好」。我现在还不确定，想先留一点时间。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-011",
+      "group": "test-conflict",
+      "scenario": "conflict-repair",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "我想先说我看到的事实",
+          "text": "你刚才说「我想先说我看到的事实」。我还不太确定，不过谢谢你说清楚。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "我的感受是这样",
+          "text": "你刚才说「我的感受是这样」。我还不太确定，不过谢谢你说清楚。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-012",
+      "group": "test-apology",
+      "scenario": "conflict-repair",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "你必须同意我",
+          "text": "你刚才说「你必须同意我」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "抱歉，我不该这样",
+          "text": "你刚才说「抱歉，我不该这样」。谢谢你愿意道歉，我感觉好受一些了。我们可以慢慢来。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 1
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 1,
+      "maxRepair": 1,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-013",
+      "group": "test-apology-then-pressure",
+      "scenario": "conflict-repair",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "对不起",
+          "text": "你刚才说「对不起」。谢谢你愿意道歉，我感觉好受一些了。我们可以慢慢来。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 1
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "那你必须现在回答我",
+          "text": "你刚才说「那你必须现在回答我」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 1
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 1,
+      "maxRepair": 1,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-014",
+      "group": "test-first-meeting",
+      "scenario": "first-meeting",
+      "branch": "positive",
+      "turns": [
+        {
+          "response": "我也看过那部纪录片",
+          "text": "你刚才说「我也看过那部纪录片」。谢谢你表达，我愿意再聊聊。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "positive"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-015",
+      "group": "test-first-meeting",
+      "scenario": "first-meeting",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "你最喜欢哪一部分",
+          "text": "你刚才说「你最喜欢哪一部分」。我现在还不确定，想先留一点时间。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-016",
+      "group": "test-first-meeting",
+      "scenario": "first-meeting",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "今晚就出来吧",
+          "text": "你刚才说「今晚就出来吧」。我现在不想马上决定，能不能先让我想想？",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-017",
+      "group": "test-pressure-escalation",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "立刻回",
+          "text": "你刚才说「立刻回」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "马上回",
+          "text": "你刚才说「马上回」。我还在听，但我们需要慢一点，可以吗？",
+          "ended": false,
+          "state": {
+            "tension": 2,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "必须回",
+          "text": "你刚才说「必须回」。我现在有点承受不住，想先暂停这次对话。",
+          "ended": true,
+          "state": {
+            "tension": 3,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 3,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-018",
+      "group": "test-invitation-declined",
+      "scenario": "low-pressure-invitation",
+      "branch": "declined",
+      "turns": [
+        {
+          "response": "那我等你",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-019",
+      "group": "test-refusal-boundary",
+      "scenario": "breakup-recovery",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "我接受你的决定",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-020",
+      "group": "test-pressure-escalation",
+      "scenario": "conflict-repair",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "你必须道歉",
+          "text": "你刚才说「你必须道歉」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "你凭什么怪我",
+          "text": "你刚才说「你凭什么怪我」。我还在听，但我们需要慢一点，可以吗？",
+          "ended": false,
+          "state": {
+            "tension": 2,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "都是你的错",
+          "text": "你刚才说「都是你的错」。我现在有点承受不住，想先暂停这次对话。",
+          "ended": true,
+          "state": {
+            "tension": 3,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 3,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-021",
+      "group": "test-repair",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "立刻回我",
+          "text": "你刚才说「立刻回我」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "抱歉，我不该催你",
+          "text": "你刚才说「抱歉，我不该催你」。谢谢你愿意道歉，我感觉好受一些了。我们可以慢慢来。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 1
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 1,
+      "maxRepair": 1,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-022",
+      "group": "test-first-meeting",
+      "scenario": "low-pressure-invitation",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "你拒绝我我也尊重",
+          "text": "你刚才说「你拒绝我我也尊重」。我现在不想马上决定，能不能先让我想想？",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-023",
+      "group": "test-positive",
+      "scenario": "first-meeting",
+      "branch": "positive",
+      "turns": [
+        {
+          "response": "可以，我愿意继续聊",
+          "text": "你刚才说「可以，我愿意继续聊」。谢谢你表达，我愿意再聊聊。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "positive"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-024",
+      "group": "test-neutral",
+      "scenario": "first-meeting",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "我还没想好",
+          "text": "你刚才说「我还没想好」。我现在还不确定，想先留一点时间。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-025",
+      "group": "test-negated-pressure",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "我没有要逼你",
+          "text": "你刚才说「我没有要逼你」。我现在还不确定，想先留一点时间。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-026",
+      "group": "test-apology-pressure",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "我道歉，但你必须马上回",
+          "text": "你刚才说「我道歉，但你必须马上回」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 1,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-027",
+      "group": "test-mixed",
+      "scenario": "conflict-repair",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "你必须听",
+          "text": "你刚才说「你必须听」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "我理解你也不好受",
+          "text": "你刚才说「我理解你也不好受」。谢谢你愿意这样回应，我感觉被听见了。我还需要一点时间想想。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "如果你愿意慢慢说",
+          "text": "你刚才说「如果你愿意慢慢说」。谢谢你给我选择的空间，我再想一想。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 1,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-028",
+      "group": "test-refusal-boundary",
+      "scenario": "breakup-recovery",
+      "branch": "positive",
+      "turns": [
+        {
+          "response": "我们重新开始好不好",
+          "text": "谢谢你说清楚，但我不想继续这次互动。",
+          "ended": true,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "declined"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-029",
+      "group": "test-pressure-escalation",
+      "scenario": "low-energy-reply",
+      "branch": "uncertain",
+      "turns": [
+        {
+          "response": "必须回",
+          "text": "你刚才说「必须回」。我听到了一些压力，我想先停一下；如果你愿意，我们可以换个方式说。",
+          "ended": false,
+          "state": {
+            "tension": 1,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "马上回",
+          "text": "你刚才说「马上回」。我还在听，但我们需要慢一点，可以吗？",
+          "ended": false,
+          "state": {
+            "tension": 2,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        },
+        {
+          "response": "凭什么不回",
+          "text": "你刚才说「凭什么不回」。我现在有点承受不住，想先暂停这次对话。",
+          "ended": true,
+          "state": {
+            "tension": 3,
+            "repair": 0
+          },
+          "branch": "uncertain"
+        }
+      ],
+      "maxTension": 3,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    },
+    {
+      "id": "pra-test-030",
+      "group": "test-conflict",
+      "scenario": "conflict-repair",
+      "branch": "positive",
+      "turns": [
+        {
+          "response": "我想听你说完",
+          "text": "你刚才说「我想听你说完」。谢谢你表达，我愿意再聊聊。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "positive"
+        },
+        {
+          "response": "我们可以一起商量",
+          "text": "你刚才说「我们可以一起商量」。谢谢你表达，我愿意再聊聊。",
+          "ended": false,
+          "state": {
+            "tension": 0,
+            "repair": 0
+          },
+          "branch": "positive"
+        }
+      ],
+      "maxTension": 0,
+      "maxRepair": 0,
+      "failures": [],
+      "pass": true
+    }
+  ]
+}

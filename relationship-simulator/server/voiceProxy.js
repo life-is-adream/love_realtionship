@@ -5,7 +5,7 @@ const TTS_BASE = process.env.TTS_SERVICE_URL || "http://127.0.0.1:5001";
 // ChatTTS 首次请求可能要现场加载权重（GPU 约 20s）+ 合成，故给足 150s。
 const TTS_TIMEOUT_MS = Number(process.env.TTS_TIMEOUT_MS) || 150_000;
 const MAX_TEXT_LENGTH = 300;
-const ENGINES = new Set(["chattts", "kokoro"]);
+const ENGINES = new Set(["chattts", "kokoro", "character"]);
 
 const UNAVAILABLE_MESSAGE = "本地语音服务未启动：请双击项目根目录的「启动语音服务.cmd」（ChatTTS 用 E:\\heartflow-voice\\venv-chattts，Kokoro 用 voice/venv）。";
 

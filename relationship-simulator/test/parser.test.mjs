@@ -268,3 +268,40 @@ test("buildRecommendation 默认风格返回 A 推荐", () => {
   const rec = buildRecommendation("mix");
   assert.ok(rec.includes("A"));
 });
+// ── 2026-11-03 盲评 P2-1 / P2-2：形状不该决定用户看到什么 ──────────────────────
+
+test("normalizeReplyOptions 丢弃嵌进 replyOptions 的元信息（盲评 P2-1）", () => {
+  // 真实抽样 g12 就是这个形状：recommendation/coachScore 混在选项里，被当成第 4 条"选项"，
+  // 于是三条合格输出被结构校验判死，整轮白退回本地兜底。
+  const result = normalizeReplyOptions({
+    A: "好，那我这边忙完就过来。",
+    B: "行，那我们顺便把路灯检查了。",
+    C: "那你想从学校哪一头开始走？",
+    recommendation: "B",
+    coachScore: 8,
+    evidenceReasoning: { observations: ["她接受了散步提议"] }
+  });
+  assert.equal(result.length, 3, JSON.stringify(result));
+  assert.deepEqual(result.map((item) => item.key), ["A", "B", "C"]);
+});
+
+test("normalizeReplyOptions 复原「标签与正文交替」的扁平数组（盲评 P2-2）", () => {
+  // 真实抽样 g03：模型确实给了三条可用建议，只是写成了 ["A", 正文, "B", 正文, "C", 正文]。
+  const result = normalizeReplyOptions([
+    "A",
+    "那就好，不急着定时间，等你忙完这阵状态松下来再说。",
+    "B",
+    "行，那我先不当催命的，等你忙完我们再约。",
+    "C",
+    "你这阵忙的是课程还是组里的事？"
+  ]);
+  assert.equal(result.length, 3, JSON.stringify(result));
+  assert.equal(result[0].key, "A");
+  assert.match(result[0].text, /^那就好/);
+  assert.equal(result[2].key, "C");
+});
+
+test("normalizeReplyOptions 保留一字回复，只丢引用式标签", () => {
+  const result = normalizeReplyOptions({ A: "嗨", B: "好", C: "B" });
+  assert.deepEqual(result.map((item) => item.key), ["A", "B"], JSON.stringify(result));
+});

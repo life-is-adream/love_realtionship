@@ -8,7 +8,7 @@ const originalFetch = global.fetch;
 
 // 导入模块
 const apiModule = await import("../public/modules/core/api-client.js");
-const { buildHerMessages, buildCoachMessages, callLLM, checkHealth, searchWeb } = apiModule;
+const { buildHerMessages, buildCoachMessages, callLLM, checkHealth, searchWeb, isAiIdentityQuestion } = apiModule;
 
 test("searchWeb 向 fetch 传入取消信号且请求体只有查询词", async (t) => {
   const prior = global.fetch;
@@ -57,6 +57,40 @@ test("buildHerMessages 映射历史并过滤无文本消息，末尾只要一条
 test("buildHerMessages 在 PUA 识别模式下带上手法清单且仍只要文本", () => {
   const result = buildHerMessages(splitPersona, splitMemory, [], { mode: "pua" });
   assert.ok(result[0].content.includes("不要自曝手法名称"));
+});
+
+test("buildHerMessages 传入三种可选风格，只影响角色通道并约束未知事实和 AI 身份", () => {
+  const expected = { daily: /自然日常/, humorous: /轻松幽默/, gentle: /温柔陪伴/ };
+  for (const [style, marker] of Object.entries(expected)) {
+    const messages = buildHerMessages(splitPersona, splitMemory, splitMessages, { chatStyle: style });
+    assert.match(messages[0].content, marker);
+    assert.match(messages[0].content, /未知的用户个人事实必须承认不知道/);
+    assert.match(messages[0].content, /我是 AI 模拟角色/);
+  }
+  const coach = buildCoachMessages({ persona: splitPersona, memory: splitMemory, messages: [], herReply: "嗨", uiValues: { chatStyle: "humorous" } });
+  assert.doesNotMatch(coach.map((item) => item.content).join("\n"), /【本轮对话风格】/);
+});
+
+test("常见身份直问识别稳定，普通消息不误判", () => {
+  for (const question of ["你是真人吗？", "你是 AI 吗？", "你是人工智能还是人？", "你到底是不是人类", "你是机器人吗"]) assert.equal(isAiIdentityQuestion(question), true, question);
+  for (const message of ["今天你过得怎么样", "你是林知夏吗？", "我认识一个机器人", "我在看 AI 电影，你觉得怎么样？", "我朋友是真人，聊天很有趣吗？"]) assert.equal(isAiIdentityQuestion(message), false, message);
+});
+
+test("记忆直问只引用原话：无证据承认没有记录，有证据不改写，否定不翻成肯定", () => {
+  const query = "你还记得我上周去了哪个城市吗？";
+  const empty = apiModule.resolveMemoryRecall(query, [{ type: "me", text: query }], {});
+  assert.equal(empty, "我这边没有可靠记录，你愿意再告诉我一次吗？");
+  const history = [{ type: "me", text: "我上周去了杭州，西湖边人很多。" }, { type: "me", text: query }];
+  assert.match(apiModule.resolveMemoryRecall(query, history, {}), /你之前说过：「我上周去了杭州/);
+  // 派生字符串不是事实来源：只有 _enhancedInjection 时不得声称用户说过成都。
+  const injectedOnly = { _enhancedInjection: "近期记忆：上周去了成都" };
+  assert.equal(apiModule.resolveMemoryRecall(query, [{ type: "me", text: query }], injectedOnly), empty);
+  // 否定句原样引用，不被改写成肯定。
+  const negated = apiModule.resolveMemoryRecall(query, [{ type: "me", text: "我上周没去杭州。" }, { type: "me", text: query }], {});
+  assert.ok(!negated.includes("去了杭州"), negated);
+  assert.match(negated, /没去杭州/);
+  // 覆盖范围不再局限于城市：
+  assert.match(apiModule.resolveMemoryRecall("你还记得我上周买了什么吗？", [{ type: "me", text: "我上周买了台咖啡机。" }], {}), /咖啡机/);
 });
 
 test("buildCoachMessages 把她的回复作为已知输入并保留教练契约", () => {

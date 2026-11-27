@@ -107,6 +107,7 @@ function mountGeneration() {
     buildGenerationContext: async () => ({ persona: { name: "她" }, memory: {}, messages: [], ui: {} }),
     buildHerMessages: () => [], buildCoachMessages: () => [],
     parseHerBubbles, joinHerReply, commitHerReply() {},
+    resolveDeterministicReply: () => null,
     callLLM: (options) => new Promise((resolve, reject) => pending.push({ options, resolve, reject })),
     parseModelContent: () => ({ herReply: "synthetic reply" }),
     localAnalyze: () => ({ herReply: "local reply", coachScore: { total: 70 } }),
@@ -137,6 +138,44 @@ test("她的回复落盘改变会话上下文后，教练分析结果仍必须�
   const result = await task;
   assert.equal(ui.stats().commits, 1, "教练分析不能被自己刚落的回复判成过期");
   assert.equal(result.herReply, "早啊");
+});
+
+test("身份直问跳过角色模型生成，并将确定性回复来源标为本地", async () => {
+  const ui = mountGeneration();
+  const sources = [];
+  ui.env.resolveDeterministicReply = () => ({ text: "我是 AI 模拟角色，不是真人。", source: "identity" });
+  ui.env.commitHerReply = (_bubbles, source) => sources.push(source);
+  const task = ui.env.askAi({ silent: true });
+  await ui.tick();
+  assert.deepEqual(sources, ["local"]);
+  assert.equal(ui.pending.length, 1, "仅教练分析仍走模型，不应请求角色回复模型");
+  await ui.settle(0, "{}");
+  await task;
+});
+
+test("真实护栏接入 askAi：无依据的记忆追问不请求角色模型，只走教练通道", async () => {
+  // 这里用真实的 resolveDeterministicReply，而不是 mock：
+  // 目的是验证 app.js 的调用路径确实拿到护栏结果，而不是测试替身自说自话。
+  const ui = mountGeneration();
+  const committed = [];
+  const { resolveDeterministicReply } = await import("../public/modules/core/api-client.js");
+  ui.env.resolveDeterministicReply = resolveDeterministicReply;
+  ui.env.buildGenerationContext = async () => ({
+    persona: { name: "她" },
+    memory: {},
+    memorySource: {},
+    messages: [{ type: "me", text: "你还记得我上周去了哪个城市吗？" }],
+    ui: {}
+  });
+  ui.env.commitHerReply = (bubbles, source) => committed.push({ text: joinHerReply(bubbles), source });
+
+  const task = ui.env.askAi({ silent: true });
+  await ui.tick();
+  assert.equal(ui.pending.length, 1, "只有教练通道应请求模型，角色通道被护栏短路");
+  assert.equal(committed[0].source, "local");
+  assert.match(committed[0].text, /没有可靠记录/);
+  await ui.settle(0, "{}");
+  await task;
 });
 
 test("两条通道各带自己的预算：她只要文本，教练要 JSON 且都关思考", async () => {

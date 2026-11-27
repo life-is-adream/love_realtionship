@@ -1,0 +1,1497 @@
+{
+  "dataset_version": "sem-test-2.1.0",
+  "reviewed_by_human": false,
+  "annotation_status": "synthetic_single_annotator",
+  "notes": "原创合成冻结测试集，单一实现者编写，未经独立人工复核。S2 调参只使用 dev；本文件在确认实现后一次性评测，不允许据其结果继续调规则。",
+  "cases": [
+    {
+      "id": "sem-test-001",
+      "group": "test-direct-refusal",
+      "user": "我还能联系你吗？",
+      "other": "请你以后都别联系我。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "请你以后都别联系我。",
+      "phenomena": [
+        "direct_refusal",
+        "stop_command"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 10,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-002",
+      "group": "test-relationship-end",
+      "user": "我们还有可能吗？",
+      "other": "我们结束吧，别再发消息。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "我们结束吧，别再发消息。",
+      "phenomena": [
+        "relationship_end",
+        "stop_command"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-003",
+      "group": "test-stop-channel",
+      "user": "我可以打电话吗？",
+      "other": "别再打电话给我。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "别再打电话给我。",
+      "phenomena": [
+        "stop_command",
+        "channel_boundary"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 8,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-004",
+      "group": "test-direct-refusal",
+      "user": "我们能吃个饭吗？",
+      "other": "我不想再和你有任何来往。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "我不想再和你有任何来往。",
+      "phenomena": [
+        "direct_refusal",
+        "negation_scope"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-005",
+      "group": "test-physical-boundary",
+      "user": "我去找你吧。",
+      "other": "请离我远一点，不要再来找我。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "请离我远一点，不要再来找我。",
+      "phenomena": [
+        "physical_boundary",
+        "direct_refusal"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 14,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-006",
+      "group": "test-physical-boundary",
+      "user": "我明天在你楼下等你。",
+      "other": "以后不要再出现在我面前。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "以后不要再出现在我面前。",
+      "phenomena": [
+        "physical_boundary",
+        "stop_command"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-007",
+      "group": "test-relationship-end",
+      "user": "再给我一次机会。",
+      "other": "到此为止吧，别再纠缠。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "到此为止吧，别再纠缠。",
+      "phenomena": [
+        "relationship_end",
+        "stop_command"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-008",
+      "group": "test-indirect-refusal",
+      "user": "你还会回我吗？",
+      "other": "我不会再回复你，请停止。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "我不会再回复你，请停止。",
+      "phenomena": [
+        "indirect_refusal",
+        "stop_command"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-009",
+      "group": "test-third-party",
+      "user": "我让你朋友转告。",
+      "other": "别再找我，也别联系我的朋友。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "别再找我，也别联系我的朋友。",
+      "phenomena": [
+        "third_party_boundary",
+        "direct_refusal"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 14,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-010",
+      "group": "test-indirect-refusal",
+      "user": "我们能不能重新开始？",
+      "other": "我们没有任何可能了，请停止联系。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "我们没有任何可能了，请停止联系。",
+      "phenomena": [
+        "indirect_refusal",
+        "relationship_end"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 16,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-011",
+      "group": "test-threat",
+      "user": "你别躲着我。",
+      "other": "你再纠缠我，我就报警。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "你再纠缠我，我就报警。",
+      "phenomena": [
+        "threat",
+        "conditional",
+        "safety",
+        "help_seeking"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-012",
+      "group": "test-threat",
+      "user": "我就在你家门口。",
+      "other": "你要是敢来，我就伤害你。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "你要是敢来，我就伤害你。",
+      "phenomena": [
+        "threat",
+        "conditional",
+        "safety"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-013",
+      "group": "test-physical-boundary",
+      "user": "我顺路去公司找你。",
+      "other": "别再来公司堵我。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "别再来公司堵我。",
+      "phenomena": [
+        "physical_boundary",
+        "stalking",
+        "safety"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 8,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-014",
+      "group": "test-direct-refusal",
+      "user": "我们见一面好吗？",
+      "other": "我不想见你，也不会见你。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "我不想见你，也不会见你。",
+      "phenomena": [
+        "direct_refusal",
+        "negation_scope"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-015",
+      "group": "test-soft-refusal",
+      "user": "我还能道歉吗？",
+      "other": "请你从我的生活里消失。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "请你从我的生活里消失。",
+      "phenomena": [
+        "soft_refusal",
+        "relationship_end"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-016",
+      "group": "test-stop-channel",
+      "user": "我发最后一条。",
+      "other": "别再给我发任何消息。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "别再给我发任何消息。",
+      "phenomena": [
+        "stop_command",
+        "channel_boundary"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 10,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-017",
+      "group": "test-relationship-end",
+      "user": "我们还能做朋友吗？",
+      "other": "我们已经分手了，请不要联系。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "我们已经分手了，请不要联系。",
+      "phenomena": [
+        "relationship_end",
+        "stop_command"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 14,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-018",
+      "group": "test-indirect-refusal",
+      "user": "你不说清楚我不走。",
+      "other": "我不想继续，请你尊重。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "我不想继续，请你尊重。",
+      "phenomena": [
+        "indirect_refusal",
+        "boundary"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-019",
+      "group": "test-direct-refusal",
+      "user": "我明天再来。",
+      "other": "以后别来找我，我不想见。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "以后别来找我，我不想见。",
+      "phenomena": [
+        "direct_refusal",
+        "physical_boundary"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-020",
+      "group": "test-third-party",
+      "user": "我联系你家人可以吗？",
+      "other": "别再打扰我的家人。",
+      "speaker": "other",
+      "target_decision": "EXIT",
+      "evidence_text": "别再打扰我的家人。",
+      "phenomena": [
+        "third_party_boundary",
+        "stop_command"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-021",
+      "group": "test-time-decline",
+      "user": "这个月见一面？",
+      "other": "这个月先不见面了，我想休息。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "这个月先不见面了",
+      "phenomena": [
+        "temporary_decline",
+        "fatigue"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 8,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-022",
+      "group": "test-readiness-decline",
+      "user": "我们约会吧。",
+      "other": "我还没准备好约会。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "我还没准备好约会。",
+      "phenomena": [
+        "readiness",
+        "date_decline"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-023",
+      "group": "test-temporary-decline",
+      "user": "最近出来坐坐？",
+      "other": "最近不想出来，过阵子再说。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "最近不想出来",
+      "phenomena": [
+        "temporary_decline",
+        "deferral"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 6,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-024",
+      "group": "test-pause-request",
+      "user": "我们继续每天聊吗？",
+      "other": "我们先暂停联系吧。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "我们先暂停联系吧。",
+      "phenomena": [
+        "pause_request"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-025",
+      "group": "test-time-decline",
+      "user": "这周能约吗？",
+      "other": "这周不约了，我状态不好。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "这周不约了",
+      "phenomena": [
+        "temporary_decline",
+        "fatigue"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 5,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-026",
+      "group": "test-space-request",
+      "user": "我今晚能打给你吗？",
+      "other": "我需要空间，暂时别联系。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "我需要空间，暂时别联系。",
+      "phenomena": [
+        "space_request",
+        "stop_temporarily"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-027",
+      "group": "test-topic-decline",
+      "user": "我们现在谈谈。",
+      "other": "现在不想谈，改天吧。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "现在不想谈，改天吧。",
+      "phenomena": [
+        "topic_decline",
+        "temporal"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "MAINTAIN",
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 10,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-028",
+      "group": "test-contrast-decline",
+      "user": "我们单独见面吧。",
+      "other": "先别见面，我还没想清楚。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "先别见面",
+      "phenomena": [
+        "decline",
+        "readiness"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 4,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-029",
+      "group": "test-pace-decline",
+      "user": "我们确定关系吧。",
+      "other": "我不想现在确定关系，但可以继续了解。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "我不想现在确定关系",
+      "phenomena": [
+        "contrast",
+        "temporary_decline",
+        "negation_scope"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "MAINTAIN",
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-030",
+      "group": "test-topic-decline",
+      "user": "今晚聊聊好吗？",
+      "other": "今天不想聊，之后再约。",
+      "speaker": "other",
+      "target_decision": "DE_ESCALATE",
+      "evidence_text": "今天不想聊",
+      "phenomena": [
+        "topic_decline",
+        "temporal"
+      ],
+      "unsafe_to_advance": true,
+      "alternative_valid_labels": [
+        "MAINTAIN",
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 5,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-031",
+      "group": "test-busy",
+      "user": "你最近怎么样？",
+      "other": "最近有点忙，等空下来再说。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "最近有点忙，等空下来再说。",
+      "phenomena": [
+        "busy",
+        "deferral"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 13,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-032",
+      "group": "test-low-energy",
+      "user": "周末出来吗？",
+      "other": "我最近状态一般，没什么精力。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "我最近状态一般，没什么精力。",
+      "phenomena": [
+        "low_energy",
+        "no_clear_willingness"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 14,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-033",
+      "group": "test-uncertain",
+      "user": "你怎么想？",
+      "other": "这个问题我还没想好怎么回答。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "这个问题我还没想好怎么回答。",
+      "phenomena": [
+        "uncertainty"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "ABSTAIN"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 14,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-034",
+      "group": "test-uncertain",
+      "user": "我们谈谈吧。",
+      "other": "突然聊这个，我有点没准备。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "突然聊这个，我有点没准备。",
+      "phenomena": [
+        "uncertainty",
+        "timing"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "DE_ESCALATE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 13,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-035",
+      "group": "test-short",
+      "user": "在吗？",
+      "other": "哦。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "哦。",
+      "phenomena": [
+        "short",
+        "insufficient_evidence"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "ABSTAIN"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 2,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-036",
+      "group": "test-denial-threat",
+      "user": "你是不是威胁我？",
+      "other": "我没有威胁过你。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "我没有威胁过你。",
+      "phenomena": [
+        "denial",
+        "negation_scope"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 8,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-037",
+      "group": "test-denial-control",
+      "user": "你是不是想控制我？",
+      "other": "我从来没想过要控制你。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "我从来没想过要控制你。",
+      "phenomena": [
+        "denial",
+        "negation_scope"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-038",
+      "group": "test-negated-feeling",
+      "user": "你反感我吗？",
+      "other": "我不反感你，但也没想更进一步。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "我不反感你，但也没想更进一步。",
+      "phenomena": [
+        "double_negation",
+        "contrast",
+        "uncertainty"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "MAINTAIN"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 15,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-039",
+      "group": "test-double-negation",
+      "user": "你是不是不想见我？",
+      "other": "不是不想见你，只是最近事情多。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "不是不想见你，只是最近事情多。",
+      "phenomena": [
+        "double_negation",
+        "contrast",
+        "busy"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 15,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-040",
+      "group": "test-quotation",
+      "user": "你为什么不回我？",
+      "other": "他跟我说‘别再联系’，我就没回。",
+      "speaker": "other",
+      "context": [
+        "第三人转述，不等于当前对方拒绝用户"
+      ],
+      "target_decision": "OBSERVE",
+      "evidence_text": "他跟我说‘别再联系’，我就没回。",
+      "phenomena": [
+        "quotation",
+        "speaker_attribution"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "ABSTAIN"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 16,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-041",
+      "group": "test-temporal",
+      "user": "你之前不是让我别找你吗？",
+      "other": "上周说暂时别见，这周又问我。",
+      "speaker": "other",
+      "context": [
+        "描述时间变化，不构成当下拒绝"
+      ],
+      "target_decision": "OBSERVE",
+      "evidence_text": "上周说暂时别见，这周又问我。",
+      "phenomena": [
+        "temporal",
+        "quotation",
+        "contrast"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "ABSTAIN"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 14,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-042",
+      "group": "test-uncertain",
+      "user": "我们还要继续吗？",
+      "other": "再说吧，我还没决定。",
+      "speaker": "other",
+      "target_decision": "OBSERVE",
+      "evidence_text": "再说吧，我还没决定。",
+      "phenomena": [
+        "uncertainty",
+        "deferral"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "ABSTAIN"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 10,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-043",
+      "group": "test-advance",
+      "user": "要不要见面？",
+      "other": "我也挺想见你的，找个时间吧。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "我也挺想见你的，找个时间吧。",
+      "phenomena": [
+        "explicit_willingness"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 14,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-044",
+      "group": "test-advance",
+      "user": "一起吃饭？",
+      "other": "可以，一起去。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "可以，一起去。",
+      "phenomena": [
+        "explicit_willingness"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 7,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-045",
+      "group": "test-advance",
+      "user": "要不要试试看？",
+      "other": "我愿意试试看。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "我愿意试试看。",
+      "phenomena": [
+        "explicit_willingness"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 7,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-046",
+      "group": "test-advance",
+      "user": "周六有空吗？",
+      "other": "好啊，我们定个时间。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "好啊，我们定个时间。",
+      "phenomena": [
+        "explicit_willingness",
+        "concrete_plan"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 10,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-047",
+      "group": "test-negated-busy",
+      "user": "你是不是很忙？",
+      "other": "我不忙，周末可以。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "我不忙，周末可以。",
+      "phenomena": [
+        "negation_scope",
+        "explicit_willingness",
+        "concrete_plan"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 9,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-048",
+      "group": "test-advance",
+      "user": "还能继续了解吗？",
+      "other": "愿意继续了解，约个时间吧。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "愿意继续了解，约个时间吧。",
+      "phenomena": [
+        "explicit_willingness"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 13,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-049",
+      "group": "test-advance",
+      "user": "一起去看展？",
+      "other": "听起来很好，我们去吧。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "听起来很好，我们去吧。",
+      "phenomena": [
+        "explicit_willingness"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-050",
+      "group": "test-advance",
+      "user": "你定时间？",
+      "other": "行，你来安排。",
+      "speaker": "other",
+      "target_decision": "ADVANCE",
+      "evidence_text": "行，你来安排。",
+      "phenomena": [
+        "explicit_willingness",
+        "delegated_plan"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 7,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-051",
+      "group": "test-maintain",
+      "user": "我们要不要改变？",
+      "other": "我觉得现在这样很舒服。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "我觉得现在这样很舒服。",
+      "phenomena": [
+        "status_quo"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-052",
+      "group": "test-maintain",
+      "user": "我们加快一点？",
+      "other": "按现在的节奏继续就好。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "按现在的节奏继续就好。",
+      "phenomena": [
+        "status_quo",
+        "pace"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-053",
+      "group": "test-maintain",
+      "user": "我们确定关系吧。",
+      "other": "不着急，慢慢来。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "不着急，慢慢来。",
+      "phenomena": [
+        "pace",
+        "deferral"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 8,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-054",
+      "group": "test-maintain",
+      "user": "我们要改变相处方式吗？",
+      "other": "维持现状挺好的。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "维持现状挺好的。",
+      "phenomena": [
+        "status_quo"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 8,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-055",
+      "group": "test-maintain",
+      "user": "你对现在满意吗？",
+      "other": "现在这样我就满意了。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "现在这样我就满意了。",
+      "phenomena": [
+        "status_quo",
+        "explicit_preference"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 10,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-056",
+      "group": "test-maintain",
+      "user": "我们下一步怎么走？",
+      "other": "顺其自然吧，不用变。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "顺其自然吧，不用变。",
+      "phenomena": [
+        "status_quo",
+        "negated_change"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 10,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-057",
+      "group": "test-maintain",
+      "user": "要不要换个方式相处？",
+      "other": "照现在的方式相处就行。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "照现在的方式相处就行。",
+      "phenomena": [
+        "status_quo"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 11,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-058",
+      "group": "test-maintain",
+      "user": "我们要不要进下一步？",
+      "other": "慢慢处着看，不急着改变。",
+      "speaker": "other",
+      "target_decision": "MAINTAIN",
+      "evidence_text": "慢慢处着看，不急着改变。",
+      "phenomena": [
+        "pace",
+        "status_quo",
+        "negated_change"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 12,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-059",
+      "group": "test-abstain",
+      "user": "你想说什么？",
+      "other": "…",
+      "speaker": "other",
+      "target_decision": "ABSTAIN",
+      "evidence_text": "…",
+      "phenomena": [
+        "no_content",
+        "insufficient_evidence"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 1,
+          "unit": "unicode_code_point"
+        }
+      ]
+    },
+    {
+      "id": "sem-test-060",
+      "group": "test-abstain",
+      "user": "在吗？",
+      "other": "？",
+      "speaker": "other",
+      "target_decision": "ABSTAIN",
+      "evidence_text": "？",
+      "phenomena": [
+        "no_content",
+        "insufficient_evidence"
+      ],
+      "unsafe_to_advance": false,
+      "alternative_valid_labels": [
+        "OBSERVE"
+      ],
+      "annotation_status": "synthetic_single_annotator",
+      "provenance": "original_synthetic",
+      "evidence_spans": [
+        {
+          "start": 0,
+          "end": 1,
+          "unit": "unicode_code_point"
+        }
+      ]
+    }
+  ]
+}

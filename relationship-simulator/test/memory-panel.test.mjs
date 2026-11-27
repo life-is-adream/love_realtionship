@@ -19,7 +19,7 @@ globalThis.localStorage = {
 globalThis.document = { getElementById: (id) => (id === "memoryPanel" ? panel : null) };
 
 const { setState, getState } = await import("../public/modules/core/state.js");
-const { renderMemoryPanel, removeMemoryEntry } = await import("../public/modules/render/render-memory-panel.js");
+const { renderMemoryPanel, removeMemoryEntry, updateMemoryEntry } = await import("../public/modules/render/render-memory-panel.js");
 const { buildMemoryInjection } = await import("../public/modules/core/memory.js");
 
 function seedMemory() {
@@ -99,6 +99,43 @@ test("removeMemoryEntry：越界或目标不存在时安全返回 false", () => 
   assert.equal(removeMemoryEntry("lin", "timeline", 99), false);
   assert.equal(removeMemoryEntry("missing", "summary", 0), false);
   assert.equal(removeMemoryEntry("lin", "timeline", -1), false);
+});
+
+test("updateMemoryEntry：修改后角色注入立即采用新值，限制类型、边界和长度", () => {
+  seedMemory();
+  assert.equal(updateMemoryEntry("lin", "timeline", 0, "用户确认的兴趣：摄影"), true);
+  const updated = getState().personaMemory.lin._enhanced;
+  assert.match(buildMemoryInjection(updated), /用户确认的兴趣：摄影/);
+  assert.equal(updateMemoryEntry("lin", "other", 0, "x"), false);
+  assert.equal(updateMemoryEntry("lin", "timeline", 88, "x"), false);
+  assert.equal(updateMemoryEntry("lin", "timeline", 0, "   "), false);
+  assert.equal(updateMemoryEntry("lin", "timeline", 0, "x".repeat(501)), false);
+  assert.equal(removeMemoryEntry("lin", "bad-kind", 0), false);
+});
+
+test("记忆面板编辑与删除按钮直接更新下一轮注入内容", () => {
+  seedMemory();
+  const node = () => ({ hidden: false, value: "", textContent: "", dataset: {}, listeners: {}, addEventListener(type, fn) { (this.listeners[type] ||= []).push(fn); }, click() { for (const fn of [...(this.listeners.click || [])]) fn({ preventDefault() {} }); } });
+  const memoryEntry = node();
+  memoryEntry.dataset.memoryKind = "timeline";
+  memoryEntry.dataset.memoryIndex = "0";
+  const editor = node();
+  editor.value = "涉及话题：看展、摄影";
+  const view = node();
+  view.textContent = "涉及话题：看展、摄影";
+  const edit = node(), save = node(), cancel = node();
+  const row = { querySelector(selector) { return ({ "[data-memory-editor]": editor, "[data-memory-view]": view, "[data-memory-edit]": edit, "[data-memory-save]": save, "[data-memory-cancel]": cancel, "[data-memory-kind]": memoryEntry })[selector] || null; } };
+  const deleteButton = node();
+  deleteButton.dataset = { memoryKind: "timeline", memoryIndex: "1" };
+  panel.querySelectorAll = (selector) => selector === "button[data-memory-kind]" ? [deleteButton] : selector === ".memory-row" ? [row] : [];
+  renderMemoryPanel();
+  edit.click();
+  editor.value = "更新后的合成记忆";
+  save.click();
+  assert.match(buildMemoryInjection(getState().personaMemory.lin._enhanced), /更新后的合成记忆/);
+  deleteButton.click();
+  assert.ok(!buildMemoryInjection(getState().personaMemory.lin._enhanced).includes("<img"));
+  panel.querySelectorAll = () => [];
 });
 
 // ── 与状态层联动 ─────────────────────────────────────────────────────────────

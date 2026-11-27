@@ -485,3 +485,80 @@ test("标注要落到具体那一条建议上，而不是只有一句汇总", as
   assert.equal(choiceConfirmNote({ key: "B", text: "正常一条", confirmations: [] }), "");
   assert.equal(choiceConfirmNote(undefined), "");
 });
+
+// ── 2026-11-03 人工盲评抓出的三类判定（P0-1 / P1-1 / P2-3）─────────────────────
+
+const G09 = ["我：上次你说想吃日料，我一直记着。", "她：你还真记着呀，那家在哪，远不远"];
+
+test("盲评 P0-1：虚构店址的三条真实原文必须全拦住，整套退回本地而不是原样展示", () => {
+  const ledger = ledgerFrom(G09);
+  const result = groundReplyOptions(
+    [
+      { key: "A", text: "那家在天河城那边，坐地铁三号线到体育西路站走五分钟就到，不算远，下次可以去试试。" },
+      { key: "B", text: "记性好是我为数不多的优点，店在体育西路那边，离你远不远？" },
+      { key: "C", text: "在体育西路那边，地铁出来走五分钟就到。你平时通勤一般在哪一片，我看看远不远。" }
+    ],
+    ledger
+  );
+  assert.equal(result.ok, false, "三条都是假地址，不该有一条原样展示给用户");
+  const entities = result.findings.map((finding) => finding.entity);
+  for (const entity of ["天河城", "体育西路", "地铁三号线", "走五分钟"]) {
+    assert.ok(entities.includes(entity), `${entity} 未被识别：${JSON.stringify(result.findings)}`);
+  }
+  // 地点类 finding 必须有专门类型，否则降级骨架会选错模板。
+  assert.ok(result.findings.some((finding) => finding.type === "fabricated_place"), JSON.stringify(result.findings));
+});
+
+test("盲评 P0-1：中文省略主语的裸地点框架同样算断言", () => {
+  const ledger = ledgerFrom(G09);
+  const audit = auditReplyOption({ key: "C", text: "在体育西路那边，地铁出来走五分钟就到。" }, ledger);
+  assert.equal(audit.findings.length, 2, JSON.stringify(audit.findings));
+});
+
+test("盲评 P1-1：替用户定义「那部纪录片讲什么」要标注，且不改动原文", () => {
+  const ledger = ledgerFrom(["我：最近有部纪录片挺火，回头看？", "她：什么题材的，先说来听听"]);
+  const audit = auditReplyOption(
+    { key: "A", text: "讲城市里普通人的生活变迁那种，节奏挺慢但看着舒服。你平时一般看什么类型的？" },
+    ledger
+  );
+  assert.equal(audit.findings.length, 0, "内容型属于标注类，不该升级为拦截");
+  assert.equal(audit.needsUserConfirm, true, JSON.stringify(audit.confirmations));
+  assert.ok(audit.confirmations.some((item) => /作品或店铺/.test(item.reason)), JSON.stringify(audit.confirmations));
+  // 只有前半句被标：问她的后半句是合法提问。
+  assert.equal(audit.confirmations.length, 1, JSON.stringify(audit.confirmations));
+  assert.equal(audit.text, "讲城市里普通人的生活变迁那种，节奏挺慢但看着舒服。你平时一般看什么类型的？");
+});
+
+test("盲评 P1-1：用户自己说过的内容被复述时不标注", () => {
+  const ledger = ledgerFrom(["我：最近有部讲城市拆迁的纪录片挺火，回头看？", "她：好啊"]);
+  const audit = auditReplyOption({ key: "A", text: "讲城市拆迁那种，看完挺久的。" }, ledger);
+  assert.deepEqual(audit.confirmations, [], JSON.stringify(audit));
+});
+
+test("盲评 P2-3：玩笑不再被当成个人处境标注", () => {
+  const ledger = ledgerFrom(["我：要不要顺路一起走一段，就当散步。", "她：可以呀，正好我也想走走"]);
+  for (const text of [
+    "行，那这条路上的路灯今天归我们检查了。",
+    "好，那我这边忙完就过来，具体碰头点你方便的时候说一声就行。",
+    "那你想从学校哪一头开始走？"
+  ]) {
+    const audit = auditReplyOption({ key: "B", text }, ledger);
+    assert.equal(audit.needsUserConfirm, false, `不该标注：${text} => ${JSON.stringify(audit.confirmations)}`);
+  }
+});
+
+test("标注措辞要跟着实际命中的类别走，不能一律写成「关于你自己的信息」", async () => {
+  const { choiceConfirmNote } = await import("../public/modules/render/render-coach.js");
+  const ledger = ledgerFrom(["我：最近有部纪录片挺火，回头看？", "她：什么题材的，先说来听听"]);
+  const [audit] = groundReplyOptions([{ key: "A", text: "偏人文纪实的，讲一群人的真实生活。" }], ledger).options;
+  const note = choiceConfirmNote(audit);
+  assert.match(note, /作品或店铺/, note);
+  assert.doesNotMatch(note, /关于你自己的信息/, note);
+});
+
+test("第一人称的位置陈述只标注、不拦截", () => {
+  const ledger = ledgerFrom(["我：我一般七点到家", "她：这么早"]);
+  const audit = auditReplyOption({ key: "A", text: "我那边走十分钟就到，你不用等太久。" }, ledger);
+  assert.equal(audit.findings.length, 0, JSON.stringify(audit.findings));
+  assert.ok(audit.confirmations.some((item) => item.entity === "走十分钟"), JSON.stringify(audit.confirmations));
+});

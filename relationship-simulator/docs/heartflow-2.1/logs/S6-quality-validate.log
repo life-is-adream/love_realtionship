@@ -1,0 +1,4 @@
+dataset validation PASS
+semantic dev/test = 60/60
+retrieval dev/test = 60/60
+practice dev/test = 30/30

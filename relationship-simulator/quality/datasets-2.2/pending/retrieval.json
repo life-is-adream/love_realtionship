@@ -1,0 +1,2567 @@
+{
+  "dataset_version": "ret-cand-2.2.0",
+  "reviewed_by_human": false,
+  "annotation_status": "pending_human_review",
+  "label_source": "ai_suggested_candidate",
+  "notes": "2.2 检索候选集：前 179 条由课程目标改写并仅建议单一相关课程，后 21 条为域外无匹配候选；相关性与 query 自然度均待人工标注与改写。",
+  "cases": [
+    {
+      "id": "ret-cand-001",
+      "group": "attraction-advance",
+      "query": "谈恋爱不是先找到一个人，再靠话术把对方留下，具体该怎么做？",
+      "relevant": [
+        1
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-002",
+      "group": "attraction-advance",
+      "query": "选一个公开、稳定、有共同任务的活动，具体该怎么做？",
+      "relevant": [
+        2
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-003",
+      "group": "attraction-advance",
+      "query": "完成一次基础形象和生活状态检查，具体该怎么做？",
+      "relevant": [
+        3
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-004",
+      "group": "attraction-self",
+      "query": "练习30秒、自然、有来回空间的自我介绍，具体该怎么做？",
+      "relevant": [
+        4
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-005",
+      "group": "attraction-advance",
+      "query": "用“关键词—追问—自我分享”完成一次三轮对话，具体该怎么做？",
+      "relevant": [
+        5
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-006",
+      "group": "attraction-advance",
+      "query": "学会三种低压力开场：活动、任务、地点，具体该怎么做？",
+      "relevant": [
+        6
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-007",
+      "group": "attraction-advance",
+      "query": "练习“先融入任务，再发展个人联系”，具体该怎么做？",
+      "relevant": [
+        7
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-008",
+      "group": "attraction-advance",
+      "query": "学会清楚、自然、可拒绝地提出联系方式，具体该怎么做？",
+      "relevant": [
+        8
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-009",
+      "group": "attraction-advance",
+      "query": "发送一条不施压的后续消息，具体该怎么做？",
+      "relevant": [
+        9
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-010",
+      "group": "attraction-advance",
+      "query": "把“问问题”变成“共同展开”，具体该怎么做？",
+      "relevant": [
+        10
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-011",
+      "group": "attraction-self",
+      "query": "用小而真实的信息建立熟悉感，具体该怎么做？",
+      "relevant": [
+        11
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-012",
+      "group": "attraction-advance",
+      "query": "用持续行为簇而非幻想判断兴趣，具体该怎么做？",
+      "relevant": [
+        12
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-013",
+      "group": "dating-advance",
+      "query": "学会具体、轻量、有退出空间的邀请，具体该怎么做？",
+      "relevant": [
+        13
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-014",
+      "group": "dating-advance",
+      "query": "把约会做成了解，而不是面试或表演，具体该怎么做？",
+      "relevant": [
+        14
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-015",
+      "group": "dating-advance",
+      "query": "记录相处感受，而不是只评估对方外表，具体该怎么做？",
+      "relevant": [
+        15
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-016",
+      "group": "dating-advance",
+      "query": "用一句诚实反馈表达意愿，具体该怎么做？",
+      "relevant": [
+        16
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-017",
+      "group": "dating-advance",
+      "query": "从“心动”转向“是否适合继续了解”，具体该怎么做？",
+      "relevant": [
+        17
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-018",
+      "group": "dating-communicate",
+      "query": "在互动已有基础后，清楚说出自己的方向，具体该怎么做？",
+      "relevant": [
+        18
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-019",
+      "group": "dating-advance",
+      "query": "练习一句话结束，不自我羞辱也不纠缠，具体该怎么做？",
+      "relevant": [
+        19
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-020",
+      "group": "dating-self",
+      "query": "降低焦虑追逐，恢复自己的节奏，具体该怎么做？",
+      "relevant": [
+        20
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-021",
+      "group": "commitment-self",
+      "query": "用依恋模式解释互动，不用标签替代责任，具体该怎么做？",
+      "relevant": [
+        21
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-022",
+      "group": "commitment-self",
+      "query": "把“你不许……”改成“如果发生……我会……”，具体该怎么做？",
+      "relevant": [
+        22
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-023",
+      "group": "commitment-communicate",
+      "query": "练习观察、感受、需要、请求四步，具体该怎么做？",
+      "relevant": [
+        23
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-024",
+      "group": "commitment-communicate",
+      "query": "从“谁对谁错”转向“我们被什么互动模式困住”，具体该怎么做？",
+      "relevant": [
+        24
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-025",
+      "group": "commitment-advance",
+      "query": "提升情绪支持，不急着给方案，具体该怎么做？",
+      "relevant": [
+        25
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-026",
+      "group": "commitment-intimacy",
+      "query": "把身体和性沟通建立在清醒、具体、可撤回之上，具体该怎么做？",
+      "relevant": [
+        26
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-027",
+      "group": "commitment-life",
+      "query": "用透明和可承受的方式讨论消费与经济边界，具体该怎么做？",
+      "relevant": [
+        27
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-028",
+      "group": "commitment-advance",
+      "query": "在关系稳定后谈排他性和期待，具体该怎么做？",
+      "relevant": [
+        28
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-029",
+      "group": "commitment-advance",
+      "query": "建立红旗清单和退出原则，具体该怎么做？",
+      "relevant": [
+        29
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-030",
+      "group": "commitment-advance",
+      "query": "用小型仪式、欣赏和修复维持长期连接，具体该怎么做？",
+      "relevant": [
+        30
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-031",
+      "group": "commitment-self",
+      "query": "完成30天复盘，形成一页个人关系说明，具体该怎么做？",
+      "relevant": [
+        31
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-032",
+      "group": "connection-advance",
+      "query": "观察共同兴趣是否有自然延伸，再提出轻量的一对一话题，具体该怎么做？",
+      "relevant": [
+        32
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-033",
+      "group": "connection-advance",
+      "query": "学会接受朋友介绍的双向不确定性，具体该怎么做？",
+      "relevant": [
+        33
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-034",
+      "group": "connection-advance",
+      "query": "用开放但不过度私密的问题了解一个人，具体该怎么做？",
+      "relevant": [
+        34
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-035",
+      "group": "connection-communicate",
+      "query": "练习让气氛轻松而不以羞辱为代价，具体该怎么做？",
+      "relevant": [
+        35
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-036",
+      "group": "connection-advance",
+      "query": "用具体事件表达自己，而不是堆砌履历，具体该怎么做？",
+      "relevant": [
+        36
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-037",
+      "group": "connection-advance",
+      "query": "把沉默视为正常节奏，不急着填满，具体该怎么做？",
+      "relevant": [
+        37
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-038",
+      "group": "dating-advance",
+      "query": "识别什么时候提出邀约不会显得突兀，具体该怎么做？",
+      "relevant": [
+        38
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-039",
+      "group": "connection-advance",
+      "query": "让线上联系服务于真实生活，具体该怎么做？",
+      "relevant": [
+        39
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-040",
+      "group": "connection-advance",
+      "query": "让资料反映真实生活，而不是营销人设，具体该怎么做？",
+      "relevant": [
+        40
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-041",
+      "group": "connection-advance",
+      "query": "使用具体上下文而非复制粘贴的夸赞，具体该怎么做？",
+      "relevant": [
+        41
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-042",
+      "group": "connection-advance",
+      "query": "把“不合适”看成筛选结果，不是需要挽回的危机，具体该怎么做？",
+      "relevant": [
+        42
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-043",
+      "group": "connection-advance",
+      "query": "用短时、可预期的通话增加了解，具体该怎么做？",
+      "relevant": [
+        43
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-044",
+      "group": "dating-advance",
+      "query": "把时间、地点、费用和结束方式说清楚，具体该怎么做？",
+      "relevant": [
+        44
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-045",
+      "group": "dating-advance",
+      "query": "选择双方都不有压力的支付方式，具体该怎么做？",
+      "relevant": [
+        45
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-046",
+      "group": "dating-advance",
+      "query": "为双方保留自主、撤离和求助空间，具体该怎么做？",
+      "relevant": [
+        46
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-047",
+      "group": "connection-intimacy",
+      "query": "学习观察舒适度并逐步询问，具体该怎么做？",
+      "relevant": [
+        47
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-048",
+      "group": "dating-advance",
+      "query": "给对方一个具体、轻量、可拒绝的选项，具体该怎么做？",
+      "relevant": [
+        48
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-049",
+      "group": "connection-advance",
+      "query": "用事实修正脑中的理想化故事，具体该怎么做？",
+      "relevant": [
+        49
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-050",
+      "group": "dating-advance",
+      "query": "使用“满意者”而不是无止境比较，具体该怎么做？",
+      "relevant": [
+        50
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-051",
+      "group": "stability-self",
+      "query": "认识到被喜欢和个人价值不是同一个变量，具体该怎么做？",
+      "relevant": [
+        51
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-052",
+      "group": "stability-self",
+      "query": "区分表达需要和要求对方消除焦虑，具体该怎么做？",
+      "relevant": [
+        52
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-053",
+      "group": "stability-advance",
+      "query": "让失恋或被拒有时间边界和行动出口，具体该怎么做？",
+      "relevant": [
+        53
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-054",
+      "group": "stability-advance",
+      "query": "处理嫉妒，不把它变成调查和控制，具体该怎么做？",
+      "relevant": [
+        54
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-055",
+      "group": "stability-self",
+      "query": "把比较转化为可执行的成长指标，具体该怎么做？",
+      "relevant": [
+        55
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-056",
+      "group": "stability-communicate",
+      "query": "在强烈情绪中先恢复选择能力，具体该怎么做？",
+      "relevant": [
+        56
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-057",
+      "group": "stability-advance",
+      "query": "把稳定变成可重复的回应，具体该怎么做？",
+      "relevant": [
+        57
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-058",
+      "group": "stability-self",
+      "query": "辨认让步、真心付出和害怕被丢下的区别，具体该怎么做？",
+      "relevant": [
+        58
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-059",
+      "group": "stability-self",
+      "query": "把价值观转成观察行为，而不是幻想清单，具体该怎么做？",
+      "relevant": [
+        59
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-060",
+      "group": "stability-self",
+      "query": "提前准备触发后的替代脚本，具体该怎么做？",
+      "relevant": [
+        60
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-061",
+      "group": "stability-communicate",
+      "query": "用好奇确认感受，而不是抢着解释，具体该怎么做？",
+      "relevant": [
+        61
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-062",
+      "group": "stability-communicate",
+      "query": "让对方知道你希望他做什么、何时做、能否拒绝，具体该怎么做？",
+      "relevant": [
+        62
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-063",
+      "group": "stability-communicate",
+      "query": "练习事实、观点和尊重同时存在，具体该怎么做？",
+      "relevant": [
+        63
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-064",
+      "group": "stability-communicate",
+      "query": "把反馈区分为信息、羞辱和控制，具体该怎么做？",
+      "relevant": [
+        64
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-065",
+      "group": "stability-communicate",
+      "query": "练习不把道歉变成自我辩护，具体该怎么做？",
+      "relevant": [
+        65
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-066",
+      "group": "stability-communicate",
+      "query": "给冲突留下理解、改变和观察时间，具体该怎么做？",
+      "relevant": [
+        66
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-067",
+      "group": "stability-advance",
+      "query": "学会暂停而不是逃避，具体该怎么做？",
+      "relevant": [
+        67
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-068",
+      "group": "repair-advance",
+      "query": "识别沉默何时变成惩罚，具体该怎么做？",
+      "relevant": [
+        68
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-069",
+      "group": "stability-life",
+      "query": "评估异地的共同目标、沟通机制和结束路径，具体该怎么做？",
+      "relevant": [
+        69
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-070",
+      "group": "stability-advance",
+      "query": "把关系从追求刺激扩展为了解和欣赏，具体该怎么做？",
+      "relevant": [
+        70
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-071",
+      "group": "stability-life",
+      "query": "讨论哪些信息共享，哪些仍属于个人空间，具体该怎么做？",
+      "relevant": [
+        71
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-072",
+      "group": "stability-communicate",
+      "query": "把“应该每天联系”改成双方都能执行的安排，具体该怎么做？",
+      "relevant": [
+        72
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-073",
+      "group": "stability-advance",
+      "query": "为独处、朋友和工作保留位置，具体该怎么做？",
+      "relevant": [
+        73
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-074",
+      "group": "stability-intimacy",
+      "query": "用尊重、清晰和可讨论的方式打开性话题，具体该怎么做？",
+      "relevant": [
+        74
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-075",
+      "group": "stability-intimacy",
+      "query": "理解一次同意不覆盖未来，具体该怎么做？",
+      "relevant": [
+        75
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-076",
+      "group": "stability-intimacy",
+      "query": "学习避孕、性病检测和医疗咨询的基本责任，具体该怎么做？",
+      "relevant": [
+        76
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-077",
+      "group": "stability-intimacy",
+      "query": "减少把身体当作必须交付的成绩，具体该怎么做？",
+      "relevant": [
+        77
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-078",
+      "group": "stability-intimacy",
+      "query": "识别媒体幻想与真实关系的差异，具体该怎么做？",
+      "relevant": [
+        78
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-079",
+      "group": "stability-intimacy",
+      "query": "识别“爱我就……”背后的强迫，具体该怎么做？",
+      "relevant": [
+        79
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-080",
+      "group": "stability-advance",
+      "query": "用清楚、简短、无报复的方式结束不合适的关系，具体该怎么做？",
+      "relevant": [
+        80
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-081",
+      "group": "stability-advance",
+      "query": "用可持续的小习惯代替偶尔的大场面，具体该怎么做？",
+      "relevant": [
+        81
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-082",
+      "group": "stability-communicate",
+      "query": "让对方知道你看见了什么努力，具体该怎么做？",
+      "relevant": [
+        82
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-083",
+      "group": "stability-communicate",
+      "query": "从单次事件追到重复模式，具体该怎么做？",
+      "relevant": [
+        83
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-084",
+      "group": "stability-life",
+      "query": "把收入、债务和共同支出放到合适阶段讨论，具体该怎么做？",
+      "relevant": [
+        84
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-085",
+      "group": "stability-life",
+      "query": "在承诺升级前讨论现实路径，具体该怎么做？",
+      "relevant": [
+        85
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-086",
+      "group": "marriage-life",
+      "query": "让伴侣成为共同决策者，而非夹在中间的人，具体该怎么做？",
+      "relevant": [
+        86
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-087",
+      "group": "marriage-self",
+      "query": "把结婚从浪漫终点变成现实合作项目，具体该怎么做？",
+      "relevant": [
+        87
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-088",
+      "group": "marriage-life",
+      "query": "尊重身体自主并尽早讨论重大差异，具体该怎么做？",
+      "relevant": [
+        88
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-089",
+      "group": "marriage-life",
+      "query": "让公平可见、可调整，具体该怎么做？",
+      "relevant": [
+        89
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-090",
+      "group": "stability-advance",
+      "query": "用固定问题发现小问题，不等爆炸，具体该怎么做？",
+      "relevant": [
+        90
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-091",
+      "group": "stability-advance",
+      "query": "把风险判断从感觉转成持续行为观察，具体该怎么做？",
+      "relevant": [
+        91
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-092",
+      "group": "stability-self",
+      "query": "识别“PUA包装”的控制逻辑，具体该怎么做？",
+      "relevant": [
+        92
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-093",
+      "group": "stability-advance",
+      "query": "学习负责推进自己的行为，而不是控制对方，具体该怎么做？",
+      "relevant": [
+        93
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-094",
+      "group": "stability-self",
+      "query": "在重大关系决定前同时看事实、感受和风险，具体该怎么做？",
+      "relevant": [
+        94
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-095",
+      "group": "stability-advance",
+      "query": "把重要期待变成可讨论的约定，具体该怎么做？",
+      "relevant": [
+        95
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-096",
+      "group": "stability-advance",
+      "query": "用小规模、可撤回的行动验证兼容性，具体该怎么做？",
+      "relevant": [
+        96
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-097",
+      "group": "stability-self",
+      "query": "不把全部希望压在一个人身上，具体该怎么做？",
+      "relevant": [
+        97
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-098",
+      "group": "stability-communicate",
+      "query": "准备真实句式，但不依赖背稿，具体该怎么做？",
+      "relevant": [
+        98
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-099",
+      "group": "stability-advance",
+      "query": "把100天课程变成持续行为，具体该怎么做？",
+      "relevant": [
+        99
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-100",
+      "group": "stability-advance",
+      "query": "总结原则，进入复习和现实实践，具体该怎么做？",
+      "relevant": [
+        100
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-101",
+      "group": "marriage-advance",
+      "query": "判断双方是否有共同进入长期关系的意愿，具体该怎么做？",
+      "relevant": [
+        101
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-102",
+      "group": "marriage-advance",
+      "query": "区分可靠投入和高强度表白，具体该怎么做？",
+      "relevant": [
+        102
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-103",
+      "group": "marriage-self",
+      "query": "学习信号、激励、替代方案和退出成本，具体该怎么做？",
+      "relevant": [
+        103
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-104",
+      "group": "marriage-communicate",
+      "query": "识别可以协商的偏好和不能长期共存的核心差异，具体该怎么做？",
+      "relevant": [
+        104
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-105",
+      "group": "marriage-advance",
+      "query": "把订婚视为共同决策，不是关系升级的奖励，具体该怎么做？",
+      "relevant": [
+        105
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-106",
+      "group": "marriage-advance",
+      "query": "理解浪漫惊喜和重大同意的区别，具体该怎么做？",
+      "relevant": [
+        106
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-107",
+      "group": "marriage-life",
+      "query": "把预算、规模和双方家庭期待公开化，具体该怎么做？",
+      "relevant": [
+        107
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-108",
+      "group": "marriage-advance",
+      "query": "知道婚姻带来的权利、责任和现实变化，具体该怎么做？",
+      "relevant": [
+        108
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-109",
+      "group": "marriage-advance",
+      "query": "学会在重大转折前获得结构化帮助，具体该怎么做？",
+      "relevant": [
+        109
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-110",
+      "group": "marriage-life",
+      "query": "让日常摩擦变成可协商的安排，具体该怎么做？",
+      "relevant": [
+        110
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-111",
+      "group": "marriage-advance",
+      "query": "建立稳定的日常协作，具体该怎么做？",
+      "relevant": [
+        111
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-112",
+      "group": "marriage-life",
+      "query": "处理家务的可见劳动和隐形劳动，具体该怎么做？",
+      "relevant": [
+        112
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-113",
+      "group": "marriage-life",
+      "query": "建立共同责任和个人空间，具体该怎么做？",
+      "relevant": [
+        113
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-114",
+      "group": "marriage-intimacy",
+      "query": "把性看成持续沟通，而不是婚姻义务，具体该怎么做？",
+      "relevant": [
+        114
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-115",
+      "group": "marriage-communicate",
+      "query": "预先约定不伤害关系的争吵底线，具体该怎么做？",
+      "relevant": [
+        115
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-116",
+      "group": "marriage-communicate",
+      "query": "把争吵后的重建变成习惯，具体该怎么做？",
+      "relevant": [
+        116
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-117",
+      "group": "marriage-life",
+      "query": "维持亲密与个人空间的平衡，具体该怎么做？",
+      "relevant": [
+        117
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-118",
+      "group": "marriage-life",
+      "query": "从“我家和你家”转成共同家庭，具体该怎么做？",
+      "relevant": [
+        118
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-119",
+      "group": "marriage-life",
+      "query": "处理双职、异地、晋升和牺牲的分配，具体该怎么做？",
+      "relevant": [
+        119
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-120",
+      "group": "marriage-life",
+      "query": "把孩子问题作为双向、长期、具体的选择，具体该怎么做？",
+      "relevant": [
+        120
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-121",
+      "group": "marriage-life",
+      "query": "让医疗事实和情绪都被看见，具体该怎么做？",
+      "relevant": [
+        121
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-122",
+      "group": "marriage-advance",
+      "query": "把支持落实到具体行动，具体该怎么做？",
+      "relevant": [
+        122
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-123",
+      "group": "marriage-advance",
+      "query": "先保护基本功能，再解决长期争议，具体该怎么做？",
+      "relevant": [
+        123
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-124",
+      "group": "marriage-life",
+      "query": "让父母成为合作团队，不互相拆台，具体该怎么做？",
+      "relevant": [
+        124
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-125",
+      "group": "marriage-life",
+      "query": "建立尊重、稳定、非暴力的家庭氛围，具体该怎么做？",
+      "relevant": [
+        125
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-126",
+      "group": "marriage-life",
+      "query": "管理时间、情绪和家务的总负担，具体该怎么做？",
+      "relevant": [
+        126
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-127",
+      "group": "marriage-self",
+      "query": "欢迎支持，但不交出家庭决策权，具体该怎么做？",
+      "relevant": [
+        127
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-128",
+      "group": "marriage-self",
+      "query": "随着孩子长大，持续更新规则和关系，具体该怎么做？",
+      "relevant": [
+        128
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-129",
+      "group": "marriage-advance",
+      "query": "让关系不被管理任务完全吞没，具体该怎么做？",
+      "relevant": [
+        129
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-130",
+      "group": "marriage-life",
+      "query": "在同情、责任和边界之间平衡，具体该怎么做？",
+      "relevant": [
+        130
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-131",
+      "group": "marriage-advance",
+      "query": "支持求助，不扮演唯一治疗者，具体该怎么做？",
+      "relevant": [
+        131
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-132",
+      "group": "repair-advance",
+      "query": "把同情和安全规则同时保留，具体该怎么做？",
+      "relevant": [
+        132
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-133",
+      "group": "marriage-advance",
+      "query": "明确安全优先级，具体该怎么做？",
+      "relevant": [
+        133
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-134",
+      "group": "repair-advance",
+      "query": "先处理事实、边界和安全，再处理是否继续，具体该怎么做？",
+      "relevant": [
+        134
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-135",
+      "group": "repair-advance",
+      "query": "用一致行为而不是保证修复背叛，具体该怎么做？",
+      "relevant": [
+        135
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-136",
+      "group": "repair-advance",
+      "query": "在无法安全修复时保护尊严与现实权益，具体该怎么做？",
+      "relevant": [
+        136
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-137",
+      "group": "marriage-life",
+      "query": "为阶段性分离建立透明计划，具体该怎么做？",
+      "relevant": [
+        137
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-138",
+      "group": "marriage-advance",
+      "query": "从尊重差异转向具体生活协商，具体该怎么做？",
+      "relevant": [
+        138
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-139",
+      "group": "marriage-life",
+      "query": "把责任、距离、钱和时间谈清楚，具体该怎么做？",
+      "relevant": [
+        139
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-140",
+      "group": "marriage-life",
+      "query": "照顾别人时也保护自己，具体该怎么做？",
+      "relevant": [
+        140
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-141",
+      "group": "marriage-advance",
+      "query": "把中年变化当作共同调整，而不是互相指责，具体该怎么做？",
+      "relevant": [
+        141
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-142",
+      "group": "marriage-intimacy",
+      "query": "让亲密随身体变化调整，具体该怎么做？",
+      "relevant": [
+        142
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-143",
+      "group": "marriage-life",
+      "query": "把疾病管理纳入关系协作，具体该怎么做？",
+      "relevant": [
+        143
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-144",
+      "group": "marriage-intimacy",
+      "query": "让尊严、辅助和亲密同时存在，具体该怎么做？",
+      "relevant": [
+        144
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-145",
+      "group": "marriage-advance",
+      "query": "在悲伤中陪伴，不急着修复情绪，具体该怎么做？",
+      "relevant": [
+        145
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-146",
+      "group": "marriage-life",
+      "query": "把退休从终点改成共同设计的新阶段，具体该怎么做？",
+      "relevant": [
+        146
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-147",
+      "group": "marriage-life",
+      "query": "用透明、专业和公平保护家庭，具体该怎么做？",
+      "relevant": [
+        147
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-148",
+      "group": "marriage-life",
+      "query": "让居住环境适应身体和关系变化，具体该怎么做？",
+      "relevant": [
+        148
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-149",
+      "group": "marriage-self",
+      "query": "避免把伴侣变成唯一的社会世界，具体该怎么做？",
+      "relevant": [
+        149
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-150",
+      "group": "marriage-life",
+      "query": "保护账户、医疗和家庭信息，具体该怎么做？",
+      "relevant": [
+        150
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-151",
+      "group": "marriage-life",
+      "query": "回答“我们为什么一起生活”，具体该怎么做？",
+      "relevant": [
+        151
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-152",
+      "group": "marriage-advance",
+      "query": "用成长和新体验，而不是不安维持活力，具体该怎么做？",
+      "relevant": [
+        152
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-153",
+      "group": "marriage-communicate",
+      "query": "让积极互动不只依赖重大事件，具体该怎么做？",
+      "relevant": [
+        153
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-154",
+      "group": "repair-advance",
+      "query": "区分释放怨恨和恢复原有亲密，具体该怎么做？",
+      "relevant": [
+        154
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-155",
+      "group": "marriage-advance",
+      "query": "停止追求所有差异都被消除，具体该怎么做？",
+      "relevant": [
+        155
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-156",
+      "group": "marriage-life",
+      "query": "让被照护者保有知情和选择，具体该怎么做？",
+      "relevant": [
+        156
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-157",
+      "group": "marriage-communicate",
+      "query": "在还能从容时谈愿望和支持，具体该怎么做？",
+      "relevant": [
+        157
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-158",
+      "group": "marriage-life",
+      "query": "承认关系结束但不否认共同历史，具体该怎么做？",
+      "relevant": [
+        158
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-159",
+      "group": "marriage-life",
+      "query": "把共同经历转成价值和传承，而非占有，具体该怎么做？",
+      "relevant": [
+        159
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-160",
+      "group": "marriage-advance",
+      "query": "完成全生命周期复盘，确认下一阶段的陪伴方式，具体该怎么做？",
+      "relevant": [
+        160
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-161",
+      "group": "attraction-self",
+      "query": "把“我现在想要”转化为“我真正需要什么，以及今天能做什么”，具体该怎么做？",
+      "relevant": [
+        161
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-162",
+      "group": "attraction-advance",
+      "query": "学会在公开、可重复、有共同任务的场景中自然开场，具体该怎么做？",
+      "relevant": [
+        162
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-163",
+      "group": "connection-advance",
+      "query": "识别阶段化约会术的有限用途，不把它当成让别人喜欢自己的保证，具体该怎么做？",
+      "relevant": [
+        163
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-164",
+      "group": "dating-advance",
+      "query": "把邀约从“推进对方”改成清楚、低压力的选择，具体该怎么做？",
+      "relevant": [
+        164
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-165",
+      "group": "attraction-self",
+      "query": "不把性别标签或“高低价值”当成个体判断，具体该怎么做？",
+      "relevant": [
+        165
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-166",
+      "group": "attraction-self",
+      "query": "把“强大”落实为自我负责、尊重边界和能够修复，具体该怎么做？",
+      "relevant": [
+        166
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-167",
+      "group": "connection-communicate",
+      "query": "把读心式“她在测试我”改成可验证的沟通，具体该怎么做？",
+      "relevant": [
+        167
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-168",
+      "group": "repair-self",
+      "query": "练习在关系早期识别风险，并保留退出能力，具体该怎么做？",
+      "relevant": [
+        168
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-169",
+      "group": "attraction-self",
+      "query": "不把网络理论或个人故事直接当成个体关系预测，具体该怎么做？",
+      "relevant": [
+        169
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-170",
+      "group": "commitment-self",
+      "query": "区分自己的核心价值、生活偏好和可以协商的安排，具体该怎么做？",
+      "relevant": [
+        170
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-171",
+      "group": "dating-intimacy",
+      "query": "停止把身体当成审美考试、价值证明或可供评判的物件，具体该怎么做？",
+      "relevant": [
+        171
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-172",
+      "group": "dating-intimacy",
+      "query": "用可靠信息和专业求助替代性能焦虑与自我诊断，具体该怎么做？",
+      "relevant": [
+        172
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-173",
+      "group": "dating-intimacy",
+      "query": "在亲密行为发生前谈清楚边界、保护和停止方式，具体该怎么做？",
+      "relevant": [
+        173
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-174",
+      "group": "dating-intimacy",
+      "query": "能同时看到历史材料的文化价值、时代局限和现代知识边界，具体该怎么做？",
+      "relevant": [
+        174
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-175",
+      "group": "repair-intimacy",
+      "query": "区分私密偏好、失控困扰和对他人造成伤害的行为，具体该怎么做？",
+      "relevant": [
+        175
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-176",
+      "group": "repair-self",
+      "query": "把断联变成自我保护和情绪恢复的边界，而不是测试对方会不会回来，具体该怎么做？",
+      "relevant": [
+        176
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-177",
+      "group": "repair-self",
+      "query": "识别“贬低—安抚—再贬低”对自尊和选择权的破坏，具体该怎么做？",
+      "relevant": [
+        177
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-178",
+      "group": "repair-self",
+      "query": "识别多人配合、三角传话和暗示施压对自由选择的侵蚀，具体该怎么做？",
+      "relevant": [
+        178
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-179",
+      "group": "connection-communicate",
+      "query": "完成一次来源审查，把“恋爱秘诀”转化为现实中的低风险观察，具体该怎么做？",
+      "relevant": [
+        179
+      ],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "goal_derived_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_goal_derived"
+    },
+    {
+      "id": "ret-cand-180",
+      "group": "no-match",
+      "query": "怎么更换汽车轮胎",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-181",
+      "group": "no-match",
+      "query": "如何申请出国留学签证",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-182",
+      "group": "no-match",
+      "query": "Python 怎么读取 CSV 文件",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-183",
+      "group": "no-match",
+      "query": "如何修理漏水的水龙头",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-184",
+      "group": "no-match",
+      "query": "怎么办理营业执照",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-185",
+      "group": "no-match",
+      "query": "如何训练半程马拉松",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-186",
+      "group": "no-match",
+      "query": "怎么给猫剪指甲",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-187",
+      "group": "no-match",
+      "query": "如何做红烧肉",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-188",
+      "group": "no-match",
+      "query": "怎么准备公务员考试",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-189",
+      "group": "no-match",
+      "query": "如何更换手机屏幕",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-190",
+      "group": "no-match",
+      "query": "怎么申请专利",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-191",
+      "group": "no-match",
+      "query": "如何养多肉植物",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-192",
+      "group": "no-match",
+      "query": "怎么练习钢琴指法",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-193",
+      "group": "no-match",
+      "query": "如何做面包发酵",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-194",
+      "group": "no-match",
+      "query": "怎么准备驾照科目二",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-195",
+      "group": "no-match",
+      "query": "如何选择登山鞋",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-196",
+      "group": "no-match",
+      "query": "怎么修复自行车链条",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-197",
+      "group": "no-match",
+      "query": "如何给照片调色",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-198",
+      "group": "no-match",
+      "query": "怎么准备雅思口语",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-199",
+      "group": "no-match",
+      "query": "如何挑选相机镜头",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    },
+    {
+      "id": "ret-cand-200",
+      "group": "no-match",
+      "query": "怎么学习视频剪辑",
+      "relevant": [],
+      "relevance_status": "ai_suggested_pending_review",
+      "label_source": "no_match_candidate",
+      "candidate_pool_checked": false,
+      "semantic_rewrite": false,
+      "provenance": "original_synthetic_out_of_domain"
+    }
+  ]
+}

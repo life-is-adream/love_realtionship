@@ -168,14 +168,15 @@ async function runCase(api, item) {
   // 再看用户实际会看到什么（含降级/整套退回本地）。
   const shown = parseModelContent(record.coachRaw, { herReply: record.herReply, latestMine: item.seed, messages: conversation });
   record.shownSource = shown.replyOptionsSource;
-  record.shownOptions = shown.replyOptions.map((option) => ({ key: option.key, text: option.text, flagged: Boolean(option.needsUserFill) }));
-  record.grounding = { ok: shown.grounding?.ok, needsUserFill: shown.grounding?.needsUserFill, blockedKeys: shown.grounding?.blockedKeys || [] };
+  record.shownOptions = shown.replyOptions.map((option) => ({ key: option.key, text: option.text, flagged: Boolean(option.needsUserFill), confirmed: Boolean(option.needsUserConfirm) }));
+  record.grounding = { ok: shown.grounding?.ok, needsUserFill: shown.grounding?.needsUserFill, needsUserConfirm: shown.grounding?.needsUserConfirm, blockedKeys: shown.grounding?.blockedKeys || [], confirmKeys: shown.grounding?.confirmKeys || [] };
   return record;
 }
 
-function summarize(records) {
+export function summarize(records) {
   const allAudits = records.flatMap((r) => r.audits || []);
   const fabricated = allAudits.filter((a) => a.findings.length);
+  const confirmed = allAudits.filter((a) => !a.findings.length && (a.confirmations || []).length);
   const truncated = records.filter((r) => r.coachUse?.finishReason === "length");
   const parseFailed = records.filter((r) => r.errors.length);
   return {
@@ -185,6 +186,9 @@ function summarize(records) {
     measurementValid: allAudits.length > 0,
     fabricatedOptions: fabricated.length,
     fabricationRate: allAudits.length ? (fabricated.length / allAudits.length * 100).toFixed(1) : "n/a",
+    /** 标注层也要计数：只报拦截数会让「审计放行」看起来等于「模型没错」。 */
+    confirmedOptions: confirmed.length,
+    passedOptions: allAudits.length - fabricated.length - confirmed.length,
     byType: fabricated.flatMap((a) => a.findings).reduce((acc, f) => ({ ...acc, [f.type]: (acc[f.type] || 0) + 1 }), {}),
     fellBackToLocal: records.filter((r) => r.shownSource === "local").length,
     truncated: truncated.length,
@@ -194,7 +198,7 @@ function summarize(records) {
   };
 }
 
-function renderReport(records, stats) {
+export function renderReport(records, stats) {
   const lines = [
     "# A-03 真实模型抽样：教练捏造基础率与审计器命中",
     "",
@@ -215,14 +219,17 @@ function renderReport(records, stats) {
     "| 指标 | 值 |",
     "| --- | --- |",
     `| 模型 A/B/C 总条数 | ${stats.options} |`,
-    `| 审计判定含捏造 | ${stats.fabricatedOptions}（${stats.fabricationRate}%） |`,
+    `| 审计**拦截**（改写成待填骨架） | ${stats.fabricatedOptions}（${stats.fabricationRate}%） |`,
+    `| 审计**标注**（原文没改，替你编了情况） | ${stats.confirmedOptions} |`,
+    `| 审计**放行**（既不拦也不标） | ${stats.passedOptions} |`,
     `| finding 分布 | ${JSON.stringify(stats.byType)} |`,
     `| 整套退回本地兜底的用例 | ${stats.fellBackToLocal} |`,
     `| 教练输出被长度截断(finish_reason=length) | ${stats.truncated} |`,
     `| 解析/调用异常用例 | ${stats.parseFailed} |`,
     "",
-    "> 审计器是词面判定，命中不等于「模型真的错了」，漏检也不等于「模型对了」。",
-    "> 下面每条捏造都逐字列出，需要人工盲评：模型是否真的把没发生的事说成了既定事实；审计是否误杀。",
+    "> 三个状态必须分开读：「放行」只是**审计器没意见**，不等于模型没说错。",
+    "> 词面检测抓不住的东西（虚构专名、无实体的越界推断）只会藏在放行项里，",
+    "> 所以每条都要人工盲评：模型是否真的把没发生的事说成了既定事实；审计是否误杀。",
     "",
     "## 逐用例原文",
     ""
@@ -232,17 +239,23 @@ function renderReport(records, stats) {
     lines.push(`### ${r.id}｜${r.seed}`);
     lines.push(`- 她的回复：${r.herReply || "(无)"}`);
     lines.push(`- 耗时：角色 ${r.ms.her}ms / 教练 ${r.ms.coach}ms；教练 finish_reason=${r.coachUse?.finishReason || "?"}`);
-    lines.push(`- 用户实际看到：来源 ${r.shownSource}，审计降级条 ${r.grounding?.blockedKeys?.join(",") || "无"}`);
+    lines.push(`- 用户实际看到：来源 ${r.shownSource}，审计拦截并改写 ${r.grounding?.blockedKeys?.join(",") || "无"}，审计标注 ${r.grounding?.confirmKeys?.join(",") || "无"}`);
     if (r.errors.length) lines.push(`- ⚠ 异常：${r.errors.join("；")}`);
     if (!r.audits?.length) lines.push("- 模型未给出可解析的 A/B/C。原文前 400 字：" + String(r.coachRaw || "").slice(0, 400));
     r.audits?.forEach((audit, index) => {
-      const verdict = audit.findings.length ? `**判定捏造** ${audit.findings.map((f) => `${f.type}→${f.entity}`).join(", ")}` : "通过";
+      // 三种状态要分开印。把「标注」印成「通过」等于验收证据少报一半问题 ——
+      // 2026-11-03 盲评就是这么被发现的：报告里 23 条通过，实际 6 条早被审计器标了。
+      const verdict = audit.findings.length
+        ? `**拦截** ${audit.findings.map((f) => `${f.type}→${f.entity}`).join(", ")}`
+        : ((audit.confirmations || []).length
+          ? `**标注** ${(audit.confirmations || []).map((c) => c.entity).join("、")}`
+          : "放行");
       lines.push(`  ${index + 1}. ${audit.key}: ${audit.text}`);
       lines.push(`     - ${verdict}`);
       lines.push(`     - 人工盲评（模型确实错了吗 / 审计是否误杀）：待填`);
     });
     if (r.shownOptions?.length) {
-      lines.push(`  - 展示层最终三条：${r.shownOptions.map((o) => `${o.key}${o.flagged ? "※" : ""}`).join(" ")}`);
+      lines.push(`  - 展示层最终三条（来源 ${r.shownSource}）：${r.shownOptions.map((o) => `${o.key}${o.flagged ? "※(改写)" : o.confirmed ? "※(标注)" : ""}`).join(" ")}`);
     }
     lines.push("");
   }
@@ -264,7 +277,28 @@ async function main() {
       if (saved.herReply) conversation.push({ mid: "m-her", type: "her", who: PERSONA.name, text: saved.herReply, source: "model" });
       const ledger = buildEvidenceLedger(conversation);
       const options = extractModelOptions(saved.coachRaw || "");
-      return { ...saved, audits: options.map((option) => auditReplyOption(option, ledger)) };
+      // 展示层也要按**当前代码**重算：落盘的 shownSource 是采样那一刻的旧规则（当时问句硬门槛还是 ≤1）。
+      // 报告里写「用户实际看到」却用冻结的旧值，等于拿过期证据冒充现状。
+      let shown = null;
+      try {
+        shown = parseModelContent(saved.coachRaw || "", { herReply: saved.herReply, latestMine: saved.seed, messages: conversation, styleBias: "mix" });
+      } catch { /* 单条重算失败就保留采样时的旧值，不能让一次异常丢掉整批 */ }
+      return {
+        ...saved,
+        // 冻结的 errors 里那条「没取到 replyOptions」在解析器修好后就成了假话，必须按重算结果重判。
+        errors: (saved.errors || []).filter((text) => !/没取到 replyOptions/.test(text) || options.length === 0),
+        audits: options.map((option) => auditReplyOption(option, ledger)),
+        shownSource: shown?.replyOptionsSource || saved.shownSource,
+        shownOptions: (shown?.replyOptions || saved.shownOptions || []).map((option) => ({
+          key: option.key,
+          text: option.text,
+          flagged: Boolean(option.needsUserFill),
+          confirmed: Boolean(option.needsUserConfirm)
+        })),
+        grounding: shown?.grounding
+          ? { ok: shown.grounding.ok, needsUserFill: shown.grounding.needsUserFill, needsUserConfirm: shown.grounding.needsUserConfirm, blockedKeys: shown.grounding.blockedKeys || [], confirmKeys: shown.grounding.confirmKeys || [] }
+          : saved.grounding
+      };
     });
     const stats = summarize(records);
     await mkdir(path.dirname(path.resolve(OUT)), { recursive: true });

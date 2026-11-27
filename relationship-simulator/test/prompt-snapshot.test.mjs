@@ -46,7 +46,7 @@ const fixtureMemory = {
 test("buildHerSystemPrompt 输出人设与记忆，且不含任何教练腔", () => {
   const prompt = buildHerSystemPrompt(fixturePersona, fixtureMemory);
 
-  assert.match(prompt, /本轮你是她本人/);
+  assert.match(prompt, /本轮你是 AI 模拟角色/);
   assert.match(prompt, /女方叫林知夏/);
   assert.match(prompt, /慢热知性型/);
   assert.match(prompt, /边界感强/);
@@ -77,7 +77,7 @@ test("buildHerSystemPrompt 是纯函数且不依赖闭包", () => {
 
 test("buildHerSystemPrompt 把易变记忆排在稳定人设之后（前缀缓存友好顺序）", () => {
   const withInjection = buildHerSystemPrompt(fixturePersona, { ...fixtureMemory, _tierInjection: "【投入度分层】她本轮主动提问" });
-  const performanceRuleAt = withInjection.indexOf("【本轮你是她本人】");
+  const performanceRuleAt = withInjection.indexOf("【本轮你是 AI 模拟角色】");
   const roleAt = withInjection.indexOf("你的角色设定：");
   const tierAt = withInjection.indexOf("【投入度分层】");
 
@@ -327,7 +327,19 @@ test("buildToneGuidance 是纯函数", () => {
 
 test("PROMPT_VERSION 已导出且为字符串", () => {
   assert.ok(typeof PROMPT_VERSION === "string");
-  assert.equal(PROMPT_VERSION, "1.5.0");
+  assert.equal(PROMPT_VERSION, "1.8.0");
+});
+
+// 上一轮真实上游抽样暴露出两条演出层偏差：陈述句被一律接成追问、角色以后台视角
+// 谈论记忆是否更新。两者都只能靠提示词约束，因此必须把约束钉在 her 通道里。
+test("她的演出规则禁止把陈述句一律接成追问，也禁止后台视角谈记忆", () => {
+  const prompt = buildHerSystemPrompt(fixturePersona, fixtureMemory);
+  assert.ok(prompt.includes("问句不是默认接法"), prompt);
+  assert.ok(prompt.includes("一条回复最多一个问句"), prompt);
+  assert.ok(prompt.includes("不要用后台视角"), prompt);
+  assert.ok(prompt.includes("更新后的内容"), prompt);
+  // 教练通道不该带上演出规则，否则教练会开始模仿聊天口吻。
+  assert.doesNotMatch(buildCoachSystemPrompt(fixturePersona, fixtureMemory), /问句不是默认接法/);
 });
 
 // P1 事实约束必须留在教练任务指令里：审计只拦得住词面可辨的捏造，
@@ -340,4 +352,7 @@ test("教练任务指令包含既成事实约束与提议/断言区分", () => {
   assert.ok(prompt.includes("【时间待确认】"), prompt);
   assert.ok(prompt.includes("【不得替你编人设】"), prompt);
   assert.ok(prompt.includes("替用户对真实的人撒谎"), prompt);
+  // 盲评 P0-1/P1-1：审计只拦词面可辨的实体，地址/路程与「那部片子讲什么」要靠提示词少发生。
+  assert.ok(prompt.includes("路程时长"), prompt);
+  assert.ok(prompt.includes("【不得替对象补全属性】"), prompt);
 });

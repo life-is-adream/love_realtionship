@@ -7,6 +7,7 @@
  */
 
 import { normalizeAbilityAssessment } from "../training/ability-assessment.js";
+import { normalizeWeeklyPlan } from "../training/weekly-plan.js";
 import { clampScoreOrNull } from "./number.js";
 import { correctLegacyCoachEvent, trainingScoresFromEvent } from "./training-scores.js";
 
@@ -61,7 +62,8 @@ export function normalizeLearningState(value = {}) {
     signalAttempts: copyArray(input.signalAttempts).slice(-LEARNING_LIMITS.signalAttempts),
     textbookProgress: copyRecord(input.textbookProgress),
     settings: copyRecord(input.settings),
-    abilityAssessment: normalizeAbilityAssessment(input.abilityAssessment)
+    abilityAssessment: normalizeAbilityAssessment(input.abilityAssessment),
+    weeklyPlan: normalizeWeeklyPlan(input.weeklyPlan)
   };
 
   return state;

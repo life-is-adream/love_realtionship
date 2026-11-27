@@ -21,6 +21,31 @@ export function resolveCorsOrigin(origin = "", port = PORT) {
   return `http://localhost:${port}`;
 }
 
+/** 请求来源是否允许访问本机 API：默认只接受本机回环页面。 */
+const LOOPBACK_HOSTNAME = new Set(["localhost", "127.0.0.1", "[::1]"]);
+export function isAllowedOrigin(origin, bindHost = "127.0.0.1") {
+  if (!origin) return true; // 命令行客户端通常不带 Origin。
+  try {
+    const url = new URL(origin);
+    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password || url.origin !== origin) return false;
+    if (LOOPBACK_HOSTNAME.has(url.hostname)) return true;
+    if (LOOPBACK_HOSTNAME.has(bindHost)) return false; // 默认只服务本机页面。
+    return PRIVATE_HOSTNAME.test(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+/** Host 校验：防止 DNS rebinding 用外部域名借本机服务读数据。 */
+export function isAllowedHost(hostHeader, bindHost = "127.0.0.1") {
+  if (!hostHeader) return true; // 非浏览器客户端通常不带 Host；Rebinding 攻击一定带。
+  let name;
+  try { name = new URL(`http://${hostHeader}`).hostname; } catch { return false; }
+  if (LOOPBACK_HOSTNAME.has(name)) return true;
+  if (LOOPBACK_HOSTNAME.has(bindHost)) return false;
+  return PRIVATE_HOSTNAME.test(name);
+}
+
 /** 请求体超过 2MB 限制时抛出，携带可区分的错误码。 */
 export class RequestBodyTooLargeError extends Error {
   constructor() {

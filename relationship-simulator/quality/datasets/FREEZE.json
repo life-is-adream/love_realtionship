@@ -1,0 +1,19 @@
+{
+  "frozen_at": "2026-11-14T02:22:37.004Z",
+  "git_commit": "dc151140ceed0f2217bd7138b6187b6806b66f51",
+  "note": "test 集冻结；改动必须提升 dataset_version 并重跑基线。",
+  "files": {
+    "quality/datasets/semantic/test.json": {
+      "sha256": "a544e0919981d5475b071549f4813e20a847f0c5d4bd764a24c30f78ab649d1a",
+      "bytes": 41411
+    },
+    "quality/datasets/retrieval/test.json": {
+      "sha256": "d278a72e7cc56b9ea8ed388034e8ddaff50203ef85d50f3feee38866a02b43b9",
+      "bytes": 13223
+    },
+    "quality/datasets/practice/test.json": {
+      "sha256": "25e32bb160a217d164b4b2ab1a6b0da3c6c4d41a373f21bd63d4a7ba57be1eab",
+      "bytes": 13549
+    }
+  }
+}

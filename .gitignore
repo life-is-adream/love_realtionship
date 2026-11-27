@@ -58,8 +58,31 @@ relationship-simulator/voice/models/
 relationship-simulator/voice/wheels/
 relationship-simulator/voice/logs/
 relationship-simulator/voice/*.tmp
+# 角色原声参考音频受版权保护（CC-BY-NC / 未授权），仅本机使用，禁止入库与再分发
+relationship-simulator/voice/character_voices/refs/*.wav
+# 角色语音试听样本（含真实原声，版权归原版权方，不入库）
+relationship-simulator/voice/character_voices/demo/*.wav
+relationship-simulator/public/voice-demo/*.wav
+# 角色音色评测生成物（含 AI 合成音频、评分数据、盲听页；out/ 整体可重建，不入库）
+relationship-simulator/voice/character_voices/eval/out/
+# 评测盲听页的网页服务副本（由 eval/report 生成后复制，含合成音频）
+relationship-simulator/public/voice-eval/
+# 语言标签 2x2 对照页的网页服务副本（由 eval/langtag 生成后复制，含合成音频）
+relationship-simulator/public/voice-langtag/
+# 说话方式改进对照页的网页服务副本（由 eval/prosody 生成后复制，含合成音频）
+relationship-simulator/public/voice-prosody/
 
 # 手工备份副本与 Agent 运行日志（2026-11-03 因 git add -A 被误纳入版本控制后补规则）
 # 与既有的 _relationship_coach_cn_backup_*/ 、.trae/ 、.codex/ 同一类：本地时点产物，不入库。
 relationship-simulator/_backup-*/
 relationship-simulator/.agent-runs/
+
+# C 引擎编译缓存与本机 zig 工具链副本（2026-11-27 补规则：共 22,189 个文件 / 317MB，
+# 占未跟踪文件的 99%；均可重建——pip 包 ziglang 自带标准库，缓存由 heartflow-c/build.sh 重新生成）
+**/.zigcache/
+**/.toolchain/
+
+# 验收证据日志是交付物：docs/ 下的 logs/ 与 quality/reports/ 被 FINAL_ACCEPTANCE 等文档逐条引用，
+# 不受上面通用 *.log 规则限制；运行时日志（heartflow.out.log 等）仍不入库。
+!relationship-simulator/docs/**/*.log
+!relationship-simulator/quality/reports/*.log

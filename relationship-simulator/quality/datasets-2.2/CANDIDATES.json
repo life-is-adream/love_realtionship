@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-11-15T03:05:06.755Z",
+  "status": "PENDING_HUMAN_ANNOTATION",
+  "reviewed_by_human": false,
+  "note": "候选数据，不是人工真值。完成双人标注与仲裁后，另存为 frozen/ 并更新哈希。",
+  "counts": {
+    "semantic": 300,
+    "retrieval": 200,
+    "practice": 60
+  },
+  "files": {
+    "quality/datasets-2.2/pending/semantic.json": {
+      "cases": 300,
+      "sha256": "d075c723c2a17c82a0a057316187e7b506019730e4232cdb37aabebea45d82bb",
+      "bytes": 214111
+    },
+    "quality/datasets-2.2/pending/retrieval.json": {
+      "cases": 200,
+      "sha256": "cfa5bd9ea01624f216065047b2b4ac255589879ab7ce1ff154a2ce1f3b680ef0",
+      "bytes": 86395
+    },
+    "quality/datasets-2.2/pending/practice.json": {
+      "cases": 60,
+      "sha256": "71100d3c5bfee148ea950c8bdb399f89cec22eba0651ed63a2789d78dfd78b20",
+      "bytes": 37462
+    }
+  }
+}

@@ -19,6 +19,33 @@ const MEET_AT_PATTERN = /在([\u4e00-\u9fa5A-Za-z0-9]{2,10}?)(?:见|碰面|见�
 
 const ARRANGEMENT_PATTERN = /(?:位子|座位|包厢|门票|票|预约|订位|行程|计划|食材)/g;
 
+/**
+ * 地址/线路/路程断言 —— 2026-11-03 人工盲评抓出的最狠一类漏检（g09 三条全漏）。
+ * 用户只说过「上次你说想吃日料」，教练写「那家在天河城那边，坐地铁三号线到体育西路站走五分钟就到」。
+ * 中文地名是开放集，`PLACE_PATTERN` 那种词表补不完，所以改判**框架**：
+ * 「在X那边」「地铁N号线」「到X站」「走N分钟就到」一旦出现台账里没有的实体就是捏造，
+ * 因为它描述的是现实世界，不是新提议。提议豁免只留给「我们在天河城那边见可以吗」这种
+ * 带征询痕迹或小句里有主语的写法 —— 真提新地点必然带这些痕迹，不带就是替世界说话。
+ * 不做通用 NER：本项目零依赖，且宁缺毋滥，误拦一条好建议的代价我们已经在 §7 量过一次。
+ */
+const LOCATION_FRAME = /(?:在|到|去)([\u4e00-\u9fa5A-Za-z0-9]{2,8}?)(?:那边|附近|旁边|对面|一带|门口|里面)/g;
+const TRANSIT_LINE = /((?:地铁|轻轨|公交|机场大巴)[0-9一二三四五六七八九十]{1,3}号线)/g;
+const STATION_FRAME = /(?:到|在|从|坐)([\u4e00-\u9fa5A-Za-z0-9]{2,8}站)/g;
+const TRAVEL_TIME = /((?:走|步行|坐|骑|开)[0-9一二两三四五六七八九十]{1,3}(?:分钟|个小时|小时))(?:就到|才到|能到|就到你了|就到你)/g;
+const PLACE_FRAME_KINDS = [
+  { pattern: LOCATION_FRAME, type: "fabricated_place" },
+  { pattern: TRANSIT_LINE, type: "fabricated_place" },
+  { pattern: STATION_FRAME, type: "fabricated_place" },
+  { pattern: TRAVEL_TIME, type: "fabricated_time" }
+];
+
+/**
+ * 内容属性断言 —— 同一轮盲评的第二类漏检（g04 三条全漏）。
+ * 用户说「最近有部纪录片挺火」，从没说过是什么题材；教练写「讲城市里普通人的生活变迁那种」。
+ * 用户照抄，就是当着真人的面描述一部自己没说过的片子。这类句子没有时间地点实体，
+ * 前面所有实体规则都看不见它，所以单独按「谓语形态 + 与台账零重合」判，只标注不改原文。
+ */
+const CONTENT_ATTRIBUTE = /(?:^|[，,、\s])(?:讲|说的是|拍的是|写的是|演的是)(?:的|的是|起来|了)?|偏[\u4e00-\u9fa5]{2,6}的|就是那种|题材|类型|风格/;
 // 既成事实框架：把某事说成已经商定 / 已经发生 / 上次就有。
 // 「上次/之前 + 说|聊|定|约|提」两类动词、「定|订」同音异体都得列进来，
 // 否则「上次定的那家健身房」「我早就订了」这类写法会整条漏掉。
@@ -56,6 +83,12 @@ const RECOLLECTION = /我记得|我印象|印象中|好像|应该是|我记着|�
 // 不用 \b：中文不属于 \w，\b 在「。我」这种位置根本不成立，会整条漏掉。
 const FIRST_PERSON = /我|咱/;
 const DECISION_FRAME = /那就|就来|定在|暂定|约在|我陪你|我按你|我配合|先|改天|看你|你那边|方便的话|随时|或者|不如|要不要|可以吗|好不好|怎么样|行吗/;
+/**
+ * 个人处境闸门（盲评 P2-3）。第一人称 + 未接地实体就标，噪声已经大到开始咬人：
+ * g12-B「那这条路上的路灯今天归我们检查了」是玩笑，没有任何事实主张，也被标了一次。
+ * 标得越多，用户越会无视这条提醒，所以要求句子里确实出现「要跟对方交代自己的事」的措辞。
+ */
+const PERSONAL_AFFAIRS = /有空|没空|没时间|忙|加班|上班|下班|赶|作业|报告|论文|截止|deadline|Deadline|DEADLINE|考试|项目|组里|导师|出差|开会|例会|值班|排班|通勤|课程|上课|身体|感冒|发烧|不舒服|家里|爸妈|室友|一般|平时|通常|经常/;
 
 const clean = (value) => String(value || "").replace(/\s+/g, " ").trim();
 const squash = (value) => String(value || "").replace(/\s+/g, "").toLowerCase();
@@ -81,6 +114,35 @@ function hasLedgerSupport(ledger, entity) {
   const needle = squash(entity);
   if (!needle) return true;
   return String(ledger?.normalizedCorpus || "").includes(needle);
+}
+
+/** 地点框架只给整段匹配没用，需要的是框架里那个实体（天河城 / 地铁三号线 / 走五分钟）。 */
+function frameEntities(clause) {
+  const found = [];
+  for (const { pattern, type } of PLACE_FRAME_KINDS) {
+    pattern.lastIndex = 0;
+    let match;
+    while ((match = pattern.exec(clause)) !== null) {
+      const entity = clean(match[1] || match[0]);
+      pattern.lastIndex = match.index + Math.max(match[0].length, 1);
+      // 代词和方位词不是实体：「在你那边」「在那边」不构成新事实。
+      if (!entity || /^(?:这|那|你|我|他|她|咱|大家|所有|哪)/.test(entity)) continue;
+      found.push({ entity, type });
+    }
+  }
+  const seen = new Set();
+  return found.filter((item) => !seen.has(item.entity) && seen.add(item.entity));
+}
+
+/** 内容属性无法用实体核对，只能问「这句话有没有任何一段真的来自台账」：三字连续重合即算有出处。 */
+function sharesContentWithLedger(ledger, text) {
+  const needle = squash(text);
+  const corpus = String(ledger?.normalizedCorpus || "");
+  if (needle.length < 3 || !corpus) return false;
+  for (let index = 0; index + 3 <= needle.length; index += 1) {
+    if (corpus.includes(needle.slice(index, index + 3))) return true;
+  }
+  return false;
 }
 
 /** 断言事实的出处：返回正文确实包含该实体的消息 mid，供 UI 展示「这句话来自哪条消息」。 */
@@ -113,9 +175,11 @@ export function auditReplyOption(option, ledger) {
   const assertedFacts = [];
   const proposals = [];
 
+  const clauses = text.split(/[，,。；;!！~、]/);
+
   // 先查「对外部世界的事实断言」：这类句子即使带问句尾巴也不属于提议框架，
   // 不能走下面的提议豁免。按小句切分，避免「我们…开始」被同一句里别处的展览名误伤。
-  for (const clause of text.split(/[，,。；;!！~、]/)) {
+  for (const clause of clauses) {
     const hasSchedule = SCHEDULE_PREDICATE.test(clause);
     if (!hasSchedule || !EXTERNAL_SUBJECT.test(clause)) continue;
     if (SELF_SUBJECT.test(clause) && !RECOLLECTION.test(clause)) continue;
@@ -124,6 +188,24 @@ export function auditReplyOption(option, ledger) {
       if (!hasLedgerSupport(ledger, entity)) {
         findings.push({ type: "fabricated_time", entity, severity: "block", reason: "断言了对话里没出现过的场馆日程" });
       }
+    }
+  }
+
+  // 再查「把地址/线路/路程说成事实」。中文会省略主语（g09-C「在体育西路那边，地铁出来走五分钟就到」），
+  // 所以判框架而不是主语：这类小句既没有「那就约在/…吗」的提议痕迹，也不是用户自己的位置陈述，
+  // 它就是在对现实世界做断言 —— 与场馆日程同一处理，不能被提议豁免。
+  // 第一人称主语的走法（「我那边走十分钟就到」）只标注不拦截：那是用户自己的处境，代价交给用户判断。
+  const frameConfirmations = [];
+  for (const clause of clauses) {
+    if (PROPOSAL.test(clause) || DECISION_FRAME.test(clause)) continue;
+    const aboutSelf = SELF_SUBJECT.test(clause);
+    for (const { entity, type } of frameEntities(clause)) {
+      if (hasLedgerSupport(ledger, entity)) continue;
+      if (aboutSelf) {
+        frameConfirmations.push({ entity, clause, reason: "这句新增了对话里没出现过的、关于你自己的信息" });
+        continue;
+      }
+      findings.push({ type, entity, severity: "block", reason: "把地址、线路或路程说成了事实，对话里没出现过" });
     }
   }
 
@@ -164,12 +246,25 @@ export function auditReplyOption(option, ledger) {
   // 只有「决策/征询框架」才整条豁免 —— 那是用户自己在提新方案，不是替他编处境。
   const blockedEntities = new Set(findings.map((finding) => finding.entity));
   const confirmations = [];
-  if (FIRST_PERSON.test(text) && !DECISION_FRAME.test(text)) {
+  if (FIRST_PERSON.test(text) && !DECISION_FRAME.test(text) && PERSONAL_AFFAIRS.test(text)) {
     for (const entity of [...times, ...places]) {
       if (blockedEntities.has(entity) || hasLedgerSupport(ledger, entity)) continue;
       confirmations.push({ entity, clause: text, reason: "这句新增了对话里没出现过的、关于你自己的信息" });
     }
   }
+
+  // 内容属性标注：替你补全了「那部片子讲什么 / 那家店什么样」，且整句与台账零重合。
+  const contentConfirmations = [];
+  for (const clause of clauses) {
+    if (PROPOSAL.test(clause) || SELF_SUBJECT.test(clause) || DECISION_FRAME.test(clause)) continue;
+    if (!CONTENT_ATTRIBUTE.test(clause)) continue;
+    if (sharesContentWithLedger(ledger, clause)) continue;
+    contentConfirmations.push({ entity: clean(clause).slice(0, 20), clause, reason: "这句替你补全了作品或店铺的具体内容，对话里没出现过" });
+  }
+
+  const seenConfirmations = new Set();
+  const allConfirmations = [...confirmations, ...frameConfirmations, ...contentConfirmations]
+    .filter((item) => !blockedEntities.has(item.entity) && !seenConfirmations.has(`${item.entity}#${item.reason}`) && seenConfirmations.add(`${item.entity}#${item.reason}`));
 
   const uniqueAsserted = [...new Set(assertedFacts)];
   return {
@@ -181,9 +276,9 @@ export function auditReplyOption(option, ledger) {
     // 有 assertedFacts 但查不出 mid 说明台账缺 mid，此时必须让调用方看见，不能假装可追溯。
     sourceMessageIds: uniqueAsserted.length ? sourceIdsFor(ledger, uniqueAsserted) : [],
     findings,
-    confirmations,
+    confirmations: allConfirmations,
     needsUserFill: findings.length > 0,
-    needsUserConfirm: confirmations.length > 0
+    needsUserConfirm: allConfirmations.length > 0
   };
 }
 
@@ -295,8 +390,17 @@ export function groundingNote(result) {
   }
   // 标注类：原文没改，但这句话里有关于你自己的新信息是你没说过的。
   // 单独一句是因为它的后果不同 —— 照抄等于对真实的人撒谎，不是"信息不全"。
-  if (result?.needsUserConfirm) {
-    parts.push(`其中 ${(result.confirmKeys || []).join("、")} 替你新增了对话里没出现过的个人情况（截止日、加班、行程等）；发送前请核对是不是你的真实情况，不是就删掉那半句。`);
+  const confirmations = (result.options || []).flatMap((item) => item.confirmations || []);
+  if (result?.needsUserConfirm && confirmations.length) {
+    const keys = (result.confirmKeys || []).join("、");
+    const content = confirmations.some((item) => /作品或店铺/.test(String(item.reason || "")));
+    const personal = confirmations.some((item) => !/作品或店铺/.test(String(item.reason || "")));
+    if (personal) {
+      parts.push(`其中 ${keys} 替你新增了对话里没出现过的个人情况（截止日、加班、行程等）；发送前请核对是不是你的真实情况，不是就删掉那半句。`);
+    }
+    if (content) {
+      parts.push(`其中 ${keys} 把你提到的那部作品或那家店的具体内容说成了事实，而对话里只说「有部」「上次你说想吃的」这种模糊指代；发送前请核对是不是你说的那一部、那一家。`);
+    }
   }
   return parts.join(" ");
 }

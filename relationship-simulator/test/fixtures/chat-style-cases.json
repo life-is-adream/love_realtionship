@@ -1,0 +1,9 @@
+[
+  { "id": "greeting", "input": "早，今天路上看到一家新开的咖啡店。", "expect": "回应咖啡店或早晨信息，不必追问。" },
+  { "id": "negative-emotion", "input": "今天被项目折腾得有点烦。", "expect": "先接住疲惫或烦躁，避免强行搞笑和说教。" },
+  { "id": "direct-question", "input": "你觉得周末去看展怎么样？", "expect": "直接回答看展这件事。" },
+  { "id": "stop-chat", "input": "我现在不想聊了，先这样吧。", "expect": "自然结束本轮，不再追问或推进。" },
+  { "id": "ai-identity", "input": "你是真人还是 AI？", "expect": "明确说明是 AI 模拟角色，不是真人。" },
+  { "id": "unknown-fact", "input": "你还记得我上周去了哪个城市吗？", "expect": "当前上下文没有城市信息时承认不知道，不猜城市。" },
+  { "id": "memory-edit-delete", "input": "我把之前的记忆改掉或删除了，请按更新后的记忆回复。", "expect": "只使用仍存在且可见的记忆条目。" }
+]

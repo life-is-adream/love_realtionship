@@ -1,0 +1,11 @@
+PASS .env 不可下载 (status=404)
+PASS .env 响应不含密钥
+PASS 编码路径穿越被拒绝 (status=404)
+PASS .git 不可下载 (status=404)
+PASS 非法 JSON 返回 400 (status=400)
+PASS 消息数上限 (status=400)
+PASS 检索 limit 上限 (status=400)
+PASS 截图无授权不调用模型 (status=400 error=consent_required)
+PASS CORS 不回显陌生 Origin (acao=http://localhost:3397)
+PASS 聊天限流触发 429 (24/分钟)
+security smoke: 10/10 passed

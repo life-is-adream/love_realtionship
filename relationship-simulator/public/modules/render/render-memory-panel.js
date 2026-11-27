@@ -15,7 +15,7 @@ import { $, escapeHtml } from "../core/dom.js";
 import { getCurrentPersona, getState, mutate } from "../core/state.js";
 
 /** 面板最多展示的条目数（内存里可保留更多，见 MEMORY_CONFIG） */
-const DISPLAY_LIMIT = { timeline: 12, summary: 5 };
+const DISPLAY_LIMIT = { timeline: 100, summary: 20 };
 
 /**
  * 渲染关系档案面板到 #memoryPanel。
@@ -51,7 +51,7 @@ export function renderMemoryPanel() {
         <strong>关系档案</strong>
         <span>记忆 ${timeline.length} 条 · 摘要 ${summaries.length} 条</span>
       </div>
-      <p class="note">这些是生成回复时会用到的长期记忆（最近 3 条时间线 + 最近一次会话摘要进入上下文）。删除后该条立即不再参与生成，且不可恢复。</p>
+      <p class="note">下方完整列出自动保存的时间线和摘要，均可编辑或删除。时间线最近 3 条、最近一次摘要进入角色上下文；删除不会清除当前聊天或其他重复记录。</p>
       <div class="memory-stats">
         <span>互动轮次 ${escapeHtml(String(history.totalConversations ?? 0))}</span>
         <span>消息累计 ${escapeHtml(String(history.messagesExchanged ?? 0))}</span>
@@ -70,12 +70,29 @@ export function renderMemoryPanel() {
  * @param {number} index
  */
 export function removeMemoryEntry(personaId, kind, index) {
+  if (!["timeline", "summary"].includes(kind)) return false;
   const list = getMemoryList(personaId, kind);
   if (!list || !Number.isInteger(index) || index < 0 || index >= list.length) return false;
   mutate((draft) => {
     const target = getMemoryListFromState(draft, personaId, kind);
     if (target) target.splice(index, 1);
   });
+  globalThis.dispatchEvent?.(new Event("heartflow:memory-changed"));
+  return true;
+}
+
+export function updateMemoryEntry(personaId, kind, index, text) {
+  if (!["timeline", "summary"].includes(kind) || !Number.isInteger(index)) return false;
+  const value = String(text ?? "").trim();
+  if (!value || value.length > 500) return false;
+  const list = getMemoryList(personaId, kind);
+  if (!list || index < 0 || index >= list.length) return false;
+  mutate((draft) => {
+    const target = getMemoryListFromState(draft, personaId, kind);
+    if (kind === "timeline") target[index] = { ...target[index], content: value };
+    else target[index] = { ...target[index], summary: value };
+  });
+  globalThis.dispatchEvent?.(new Event("heartflow:memory-changed"));
   return true;
 }
 
@@ -84,7 +101,7 @@ export function removeMemoryEntry(personaId, kind, index) {
 function renderGate() {
   return `<div class="memory-card memory-gate">
       <div class="memory-head"><strong>关系档案</strong><span>未授权</span></div>
-      <p class="note">长期记忆需要显式授权后才会保存。当前不会记录任何跨会话记忆，本次对话结束后即清空。</p>
+      <p class="note">自动提取的结构化长期记忆默认关闭。原始聊天记录和手动场景设置仍会保存在本机；这不是聊天自动清空。关闭授权会清除增强记忆。</p>
       <p class="note">想启用：勾选「证据与决策」中的「允许保存结构化复盘记忆」。关闭授权会同时清除已保存的记忆。</p>
       <button class="btn small" type="button" data-memory-open-consent>去授权</button>
     </div>`;
@@ -108,7 +125,11 @@ function renderTimeline(timeline) {
       const content = String(item?.content || "（无内容）");
       return `<li class="memory-row">
           <time>${escapeHtml(time)}</time>
-          <span>${escapeHtml(content)}</span>
+          <span data-memory-view>${escapeHtml(content)}</span>
+          <textarea data-memory-editor hidden maxlength="500" aria-label="编辑时间线记忆">${escapeHtml(content)}</textarea>
+          <button class="btn small ghost" type="button" data-memory-edit>编辑</button>
+          <button class="btn small ghost" type="button" data-memory-save hidden>保存</button>
+          <button class="btn small ghost" type="button" data-memory-cancel hidden>取消</button>
           <button class="btn small ghost" type="button" data-memory-kind="timeline" data-memory-index="${index}">删除</button>
         </li>`;
     })
@@ -130,7 +151,11 @@ function renderSummaries(summaries) {
       const text = String(item?.summary || "（无摘要）");
       return `<li class="memory-row">
           <time>${escapeHtml(date)}</time>
-          <span>${escapeHtml(text)}</span>
+          <span data-memory-view>${escapeHtml(text)}</span>
+          <textarea data-memory-editor hidden maxlength="500" aria-label="编辑对话摘要">${escapeHtml(text)}</textarea>
+          <button class="btn small ghost" type="button" data-memory-edit>编辑</button>
+          <button class="btn small ghost" type="button" data-memory-save hidden>保存</button>
+          <button class="btn small ghost" type="button" data-memory-cancel hidden>取消</button>
           <button class="btn small ghost" type="button" data-memory-kind="summary" data-memory-index="${index}">删除</button>
         </li>`;
     })
@@ -146,6 +171,21 @@ function bindDeleteHandlers(panel, personaId) {
       const kind = button.dataset.memoryKind === "summary" ? "summary" : "timeline";
       const index = Number(button.dataset.memoryIndex);
       removeMemoryEntry(personaId, kind, index);
+      renderMemoryPanel();
+    });
+  }
+  for (const row of panel.querySelectorAll(".memory-row")) {
+    const editor = row.querySelector("[data-memory-editor]");
+    const view = row.querySelector("[data-memory-view]");
+    const edit = row.querySelector("[data-memory-edit]");
+    const save = row.querySelector("[data-memory-save]");
+    const cancel = row.querySelector("[data-memory-cancel]");
+    const toggle = (active) => { editor.hidden = !active; view.hidden = active; edit.hidden = active; save.hidden = !active; cancel.hidden = !active; };
+    edit?.addEventListener("click", () => toggle(true));
+    cancel?.addEventListener("click", () => { editor.value = view.textContent; toggle(false); });
+    save?.addEventListener("click", () => {
+      const entry = row.querySelector("[data-memory-kind]");
+      if (updateMemoryEntry(personaId, entry.dataset.memoryKind, Number(entry.dataset.memoryIndex), editor.value)) renderMemoryPanel();
     });
   }
 }

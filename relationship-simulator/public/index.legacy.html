@@ -196,7 +196,11 @@
         </label>
 
         <details class="voice-settings" id="voiceSettings">
-          <summary>语音朗读（本地模型 · 离线）</summary>
+          <summary>语音朗读（默认离线 · 可选在线高音质）</summary>
+          <label class="check-field">
+            <input type="checkbox" id="ttsOnlineToggle" />
+            <span>启用在线语音（音质更好，朗读文本会离开本机）</span>
+          </label>
           <label class="field">
             <span>语音引擎</span>
             <select id="ttsEngineSelect"></select>
@@ -214,7 +218,7 @@
             <button class="btn small ghost" id="ttsStopBtn" type="button">停止朗读</button>
           </div>
           <p class="voice-status" id="ttsStatus">正在检查本地语音服务…</p>
-          <p class="note">两套模型都在本机运行，不联网、不产生费用。ChatTTS 更拟真（占显存、首句稍慢），Kokoro 更轻快（纯 CPU）。首次使用需双击项目根目录「启动语音服务.cmd」；每条女方消息旁也有「朗读」按钮。</p>
+          <p class="note">默认两套本地模型完全离线、不联网、不产生费用，但音质一般，只作无网络兜底。听感验收通过的是「微软神经语音」的两个<b>未经变调的原生</b>中文女声（温柔 · 自然 / 元气 · 明亮）：勾上「启用在线语音」并确认后即可使用，无需重启服务；关闭开关立刻恢复纯离线。注意启用在线后，每次朗读的文本会发送给微软。首次使用需双击项目根目录「启动语音服务.cmd」；每条女方消息旁也有「朗读」按钮。</p>
         </details>
 
         <details class="avatar-editor"><summary>头像设置</summary>
@@ -415,6 +419,6 @@
   <input id="fileImport" type="file" accept="application/json" hidden />
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
   <script src="/pet.js?v=20261031-pet3" defer></script>
-  <script type="module" src="/app.js?v=20261013-abilities-r1"></script>
+  <script type="module" src="/app.js?v=20261107-voice3"></script>
 </body>
 </html>

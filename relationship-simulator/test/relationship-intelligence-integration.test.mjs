@@ -19,7 +19,7 @@ test("页面提供本地分析面板和显式匿名记忆同意控件", () => {
   assert.match(index, /id="relationshipIntelligencePanel"/);
   assert.match(index, /id="relationshipIntelligenceConsent"/);
   assert.match(index, /id="refreshRelationshipIntelligenceBtn"/);
-  assert.match(index, /不保存原始聊天/);
+  assert.match(index, /聊天和训练记录仍会另存本机/);
 });
 
 test("本地服务主路由公开确定性 runtime 接口", () => {

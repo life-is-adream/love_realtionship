@@ -1,0 +1,6 @@
+bm25      node  P50=71.5ms P95=100.4ms
+bm25      c     P50=41.9ms P95=49.7ms
+semantic  node  P50=81.4ms P95=94.8ms
+semantic  c     P50=39.7ms P95=46.8ms
+hybrid    node  P50=83.6ms P95=103.1ms
+hybrid    c     P50=40.7ms P95=46.7ms

@@ -197,6 +197,35 @@ test("applyBackup 校验失败时零写入（原子性）", () => {
   assert.equal(target.getItem(STORAGE_KEYS.activeTab), "chat");
 });
 
+test("隔离键不进入备份、也不被恢复写回", () => {
+  assert.ok(!BACKUP_KEY_WHITELIST.includes(STORAGE_KEYS.stateQuarantine));
+  const storage = createMemoryStorage({ [STORAGE_KEYS.stateQuarantine]: "SYNTHETIC_CORRUPT_STATE" });
+  const backup = buildBackup(sampleState, storage);
+  assert.ok(!Object.hasOwn(backup.data, STORAGE_KEYS.stateQuarantine));
+  assert.ok(!JSON.stringify(backup).includes("SYNTHETIC_CORRUPT_STATE"));
+  const target = createMemoryStorage({ [STORAGE_KEYS.stateQuarantine]: "LOCAL_ONLY_COPY" });
+  assert.equal(applyBackup(backup, target).ok, true);
+  assert.equal(target.getItem(STORAGE_KEYS.stateQuarantine), "LOCAL_ONLY_COPY", "恢复不应触碰隔离键");
+});
+
+test("恢复中途写入失败时回滚已写入的键（不留下半新半旧）", () => {
+  const backup = buildBackup(sampleState, createMemoryStorage({ [STORAGE_KEYS.activeTab]: "SYNTHETIC_NEW_TAB" }));
+  const map = new Map([[STORAGE_KEYS.state, "SYNTHETIC_OLD_MAIN"], [STORAGE_KEYS.activeTab, "SYNTHETIC_OLD_TAB"]]);
+  let writes = 0;
+  const storage = {
+    getItem: (key) => (map.has(key) ? map.get(key) : null),
+    setItem: (key, value) => {
+      writes += 1;
+      if (writes === 2) throw new Error("synthetic quota failure");
+      map.set(key, String(value));
+    },
+    removeItem: (key) => { map.delete(key); }
+  };
+  assert.throws(() => applyBackup(backup, storage), /synthetic quota failure/u);
+  assert.equal(map.get(STORAGE_KEYS.state), "SYNTHETIC_OLD_MAIN");
+  assert.equal(map.get(STORAGE_KEYS.activeTab), "SYNTHETIC_OLD_TAB");
+});
+
 test("buildBackupFilename 生成 heartflow-backup-YYYYMMDD-HHmmss.json", () => {
   assert.equal(
     buildBackupFilename(new Date(2026, 0, 9, 8, 5, 3)),

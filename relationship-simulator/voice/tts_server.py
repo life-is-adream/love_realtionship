@@ -1,19 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""HeartFlow 本地 TTS sidecar（双引擎，完全离线，仅绑定 127.0.0.1）。
+"""HeartFlow 本地 TTS sidecar（默认完全离线，仅绑定 127.0.0.1）。
 
 引擎：
   chattts  ChatTTS 0.2.5（约 2GB，PyTorch/CUDA）——拟真度高，能带语气词与停顿
   kokoro   Kokoro-82M（ONNX，约 325MB，CPU）——轻量兜底，速度快
+  edge     微软神经语音（在线，音质最高，2 个原生中文女声）——默认零注册、零联网
 
-为什么是「一个进程两个引擎」：前端只需一个地址、一套协议；默认引擎预热加载，
-另一个引擎在首次被请求时才加载，避免白占内存/显存。
+隐私边界：edge 需要联网，合成时文本会离开本机。默认不出现在 health 里，
+前端下拉框也置灰；只有在设置面板显式点「启用在线语音」（POST /online），
+或启动时设 HEARTFLOW_TTS_ALLOW_ONLINE=1，才会解锁。
+未解锁时即便绕过前端直连本机端口请求 engine=edge，也会被 403 拒绝。
+不启用时整个服务与旧版完全一致，纯离线、零外部请求。
+
+为什么是「一个进程多引擎」：前端只需一个地址、一套协议；默认引擎预热加载，
+其余引擎在首次被请求时才加载，避免白占内存/显存。
 
 端点：
-  GET  /health   -> 每个引擎的状态、音色、设备、加载耗时
+  GET  /health   -> 每个引擎的状态、音色、设备、加载耗时；带 onlineEnabled 字段
   GET  /voices   -> 默认引擎音色（兼容旧前端）
-  POST /tts      -> body {text, engine?, voice?, speed?}，返回 audio/wav
+  GET  /online   -> 当前在线引擎开关状态（只读，不触发任何联网）
+  POST /online   -> body {enabled: bool}，运行时解锁/关闭在线引擎，仅本机可调用
+  POST /tts      -> body {text, engine?, voice?, speed?, format?}，返回 audio/wav
                     响应头带 X-Tts-Engine / X-Tts-Latency-Ms
+                    C 版服务会带 format="pcm"，此时返回 application/octet-stream
+                    的 raw float32，由 C 侧做响度归一化与 WAV 封装；
+                    不带该字段时仍是原来的 WAV 行为（旧前端/旧代理兼容）。
 
 约束：单次文本 <= 300 字；引擎内串行推理（两者都不是线程安全的）。
 """
@@ -26,10 +38,22 @@ import sys
 import threading
 import time
 import traceback
+import urllib.error
+import urllib.request
 import wave
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+# tests/tts-parity.py 会用 importlib 按文件路径加载本模块，此时 voice/ 不在 sys.path，
+# 同目录的预设模块会找不到。显式补上，保证「脚本启动」与「按路径导入」行为一致。
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from voice_presets import (  # noqa: E402
+    EDGE_BY_ID,
+    EDGE_DEFAULT,
+    EDGE_PRODUCT_VOICES,
+)
 
 # 模型与 espeak 数据放在纯 ASCII 路径：espeak-ng.dll 在 Windows 上无法处理含中文的路径，
 # 否则会回退到编译期路径并报 "Error processing file ... phontab"。
@@ -56,8 +80,11 @@ KOKORO_DEFAULT_VOICE = "zf_xiaobei"
 # ---------------- ChatTTS 配置 ----------------
 CHATTTS_ROOT = os.environ.get("HEARTFLOW_CHATTTS_ROOT", os.path.join(VOICE_ROOT, "chattts"))
 CHATTTS_DEVICE = os.environ.get("HEARTFLOW_CHATTTS_DEVICE", "cuda")
-# 语气/停顿提示词：[oral_N] 口语化程度，[laugh_N] 笑声，[break_N] 停顿密度
-CHATTTS_REFINE_PROMPT = os.environ.get("HEARTFLOW_CHATTTS_REFINE", "[oral_2][laugh_0][break_4]")
+# 语气/停顿提示词：[oral_N] 口语化程度，[laugh_N] 笑声，[break_N] 停顿密度。
+# 2026-11-07 音色工坊实测：oral_2/break_4 会往句子里塞口头禅与碎停顿，
+# 同一说话人的频谱平坦度 0.110（噪声偏多）；改成 oral_0/break_0 后降到 0.054。
+# 保留 refine（不整个跳过）是为了留住自然句读，只去掉画蛇添足的部分。
+CHATTTS_REFINE_PROMPT = os.environ.get("HEARTFLOW_CHATTTS_REFINE", "[oral_0][laugh_0][break_0]")
 CHATTTS_USE_REFINE = os.environ.get("HEARTFLOW_CHATTTS_SKIP_REFINE", "0") != "1"
 # 录音克隆的最小生成长度，单位是「每字多少个音频码」。这不是锦上添花的调参：
 # 用参考音频做 prompt 时模型会在 prompt 结束处直接给 EOS，不设下限只念半句就停
@@ -71,14 +98,21 @@ CLONE_MIN_RMS = float(os.environ.get("HEARTFLOW_CLONE_MIN_RMS", "0.004"))
 CLONE_MAX_FLATNESS = float(os.environ.get("HEARTFLOW_CLONE_MAX_FLATNESS", "0.15"))
 
 # 音色 = 固定随机种子采样出的说话人向量（可复现，换机器只要 seed 不变就一致）。
-# 种子按实测基频（F0 中位）由低到高排列，标签与实测听感一致。
+# 前 4 个是旧版音色，id 保持不变以兼容已保存的用户偏好。
+# 后 4 个来自 2026-11-07 的 voice_lab.py 海选：32 个种子同一句合成，
+# 按「频谱平坦度（噪声）+ 频谱质心（明亮度）+ F0 + 音高起伏」挑出。
+# 指标是筛选依据不是听感结论，最终以 voice/lab-out/试听.html 人耳试听为准。
 CHATTTS_VOICES = [
-    ("chat_wenrou", 777),      # F0 中位 148 Hz — 温柔低缓
-    ("chat_qingliang", 2024),  # F0 中位 247 Hz — 清亮偏高
-    ("chat_chenwen", 31415),   # F0 中位 173 Hz — 沉稳中音
-    ("chat_yuanqi", 8888),     # F0 中位 214 Hz — 元气明亮
+    ("chat_wenrou", 777),      # 旧默认 · F0 154 / 亮度 1334 / 平坦度 0.086
+    ("chat_qingliang", 2024),  # F0 242 / 亮度 1321 / 平坦度 0.100
+    ("chat_chenwen", 31415),   # F0 142 / 亮度 2293 / 平坦度 0.152
+    ("chat_yuanqi", 8888),     # F0 229 / 亮度 1968 / 平坦度 0.126
+    ("chat_qingche", 666),     # 海选综合最佳 · F0 163 / 亮度 1732 / 平坦度 0.074
+    ("chat_yujie", 42),        # 清冷御姐向 · F0 139 / 起伏 53 / 平坦度 0.075
+    ("chat_tianmei", 65535),   # 离线最高音 · F0 243 / 亮度 1540 / 平坦度 0.096
+    ("chat_lengjing", 31),     # 沉静平稳 · F0 163 / 起伏 47 / 平坦度 0.050
 ]
-CHATTTS_DEFAULT_VOICE = "chat_wenrou"
+CHATTTS_DEFAULT_VOICE = "chat_qingche"
 # 自回归解码的单 token 开销主要是 CPU 侧调度，GPU 利用率只有 12%；
 # 但把多句放进同一个 batch 几乎不增加耗时（实测 4 句比 1 句只慢 18%）。
 # 所以按句切分后批量合成，是这台机器上最有效的加速手段。
@@ -87,9 +121,40 @@ CHATTTS_BATCH = int(os.environ.get("HEARTFLOW_CHATTTS_BATCH", "4"))
 ENGINE_LABELS = {
     "chattts": "ChatTTS · 拟真（GPU）",
     "kokoro": "Kokoro · 轻量（CPU）",
+    "edge": "微软神经语音 · 在线",
+    "character": "角色音色 · 本地克隆",
 }
 
+# ---------------- 角色音色（独立进程 5002）----------------
+# qwen_tts 只装在 venv-qwen，且 1.7B bf16 独占约 4.4GB 显存，
+# 因此由 voice/character_voices/character_server.py 单独承载，本进程只做 HTTP 代理。
+CHAR_TTS_BASE = os.environ.get("HEARTFLOW_CHAR_TTS_URL", "http://127.0.0.1:5002")
+CHAR_TTS_TIMEOUT = int(os.environ.get("HEARTFLOW_CHAR_TTS_TIMEOUT", "240"))
+
+# 在线引擎必须显式开启：合成时文本会离开本机，不能默认悄悄启用。
+ALLOW_ONLINE = os.environ.get("HEARTFLOW_TTS_ALLOW_ONLINE", "0") == "1"
+# 运行时开关：可由设置面板 POST /online 切换，无需改环境变量、无需重启。
+# 只有它为 True 时 health 才列出 edge、/tts 才接受 engine=edge，
+# 因此「默认零联网」不依赖前端自觉，服务端自己兜底。
+ONLINE_ENABLED = ALLOW_ONLINE
+_online_lock = threading.Lock()
+
+
+def online_enabled():
+    with _online_lock:
+        return ONLINE_ENABLED
+
+
+def set_online_enabled(enabled):
+    global ONLINE_ENABLED
+    with _online_lock:
+        ONLINE_ENABLED = bool(enabled)
+    return ONLINE_ENABLED
+
+
 DEFAULT_ENGINE = os.environ.get("HEARTFLOW_TTS_ENGINE", "chattts")
+if DEFAULT_ENGINE == "edge" and not ALLOW_ONLINE:
+    DEFAULT_ENGINE = "chattts"
 
 VERSION = "2.0.0"
 started_at = time.time()
@@ -140,6 +205,13 @@ class EngineState:
         if self.name == "chattts":
             payload["model"] = "ChatTTS-0.2.5"
             payload["sizeMb"] = _dir_size_mb(CHATTTS_ROOT)
+        elif self.name == "edge":
+            payload["model"] = "Edge Neural TTS"
+            payload["sizeMb"] = None
+            payload["online"] = True
+        elif self.name == "character":
+            payload["model"] = self.model or "Qwen3-TTS-12Hz-1.7B-Base"
+            payload["sizeMb"] = None
         else:
             payload["model"] = "Kokoro-82M-ONNX"
             payload["sizeMb"] = _file_size_mb(KOKORO_MODEL)
@@ -295,7 +367,11 @@ def load_chattts(state):
 
 
 def _chattts_voice_label(index):
-    return ["温柔 · 低缓", "清亮 · 偏高", "沉稳 · 中音", "元气 · 明亮"][index] if index < 4 else f"音色{index + 1}"
+    labels = [
+        "温柔 · 低缓", "清亮 · 偏高", "沉稳 · 中音", "元气 · 明亮",
+        "清澈 · 自然", "清冷 · 御姐", "甜亮 · 少女", "沉静 · 平稳",
+    ]
+    return labels[index] if index < len(labels) else f"音色{index + 1}"
 
 
 _SENTENCE_RE = re.compile(r"[^。！？!?；;\n]+[。！？!?；;]?")
@@ -521,8 +597,131 @@ def synth_kokoro(state, text, voice, speed):
     return audio
 
 
-LOADERS = {"chattts": load_chattts, "kokoro": load_kokoro}
-SYNTHS = {"chattts": synth_chattts, "kokoro": synth_kokoro}
+# ---------------------------------------------------------------- Edge（在线，opt-in）
+
+
+def _edge_rate(preset, speed):
+    """把产品语速 (0.8–1.2) 叠加到预设 rate 上，输出 edge-tts 接受的 ±N%。"""
+    base = int(preset["rate"].replace("%", "").replace("+", "") or 0)
+    value = max(-50, min(50, base + int(round((speed - 1.0) * 100))))
+    return f"{value:+d}%"
+
+
+def load_edge(state):
+    """在线引擎没有本地权重，「加载」= 校验依赖是否齐备。"""
+    import edge_tts  # noqa: PLC0415, F401
+    import av  # noqa: PLC0415, F401
+
+    state.model = None
+    state.device = "online"
+    state.sample_rate = SAMPLE_RATE
+    # 只暴露听感验收通过的原生音色；被淘汰的变调预设留在实验室里当反例。
+    state.voices = [(item["id"], item["label"]) for item in EDGE_PRODUCT_VOICES]
+    state.default_voice = EDGE_DEFAULT
+
+
+async def _edge_stream(text, voice, pitch, rate):
+    import edge_tts  # noqa: PLC0415
+
+    buf = io.BytesIO()
+    comm = edge_tts.Communicate(text, voice, pitch=pitch, rate=rate)
+    async for chunk in comm.stream():
+        if chunk["type"] == "audio":
+            buf.write(chunk["data"])
+    return buf.getvalue()
+
+
+def _mp3_to_float(data):
+    """Edge 返回 24kHz mp3；解码成 float32 后交给 C 侧做 RMS + WAV 封装。
+
+    format=pcm 协议要求后端只回原始样本，因此在线引擎与本地模型走同一条音频链路，
+    C 侧不需要知道声音是本机还是网络合成的。
+    """
+    import av  # noqa: PLC0415
+    import numpy as np  # noqa: PLC0415
+
+    chunks = []
+    with av.open(io.BytesIO(data)) as container:
+        resampler = av.AudioResampler(format="flt", layout="mono", rate=SAMPLE_RATE)
+        for frame in container.decode(audio=0):
+            for out in resampler.resample(frame):
+                chunks.append(out.to_ndarray().reshape(-1))
+    if not chunks:
+        raise RuntimeError("在线语音返回空音频")
+    return np.concatenate(chunks).astype(np.float32)
+
+
+def synth_edge(state, text, voice, speed):
+    import asyncio  # noqa: PLC0415
+
+    preset = EDGE_BY_ID[voice]
+    rate = _edge_rate(preset, speed)
+    mp3 = asyncio.run(_edge_stream(text, preset["voice"], preset["pitch"], rate))
+    return _mp3_to_float(mp3)
+
+
+def _char_request(path, payload=None, timeout=None):
+    """请求角色音色 sidecar；把上游的 JSON 错误原样转成可读异常。"""
+    url = CHAR_TTS_BASE + path
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8") if payload is not None else None
+    headers = {"Content-Type": "application/json"} if data else {}
+    request = urllib.request.Request(url, data=data, headers=headers)
+    try:
+        return urllib.request.urlopen(request, timeout=timeout or CHAR_TTS_TIMEOUT)
+    except urllib.error.HTTPError as error:
+        detail = error.read().decode("utf-8", "replace")
+        try:
+            message = json.loads(detail).get("message", detail)
+        except Exception:  # noqa: BLE001
+            message = detail
+        raise RuntimeError("角色音色服务 %d：%s" % (error.code, str(message)[:200])) from None
+
+
+def _resample_linear(audio, src_rate, dst_rate):
+    """短音频线性重采样（只用于把角色服务的采样率对齐到 24kHz）。"""
+    import numpy as np  # noqa: PLC0415
+
+    if src_rate == dst_rate:
+        return audio
+    target = int(round(len(audio) * dst_rate / float(src_rate)))
+    if target < 1:
+        return audio
+    return np.interp(np.linspace(0, len(audio) - 1, target),
+                     np.arange(len(audio)), audio).astype(np.float32)
+
+
+def load_character(state):
+    """探测 5002，并只暴露参考音频已就绪的角色音色。不加载任何大模型。"""
+    with _char_request("/health", timeout=5) as response:
+        data = json.loads(response.read().decode("utf-8"))
+    chars = data.get("characters") or []
+    state.voices = [(item["id"], item.get("label", item["id"]))
+                    for item in chars if item.get("refReady")]
+    if not state.voices:
+        raise RuntimeError("角色音色服务无可用参考音频（5002 /health 中 refReady 全为 false）")
+    state.default_voice = state.voices[0][0]
+    state.sample_rate = SAMPLE_RATE
+    state.model = data.get("model") or "Qwen3-TTS-12Hz-1.7B-Base"
+    state.device = "cuda:0（独立进程 5002）"
+
+
+def synth_character(state, text, voice, speed):
+    """转给 5002 做零样本音色克隆；speed 在该引擎被忽略（Qwen 无独立语速控制）。"""
+    import numpy as np  # noqa: PLC0415
+
+    with _char_request("/tts", {"text": text, "voice": voice, "format": "pcm"}) as response:
+        sample_rate = int(response.headers.get("X-Tts-Sample-Rate") or SAMPLE_RATE)
+        audio = np.frombuffer(response.read(), dtype="<f4").copy()
+    state.sample_rate = SAMPLE_RATE
+    return _resample_linear(audio, sample_rate, SAMPLE_RATE)
+
+
+# 四个引擎始终注册，但 edge 的「可调用」由 ONLINE_ENABLED 在 health 与 /tts 两处
+# 双重把关。这样运行时开关只是改一个布尔，不必重建 EngineState，也不必重启。
+LOADERS = {"chattts": load_chattts, "kokoro": load_kokoro, "edge": load_edge,
+           "character": load_character}
+SYNTHS = {"chattts": synth_chattts, "kokoro": synth_kokoro, "edge": synth_edge,
+          "character": synth_character}
 
 
 def get_engine(name):
@@ -618,9 +817,13 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
+        if self.path in ("/online", "/online/"):
+            return self._send_json(200, {"enabled": online_enabled()})
         if self.path in ("/health", "/health/"):
             engines = {}
-            for name in ("chattts", "kokoro"):
+            for name in LOADERS:
+                if name == "edge" and not online_enabled():
+                    continue  # 未解锁时对前端完全隐身，下拉框保持置灰
                 state = get_engine(name)
                 if state:
                     engines[name] = state.public()
@@ -629,6 +832,7 @@ class Handler(BaseHTTPRequestHandler):
                 "ok": any(item["status"] == "ready" for item in engines.values()),
                 "version": VERSION,
                 "defaultEngine": default.name if default else None,
+                "onlineEnabled": online_enabled(),
                 "engines": engines,
                 # 兼容旧前端/旧代理：顶层暴露默认引擎信息
                 "model": engines.get(default.name, {}).get("model") if default else None,
@@ -643,6 +847,21 @@ class Handler(BaseHTTPRequestHandler):
         return self._send_json(404, {"error": "not_found"})
 
     def do_POST(self):
+        # 运行时开关：只绑定 127.0.0.1，开关本身不联网、不加载模型、不预热。
+        # 真正的「同意」发生在用户点这个开关的那一刻，前端会先弹明示确认。
+        if self.path in ("/online", "/online/"):
+            length = int(self.headers.get("Content-Length") or 0)
+            if length <= 0 or length > 4096:
+                return self._send_json(413, {"error": "payload_invalid", "message": "请求体为空或过大。"})
+            try:
+                payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            except Exception:
+                return self._send_json(400, {"error": "invalid_json"})
+            if not isinstance(payload, dict) or not isinstance(payload.get("enabled"), bool):
+                return self._send_json(400, {"error": "bad_request", "message": "`enabled` 必须是布尔值。"})
+            enabled = set_online_enabled(payload["enabled"])
+            log(f"在线语音开关 -> {enabled}（{'合成文本会离开本机' if enabled else '恢复纯离线'}）")
+            return self._send_json(200, {"ok": True, "enabled": enabled})
         if self.path != "/tts":
             return self._send_json(404, {"error": "not_found"})
         length = int(self.headers.get("Content-Length") or 0)
@@ -661,6 +880,10 @@ class Handler(BaseHTTPRequestHandler):
         engine_name = str(payload.get("engine") or DEFAULT_ENGINE)
         if engine_name not in LOADERS:
             return self._send_json(400, {"error": "unknown_engine", "message": f"未知引擎: {engine_name}"})
+        # 服务端兜底：即使有人绕过前端直连 127.0.0.1:5001，未解锁也不许联网。
+        if engine_name == "edge" and not online_enabled():
+            return self._send_json(403, {"error": "online_disabled",
+                                        "message": "在线语音未启用，请先在设置面板显式开启。"})
         state = get_engine(engine_name)
         if state is None:
             return self._send_json(400, {"error": "unknown_engine", "message": f"引擎未注册: {engine_name}"})
@@ -676,6 +899,14 @@ class Handler(BaseHTTPRequestHandler):
 
         voice_ids = [vid for vid, _label in state.voices]
         voice = str(payload.get("voice") or state.default_voice or (voice_ids[0] if voice_ids else ""))
+        if voice not in voice_ids and engine_name == "character":
+            # 角色参考音频可能在服务启动后才补齐（如后加的蝴蝶忍），重新探测 5002，
+            # 让用户不必重启 sidecar 就能用上新音色；探测失败仍按未知音色报错。
+            try:
+                load_character(state)
+                voice_ids = [vid for vid, _label in state.voices]
+            except Exception:  # noqa: BLE001
+                pass
         if voice not in voice_ids:
             return self._send_json(400, {"error": "unknown_voice", "message": f"未知音色: {voice}"})
         try:
@@ -684,11 +915,19 @@ class Handler(BaseHTTPRequestHandler):
             speed = 1.0
         speed = min(1.2, max(0.8, speed))
 
+        # C 版服务会带 format=pcm：只回 raw float32，WAV 封装/响度归一化交给 C 侧。
+        # 不带该字段时行为与旧版完全一致（本地生成 WAV），保证前端/旧代理兼容。
+        want_pcm = payload.get("format") == "pcm"
         started = time.time()
         try:
             with state.infer_lock:
                 audio = SYNTHS[engine_name](state, text, voice, speed)
-            wav_bytes = float_to_wav(audio, state.sample_rate)
+            if want_pcm:
+                import numpy as np  # noqa: PLC0415
+
+                wav_bytes = np.asarray(audio, dtype=np.float32).reshape(-1).tobytes()
+            else:
+                wav_bytes = float_to_wav(audio, state.sample_rate)
         except Exception as error:  # noqa: BLE001
             log(f"合成失败 {engine_name}: {type(error).__name__}: {error}")
             traceback.print_exc()
@@ -696,11 +935,11 @@ class Handler(BaseHTTPRequestHandler):
         elapsed = time.time() - started
         state.synth_count += 1
         state.last_latency_ms = int(elapsed * 1000)
-        audio_sec = len(wav_bytes) / 2 / state.sample_rate
+        audio_sec = len(wav_bytes) / (4 if want_pcm else 2) / state.sample_rate
         log(f"合成 {engine_name} {len(text)} 字 / {voice} / {elapsed:.2f}s -> 音频 {audio_sec:.1f}s")
 
         self.send_response(200)
-        self.send_header("Content-Type", "audio/wav")
+        self.send_header("Content-Type", "application/octet-stream" if want_pcm else "audio/wav")
         self.send_header("Content-Length", str(len(wav_bytes)))
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Tts-Engine", engine_name)
@@ -713,8 +952,13 @@ def boot():
     for name in LOADERS:
         with _engines_lock:
             _engines[name] = EngineState(name)
+    # 角色引擎只探测独立 sidecar 5002 是否在线（不加载 4.3GB 权重），
+    # 让 /health 启动后就能反映可用性，前端据此解锁下拉框。
+    if DEFAULT_ENGINE != "character":
+        ensure_loaded("character", wait=True)
     state = ensure_loaded(DEFAULT_ENGINE, wait=True)
-    if state.status == "ready":
+    # 在线引擎不做预热：那会为了一次热身就把文本发到外网。
+    if state.status == "ready" and state.name != "edge":
         warmup(state)
 
 

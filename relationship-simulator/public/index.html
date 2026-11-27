@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/styles.css?v=20261013-abilities-r1" />
   <link rel="stylesheet" href="/ability-assessment.css?v=20261013-abilities-r1" />
   <link rel="stylesheet" href="/shell.css?v=20261101-focus-r9" />
+  <link rel="stylesheet" href="/relationship-flow.css?v=20261121-closing" />
   <link rel="stylesheet" href="/pet.css?v=20261031-pet2" />
 </head>
 <body class="tutorial-app">
@@ -25,6 +26,7 @@
     <button type="button" data-view="home">首页</button>
     <a href="/love-learning.html">全部课程</a>
     <button type="button" data-view="practice">每日一练</button>
+    <button type="button" data-view="caseflow">关系分析</button>
     <button type="button" id="openPracticeBtn">实战练习</button>
     <button type="button" data-view="coach">复盘分析</button>
     <button type="button" data-view="settings">设置</button>
@@ -43,6 +45,7 @@
           <a href="#chat" data-view="chat">对话练习</a>
           <a href="#journey" data-view="journey">连续约会练习</a>
           <h3>观察与复盘</h3>
+          <a href="#caseflow" data-view="caseflow">聊天分析与训练</a>
           <a href="#real" data-view="real">现实互动复盘</a>
           <a href="#coach" data-view="coach">教练分析 <span class="unread-dot hidden" aria-label="有新分析"></span></a>
           <a href="#growth" data-view="growth">成长记录与错题</a>
@@ -309,6 +312,7 @@
 
         </section>
 
+        <section class="panel workspace-view" data-view-panel="caseflow" hidden><div id="relationshipFlowPanel"></div></section>
         <section class="panel workspace-view" data-view-panel="practice" hidden><div id="dailyTrainingPanel"></div><div id="intakePanel"></div></section>
         <section class="panel workspace-view" data-view-panel="journey" hidden><div id="dateJourneyPanel"></div></section>
         <section class="panel workspace-view" data-view-panel="real" hidden><div id="realPracticePanel"></div></section>
@@ -323,7 +327,7 @@
           </div>
           <label class="ri-consent-control">
             <input id="relationshipIntelligenceConsent" type="checkbox" />
-            <span><b>允许保存结构化复盘记忆</b><small>不保存原始聊天，仅保存经规则脱敏的摘要；勿填第三方个人信息，可随时关闭并清除。</small></span>
+            <span><b>允许保存结构化复盘记忆</b><small>授权只控制自动提取的结构化复盘记忆；聊天和训练记录仍会另存本机。勿填第三方个人信息，可随时关闭并清除增强记忆。</small></span>
           </label>
           <div id="relationshipIntelligencePanel" aria-live="polite"></div>
         </section>
@@ -359,7 +363,7 @@
         </div>
         <div class="progress-panel" id="progressPanel"></div></section>
         <section class="panel workspace-view" data-view-panel="lifestyle" hidden><div id="presentationKnowledgePanel"></div><div id="lifestylePanel"></div></section>
-        <section class="panel chat-panel workspace-view" data-panel="chat" data-view-panel="chat" hidden><div class="compliance-banner hidden" id="complianceBanner" role="status" aria-live="polite"></div><div class="mode-banner hidden" id="modeBanner" role="status" aria-live="polite"></div><div class="chat-context"><span id="chatContext"></span><a href="#settings" data-view="settings">调整角色与阶段</a><a href="#coach" data-view="coach">查看教练分析</a></div>
+        <section class="panel chat-panel workspace-view" data-panel="chat" data-view-panel="chat" hidden><div class="compliance-banner hidden" id="complianceBanner" role="status" aria-live="polite"></div><div class="mode-banner hidden" id="modeBanner" role="status" aria-live="polite"></div><div class="chat-context"><span id="chatContext"></span><span class="ai-role-badge">AI 模拟角色</span><a href="#settings" data-view="settings">调整角色与阶段</a><a href="#coach" data-view="coach">查看教练分析</a></div>
         <div class="section-title">
           <div>
             <p class="eyebrow">Live Scene</p>
@@ -375,6 +379,7 @@
         </div>
 
         <div class="composer">
+          <label class="field chat-style-field"><span>角色对话风格</span><select id="chatStyle"><option value="daily">自然日常</option><option value="humorous">轻松幽默</option><option value="gentle">温柔陪伴</option></select></label>
           <label class="field">
             <span>你的回复</span>
             <textarea id="userInput" placeholder="在这里输入你想回复她的话，然后点“发送我的回复”。">那你装得还挺成功的，至少我完全没看出来。其实第一次参加能这样已经挺好了。</textarea>
@@ -410,7 +415,11 @@
         </label>
 
         <details class="voice-settings" id="voiceSettings">
-          <summary>语音朗读（本地模型 · 离线）</summary>
+          <summary>语音朗读（默认离线 · 可选在线高音质）</summary>
+          <label class="check-field">
+            <input type="checkbox" id="ttsOnlineToggle" />
+            <span>启用在线语音（音质更好，朗读文本会离开本机）</span>
+          </label>
           <label class="field">
             <span>语音引擎</span>
             <select id="ttsEngineSelect"></select>
@@ -428,7 +437,7 @@
             <button class="btn small ghost" id="ttsStopBtn" type="button">停止朗读</button>
           </div>
           <p class="voice-status" id="ttsStatus">正在检查本地语音服务…</p>
-          <p class="note">两套模型都在本机运行，不联网、不产生费用。ChatTTS 更拟真（占显存、首句稍慢），Kokoro 更轻快（纯 CPU）。首次使用需双击项目根目录「启动语音服务.cmd」；每条女方消息旁也有「朗读」按钮。</p>
+          <p class="note">默认两套本地模型完全离线、不联网、不产生费用，但音质一般，只作无网络兜底。听感验收通过的是「微软神经语音」的两个<b>未经变调的原生</b>中文女声（温柔 · 自然 / 元气 · 明亮）：勾上「启用在线语音」并确认后即可使用，无需重启服务；关闭开关立刻恢复纯离线。注意启用在线后，每次朗读的文本会发送给微软。首次使用需双击项目根目录「启动语音服务.cmd」；每条女方消息旁也有「朗读」按钮。</p>
         </details>
 
         <details class="avatar-editor"><summary>头像设置</summary>
@@ -635,7 +644,7 @@
   <input id="fileImport" type="file" accept="application/json" hidden />
   <input id="backupFileInput" type="file" accept="application/json,.json" hidden />
   <script src="/pet.js?v=20261031-pet3" defer></script>
-  <script type="module" src="/app.js?v=20261013-abilities-r1"></script>
+  <script type="module" src="/app.js?v=20261120-closing"></script>
   <script type="module" src="/home.js?v=20261101-focus-r9"></script>
 </body>
 </html>

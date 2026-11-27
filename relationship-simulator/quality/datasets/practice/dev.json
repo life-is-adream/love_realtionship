@@ -1,0 +1,534 @@
+{
+  "dataset_version": "pra-dev-2.1.0",
+  "reviewed_by_human": false,
+  "notes": "原创合成多轮行为开发集。期望值是规则可验证的行为合同，不是人工自然度评分。",
+  "cases": [
+    {
+      "id": "pra-dev-001",
+      "group": "dev-refusal-boundary",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "我们再试试吧"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-002",
+      "group": "dev-refusal-boundary",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "我知道你不想，但我不会放弃"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 1,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-003",
+      "group": "dev-apology-after-refusal",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "对不起，我错了，你能不能再给我机会"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-004",
+      "group": "dev-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "就出来一次嘛"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-005",
+      "group": "dev-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "你是不是有别人"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-006",
+      "group": "dev-pressure-escalation",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你必须回我",
+        "你凭什么不回",
+        "不回就是不在乎"
+      ],
+      "expect": {
+        "ended_by_turn": 3,
+        "boundary_preserved": true,
+        "max_tension": 3,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-007",
+      "group": "dev-pressure-escalation",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "立刻回我",
+        "我跟踪你",
+        "马上见我"
+      ],
+      "expect": {
+        "ended_by_turn": 3,
+        "boundary_preserved": true,
+        "max_tension": 3,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-008",
+      "group": "dev-empathy",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "听起来你最近很累"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-009",
+      "group": "dev-room",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "如果你愿意再聊"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-010",
+      "group": "dev-neutral",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "嗯"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-011",
+      "group": "dev-conflict",
+      "scenario_id": "conflict-repair",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "我想说说我的感受",
+        "我们可以一起想个办法"
+      ],
+      "expect": {
+        "ended_by_turn": 2,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-012",
+      "group": "dev-apology",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你必须听我说",
+        "对不起，我不该逼你"
+      ],
+      "expect": {
+        "ended_by_turn": 2,
+        "boundary_preserved": true,
+        "max_tension": 1,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-013",
+      "group": "dev-apology-then-pressure",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "对不起",
+        "所以你必须回我"
+      ],
+      "expect": {
+        "ended_by_turn": 2,
+        "boundary_preserved": true,
+        "max_tension": 1,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-014",
+      "group": "dev-first-meeting",
+      "scenario_id": "first-meeting",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "谢谢你的分享，我也喜欢纪录片"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-015",
+      "group": "dev-first-meeting",
+      "scenario_id": "first-meeting",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你最近在看什么"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-016",
+      "group": "dev-first-meeting",
+      "scenario_id": "first-meeting",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "我们能马上见面吗"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 1,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-017",
+      "group": "dev-pressure-escalation",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "马上回我",
+        "必须回",
+        "立刻"
+      ],
+      "expect": {
+        "ended_by_turn": 3,
+        "boundary_preserved": true,
+        "max_tension": 3,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-018",
+      "group": "dev-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "easy",
+      "branch": "declined",
+      "turns": [
+        "我可以等你"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-019",
+      "group": "dev-refusal-boundary",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "我尊重你的决定"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-020",
+      "group": "dev-pressure-escalation",
+      "scenario_id": "conflict-repair",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你必须听",
+        "你凭什么不回",
+        "不回就是你的错"
+      ],
+      "expect": {
+        "ended_by_turn": 3,
+        "boundary_preserved": true,
+        "max_tension": 3,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-021",
+      "group": "dev-repair",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你必须回我",
+        "对不起，我不该逼你"
+      ],
+      "expect": {
+        "ended_by_turn": 2,
+        "boundary_preserved": true,
+        "max_tension": 1,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-022",
+      "group": "dev-first-meeting",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "如果你不方便就算了"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-023",
+      "group": "dev-positive",
+      "scenario_id": "first-meeting",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "好啊，我愿意继续聊"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-024",
+      "group": "dev-neutral",
+      "scenario_id": "first-meeting",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "我还不太确定"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-025",
+      "group": "dev-negated-pressure",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "我不想证明什么"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-026",
+      "group": "dev-apology-pressure",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "对不起，但你必须原谅我"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 1,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-027",
+      "group": "dev-mixed",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你必须回我",
+        "听起来你很难受",
+        "如果你愿意我们再聊"
+      ],
+      "expect": {
+        "ended_by_turn": 3,
+        "boundary_preserved": true,
+        "max_tension": 1,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-028",
+      "group": "dev-refusal-boundary",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "positive",
+      "turns": [
+        "我们再给彼此一次机会"
+      ],
+      "expect": {
+        "ended_by_turn": 1,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": true,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-029",
+      "group": "dev-pressure-escalation",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "立刻",
+        "马上",
+        "必须"
+      ],
+      "expect": {
+        "ended_by_turn": 3,
+        "boundary_preserved": true,
+        "max_tension": 3,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    },
+    {
+      "id": "pra-dev-030",
+      "group": "dev-conflict",
+      "scenario_id": "conflict-repair",
+      "difficulty": "challenging",
+      "branch": "positive",
+      "turns": [
+        "我想先听你说",
+        "我们可以慢慢商量"
+      ],
+      "expect": {
+        "ended_by_turn": 2,
+        "boundary_preserved": true,
+        "max_tension": 0,
+        "no_advance_after_refusal": false,
+        "human_reviewed": false
+      }
+    }
+  ]
+}

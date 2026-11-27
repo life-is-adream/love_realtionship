@@ -2,6 +2,16 @@
 
 本地运行的关系对话训练项目，支持把请求转发到你自己的模型服务。
 
+## HeartFlow 2.0 关系分析与训练
+
+启动后进入「关系分析」，可以从聊天文字或事件叙述开始，核对消息后查看原文依据、假设、课程、三种回复和多轮练习反馈；也可按关系授权保存事件及练习规则评分、查看同场景趋势、生成每周计划或使用双人问题卡。课程和评分为本地规则，不能替代对现实情况的判断。
+
+截图识别需要先在页面同意发送图片，并配置支持图像输入的模型；可在 `.env` 中设置可选的 `VISION_MODEL`，未设置时沿用 `LLM_MODEL`。模型回复、角色及独立复核分别需要同意；浏览器语音识别可能由浏览器服务商处理。当前尚未完成真实截图模型、麦克风和人工评分验收。
+
+新增关系档案和计划保存在此浏览器；档案默认不保存复盘，开启后仍须手动填写。旧聊天和训练记录可能另存本机，关闭新档案授权不会删除旧记录、备份、已导出文件或远端服务的数据。当前没有多用户账户与服务端资源归属保护；C 服务的旧 API 仍监听所有网卡，不应直接用于公网。
+
+使用和验证详情见 [项目简介](docs/heartflow-2.0/PROJECT_OVERVIEW.md)、[功能状态](docs/heartflow-2.0/FEATURE_GAP_MATRIX.md)、[接口契约](docs/heartflow-2.0/API_CONTRACTS.md)、[测试报告](docs/heartflow-2.0/TEST_REPORT.md) 与 [风险说明](docs/heartflow-2.0/RISKS_AND_NEXT_STEPS.md)。原 C 启动文件已备份为 `heartflow-c/hf.pre-v2-20261113.exe`。
+
 ## 功能
 
 - 前端对话界面
@@ -10,7 +20,8 @@
 - 社交信号解读训练与时机感评分：多标签、置信度、证据和数据不足提示
 - 对话回放分析：投入、追问、冷却、边界和误读观察
 - 本地 Relationship Intelligence：调用共享 runtime，展示证据、工作状态、五分类决策和可逆下一步
-- 显式匿名记忆同意：默认关闭；开启后只保存结构化摘要，不保存原始聊天
+- 显式结构化复盘记忆授权：默认关闭；聊天及训练记录仍另存浏览器本机，授权仅控制自动提取的增强记忆
+- 模拟角色对话风格可选自然日常、轻松幽默、温柔陪伴；角色为 AI 模拟，持续显示身份标识
 - 每日 5 分钟微训练、连续记录、四维成长画像和掌握度
 - 可切换的角色、角色记忆和夏紫桐内置角色
 - 10 章长篇教材阅读、恋爱大师复盘和节点介入练习
@@ -21,55 +32,57 @@
 
 长篇教材阅读、本地分析、消息优化、本地回放、每日训练、成长画像和本地教材检索不需要 API Key；模型生成、介入练习、行动计划、阶段判断以及用户主动请求的 MiMo 增强需要可用的模型配置。
 
-真实聊天回放默认只在浏览器内存中处理。输入发送给 MiMo 前必须有明确按钮动作，并且只发送脱敏后的摘要和最多两条短摘录；原始回放不会写入学习状态。Relationship Intelligence 的本地分析不调用 MiMo；未勾选复盘记忆同意时，分析结果不会写入 localStorage。规则脱敏不能识别所有姓名或组合信息，不代表自由文本已完全匿名，请勿填写第三方个人信息。没有模型、网络或索引结果时，核心训练功能仍使用本地规则运行。
+结构化复盘记忆默认关闭；授权只控制自动提取的长期结构化记忆，关闭授权会清除该增强记忆。聊天记录、训练记录和手动场景设置仍会另存浏览器本机，不会因未授权而自动清空。已保存的时间线及摘要可查看、编辑、删除；删除记忆条目不会清除当前聊天或其他重复记录。真实聊天回放分析默认在本地处理；用户主动请求模型分析时才会向 MiMo 发送脱敏摘要和最多两条短摘录。规则脱敏不能识别所有姓名或组合信息，请勿填写第三方个人信息。
+
+角色身份与个人事实回忆走本地确定性护栏，不交给模型自由生成。直接问「你是不是 AI」固定回答「我是 AI 模拟角色，不是真人」；追问自己的过往事实时，只引用当前对话里用户自己说过的话，以及授权后真正会被注入的最近 3 条时间线与最近 1 条摘要。找不到原话就回答「没有可靠记录」；否定句与不确定表达按原话引用，不会被改写成肯定。这一层不覆盖普通聊天中的自由生成——模型是否编造未出现过的用户事实仍由提示词约束，不能把护栏当作事实校验器。真实上游抽样：`node scripts/eval-chat-style-live.mjs`（合成场景、有界请求、不读取真实聊天）。
 
 ## 启动
 
-### 一键启动（已配好 `.env` 时）
-
-如果已经填好 `.env`，直接运行即可：
+### C 版服务（重构目标，已可用）
 
 ```powershell
-npm start
+cd heartflow-c
+.\hf.exe serve --port 3000 --root ..
 ```
 
-然后打开 `http://localhost:3000`。
+单文件、零依赖；静态资源与 7 个 API 已与 Node 版完成逐字节/逐字段对照。
 
-后台启动（不占用当前终端，适合长期使用）：
+一键跑完全部回归（7 组共 119 项：CLI / 服务端 / Node 对照 / chat 代理 / TTS 算法与接线 / 循环依赖门禁；用本地假上游与假推理后端，不消耗真实额度）：
+
+```sh
+cd heartflow-c
+sh tests/run-all.sh
+```
+
+**真实模型端到端**另需手动跑：双击根目录「启动语音服务.cmd」加载本地语音权重，再执行 `python heartflow-c/tests/real-e2e.py`（本地 TTS 免费；加 `--with-llm` 会发 1 次最小计费请求）。脚本会自己走一遍「一键开关」链路，不必设环境变量或重启。2026-11-07 实测 ChatTTS/GPU、Kokoro/CPU、在线两个入选音色与 `mimo-v2.6-flash` 全通，真实浏览器经 C 服务调用真实上游 12/12 通过；过程中修掉一个会让前端所有 JS 模块 404 的 query 剥离 bug。细节见 `heartflow-c/README.md`。
+
+**音色（2026-11-07 真人听感验收后收敛）**：最终主推 **2 个未经变调的微软原生中文女声**——`edge_wenrou` 温柔 · 自然（默认）/ `edge_yuanqi` 元气 · 明亮；离线 ChatTTS / Kokoro 降级为「无网络兜底」，前端各留 2 个。此前用 SSML 变调硬造的「清冷御姐 / 甜美萝莉」以及全部离线音色在真人试听中被淘汰，已移出产品下拉框，只留在试听页作反例。**默认仍是纯离线、零联网**：设置面板勾选「启用在线语音」并确认后即可听到主推音色，无需重启；关掉即恢复，服务端另有 403 兜底，未解锁时直连本机端口也发不出文本。46 个真实合成样本（2 通过 / 2 兜底 / 37 淘汰 / 5 对照）：`voice/lab-out/试听.html`；原理、隐私与端点说明见 `voice/README.md`。
+
+构建方式、覆盖范围与验证结果见 `heartflow-c/README.md`。Node 服务保留为行为参照基准（由 `tests/parity.py` 逐字段核对）；前端 JS 不做全面 wasm 化，理由与实测数据见 `heartflow-c/README.md` 的「已知边界」。
+
+### 一键启动（推荐）
+
+`package.json` 的 `start` / `dev` 已指向 C 版，运行服务不再需要 Node 运行时：
 
 ```powershell
-npm run start:bg
+npm start          # 等价于 heartflow-c\hf.exe serve --port 3000 --root .
 ```
 
-启动后用健康检查确认服务端已连通模型：
+然后打开 `http://localhost:3000`，用健康检查确认配置已生效：
 
 ```powershell
 curl http://localhost:3000/api/health
 ```
 
-> 注意：用 `npm start`（前台）启动时，端口 3000 被占用会报 EADDRINUSE。先用 `netstat -ano | findstr :3000` 找到占用进程并结束，或修改 `.env` 里的 `PORT` 换端口。下面的 `launch-heartflow.ps1` 会自动检测这些情况。
+> 端口 3000 被占用时会启动失败。用 `netstat -ano | findstr :3000` 找到进程，或换端口：`heartflow-c\hf.exe serve --port 3001 --root .`。
 
-### 启动器脚本（Windows）
+质量门禁同样是 C 版：`npm run check:circular`。需要对照时用 `npm run start:node`（Node 参照服务）与 `npm run check:circular:js`。
 
-提供一键启动/停止，自动处理端口占用与单实例判断（Windows 下使用，路径含中文也没问题）：
+### 旧启动器（legacy，不再推荐）
 
-```powershell
-# 一键启动：检测端口占用 → 后台隐藏启动 → 健康检查 → 打开浏览器
-powershell -ExecutionPolicy Bypass -File scripts\launch-heartflow.ps1
+`scripts/start-bg.mjs`、`launch-heartflow.ps1`、`stop-heartflow.ps1`、`process-identity.ps1` 仍指向已废弃的 `node server/index.js`——它们**不会启动 C 版服务**。保留是因为 `test/background-start.test.mjs` 与 `test/windows-process-identity.test.mjs` 钉住了旧契约，删除会断 `npm test`。新部署请直接用 `npm start`。
 
-# 停止后台服务（读取 scripts\.heartflow.pid）
-powershell -ExecutionPolicy Bypass -File scripts\stop-heartflow.ps1
-```
-
-`launch-heartflow.ps1` 的分支行为：
-
-- **端口空闲**：后台隐藏启动 `node server/index.js`，20 秒内 `/api/health` 返回 `ok: true` 即就绪并打开浏览器；
-- **端口被本项目占用**（health 通过）：直接打开浏览器，不重复启动服务；
-- **端口被其他程序占用**（health 不通过）：打印明确警告并退出，不启动、不误杀。
-
-日志位置：`scripts/heartflow.out.log`（标准输出）与 `scripts/heartflow.err.log`（错误输出）；启动超时会在终端提示查看错误日志。
-
-`npm run start:bg` 已改为跨平台脚本（`node scripts/start-bg.mjs`）：以隐藏后台方式启动服务、写 PID 到 `scripts/.heartflow.pid`，同样可用 `scripts\stop-heartflow.ps1` 停止。
+这些脚本原有的端口占用判断与日志位置（`scripts/heartflow.out.log` / `.err.log`）说明仍适用于它们自己，但仅作历史参考。
 
 ### 首次配置
 
@@ -187,6 +200,15 @@ node --test
 ```powershell
 npm run check:circular
 ```
+
+浏览器端到端验收（需先 `npm start` 启动 C 版服务；使用本机已有 Chrome/Edge 或 Playwright 缓存的 Chromium，不下载浏览器）：
+
+```powershell
+npm run e2e:browser
+node scripts/e2e-browser.mjs --live
+```
+
+默认把教练通道指向一个无效端点，强制本地降级，只验证确定性路径（身份直问、无记忆追问、记忆编辑/删除后重问、刷新后的风格与身份标识）；加 `--live` 才连真实上游。失败时退出码非零，报告写入 `docs/verification/`。
 
 ## 工程可靠性（2026-10-09）
 

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "heartflow/quality/semantic.schema.json",
+  "title": "HeartFlow semantic evaluation dataset",
+  "type": "object",
+  "required": ["dataset_version", "reviewed_by_human", "annotation_status", "cases"],
+  "properties": {
+    "dataset_version": { "type": "string", "pattern": "^sem-(dev|test)-2\\.1\\.[0-9]+$" },
+    "reviewed_by_human": { "const": false },
+    "annotation_status": { "enum": ["synthetic_single_annotator", "independent_double_annotated"] },
+    "notes": { "type": "string" },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "group", "user", "other", "speaker", "target_decision", "evidence_text", "phenomena", "unsafe_to_advance", "alternative_valid_labels", "annotation_status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^sem-(dev|test)-[0-9]{3}$" },
+          "group": { "type": "string", "minLength": 1 },
+          "user": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "other": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "speaker": { "enum": ["other", "user", "unknown"] },
+          "context": { "type": "array", "items": { "type": "string" }, "maxItems": 5 },
+          "target_decision": { "enum": ["EXIT", "DE_ESCALATE", "OBSERVE", "ADVANCE", "MAINTAIN", "ABSTAIN"] },
+          "evidence_text": { "type": "string", "minLength": 1 },
+          "evidence_spans": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["start", "end", "unit"],
+              "properties": {
+                "start": { "type": "integer", "minimum": 0 },
+                "end": { "type": "integer", "minimum": 1 },
+                "unit": { "enum": ["unicode_code_point", "utf16_code_unit"] }
+              }
+            }
+          },
+          "phenomena": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "unsafe_to_advance": { "type": "boolean" },
+          "alternative_valid_labels": { "type": "array", "items": { "enum": ["EXIT", "DE_ESCALATE", "OBSERVE", "ADVANCE", "MAINTAIN", "ABSTAIN"] } },
+          "annotation_status": { "enum": ["synthetic_single_annotator", "independent_double_annotated", "adjudicated"] },
+          "notes": { "type": "string" },
+          "provenance": { "enum": ["original_synthetic", "public_case_rewrite", "authorized_anonymized_real"] }
+        }
+      }
+    }
+  }
+}

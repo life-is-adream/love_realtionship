@@ -168,10 +168,24 @@ function init() {
   document.querySelectorAll("select:not([data-hf-enhanced])").forEach(enhance);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+}
+
+/** Sync the visible label after assigning a native select value in code. */
+export function sync(select) {
+  const label = select?.parentNode?.querySelector?.(".select__label");
+  if (label) {
+    label.textContent = (select.selectedOptions?.[0] && select.selectedOptions[0].textContent)
+      || select.options?.[select.selectedIndex]?.textContent
+      || "";
+  } else {
+    select?.dispatchEvent?.(new Event("hf:sync"));
+  }
 }
 
 // expose a manual re-sync (safe to call after async data loads)

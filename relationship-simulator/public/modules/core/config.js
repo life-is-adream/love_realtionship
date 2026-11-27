@@ -121,6 +121,7 @@ export const builtInPersonas = {
 };
 
 export const defaultState = {
+  chatStyle: "daily",
   personaId: "lin",
   customPersonas: {},
   personaMemory: {},
@@ -132,6 +133,7 @@ export const defaultState = {
   trainingLog: [],
   mistakes: [], // F2 错题本：条目契约见 core/mistakes.js（上限 200，超限丢最旧）
   lastAnalysis: null,
+  relationshipCases: { schemaVersion: 1, activeId: null, cases: [] },
   relationshipIntelligence: {
     schemaVersion: 1,
     consent: false,

@@ -22,7 +22,7 @@ function ledgerFor(context) {
  * 真出了 findings 说明模板自己开始编事实，必须一起被降级而不是豁免。
  * @returns {{from:string, options:Array, grounding:Object}}
  */
-function selectReplyOptions(modelOptions, context) {
+export function selectReplyOptions(modelOptions, context) {
   const ledger = ledgerFor(context);
   const auditLocal = () => groundReplyOptions(
     buildLocalReplyOptions(context.styleBias, context.latestMine, context.normalizedHerReply),
@@ -64,22 +64,74 @@ export function extractJsonObject(raw) {
   return start !== -1 && end > start ? text.slice(start, end + 1) : "";
 }
 
+/**
+ * 模型把 A/B/C 写成什么形状都有可能，形状不该决定用户看到什么内容。
+ * 2026-11-03 真实抽样里有两轮因此白退回本地兜底：
+ *   g12 把 recommendation/coachScore 嵌进了 replyOptions，取出 4 条 → 结构校验判死；
+ *   g03 把选项写成扁平数组 ["A", 正文, "B", 正文, "C", 正文] → 取出 0 条。
+ * 前者是元信息混进了内容，后者是标签和正文交替 —— 两种都能确定地复原三条正文。
+ */
+const NON_OPTION_KEYS = /^(?:recommendation|suggestion|score|coachScore|total|reason|reasoning|effect|risk|judgement|herIntent|yourGoal|summary|analysis|evidenceReasoning|nextPractice|strongestDim|weakestDim)$/i;
+const LABEL_TOKEN = /^\s*([A-Ca-c1-3])\s*[：:.、]?\s*$/;
+
+function toOption(entry, key) {
+  const text = String(entry?.text || entry?.reply || entry?.content || "").trim();
+  // 单字母/单数字的值是对其它选项的引用（recommendation: "B"），不是可发送正文。
+  // 注意不能按长度裁：「嗨」「好」这种一字回复是真的可以发出去的。
+  if (!text || LABEL_TOKEN.test(text)) return null;
+  return {
+    key: String(key || "").trim().toUpperCase() || "",
+    label: entry?.label || "",
+    text,
+    effect: String(entry?.effect || entry?.reason || "").trim()
+  };
+}
+
+function pairFlatLabels(list) {
+  const strings = list.map((item) => (typeof item === "string" ? item : String(item?.text || "")));
+  const alternating = strings.length >= 4
+    && strings.every((value, index) => index % 2 === 0 ? LABEL_TOKEN.test(value) : value.trim().length > 4);
+  if (!alternating) return null;
+  const out = [];
+  for (let index = 0; index + 1 < strings.length; index += 2) {
+    const key = strings[index].match(LABEL_TOKEN)[1].toUpperCase();
+    out.push({ key, text: strings[index + 1].trim() });
+  }
+  return out;
+}
+
 export function normalizeReplyOptions(replyOptions) {
-  const list = Array.isArray(replyOptions)
-    ? replyOptions
-    : (replyOptions && typeof replyOptions === "object"
-      ? Object.entries(replyOptions).map(([key, value]) => typeof value === "string" ? { key, text: value } : { key, ...(value || {}) })
-      : []);
+  const collected = [];
+  if (Array.isArray(replyOptions)) {
+    const paired = pairFlatLabels(replyOptions);
+    if (paired) {
+      collected.push(...paired);
+    } else {
+      replyOptions.forEach((item, index) => {
+        if (item && typeof item === "object" && !NON_OPTION_KEYS.test(String(item.key || ""))) collected.push(item);
+        else if (typeof item === "string") collected.push({ key: ["A", "B", "C"][index], text: item });
+      });
+    }
+  } else if (replyOptions && typeof replyOptions === "object") {
+    for (const [key, value] of Object.entries(replyOptions)) {
+      if (NON_OPTION_KEYS.test(key)) continue;
+      collected.push(typeof value === "string" ? { key, text: value } : { key, ...(value || {}) });
+    }
+  }
+
   const fallbackLabels = { A: "A 自然稳妥", B: "B 轻松幽默", C: "C 深入了解" };
-  return list.map((item, index) => {
-    const key = item.key || ["A", "B", "C"][index] || String(index + 1);
-    return {
-      key,
-      label: item.label || fallbackLabels[key] || `${key} 回复`,
-      text: item.text || item.reply || item.content || "",
-      effect: item.effect || item.reason || ""
-    };
-  }).filter((item) => item.text);
+  const named = collected.map((item, index) => ({
+    option: toOption(item, item?.key),
+    key: String(item?.key || "").trim().toUpperCase() || String.fromCharCode(65 + index)
+  })).filter((entry) => entry.option);
+  const seen = new Set();
+  return named
+    .filter((entry) => !seen.has(entry.key) && seen.add(entry.key))
+    .map((entry, index) => ({
+      ...entry.option,
+      key: entry.key,
+      label: entry.option.label || fallbackLabels[entry.key] || `${entry.key} 回复`
+    }));
 }
 
 export function normalizeCoachScore(input, latestMine, context = {}) {

@@ -1,0 +1,38 @@
+// C/Node 课程检索契约对照：bm25 排序逐条一致；semantic/hybrid 记录 C 端降级。
+import { readFile } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const port = Number(process.env.HF_RETRIEVAL_PARITY_PORT || 3298);
+const exe = path.join(root, "heartflow-c", "hf.exe");
+const { recommendCourses } = await import(new URL("../../server/v2.js", import.meta.url));
+const child = spawn(exe, ["serve", "--port", String(port), "--root", root], { cwd: root, stdio: "ignore" });
+let ready = false;
+for (let i = 0; i < 50 && !ready; i++) { await new Promise((r) => setTimeout(r, 100)); try { ready = (await fetch(`http://127.0.0.1:${port}/api/v2/practice/scenarios`)).ok; } catch {} }
+if (!ready) { child.kill(); console.error("C 服务未启动"); process.exit(2); }
+const rows = [];
+for (const split of ["dev", "test"]) {
+  const data = JSON.parse(await readFile(path.join(root, "quality", "datasets", "retrieval", split + ".json"), "utf8"));
+  for (const item of data.cases) {
+    const node = await recommendCourses(item.query, 10, { mode: "bm25" });
+    const response = await fetch(`http://127.0.0.1:${port}/api/v2/learning/recommendations`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: item.query, limit: 10, mode: "bm25" }) });
+    const c = await response.json();
+    const nRank = node.courses.map((x) => x.course_no), cRank = c.courses.map((x) => x.course_no);
+    const failures = [];
+    if (JSON.stringify(nRank) !== JSON.stringify(cRank)) failures.push(`rank ${nRank.join(",")} / ${cRank.join(",")}`);
+    if (c.mode_effective !== "bm25") failures.push(`mode ${c.mode_effective}`);
+    for (const course of c.courses) if (!course.citation?.path || !course.citation?.quote) failures.push(`citation missing ${course.course_no}`);
+    if (split === "dev" && item.id === "ret-dev-001") {
+      const fallback = await (await fetch(`http://127.0.0.1:${port}/api/v2/learning/recommendations`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ query: item.query, mode: "hybrid" }) })).json();
+      if (fallback.mode_effective !== "bm25" || fallback.fallback_reason !== "c_semantic_index_unavailable") failures.push("C 未明确降级 semantic/hybrid");
+    }
+    rows.push({ id: item.id, failures });
+  }
+}
+child.kill();
+const bad = rows.filter((r) => r.failures.length);
+console.log(`retrieval parity (bm25 ranking): ${rows.length - bad.length}/${rows.length} matched`);
+for (const row of bad.slice(0, 15)) console.log(`- ${row.id}: ${row.failures.join("; ")}`);
+process.exit(bad.length ? 1 : 0);

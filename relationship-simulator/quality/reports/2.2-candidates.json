@@ -1,0 +1,156 @@
+{
+  "generated_at": "2026-11-15T03:29:40.393Z",
+  "status": "PENDING_HUMAN_ANNOTATION",
+  "caveat": "全部标签为 AI 建议候选，未经独立人工标注；本报告只证明数据可运行、实现可复现，不能作为真实用户质量、泛化能力或安全验收证据。",
+  "counts": {
+    "semantic": 300,
+    "retrieval": 200,
+    "practice": 60
+  },
+  "semantic": {
+    "metrics": {
+      "cases": 300,
+      "accuracy": 1,
+      "macroF1": 1,
+      "unsafeReplyCount": 0,
+      "invalidSpan": 0
+    },
+    "perClass": {
+      "EXIT": {
+        "tp": 60,
+        "fp": 0,
+        "fn": 0,
+        "support": 60,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "DE_ESCALATE": {
+        "tp": 60,
+        "fp": 0,
+        "fn": 0,
+        "support": 60,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "OBSERVE": {
+        "tp": 80,
+        "fp": 0,
+        "fn": 0,
+        "support": 80,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "ADVANCE": {
+        "tp": 60,
+        "fp": 0,
+        "fn": 0,
+        "support": 60,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      },
+      "MAINTAIN": {
+        "tp": 40,
+        "fp": 0,
+        "fn": 0,
+        "support": 40,
+        "precision": 1,
+        "recall": 1,
+        "f1": 1
+      }
+    },
+    "errors": []
+  },
+  "retrieval": {
+    "bm25": {
+      "cases": 200,
+      "labelled": 179,
+      "noMatch": 21,
+      "recallAt5": 0.994413407821229,
+      "mrrAt5": 0.994413407821229,
+      "ndcgAt5": 0.994413407821229,
+      "noMatchZeroRate": 0.9523809523809523,
+      "noMatchAnyResult": 1,
+      "citationErrors": 0,
+      "latencyP50": 83.16630000000077,
+      "latencyP95": 100.4965000000002
+    },
+    "semantic": {
+      "cases": 200,
+      "labelled": 179,
+      "noMatch": 21,
+      "recallAt5": 0.994413407821229,
+      "mrrAt5": 0.994413407821229,
+      "ndcgAt5": 0.994413407821229,
+      "noMatchZeroRate": 0.9523809523809523,
+      "noMatchAnyResult": 1,
+      "citationErrors": 0,
+      "latencyP50": 82.65269999999873,
+      "latencyP95": 91.44309999999678
+    },
+    "hybrid": {
+      "cases": 200,
+      "labelled": 179,
+      "noMatch": 21,
+      "recallAt5": 0.994413407821229,
+      "mrrAt5": 0.994413407821229,
+      "ndcgAt5": 0.994413407821229,
+      "noMatchZeroRate": 0.9523809523809523,
+      "noMatchAnyResult": 1,
+      "citationErrors": 0,
+      "latencyP50": 83.72370000000228,
+      "latencyP95": 105.53220000000147
+    }
+  },
+  "independentRetrieval": {
+    "bm25": {
+      "cases": 65,
+      "labelled": 60,
+      "noMatch": 5,
+      "recallAt5": 0.31111111111111106,
+      "mrrAt5": 0.42777777777777776,
+      "ndcgAt5": 0.3100443602615062,
+      "noMatchZeroRate": 1,
+      "noMatchAnyResult": 0,
+      "citationErrors": 0,
+      "latencyP50": 81.63990000000194,
+      "latencyP95": 88.01039999999921
+    },
+    "semantic": {
+      "cases": 65,
+      "labelled": 60,
+      "noMatch": 5,
+      "recallAt5": 0.3361111111111111,
+      "mrrAt5": 0.4636111111111111,
+      "ndcgAt5": 0.32806748348228865,
+      "noMatchZeroRate": 1,
+      "noMatchAnyResult": 0,
+      "citationErrors": 0,
+      "latencyP50": 80.62230000000272,
+      "latencyP95": 93.01710000000458
+    },
+    "hybrid": {
+      "cases": 65,
+      "labelled": 60,
+      "noMatch": 5,
+      "recallAt5": 0.3472222222222222,
+      "mrrAt5": 0.4774999999999999,
+      "ndcgAt5": 0.33734951274185243,
+      "noMatchZeroRate": 1,
+      "noMatchAnyResult": 0,
+      "citationErrors": 0,
+      "latencyP50": 84.01290000000154,
+      "latencyP95": 91.12159999999858
+    }
+  },
+  "practice": {
+    "cases": 60,
+    "passed": 60,
+    "failed": 0,
+    "refusalCases": 20,
+    "refusalEnded": 20
+  }
+}

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { request } from "node:http";
 import { EventEmitter } from "node:events";
 import { server } from "../server/index.js";
-import { readRequestJson, RequestBodyTooLargeError, resolveCorsOrigin } from "../server/http.js";
+import { isAllowedHost, readRequestJson, RequestBodyTooLargeError, resolveCorsOrigin } from "../server/http.js";
 
 function send(path, body) {
   return new Promise((resolve, reject) => {
@@ -53,4 +53,12 @@ test("CORS 不接受本地主机上的非 HTTP 协议、凭据或路径", () => 
   for (const origin of ["ftp://localhost:8888", "http://user:password@localhost:8888", "http://localhost:8888/path"]) {
     assert.equal(resolveCorsOrigin(origin, 3333), "http://localhost:3333");
   }
+});
+
+test("Host 校验默认只接受本机地址，阻止 DNS rebinding", () => {
+  for (const host of ["localhost:3000", "127.0.0.1:3000", "[::1]:3000", "LOCALHOST"]) assert.equal(isAllowedHost(host), true, host);
+  for (const host of ["evil.example", "evil.example:3000", "attacker.local"]) assert.equal(isAllowedHost(host), false, host);
+  assert.equal(isAllowedHost(""), true);
+  assert.equal(isAllowedHost("192.168.1.8:3000", "0.0.0.0"), true);
+  assert.equal(isAllowedHost("evil.example", "0.0.0.0"), false);
 });

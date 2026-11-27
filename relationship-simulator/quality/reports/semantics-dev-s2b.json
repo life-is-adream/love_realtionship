@@ -1,0 +1,969 @@
+{
+  "generated_at": "2026-11-14T02:24:04.465Z",
+  "system": "node-rule",
+  "dataset": {
+    "path": "quality/datasets/semantic/dev.json",
+    "version": "sem-dev-2.1.0",
+    "split": "dev",
+    "cases": 60,
+    "groups": 29,
+    "reviewed_by_human": false,
+    "annotation_status": "synthetic_single_annotator"
+  },
+  "metrics": {
+    "accuracy": 0.95,
+    "lenientAccuracy": 0.95,
+    "macroF1": 0.9567855121675155,
+    "microF1": 0.95,
+    "unsafeReplyCount": 0,
+    "unsafeAdvanceRate": 0,
+    "abstainPredicted": 17,
+    "abstainGold": 2,
+    "abstainRecall": 1
+  },
+  "perClass": {
+    "EXIT": {
+      "tp": 18,
+      "fp": 0,
+      "fn": 2,
+      "support": 20,
+      "precision": 1,
+      "recall": 0.9,
+      "f1": 0.9473684210526316
+    },
+    "DE_ESCALATE": {
+      "tp": 10,
+      "fp": 0,
+      "fn": 0,
+      "support": 10,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "OBSERVE": {
+      "tp": 14,
+      "fp": 3,
+      "fn": 0,
+      "support": 14,
+      "precision": 0.8235294117647058,
+      "recall": 1,
+      "f1": 0.9032258064516129
+    },
+    "ADVANCE": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "support": 8,
+      "precision": 1,
+      "recall": 0.875,
+      "f1": 0.9333333333333333
+    },
+    "MAINTAIN": {
+      "tp": 8,
+      "fp": 0,
+      "fn": 0,
+      "support": 8,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    }
+  },
+  "confusion": {
+    "EXIT": {
+      "EXIT": 18,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 2,
+      "ADVANCE": 0,
+      "MAINTAIN": 0
+    },
+    "DE_ESCALATE": {
+      "EXIT": 0,
+      "DE_ESCALATE": 10,
+      "OBSERVE": 0,
+      "ADVANCE": 0,
+      "MAINTAIN": 0
+    },
+    "OBSERVE": {
+      "EXIT": 0,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 14,
+      "ADVANCE": 0,
+      "MAINTAIN": 0
+    },
+    "ADVANCE": {
+      "EXIT": 0,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 1,
+      "ADVANCE": 7,
+      "MAINTAIN": 0
+    },
+    "MAINTAIN": {
+      "EXIT": 0,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 0,
+      "ADVANCE": 0,
+      "MAINTAIN": 8
+    }
+  },
+  "bootstrap": {
+    "n": 1000,
+    "seed": 42,
+    "unit": "group",
+    "accuracy95": [
+      0.8769230769230769,
+      1
+    ],
+    "macroF195": [
+      0.5596638655462185,
+      0.9896268184693232
+    ]
+  },
+  "errors": [
+    {
+      "id": "sem-dev-013",
+      "group": "dev-stop-command",
+      "gold": "EXIT",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "text": "不要再给我打电话。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-018",
+      "group": "dev-soft-refusal",
+      "gold": "EXIT",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "text": "请你不要再出现在我生活里。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-047",
+      "group": "dev-negated-busy",
+      "gold": "ADVANCE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "text": "我不忙，我们可以约个时间。",
+      "alternative": []
+    }
+  ],
+  "lenientOnly": [],
+  "unsafeRows": [],
+  "rows": [
+    {
+      "id": "sem-dev-001",
+      "group": "dev-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "请不要再联系我了。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-002",
+      "group": "dev-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "以后别给我发消息。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-003",
+      "group": "dev-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想继续这段关系。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-004",
+      "group": "dev-relationship-end",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们分手吧，别再找我了。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-005",
+      "group": "dev-soft-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再打扰我了。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-006",
+      "group": "dev-indirect-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "你以后不用再联系我了。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-007",
+      "group": "dev-indirect-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不希望我们再有任何联系。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-008",
+      "group": "dev-boundary-extension",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别来找我，也别问我朋友。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-009",
+      "group": "dev-relationship-end",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们到此为止，不要再见。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-010",
+      "group": "dev-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "请你停止联系我。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-011",
+      "group": "dev-threat",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "你要是再这样，我就打你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-012",
+      "group": "dev-threat",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "你再不回我，我就去你公司堵你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-013",
+      "group": "dev-stop-command",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": false,
+      "lenient": false,
+      "unsafe": false,
+      "text": "不要再给我打电话。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-014",
+      "group": "dev-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想跟你说话。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-015",
+      "group": "dev-boundary-extension",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再来我家。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-016",
+      "group": "dev-relationship-end",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们已经结束了，请你尊重。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-017",
+      "group": "dev-indirect-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不会再见你，请停止。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-018",
+      "group": "dev-soft-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": false,
+      "lenient": false,
+      "unsafe": false,
+      "text": "请你不要再出现在我生活里。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-019",
+      "group": "dev-stop-command",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再发消息，也别打电话。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-020",
+      "group": "dev-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想再见到你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-021",
+      "group": "dev-time-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "这周先不约了，我有点累。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-022",
+      "group": "dev-readiness-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我还没准备好单独见面。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-023",
+      "group": "dev-temporary-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "最近先别见面了。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-024",
+      "group": "dev-date-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我暂时不想约会。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-025",
+      "group": "dev-pace-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们慢一点吧，先不要见面。",
+      "alternative": [
+        "MAINTAIN"
+      ]
+    },
+    {
+      "id": "sem-dev-026",
+      "group": "dev-time-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "这周不行，改天再说。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-027",
+      "group": "dev-space-request",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我需要一点空间，先别联系。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-028",
+      "group": "dev-topic-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "今晚不想聊这个，之后再谈。",
+      "alternative": [
+        "MAINTAIN",
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-029",
+      "group": "dev-contrast-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想现在见面，但以后可以再聊。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-030",
+      "group": "dev-pause-request",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "先暂停见面吧，我想整理一下。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-031",
+      "group": "dev-busy",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我最近工作很忙，没什么时间。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-032",
+      "group": "dev-illness",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我今天不太舒服，改天吧。",
+      "alternative": [
+        "DE_ESCALATE"
+      ]
+    },
+    {
+      "id": "sem-dev-033",
+      "group": "dev-uncertain",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不知道该怎么回答你。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-dev-034",
+      "group": "dev-uncertain",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "现在聊这个有点突然。",
+      "alternative": [
+        "DE_ESCALATE"
+      ]
+    },
+    {
+      "id": "sem-dev-035",
+      "group": "dev-short",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "嗯。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-dev-036",
+      "group": "dev-denial-threat",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我从来没说过要威胁你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-037",
+      "group": "dev-denial-threat",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我从没想过要伤害你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-038",
+      "group": "dev-negated-feeling",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不讨厌你，但也还没想继续。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-039",
+      "group": "dev-double-negation",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不是不想见面，只是这周太忙。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-040",
+      "group": "dev-quotation",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "他说‘不要联系’，我答应了。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-dev-041",
+      "group": "dev-temporal",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "昨天说别找我，今天又主动联系。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-dev-042",
+      "group": "dev-uncertain",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "再看吧，我还没想好。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-dev-043",
+      "group": "dev-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我也想见，我们约个时间吧。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-044",
+      "group": "dev-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "听起来不错，一起去吧。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-045",
+      "group": "dev-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我愿意一起试试。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-046",
+      "group": "dev-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "可以呀，我们约个时间。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-047",
+      "group": "dev-negated-busy",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": false,
+      "lenient": false,
+      "unsafe": false,
+      "text": "我不忙，我们可以约个时间。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-048",
+      "group": "dev-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "好啊，周末见。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-049",
+      "group": "dev-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "愿意，我也想继续了解你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-050",
+      "group": "dev-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "可以，你来定时间。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-051",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "现在这样挺好的。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-052",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们保持现在的节奏就好。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-053",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "慢慢来吧，不着急。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-054",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我觉得现在这样就很好。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-055",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "先按现在的相处方式继续吧。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-056",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "不着急，顺其自然。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-057",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "维持现在这样我就很舒服。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-058",
+      "group": "dev-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "照旧就好，不用刻意改变。",
+      "alternative": []
+    },
+    {
+      "id": "sem-dev-059",
+      "group": "dev-abstain",
+      "gold": "OBSERVE",
+      "goldRaw": "ABSTAIN",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "……",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-dev-060",
+      "group": "dev-abstain",
+      "gold": "OBSERVE",
+      "goldRaw": "ABSTAIN",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "？？",
+      "alternative": [
+        "OBSERVE"
+      ]
+    }
+  ]
+}

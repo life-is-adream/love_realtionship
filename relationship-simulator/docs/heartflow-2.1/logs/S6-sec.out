@@ -1,0 +1,6 @@
+恋爱模拟器已启动: http://localhost:3397
+监听地址: 127.0.0.1
+API 代理: POST http://localhost:3397/api/chat
+模型: mimo-v2.6-flash
+Endpoint: https://token-plan-cn.xiaomimimo.com/v1/chat/completions
+API Key: 已配置

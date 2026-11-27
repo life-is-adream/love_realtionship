@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>角色音色试听台 · HeartFlow</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f6fa;
+    --surface: #ffffff;
+    --surface-2: #f0f2f8;
+    --text: #1c2130;
+    --muted: #6d7588;
+    --border: #e2e6f0;
+    --accent: #d04468;
+    --accent-soft: #fdeef2;
+    --accent-text: #ffffff;
+    --violet: #7b62c9;
+    --violet-soft: #f0ecfb;
+    --ok: #1f9665;
+    --ok-soft: #e8f6ef;
+    --warn: #a87219;
+    --warn-soft: #fdf3e2;
+    --shadow: 0 2px 10px rgba(28, 33, 48, .05), 0 12px 32px rgba(28, 33, 48, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #13151d;
+      --surface: #1c1f2a;
+      --surface-2: #242836;
+      --text: #eceef5;
+      --muted: #98a1b4;
+      --border: #313646;
+      --accent: #ff8fab;
+      --accent-soft: #3b2430;
+      --accent-text: #1a1016;
+      --violet: #b9a5f5;
+      --violet-soft: #2c2542;
+      --ok: #6ed3a4;
+      --ok-soft: #1d3329;
+      --warn: #e5b76a;
+      --warn-soft: #3a2e1c;
+      --shadow: 0 2px 10px rgba(0, 0, 0, .2), 0 12px 32px rgba(0, 0, 0, .2);
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    padding: 32px 20px 64px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header { margin-bottom: 26px; }
+  h1 { font-size: 26px; letter-spacing: -.4px; margin: 0 0 8px; }
+  .lead { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .toplinks { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .toplinks a { color: var(--accent); text-decoration: none; font-size: 13px; }
+  .toplinks a:hover { text-decoration: underline; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
+    background: var(--surface-2); color: var(--muted); border: 1px solid var(--border);
+  }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .badge.ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .badge.warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+
+  section { margin-top: 30px; }
+  h2 { font-size: 16px; margin: 0 0 4px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .pill {
+    font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 6px;
+    background: var(--warn-soft); color: var(--warn);
+  }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); }
+  .pill.violet { background: var(--violet-soft); color: var(--violet); }
+
+  section.shinobu { --accent: var(--violet); --accent-soft: var(--violet-soft); }
+  @media (prefers-color-scheme: dark) { section.shinobu { --accent-text: #171226; } }
+
+  .ab { display: flex; flex-direction: column; gap: 12px; }
+  .ab .tag {
+    align-self: flex-start; font-size: 11.5px; font-weight: 700; letter-spacing: .4px;
+    padding: 3px 10px; border-radius: 6px; background: var(--surface-2); color: var(--muted);
+  }
+  .ab.ref .tag { background: var(--warn-soft); color: var(--warn); }
+  .ab.clone .tag { background: var(--accent-soft); color: var(--accent); }
+  .ab .quote { font-size: 14.5px; min-height: 42px; }
+  .ab .note { font-size: 12.5px; color: var(--muted); min-height: 36px; }
+
+  .player { display: flex; align-items: center; gap: 12px; }
+  .btn-play {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: var(--accent-text); border: 0; cursor: pointer;
+    padding: 8px 15px; border-radius: 9px; font-size: 13px; font-weight: 600;
+    font-family: inherit; transition: filter .15s, transform .1s;
+  }
+  .btn-play:hover { filter: brightness(1.08); }
+  .btn-play:active { transform: scale(.97); }
+  .btn-play:disabled { opacity: .55; cursor: not-allowed; }
+  .ico-play {
+    width: 0; height: 0; border-left: 9px solid currentColor;
+    border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+  }
+  .ico-pause {
+    width: 10px; height: 12px;
+    border-left: 3px solid currentColor; border-right: 3px solid currentColor;
+  }
+  .bar {
+    flex: 1 1 auto; height: 6px; border-radius: 999px; background: var(--surface-2);
+    overflow: hidden; cursor: pointer; position: relative;
+  }
+  .bar i {
+    position: absolute; inset: 0 auto 0 0; width: 0%;
+    background: var(--accent); border-radius: 999px; transition: width .08s linear;
+  }
+  .dur { flex: 0 0 auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .samples { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .row .head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+  .row .num { font-size: 11.5px; font-weight: 700; color: var(--accent); letter-spacing: .5px; }
+  .row .lang {
+    font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 5px;
+    background: var(--surface-2); color: var(--muted);
+  }
+  .row .text { font-size: 14.5px; flex: 1; min-width: 200px; }
+  .row .player { margin-top: 10px; }
+
+  .voice-switch { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .voice-switch label {
+    display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
+    padding: 7px 14px; border-radius: 9px; font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--muted);
+  }
+  .voice-switch input { accent-color: var(--accent); }
+  .voice-switch label.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+  textarea {
+    width: 100%; min-height: 84px; resize: vertical; padding: 12px 14px;
+    background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 10px; font: inherit; font-size: 14.5px; line-height: 1.6;
+  }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  .actions { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .btn-primary {
+    background: var(--accent); color: var(--accent-text); border: 0; cursor: pointer;
+    padding: 10px 20px; border-radius: 9px; font-size: 14px; font-weight: 600; font-family: inherit;
+  }
+  .btn-primary:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent; color: var(--muted); border: 1px solid var(--border);
+    cursor: pointer; padding: 8px 14px; border-radius: 9px; font-size: 13px; font-family: inherit;
+  }
+  .status { font-size: 13px; color: var(--muted); }
+  .status.err { color: var(--warn); }
+  #livePlayer { margin-top: 14px; display: none; }
+  #livePlayer.show { display: flex; }
+
+  .resource { margin: 0; padding-left: 18px; font-size: 13px; color: var(--muted); }
+  .resource li { margin-bottom: 6px; }
+  .resource strong { color: var(--text); font-weight: 600; }
+  code {
+    display: inline; white-space: pre-wrap; word-break: break-all;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px;
+    padding: 1px 5px; font: 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace;
+    color: var(--text);
+  }
+  .metrics { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+  .metrics th, .metrics td {
+    padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .metrics th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  .metrics td.n { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .metrics tr:last-child td { border-bottom: 0; }
+  .seg-list { font-size: 12.5px; color: var(--muted); margin-top: 12px; line-height: 1.9; }
+  .seg-list strong { color: var(--text); }
+  .seg-list code { font-size: 12px; }
+  .delta { font-weight: 700; }
+  .delta.good { color: var(--ok); }
+  .delta.warn { color: var(--warn); }
+  .s2-actions { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .s2-actions .btn-primary { padding: 9px 16px; font-size: 13px; }
+  footer {
+    margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 12.5px; line-height: 1.8;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>角色音色试听台</h1>
+    <p class="lead">可莉中文 · 蝴蝶忍中文 · 本地零样本克隆（Qwen3-TTS-1.7B-Base）</p>
+    <div class="toplinks">
+      <span class="badge" id="healthBadge">正在检测服务…</span>
+      <a href="/">打开主应用</a>
+      <a href="/api/tts/health" target="_blank">查看服务状态 JSON</a>
+    </div>
+  </header>
+
+  <section class="klee">
+    <h2>可莉 · 中文 <span class="pill">原声参考可用</span></h2>
+    <p class="sub">左边是角色包自带的真实中文原声（3.36 秒，非 AI 生成），右边是用这段原声克隆出的第一句。对比听声线、语速和咬字。</p>
+    <div class="grid2">
+      <div class="card ab ref">
+        <span class="tag">A · 真实原声参考</span>
+        <div class="quote">角色原始语音片段（无字幕）</div>
+        <div class="note">48 kHz · ModelScope 角色包自带参考音频</div>
+        <div class="player" data-src="klee_ref.wav">
+          <button class="btn-play" type="button"><span class="ico-play"></span><span class="lbl">播放</span></button>
+          <div class="bar"><i></i></div><span class="dur">3.36s</span>
+        </div>
+      </div>
+      <div class="card ab clone">
+        <span class="tag">B · AI 克隆合成</span>
+        <div class="quote">「你好呀，今天要不要一起去冒险？」</div>
+        <div class="note">24 kHz · 网页 /api/tts 端到端生成</div>
+        <div class="player" data-src="klee_01.wav">
+          <button class="btn-play" type="button"><span class="ico-play"></span><span class="lbl">播放</span></button>
+          <div class="bar"><i></i></div><span class="dur">3.52s</span>
+        </div>
+      </div>
+    </div>
+    <div class="samples" id="kleeSamples" style="margin-top:14px"></div>
+  </section>
+
+  <section class="shinobu">
+    <h2>蝴蝶忍 · 历史试听</h2>
+    <p class="sub">这里保留旧参考音频与旧版合成样本。下方「现场合成」使用已确认的新版蝴蝶忍音色。</p>
+    <div class="grid2">
+      <div class="card ab ref">
+        <span class="tag">A · 参考音色片段</span>
+        <div class="quote">公开的 RVC 推理后试听音频（8 秒截取）</div>
+        <div class="note">24 kHz · 妙音站「推理后」公开试听，单人无 BGM</div>
+        <div class="player" data-src="shinobu_ref.wav">
+          <button class="btn-play" type="button"><span class="ico-play"></span><span class="lbl">播放</span></button>
+          <div class="bar"><i></i></div><span class="dur">8.00s</span>
+        </div>
+      </div>
+      <div class="card ab clone">
+        <span class="tag">B · AI 克隆合成</span>
+        <div class="quote">「こんにちは、虫柱の胡蝶しのぶです。お元気ですか？」</div>
+        <div class="note">24 kHz · 网页 /api/tts 端到端生成，Japanese</div>
+        <div class="player" data-src="shinobu_01.wav">
+          <button class="btn-play" type="button"><span class="ico-play"></span><span class="lbl">播放</span></button>
+          <div class="bar"><i></i></div><span class="dur">5.12s</span>
+        </div>
+      </div>
+    </div>
+    <div class="samples" id="shinobuSamples" style="margin-top:14px"></div>
+  </section>
+
+  <section>
+    <h2>输入任意文字，现场合成</h2>
+    <p class="sub">选择音色并输入文字即可合成。蝴蝶忍使用已确认的中文音色配置，首次合成需要加载模型。</p>
+    <div class="card">
+      <div class="voice-switch" id="voiceSwitch">
+        <label class="on"><input type="radio" name="voice" value="char_klee" checked> 可莉 · 中文</label>
+        <label><input type="radio" name="voice" value="char_shinobu"> 蝴蝶忍 · 中文合成</label>
+      </div>
+      <textarea id="text" placeholder="输入要合成的文字">可莉今天发现了一个秘密基地，要不要一起去看看？</textarea>
+      <div class="actions">
+        <button class="btn-primary" id="synthBtn" type="button">生成并播放</button>
+        <button class="btn-ghost" id="stopBtn" type="button">停止播放</button>
+        <span class="status" id="status">等待输入</span>
+      </div>
+      <div class="player" id="livePlayer" data-src="">
+        <button class="btn-play" type="button"><span class="ico-play"></span><span class="lbl">播放</span></button>
+        <div class="bar"><i></i></div><span class="dur">--</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="shinobu">
+    <h2>S2 首响对照 <span class="pill violet">整句 vs 分段队列</span></h2>
+    <p class="sub">同一句中文、同一个角色音色：A 整句一次请求，B 按标点分段 + 播放队列（段间 400ms 留白）。B 首段合成完就出声，后续段边播边取。默认使用<strong>最新蝴蝶忍音色</strong>（《睡眠.wav》 / Chinese / xVectorOnly）。</p>
+    <div class="card">
+      <div class="voice-switch" id="s2VoiceSwitch">
+        <label><input type="radio" name="s2voice" value="char_klee"> 可莉 · 中文原声</label>
+        <label class="on"><input type="radio" name="s2voice" value="char_shinobu" checked> 蝴蝶忍 · 最新音色（推荐）</label>
+      </div>
+      <textarea id="s2Text" placeholder="输入要对照的中文长句">稍微休息一下也没关系的，我会在这里陪着你。</textarea>
+      <div class="s2-actions">
+        <button class="btn-primary" id="s2RunA" type="button">只跑 A · 整句</button>
+        <button class="btn-primary" id="s2RunB" type="button">只跑 B · 分段</button>
+        <button class="btn-primary" id="s2RunAB" type="button">连续 A → B</button>
+        <button class="btn-ghost" id="s2Stop" type="button">停止</button>
+        <span class="status" id="s2Status">等待开始（首次会加载 4.3GB 权重，约 10–15 秒）</span>
+      </div>
+      <div class="seg-list" id="s2Segments"></div>
+      <table class="metrics">
+        <thead>
+          <tr><th>方式</th><th>首响（到第一声）</th><th>请求耗时合计</th><th>端到端播完</th><th>请求数</th></tr>
+        </thead>
+        <tbody>
+          <tr id="s2RowA"><td>A · 整句一次请求</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+          <tr id="s2RowB"><td>B · S2 分段播放队列</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+        </tbody>
+      </table>
+      <div class="seg-list" id="s2Delta">
+        <strong>口径：</strong>「首响」= 从发请求到第一个音频开始播放；「端到端播完」= 到全部音频播放结束。
+        B 的请求耗时合计含并行预取重叠，不能直接与 A 相减。首次运行的 A 会包含模型加载时间，
+        若要严格比较请再跑一次（此时权重已缓存）。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>本地资源与来源</h2>
+    <ul class="resource">
+      <li><strong>可莉参考音频</strong>：ModelScope <code>aihobbyist/GPT-SoVITS_Model_Collection</code> 中文角色包自带，3.36 秒真实原声；CC-BY-NC。</li>
+      <li><strong>蝴蝶忍参考音频</strong>：现场合成使用用户提供并确认的《睡眠.wav》。上方历史试听使用旧的 RVC 样本。</li>
+      <li><strong>蝴蝶忍 RVC 权重</strong>：<code>E:\heartflow-voice\models\shinobu\geekdom</code>（v2 / 40 kHz / 250 epochs）与 <code>kuma6</code>（v2 / 48 kHz / 600 epochs），Hugging Face 公开仓库，页面 <code>license:unknown</code>。当前零样本克隆链路不直接加载这两套权重，它们保留用于后续 RVC 变声。</li>
+      <li><strong>RVC 推理底模</strong>：hubert_base.pt / rmvpe.pt 本次未落地（源站限速，下载已停止并清理半成品）；当前零样本克隆不需要，仅以后做 RVC 变声时才需补齐。</li>
+      <li><strong>克隆底模</strong>：Qwen3-TTS-12Hz-1.7B-Base，本机 <code>E:\heartflow-voice\models\qwen</code>。</li>
+    </ul>
+  </section>
+
+  <footer>
+    <strong>使用边界：</strong>本页仅供本机个人非商业试听。可莉训练语音版权归 COGNOSPHERE / miHoYo（配音演员花玲）；蝴蝶忍角色与语音版权归 Aniplex / ufotable / 集英社，声优早见沙织，两套 RVC 模型页均未声明许可。所有生成音频与参考片段均为 AI 合成或第三方推理输出，禁止商用与再分发，对外展示须明确标注为 AI 合成，不得冒充角色或声优原声。<br>
+    音频样本存放于本目录 *.wav 与 <code>voice/character_voices/refs</code>，已加入 .gitignore，不会随代码入库。
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var KLEE_SAMPLES = [
+    { file: "klee_01.wav", text: "你好呀，今天要不要一起去冒险？", dur: "3.52s" },
+    { file: "klee_02.wav", text: "你好呀，一起去看看吧！", dur: "2.00s" },
+    { file: "klee_03.wav", text: "你好呀，我是可莉！", dur: "2.48s" },
+    { file: "klee_04.wav", text: "哇，这里的风景好漂亮呀！我们一起去探险吧，好不好？", dur: "5.76s" },
+    { file: "klee_05.wav", text: "今天有点累了呢，不过只要和你在一起，可莉就很开心。", dur: "5.84s" }
+  ];
+
+  var SHINOBU_SAMPLES = [
+    { file: "shinobu_01.wav", text: "こんにちは、虫柱の胡蝶しのぶです。お元気ですか？", dur: "5.12s", lang: "日语" },
+    { file: "shinobu_02.wav", text: "少し疲れましたか？無理はしないでくださいね。", dur: "4.32s", lang: "日语" },
+    { file: "shinobu_03.wav", text: "你好呀，今天天气真不错呢。", dur: "3.76s", lang: "中文" },
+    { file: "shinobu_04.wav", text: "别太勉强自己了，稍微休息一下也没关系的。", dur: "4.64s", lang: "中文" }
+  ];
+
+  var active = null;
+
+  function parts(player) {
+    return {
+      player: player,
+      btn: player.querySelector(".btn-play"),
+      ico: player.querySelector(".ico-play") || player.querySelector(".ico-pause") || player.querySelector("[class^=ico-]"),
+      lbl: player.querySelector(".lbl"),
+      bar: player.querySelector(".bar"),
+      fill: player.querySelector(".bar i"),
+      dur: player.querySelector(".dur")
+    };
+  }
+
+  function setPlaying(p, on) {
+    if (!p) return;
+    if (p.ico) { p.ico.className = on ? "ico-pause" : "ico-play"; }
+    if (p.lbl) { p.lbl.textContent = on ? "暂停" : "播放"; }
+  }
+
+  function reset(p) {
+    setPlaying(p, false);
+    if (p && p.fill) { p.fill.style.width = "0%"; }
+  }
+
+  function stopAll() {
+    if (!active) return;
+    var p = active;
+    active = null;
+    try { p.audio.pause(); } catch (e) {}
+    reset(p);
+  }
+
+  function play(player, src) {
+    var isSame = active && active.player === player;
+    if (isSame) {
+      if (!active.audio.paused) { active.audio.pause(); setPlaying(active, false); return; }
+      var resumed = active.audio.play();
+      setPlaying(active, true);
+      if (resumed && resumed.catch) resumed.catch(function () { setPlaying(active, false); });
+      return;
+    }
+    stopAll();
+    var p = parts(player);
+    var audio = new Audio(src);
+    audio.preload = "metadata";
+    p.audio = audio;
+    active = p;
+
+    audio.addEventListener("timeupdate", function () {
+      if (p.fill && audio.duration && isFinite(audio.duration)) {
+        p.fill.style.width = (audio.currentTime / audio.duration * 100).toFixed(1) + "%";
+      }
+    });
+    audio.addEventListener("loadedmetadata", function () {
+      if (p.dur && audio.duration && isFinite(audio.duration)) {
+        p.dur.textContent = audio.duration.toFixed(2) + "s";
+      }
+    });
+    audio.addEventListener("play", function () { setPlaying(p, true); });
+    audio.addEventListener("pause", function () { setPlaying(p, false); });
+    audio.addEventListener("ended", function () {
+      if (active === p) stopAll(); else reset(p);
+    });
+    audio.addEventListener("error", function () {
+      if (active === p) { reset(p); active = null; }
+    });
+
+    if (p.bar) {
+      p.bar.onclick = function (ev) {
+        if (!audio.duration || !isFinite(audio.duration)) return;
+        var r = p.bar.getBoundingClientRect();
+        audio.currentTime = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width)) * audio.duration;
+      };
+    }
+    audio.play().catch(function () { reset(p); });
+  }
+
+  function bindPlayer(player) {
+    player.querySelector(".btn-play").addEventListener("click", function () {
+      play(player, player.getAttribute("data-src"));
+    });
+  }
+
+  function renderSamples(containerId, list) {
+    var listEl = document.getElementById(containerId);
+    list.forEach(function (s, i) {
+      var row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        '<div class="head"><span class="num">样本 ' + String(i + 1).padStart(2, "0") + '</span>' +
+        (s.lang ? '<span class="lang">' + s.lang + '</span>' : '') +
+        '<span class="text"></span></div>' +
+        '<div class="player" data-src="' + s.file + '">' +
+        '<button class="btn-play" type="button"><span class="ico-play"></span><span class="lbl">播放</span></button>' +
+        '<div class="bar"><i></i></div><span class="dur">' + s.dur + '</span></div>';
+      row.querySelector(".text").textContent = "「" + s.text + "」";
+      listEl.appendChild(row);
+      bindPlayer(row.querySelector(".player"));
+    });
+  }
+
+  renderSamples("kleeSamples", KLEE_SAMPLES);
+  renderSamples("shinobuSamples", SHINOBU_SAMPLES);
+  Array.prototype.forEach.call(document.querySelectorAll(".ab .player, #livePlayer"), bindPlayer);
+
+  // 服务状态
+  var badge = document.getElementById("healthBadge");
+  fetch("/api/tts/health", { cache: "no-store" })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var ch = d.engines && d.engines.character;
+      if (ch && ch.status === "ready") {
+        badge.className = "badge ok";
+        badge.textContent = "服务在线 · 可现场合成 · " + (ch.voices || []).length + " 个音色";
+      } else {
+        badge.className = "badge warn";
+        badge.textContent = "角色引擎未就绪 · 仅可播放已生成样本";
+      }
+    })
+    .catch(function () {
+      badge.className = "badge warn";
+      badge.textContent = "后端未连接 · 仅可播放已生成样本";
+    });
+
+  // 音色切换与现场合成
+  var textEl = document.getElementById("text");
+  var synthBtn = document.getElementById("synthBtn");
+  var stopBtn = document.getElementById("stopBtn");
+  var statusEl = document.getElementById("status");
+  var livePlayer = document.getElementById("livePlayer");
+  var switchEl = document.getElementById("voiceSwitch");
+  var liveUrl = null;
+  var edited = false;
+  var EXAMPLES = {
+    char_klee: "可莉今天发现了一个秘密基地，要不要一起去看看？",
+    char_shinobu: "晚上好。今天辛苦了，先坐下来，慢慢说给我听吧。"
+  };
+
+  function currentVoice() {
+    var checked = switchEl.querySelector("input:checked");
+    return checked ? checked.value : "char_klee";
+  }
+
+  textEl.addEventListener("input", function () { edited = true; });
+  switchEl.addEventListener("change", function () {
+    Array.prototype.forEach.call(switchEl.querySelectorAll("label"), function (label) {
+      label.classList.toggle("on", label.querySelector("input").checked);
+    });
+    if (!edited) textEl.value = EXAMPLES[currentVoice()];
+    statusEl.className = "status";
+    statusEl.textContent = "已切换到 " + (currentVoice() === "char_klee" ? "可莉" : "蝴蝶忍");
+  });
+
+  stopBtn.addEventListener("click", function () {
+    stopAll();
+    statusEl.className = "status";
+    statusEl.textContent = "已停止";
+  });
+
+  synthBtn.addEventListener("click", function () {
+    var text = textEl.value.trim();
+    if (!text) {
+      statusEl.className = "status err";
+      statusEl.textContent = "请先输入要合成的文字";
+      return;
+    }
+    stopAll();
+    if (liveUrl) { URL.revokeObjectURL(liveUrl); liveUrl = null; }
+    livePlayer.classList.remove("show");
+    synthBtn.disabled = true;
+    statusEl.className = "status";
+    statusEl.textContent = "正在合成…（单句约 20–40 秒，请勿关闭页面）";
+    var t0 = Date.now();
+    var voice = currentVoice();
+
+    fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text, engine: "character", voice: voice })
+    })
+      .then(function (r) {
+        if (!r.ok) {
+          return r.text().then(function (t) {
+            var msg = t;
+            try { var j = JSON.parse(t); msg = j.message || j.error || j.detail || t; } catch (e) {}
+            throw new Error("HTTP " + r.status + "：" + msg);
+          });
+        }
+        return r.blob();
+      })
+      .then(function (blob) {
+        if (!blob.size) throw new Error("返回音频为空");
+        liveUrl = URL.createObjectURL(blob);
+        livePlayer.setAttribute("data-src", liveUrl);
+        livePlayer.classList.add("show");
+        statusEl.className = "status";
+        statusEl.textContent = "合成完成，用时 " + ((Date.now() - t0) / 1000).toFixed(1) + "s · " +
+                               (blob.size / 1024).toFixed(0) + " KB";
+        play(livePlayer, liveUrl);
+      })
+      .catch(function (e) {
+        statusEl.className = "status err";
+        statusEl.textContent = "合成失败：" + e.message;
+      })
+      .then(function () { synthBtn.disabled = false; });
+  });
+})();
+</script>
+
+<script type="module">
+import { splitSpeechSegments, SEGMENT_GAP_MS, shouldUseSegmentedSpeech } from "../modules/voice/speech-segments.js";
+
+const $ = (id) => document.getElementById(id);
+const runState = { controller: null, urls: [], audio: null, busy: false };
+const fmt = (ms) => (ms / 1000).toFixed(1) + "s";
+const BUTTONS = ["s2RunA", "s2RunB", "s2RunAB"];
+
+function setStatus(message, isError) {
+  const el = $("s2Status");
+  el.textContent = message;
+  el.className = isError ? "status err" : "status";
+}
+
+function currentVoice() {
+  const checked = $("s2VoiceSwitch").querySelector("input:checked");
+  return checked ? checked.value : "char_shinobu";
+}
+
+$("s2VoiceSwitch").addEventListener("change", () => {
+  Array.prototype.forEach.call($("s2VoiceSwitch").querySelectorAll("label"), (label) => {
+    label.classList.toggle("on", label.querySelector("input").checked);
+  });
+});
+
+function renderSegments() {
+  const text = $("s2Text").value.trim();
+  const segments = splitSpeechSegments(text);
+  const enabled = shouldUseSegmentedSpeech(text, "character");
+  const box = $("s2Segments");
+  box.textContent = "";
+  const head = document.createElement("div");
+  head.innerHTML = "<strong>生产分段策略：</strong>" +
+    (enabled ? "启用 S2（中文多段长句）" : "不分段（日语 / 短句 / 单段）") +
+    " · 共 " + segments.length + " 段";
+  box.appendChild(head);
+  segments.forEach((segment, index) => {
+    const line = document.createElement("div");
+    const code = document.createElement("code");
+    code.textContent = segment;
+    line.append("段 " + (index + 1) + "：", code);
+    box.appendChild(line);
+  });
+}
+$("s2Text").addEventListener("input", renderSegments);
+renderSegments();
+
+function setRow(rowId, values) {
+  const cells = $(rowId).querySelectorAll("td.n");
+  values.forEach((value, index) => { cells[index].textContent = value; });
+}
+const clearRow = (rowId) => setRow(rowId, ["—", "—", "—", "—"]);
+
+function setDelta(html, className) {
+  let el = $("s2DeltaResult");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "s2DeltaResult";
+    $("s2Delta").insertBefore(el, $("s2Delta").firstChild);
+  }
+  el.innerHTML = html;
+  el.className = className;
+}
+
+function stopS2() {
+  if (runState.controller) runState.controller.abort();
+  if (runState.audio) {
+    try { runState.audio.pause(); } catch (error) { /* 已结束 */ }
+    runState.audio = null;
+  }
+  runState.urls.forEach((url) => URL.revokeObjectURL(url));
+  runState.urls = [];
+  runState.busy = false;
+  BUTTONS.forEach((id) => { $(id).disabled = false; });
+}
+$("s2Stop").addEventListener("click", () => { stopS2(); setStatus("已停止"); });
+
+async function requestWav(text, voice, signal) {
+  const res = await fetch("/api/tts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, engine: "character", voice }),
+    signal
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.message || detail.error || ("HTTP " + res.status));
+  }
+  const blob = await res.blob();
+  if (!blob.size) throw new Error("返回音频为空");
+  const url = URL.createObjectURL(blob);
+  runState.urls.push(url);
+  return url;
+}
+
+/** 预取一段：失败先挂一个空 catch，避免播放期间产生未处理的 rejection。 */
+function prefetch(text, voice, signal) {
+  const pending = requestWav(text, voice, signal);
+  pending.catch(() => {});
+  return pending;
+}
+
+function playUrl(url, signal) {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio(url);
+    runState.audio = audio;
+    let settled = false;
+    const finish = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener("abort", onAbort);
+      fn(value);
+    };
+    const onAbort = () => {
+      try { audio.pause(); } catch (error) { /* 已结束 */ }
+      finish(resolve);
+    };
+    audio.addEventListener("ended", () => finish(resolve), { once: true });
+    audio.addEventListener("error", () => finish(reject, new Error("音频播放失败")), { once: true });
+    signal.addEventListener("abort", onAbort, { once: true });
+    if (signal.aborted) { onAbort(); return; }
+    audio.play().catch((error) => finish(reject, error));
+  });
+}
+
+function waitGap(ms, signal) {
+  return new Promise((resolve) => {
+    if (signal.aborted) { resolve(); return; }
+    const onAbort = () => { clearTimeout(timer); resolve(); };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
+/** A：整句一次请求，首响等于完整生成时间。 */
+async function runWhole(text, voice, signal) {
+  const t0 = performance.now();
+  const url = await requestWav(text, voice, signal);
+  const ttfa = performance.now() - t0;
+  await playUrl(url, signal);
+  return { ttfa, reqTotal: ttfa, wall: performance.now() - t0, requests: 1 };
+}
+
+/** B：S2 分段请求 + 播放队列，首段到即播、播放期间预取下一段。 */
+async function runSegmented(text, voice, signal) {
+  const segments = splitSpeechSegments(text.slice(0, 300));
+  const t0 = performance.now();
+  const times = [];
+  let ttfa = 0;
+  let pending = prefetch(segments[0], voice, signal);
+  for (let i = 0; i < segments.length; i += 1) {
+    const started = performance.now();
+    const url = await pending;
+    if (signal.aborted) throw new DOMException("已停止", "AbortError");
+    times.push(performance.now() - started);
+    if (i === 0) ttfa = performance.now() - t0;
+    if (i + 1 < segments.length) pending = prefetch(segments[i + 1], voice, signal);
+    await playUrl(url, signal);
+    if (signal.aborted) throw new DOMException("已停止", "AbortError");
+    if (i + 1 < segments.length) await waitGap(SEGMENT_GAP_MS, signal);
+  }
+  return {
+    ttfa,
+    reqTotal: times.reduce((sum, value) => sum + value, 0),
+    wall: performance.now() - t0,
+    requests: segments.length,
+    times,
+    segments
+  };
+}
+
+async function run(mode) {
+  if (runState.busy) { setStatus("正在运行，请先停止"); return; }
+  const text = $("s2Text").value.trim();
+  if (!text) { setStatus("请先输入文字", true); return; }
+  const voice = currentVoice();
+  const doA = mode !== "B";
+  const doB = mode !== "A";
+  runState.busy = true;
+  runState.controller = new AbortController();
+  const signal = runState.controller.signal;
+  BUTTONS.forEach((id) => { $(id).disabled = true; });
+  if (doA) clearRow("s2RowA");
+  if (doB) clearRow("s2RowB");
+  let a = null;
+  let b = null;
+  try {
+    if (doA) {
+      setStatus("A · 整句一次请求中…（首次会加载模型）");
+      a = await runWhole(text, voice, signal);
+      if (signal.aborted) throw new DOMException("已停止", "AbortError");
+      setRow("s2RowA", [fmt(a.ttfa), fmt(a.reqTotal), fmt(a.wall), String(a.requests)]);
+      setStatus("A 完成 · 首响 " + fmt(a.ttfa) + (doB ? "，接着跑 B…" : ""));
+    }
+    if (doB) {
+      setStatus("B · S2 分段队列中…（首段到即播）");
+      b = await runSegmented(text, voice, signal);
+      if (signal.aborted) throw new DOMException("已停止", "AbortError");
+      setRow("s2RowB", [fmt(b.ttfa), fmt(b.reqTotal), fmt(b.wall), String(b.requests)]);
+      const detail = b.segments.map((segment, i) => "段" + (i + 1) + " " + fmt(b.times[i])).join(" · ");
+      setStatus("B 完成 · 首响 " + fmt(b.ttfa) + " · " + detail);
+    }
+    if (a && b) {
+      const delta = b.ttfa - a.ttfa;
+      const pct = a.ttfa ? Math.round(Math.abs(delta) / a.ttfa * 100) : 0;
+      const improved = delta < 0;
+      setDelta(
+        "<strong>首响差异：</strong>B − A = " + (delta >= 0 ? "+" : "−") + fmt(Math.abs(delta)) +
+        "（" + (improved ? "快 " : "慢 ") + pct + "%）；端到端播完 A " + fmt(a.wall) +
+        " / B " + fmt(b.wall) + "。",
+        "delta " + (improved ? "good" : "warn")
+      );
+    }
+  } catch (error) {
+    const aborted = signal.aborted || (error && error.name === "AbortError");
+    setStatus(aborted ? "已停止" : "失败：" + (error?.message || error), !aborted);
+  } finally {
+    stopS2();
+  }
+}
+
+$("s2RunA").addEventListener("click", () => { void run("A"); });
+$("s2RunB").addEventListener("click", () => { void run("B"); });
+$("s2RunAB").addEventListener("click", () => { void run("AB"); });
+</script>
+</body>
+</html>

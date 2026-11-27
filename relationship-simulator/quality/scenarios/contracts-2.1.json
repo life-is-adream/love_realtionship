@@ -1,0 +1,72 @@
+{
+  "contract_version": "scenario-contract-2.1.0",
+  "rubric_version": "2.1.0",
+  "note": "场景行为合同。状态由服务器从 history 重建，客户端 state 不参与计算。",
+  "scenarios": [
+    {
+      "id": "first-meeting",
+      "version": "2.1.0",
+      "title": "第一次见面",
+      "relationship_context": "刚认识，双方尚未形成承诺；目标是低压力地了解彼此。",
+      "difficulty_range": ["easy", "normal", "challenging"],
+      "branches": ["positive", "uncertain"],
+      "allowed_state": { "tension": [0, 3], "repair": [0, 3] },
+      "boundaries": ["不替对方下结论", "不把礼貌当同意", "不追问隐私", "不施加见面压力"],
+      "termination_rules": ["连续施压达到 3 时结束", "对方明确拒绝时结束", "用户选择 declined 分支时结束"],
+      "learning_objectives": ["用具体内容承接", "提出可拒绝的轻量邀请", "观察对方是否给出具体安排"],
+      "dimensions": ["listening", "clarity", "boundary", "naturalness"]
+    },
+    {
+      "id": "low-energy-reply",
+      "version": "2.1.0",
+      "title": "低能量回复",
+      "relationship_context": "对方最近忙或累，回复短；用户容易焦虑并追加消息。",
+      "difficulty_range": ["easy", "normal", "challenging"],
+      "branches": ["positive", "uncertain"],
+      "allowed_state": { "tension": [0, 3], "repair": [0, 3] },
+      "boundaries": ["不把忙碌解释为拒绝或喜欢", "不连续追问", "不用道歉抵消施压"],
+      "termination_rules": ["连续施压达到 3 时结束", "对方要求暂停时结束"],
+      "learning_objectives": ["识别证据不足", "给空间", "用一句具体回应替代追问"],
+      "dimensions": ["listening", "clarity", "boundary", "naturalness"]
+    },
+    {
+      "id": "low-pressure-invitation",
+      "version": "2.1.0",
+      "title": "低压力邀约",
+      "relationship_context": "用户想约对方，但对方时间或意愿不确定；重点是保留拒绝空间。",
+      "difficulty_range": ["easy", "normal", "challenging"],
+      "branches": ["positive", "uncertain", "declined"],
+      "allowed_state": { "tension": [0, 3], "repair": [0, 3] },
+      "boundaries": ["邀请必须可拒绝", "不以等待或内疚施压", "拒绝后不追加邀约"],
+      "termination_rules": ["declined 分支首轮结束", "连续施压达到 3 时结束"],
+      "learning_objectives": ["提出具体时间/地点", "说明可以拒绝", "接受模糊回应"],
+      "dimensions": ["clarity", "boundary", "naturalness", "listening"]
+    },
+    {
+      "id": "conflict-repair",
+      "version": "2.1.0",
+      "title": "冲突修复",
+      "relationship_context": "双方有分歧或情绪；用户想修复，但可能滑向指责或逼迫原谅。",
+      "difficulty_range": ["easy", "normal", "challenging"],
+      "branches": ["positive", "uncertain"],
+      "allowed_state": { "tension": [0, 3], "repair": [0, 3] },
+      "boundaries": ["不逼对方立刻原谅", "不用道歉换取服从", "不指责人格"],
+      "termination_rules": ["连续施压达到 3 时结束", "对方要求暂停时结束"],
+      "learning_objectives": ["区分事实、感受、请求", "先听后说", "接受暂停"],
+      "dimensions": ["listening", "clarity", "boundary", "conflict", "naturalness"]
+    },
+    {
+      "id": "breakup-recovery",
+      "version": "2.1.0",
+      "title": "分手后恢复",
+      "relationship_context": "关系已结束；用户可能想复合或反复联系。",
+      "difficulty_range": ["easy", "normal", "challenging"],
+      "branches": ["declined"],
+      "allowed_state": { "tension": [0, 3], "repair": [0, 3] },
+      "boundaries": ["不推进复合", "不反复联系", "不以自伤或威胁挽留", "尊重对方停止联系的决定"],
+      "termination_rules": ["首轮即结束", "任何复合请求都不重新打开互动"],
+      "learning_objectives": ["识别结束信号", "把注意力转回自我照顾", "必要时寻求现实支持"],
+      "dimensions": ["boundary", "listening", "clarity"]
+    }
+  ]
+}

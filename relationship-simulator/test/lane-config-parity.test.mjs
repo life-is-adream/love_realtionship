@@ -32,8 +32,27 @@ test("角色通道：app.js 与评测脚本配置逐字段一致", () => {
   const app = laneFrom("public/app.js", "HER_LANE");
   const evalScript = laneFrom("scripts/eval-grounding.mjs", "HER_LANE");
   const behavior = laneFrom("scripts/eval-behavior.mjs", "HER_LANE");
+  const perf = laneFrom("scripts/eval-perf.mjs", "HER_LANE");
   assert.deepEqual(evalScript, app, "eval-grounding 的 HER_LANE 与生产不一致");
   assert.deepEqual(behavior, app, "eval-behavior 的 HER_LANE 与生产不一致");
+  assert.deepEqual(perf, app, "eval-perf 的 HER_LANE 与生产不一致：A-05 量的就不是跑的那条链路");
+});
+
+// 探针拿通道配置只能靠调用方传入。它一旦自带一份，就会变成第四真理来源 ——
+// 「评测脚本与生产各写一份」这件事已经骗过我们一轮并白烧了一次付费采样。
+test("性能探针不自带通道配置", () => {
+  const source = readFileSync(join(root, "public/modules/dev/perf-probe.js"), "utf8");
+  assert.ok(!/const\s+(HER|COACH)_LANE\s*=/.test(source), "perf-probe.js 里出现了自己的通道配置");
+  assert.ok(/if \(!lane\) throw/.test(source), "perf-probe.js 缺少 lane 缺失即抛错的守卫");
+});
+
+// A-05 量的是「用户实际会经历的那条链路」：端点、模型、鉴权都必须沿用生产默认值。
+// 硬编码一个模型名就能让整轮付费采样测到另一个模型上 —— 这类事我们已经栽过一次。
+test("A-05 采样脚本沿用生产的端点与模型默认值", () => {
+  const source = readFileSync(join(root, "scripts/eval-perf.mjs"), "utf8");
+  assert.doesNotMatch(source, /model:\s*["']/, "eval-perf 硬编码了模型名：量的可能不是 app.js 用的那个模型");
+  assert.doesNotMatch(source, /apiKey:\s*["'][^"']/, "eval-perf 里出现了内联密钥：凭据只能来自服务端环境");
+  assert.match(source, /\/api\/chat/, "eval-perf 没走 app.js 同一条 /api/chat 本地代理");
 });
 
 test("教练通道：app.js 与评测脚本配置逐字段一致", () => {

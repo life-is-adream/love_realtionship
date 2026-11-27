@@ -2,6 +2,7 @@
 
 const VIEW_COPY = Object.freeze({
   home: { title: "恋爱成长学习目录", description: "按当前需要选择课程或练习，从一个具体问题开始。" },
+  caseflow: { title: "聊天分析与训练", description: "核对聊天、查看依据和课程，再练习一种表达。" },
   chat: { title: "对话练习", description: "练习倾听、自我表达和尊重边界的来回互动。" },
   practice: { title: "每日小练习", description: "一次只练一个动作，用几分钟练清楚表达。" },
   journey: { title: "连续约会练习", description: "跟随连续情境，练习邀约、相处和关系选择。" },

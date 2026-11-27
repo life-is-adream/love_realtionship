@@ -1,0 +1,17 @@
+.flow-card{display:flex;flex-direction:column;gap:10px;margin:0 0 16px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--ink)}
+.flow-upload{display:flex;flex-direction:column;gap:10px;padding-top:10px}.flow-card .flow-inline{display:flex;flex-direction:row;align-items:center;gap:8px}.flow-inline input{width:auto}
+.flow-card h2,.flow-card h3,.flow-card h4,.flow-card p{margin:0}.flow-card p,.flow-card li{line-height:1.6}.flow-card label{display:flex;flex-direction:column;gap:6px}.flow-card textarea,.flow-card input,.flow-card select{box-sizing:border-box;width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--surface-1);color:var(--ink);font:inherit}.flow-message{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--line)}.flow-message-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.flow-message-head>div{display:flex;gap:4px}.flow-replies{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}.flow-replies article,.flow-inference{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px}.flow-card small{color:var(--ink-subtle)}.flow-card a{color:inherit;text-decoration:underline}.flow-card ul,.flow-card ol{padding-left:22px;margin:0}.flow-card li{margin:6px 0}
+.flow-growth-chart{display:block;width:min(100%,600px);height:auto;margin:10px 0;color:var(--ink)}.flow-growth-chart text{fill:currentColor;font-size:12px}
+
+#hfClosingLoadStatus:empty { margin: 0; }
+.closing-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.closing-drill form, .closing-drill div[data-closing-checks] { display: grid; gap: 8px; }
+#hfClosingError { color: var(--ink); }
+.closing-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.closing-choices > div { border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.closing-choices p, .closing-drill [data-closing-transfer] { white-space: pre-wrap; overflow-wrap: anywhere; }
+.closing-drill :focus-visible, #hfFlowStartHeading:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+#relationshipFlowPanel:has([data-closing-stage="transfer"]) :is(#hfFlowAnalysis, #hfFlowCourses, #hfFlowReplies, #hfFlowPractice, #hfFlowFeedback, #hfFlowWeekly) { display: none; }
+@media (max-width: 600px) {
+  .closing-choices { grid-template-columns: minmax(0, 1fr); }
+}

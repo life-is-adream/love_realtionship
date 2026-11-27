@@ -23,8 +23,16 @@ import { normalizeState, serializeStateForStorage } from "./state.js";
 export const BACKUP_APP_ID = "heartflow";
 export const BACKUP_VERSION = 1;
 
+/**
+ * 不进入备份/恢复的键：隔离键保存的是载入失败的原始字符串（可能含未经脱敏的聊天）。
+ * 它既不是可用档案，也不应随导出文件复制或再写回，故从白名单排除。
+ */
+export const BACKUP_EXCLUDED_KEYS = Object.freeze([STORAGE_KEYS.stateQuarantine]);
+
 /** 白名单：允许进入备份/恢复流程的 localStorage 键名字面量集合。 */
-export const BACKUP_KEY_WHITELIST = Object.freeze(Object.values(STORAGE_KEYS));
+export const BACKUP_KEY_WHITELIST = Object.freeze(
+  Object.values(STORAGE_KEYS).filter((key) => !BACKUP_EXCLUDED_KEYS.includes(key))
+);
 
 const STATE_STORAGE_KEY = STORAGE_KEYS.state;
 
@@ -126,26 +134,52 @@ export function applyBackup(json, persistence) {
     return { ok: false, errors: [...validation.errors, "持久化接口不可用"], ignoredKeys: validation.ignoredKeys, applied };
   }
 
-  for (const [key, raw] of Object.entries(json.data)) {
-    if (!BACKUP_KEY_WHITELIST.includes(key)) continue; // 白名单外：忽略并报告
-    if (raw === null || raw === undefined) {
-      // 备份里该键原本不存在：恢复为「不存在」。
-      if (typeof persistence.removeItem === "function") persistence.removeItem(key);
-      applied.push(key);
-      continue;
+  // 先记录将被覆盖的键值；写入中途失败（如配额用尽）时回滚，避免一半新一半旧。
+  const snapshot = new Map();
+  for (const key of Object.keys(json.data)) {
+    if (!BACKUP_KEY_WHITELIST.includes(key)) continue;
+    try {
+      snapshot.set(key, typeof persistence.getItem === "function" ? persistence.getItem(key) : null);
+    } catch {
+      snapshot.set(key, null);
     }
-    if (key === STATE_STORAGE_KEY) {
-      let stored = null;
-      try {
-        stored = normalizeState(typeof raw === "string" ? JSON.parse(raw) : raw);
-      } catch {
-        stored = normalizeState(null);
+  }
+
+  try {
+    for (const [key, raw] of Object.entries(json.data)) {
+      if (!BACKUP_KEY_WHITELIST.includes(key)) continue; // 白名单外：忽略并报告
+      if (raw === null || raw === undefined) {
+        // 备份里该键原本不存在：恢复为「不存在」。
+        if (typeof persistence.removeItem === "function") persistence.removeItem(key);
+        applied.push(key);
+        continue;
       }
-      persistence.setItem(key, JSON.stringify(serializeStateForStorage(stored)));
-    } else {
-      persistence.setItem(key, typeof raw === "string" ? raw : JSON.stringify(raw));
+      if (key === STATE_STORAGE_KEY) {
+        let stored = null;
+        try {
+          stored = normalizeState(typeof raw === "string" ? JSON.parse(raw) : raw);
+        } catch {
+          stored = normalizeState(null);
+        }
+        persistence.setItem(key, JSON.stringify(serializeStateForStorage(stored)));
+      } else {
+        persistence.setItem(key, typeof raw === "string" ? raw : JSON.stringify(raw));
+      }
+      applied.push(key);
     }
-    applied.push(key);
+  } catch (error) {
+    for (const [key, raw] of snapshot) {
+      try {
+        if (raw === null || raw === undefined) {
+          if (typeof persistence.removeItem === "function") persistence.removeItem(key);
+        } else {
+          persistence.setItem(key, raw);
+        }
+      } catch {
+        /* 回滚尽力而为：保留原始错误，调用方需提示用户检查本地数据。 */
+      }
+    }
+    throw error;
   }
 
   return { ok: true, errors: [], ignoredKeys: validation.ignoredKeys, applied };

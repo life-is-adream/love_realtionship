@@ -1,0 +1,15 @@
+hf
+hf.exe
+*.pdb
+*.exe
+.zigcache/
+.toolchain/
+.hf-demo/
+.hf-test*/
+.hf-smoke/
+src/fix*.py
+.wasm-probe/*.wasm
+.tmp-chat-test-*/
+.tmp-parity-*.log
+.tmp-check-parity-*/
+.e2e-out/

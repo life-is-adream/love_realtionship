@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "note": "固定评测集。中文 10 句 + 日语 10 句，按长度分层（短/中/长）并覆盖蝴蝶忍说话方式的四个维度：轻柔、克制、清晰、停顿。改动台词会破坏跨轮可比性，新增请追加而非修改。",
+  "dimensions": {
+    "gentle": "轻柔：音量与能量偏低、尾音不冲",
+    "restrained": "克制：情绪起伏小、不过度表演",
+    "clear": "清晰：咬字干净、语流稳定",
+    "pause": "停顿：句内自然换气与留白",
+    "edge": "温柔中带一点锋利，角色特有的礼貌压迫感"
+  },
+  "cases": [
+    { "id": "zh_s01", "lang": "zh", "tier": "short", "tone": ["gentle"],          "text": "你好呀。" },
+    { "id": "zh_s02", "lang": "zh", "tier": "short", "tone": ["restrained"],      "text": "别太勉强自己。" },
+    { "id": "zh_s03", "lang": "zh", "tier": "short", "tone": ["gentle", "clear"], "text": "今天累了吗？" },
+    { "id": "zh_m01", "lang": "zh", "tier": "mid",   "tone": ["gentle", "pause"], "text": "稍微休息一下也没关系的，我会在这里陪着你。" },
+    { "id": "zh_m02", "lang": "zh", "tier": "mid",   "tone": ["clear", "gentle"], "text": "啊，不好意思，我刚才走神了一小会儿呢。" },
+    { "id": "zh_m03", "lang": "zh", "tier": "mid",   "tone": ["restrained"],      "text": "没关系的，这种事慢慢来就好，不必着急。" },
+    { "id": "zh_m04", "lang": "zh", "tier": "mid",   "tone": ["edge", "clear"],   "text": "你总是这么逞强，可真让人有点担心呀。" },
+    { "id": "zh_l01", "lang": "zh", "tier": "long",  "tone": ["pause", "gentle"], "text": "今天蝶屋的风很舒服，我把药重新整理了一遍，还泡了你喜欢的茶。要不要坐下来，慢慢说给我听？" },
+    { "id": "zh_l02", "lang": "zh", "tier": "long",  "tone": ["restrained", "pause"], "text": "如果觉得累了，就先把手里的事放一放吧。我不会催你的，等你想说的时候，我一直都在这里。" },
+    { "id": "zh_l03", "lang": "zh", "tier": "long",  "tone": ["pause", "edge"],   "text": "嗯……原来是这样啊。听起来你其实早就想清楚了，只是还差一点点勇气，对不对？" },
+
+    { "id": "ja_s01", "lang": "ja", "tier": "short", "tone": ["gentle"],          "text": "こんにちは。" },
+    { "id": "ja_s02", "lang": "ja", "tier": "short", "tone": ["restrained"],      "text": "無理はしないでくださいね。" },
+    { "id": "ja_s03", "lang": "ja", "tier": "short", "tone": ["gentle", "clear"], "text": "お疲れですか？" },
+    { "id": "ja_m01", "lang": "ja", "tier": "mid",   "tone": ["gentle", "pause"], "text": "少し休んだらどうですか。お茶を淹れますよ。" },
+    { "id": "ja_m02", "lang": "ja", "tier": "mid",   "tone": ["clear", "gentle"], "text": "あら、ごめんなさい。少し考え事をしていました。" },
+    { "id": "ja_m03", "lang": "ja", "tier": "mid",   "tone": ["restrained"],      "text": "大丈夫ですよ。ゆっくりで構いませんから。" },
+    { "id": "ja_m04", "lang": "ja", "tier": "mid",   "tone": ["edge", "clear"],   "text": "また無理をなさっていますね。少し心配になります。" },
+    { "id": "ja_l01", "lang": "ja", "tier": "long",  "tone": ["pause", "gentle"], "text": "今日は蝶屋の風が気持ちよくて、お薬を整理し直しました。お茶も淹れてありますから、ゆっくりお話ししましょうね。" },
+    { "id": "ja_l02", "lang": "ja", "tier": "long",  "tone": ["restrained", "pause"], "text": "お疲れでしたら、手を止めて構いません。急がせたりしませんので、お話ししたくなったら、いつでもここにいますよ。" },
+    { "id": "ja_l03", "lang": "ja", "tier": "long",  "tone": ["pause", "edge"],   "text": "あら……そうだったのですね。もう答えは出ているのに、あと少しだけ勇気が要る、ということでしょうか。" }
+  ]
+}

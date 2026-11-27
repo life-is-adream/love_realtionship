@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "model": "Qwen3-TTS-12Hz-1.7B-Base",
+  "modelRoot": "E:\\heartflow-voice\\models\\qwen",
+  "note": "本机个人非商业用途。角色语音版权归原版权方所有；各参考音频的来源与使用条件见角色条目。",
+  "characters": [
+    {
+      "id": "char_klee",
+      "label": "可莉 · 中文原声",
+      "language": "Chinese",
+      "ref": "refs/klee_ref.wav",
+      "refText": "玩得太开心，忘、忘在脑后了……",
+      "xVectorOnly": false,
+      "source": "ModelScope aihobbyist/GPT-SoVITS_Model_Collection（原神/中文/可莉_ZH.zip 自带参考音频）",
+      "license": "CC-BY-NC；禁止商用、禁止再分发；训练语音版权归 COGNOSPHERE / miHoYo，配音演员花玲",
+      "weights": "E:\\heartflow-voice\\models\\klee\\v4\\可莉_ZH"
+    },
+    {
+      "id": "char_shinobu",
+      "label": "蝴蝶忍 · 中文合成",
+      "language": "Chinese",
+      "ref": "refs/shinobu_sleep_ref.wav",
+      "refText": "",
+      "xVectorOnly": true,
+      "source": "用户提供的《蝴蝶忍系统声音.zip》内《睡眠.wav》（日语，4.32 秒，48 kHz 单声道），与确认的中文试听使用同一参考文件。",
+      "license": "参考片段许可未核实，仅供本机个人非商业试听。"
+    }
+  ]
+}

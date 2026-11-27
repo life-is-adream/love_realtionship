@@ -12,6 +12,8 @@ export const envPath = path.join(ROOT_DIR, ".env");
 loadDotEnv(envPath);
 
 export const PORT = Number(process.env.PORT || 3000);
+// 默认只监听回环地址；只有显式配置 HF_BIND_HOST / BIND_HOST 才对外提供局域网访问。
+export const HOST = process.env.HF_BIND_HOST || process.env.BIND_HOST || "127.0.0.1";
 export const LLM_ENDPOINT = process.env.LLM_ENDPOINT || "https://api.openai.com/v1/responses";
 // 模型名从 .env 读取（LLM_MODEL），缺省用 mimo-v2.5-pro。
 // 说明：mimo-v2.5 为推理型（reasoning_tokens 高、实时聊天偏慢），

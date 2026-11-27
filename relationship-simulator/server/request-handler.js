@@ -1,6 +1,8 @@
 import { realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isAllowedHost, isAllowedOrigin } from "./http.js";
+import { HOST } from "./config.js";
 
 /** Match the actual entry file, including relative paths and symlink aliases. */
 export function isDirectEntry(moduleUrl, entryPath = process.argv[1]) {
@@ -23,7 +25,7 @@ export function isDirectEntry(moduleUrl, entryPath = process.argv[1]) {
 /** Keep both synchronous and asynchronous route failures inside one boundary. */
 export function createRequestHandler({
   resolveCorsOrigin, sendJson, sendText, handleHealth, handleChat, handleSearch,
-  handleRelationshipIntelligence, handleLongContent, handleTts, handleTtsHealth, serveStatic
+  handleRelationshipIntelligence, handleLongContent, handleTts, handleTtsHealth, handleV2, serveStatic
 }) {
   return async (req, res) => {
     try {
@@ -36,6 +38,14 @@ export function createRequestHandler({
           "Access-Control-Max-Age": "86400"
         });
         return res.end();
+      }
+      if (!isAllowedHost(req.headers.host, HOST)) {
+        return sendJson(res, 403, { error: "host_forbidden", message: "此本机服务只接受本机地址的请求。" });
+      }
+      if (url.pathname.startsWith("/api/v2/") && typeof handleV2 === "function") return await handleV2(req, res, url.pathname);
+      // 旧接口同样校验页面来源：避免任意网页借本机服务代理模型请求。
+      if (url.pathname.startsWith("/api/") && !isAllowedOrigin(req.headers.origin, HOST)) {
+        return sendJson(res, 403, { error: "origin_forbidden", message: "此本机服务只接受本机页面的请求。" });
       }
       if (req.method === "GET" && url.pathname === "/api/health") return await handleHealth(res);
       if (req.method === "POST" && url.pathname === "/api/chat") return await handleChat(req, res);

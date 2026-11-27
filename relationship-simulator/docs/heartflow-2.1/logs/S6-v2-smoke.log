@@ -1,0 +1,22 @@
+test_course_references_exist_and_match_between_services (__main__.V2Smoke) ... ok
+test_default_bind_is_loopback_and_legacy_origin_guard (__main__.V2Smoke) ... ok
+test_event_and_content_type (__main__.V2Smoke) ... ok
+test_existing_relationship_intelligence_parity (__main__.V2Smoke) ... ok
+test_five_decisions_negation_and_question (__main__.V2Smoke) ... ok
+test_import_analysis_and_reply_contract (__main__.V2Smoke) ... ok
+test_invalid_and_concurrent_requests (__main__.V2Smoke) ... ok
+test_invalid_vision_output_fails_safely (__main__.V2Smoke) ... ok
+test_practice_evidence_and_retry (__main__.V2Smoke) ... ok
+test_refusal_followup_and_negation (__main__.V2Smoke) ... ok
+test_refusal_semantics_regression_set (__main__.V2Smoke) ... ok
+test_rejection_and_injection_do_not_create_pressure (__main__.V2Smoke) ... ok
+test_scoring_evidence_is_complete_clause (__main__.V2Smoke) ... ok
+test_scripted_persona_follows_user_reply (__main__.V2Smoke) ... ok
+test_scripted_role_state_escalates_and_recovers (__main__.V2Smoke) ... ok
+test_vision_upstream_error_is_reported (__main__.V2Smoke) ... ok
+test_weekly_voice_and_screenshot_consent (__main__.V2Smoke) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 11.540s
+
+OK

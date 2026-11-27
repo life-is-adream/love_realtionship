@@ -205,6 +205,25 @@ export function updateMemoryState(enhanced, updates, messages = [], analysis = n
 }
 
 /**
+ * 选出真正进入角色上下文的记忆条目（最近 3 条时间线 + 最近 1 条摘要）。
+ *
+ * 唯一选择器：`buildMemoryInjection` 与记忆核对护栏都读这里，
+ * 避免两处各自 slice，出现「面板说注入了 3 条、核对却读了别处」的分叉。
+ *
+ * @param {EnhancedMemory} enhanced
+ * @returns {{timeline: Array<Object>, summary: Object|null}}
+ */
+export function selectInjectedMemoryEntries(enhanced) {
+  const timeline = Array.isArray(enhanced?.memoryTimeline)
+    ? enhanced.memoryTimeline.slice(-3).filter((item) => String(item?.content || "").trim())
+    : [];
+  const summary = Array.isArray(enhanced?.conversationSummaries)
+    ? enhanced.conversationSummaries.at(-1) || null
+    : null;
+  return { timeline, summary };
+}
+
+/**
  * 构建要注入 system prompt 的记忆文本
  *
  * @param {EnhancedMemory} enhanced - 增强记忆
@@ -212,38 +231,15 @@ export function updateMemoryState(enhanced, updates, messages = [], analysis = n
  */
 export function buildMemoryInjection(enhanced) {
   const parts = [];
-
-  // 基础记忆（向后兼容）
-  if (enhanced.background) parts.push(`关系背景：${enhanced.background}`);
-  if (enhanced.interests) parts.push(`她的兴趣：${enhanced.interests}`);
-  if (enhanced.boundaries) parts.push(`边界/禁忌：${enhanced.boundaries}`);
-
-  // 增强记忆
-  if (enhanced.interactionHistory?.commonTopics?.length) {
-    const topics = enhanced.interactionHistory.commonTopics.slice(0, 5);
-    parts.push(`常见话题：${topics.join("、")}`);
-  }
-  if (enhanced.learnedPreferences?.riskAreas?.length) {
-    parts.push(`需注意的维度：${enhanced.learnedPreferences.riskAreas.join("、")}`);
-  }
-  if (enhanced.learnedPreferences?.strengths?.length) {
-    parts.push(`优势维度：${enhanced.learnedPreferences.strengths.join("、")}`);
-  }
+  const { timeline, summary } = selectInjectedMemoryEntries(enhanced);
 
   // 近期记忆时间线（最后 3 条）与最近一次会话摘要：让「关系档案」面板里可见的
   // 条目真正参与生成，用户删除某条后它就不再出现在这里（可见即生效）。
-  if (Array.isArray(enhanced.memoryTimeline) && enhanced.memoryTimeline.length) {
-    const recent = enhanced.memoryTimeline
-      .slice(-3)
-      .map((item) => String(item?.content || "").trim())
-      .filter(Boolean);
-    if (recent.length) parts.push(`近期记忆：${recent.join("；")}`);
-  }
-  if (Array.isArray(enhanced.conversationSummaries) && enhanced.conversationSummaries.length) {
-    const latest = enhanced.conversationSummaries.at(-1);
-    const text = String(latest?.summary || "").trim();
-    if (text) parts.push(`最近一次会话摘要：${text}`);
-  }
+  const recent = timeline.map((item) => String(item?.content || "").trim()).filter(Boolean);
+  if (recent.length) parts.push(`近期记忆：${recent.join("；")}`);
+
+  const summaryText = String(summary?.summary || "").trim();
+  if (summaryText) parts.push(`最近一次会话摘要：${summaryText}`);
 
   return parts.join("\n");
 }

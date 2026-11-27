@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "note": "参考音频候选。路径为绝对路径或相对 eval/ 目录解析。除 R5_sleep 外均为第三方公开 AI 推理试听片段，非动画原声，无开源授权声明；仅本机个人非商业评测使用，禁止分发。2026-11-08 生产参考已由 R1_main8s 切换到 R5_sleep（同时 language 由 Japanese 改为 Chinese），下方 R1–R4 及 BASELINE/LANGTAG/PROSODY 的历史结论均基于旧配置，勿直接当作当前生产的评测结果。",
+  "production": {
+    "asOf": "2026-11-08",
+    "charId": "char_shinobu",
+    "refId": "R5_sleep",
+    "ref": "refs/shinobu_sleep_ref.wav",
+    "language": "Chinese",
+    "refText": "",
+    "xVectorOnly": true,
+    "source": "characters.json"
+  },
+  "refs": [
+    {
+      "id": "R1_main8s",
+      "label": "A",
+      "enabled": true,
+      "path": "../refs/shinobu_ref.wav",
+      "seconds": 8.0,
+      "origin": "妙音站 klrvc「推理后」试听 wav（40kHz/11.4s），取 0.5s 起 8s；旧生产参考音频（2026-11-08 之前），P1 盲听基线 A",
+      "hypothesis": "历史基线。音频最长、包络最干净，预期音色最稳；但来源是 RVC 推理输出，可能带转换痕迹"
+    },
+    {
+      "id": "R2_vm2p5s",
+      "label": "B",
+      "enabled": true,
+      "path": "E:\\heartflow-voice\\models\\shinobu\\refs\\shinobu_ref_vm.wav",
+      "seconds": 2.5,
+      "origin": "voice-models.com 官方样本，用本机 geekdom-tr/Kocho-Shinobu RVC 模型生成（2.5s 纯女声）",
+      "hypothesis": "短样本。零样本克隆通常 3–10s 更稳，2.5s 可能声纹不足；但元音清晰、无底噪，可能语气更自然"
+    },
+    {
+      "id": "R3_alt6s",
+      "label": "C",
+      "enabled": true,
+      "path": "out/refs/klrvc_alt.wav",
+      "seconds": 6.0,
+      "origin": "同 R1 源音频的另一片段：klrvc_after.wav 取 3.0s 起 6s",
+      "hypothesis": "检验同一来源内不同片段对韵律/语气的影响；若与 R1 差异大，说明参考选取比来源更重要"
+    },
+    {
+      "id": "R4_other8s",
+      "label": "D",
+      "enabled": false,
+      "path": "out/refs/klrvc_other_8s.wav",
+      "seconds": 8.0,
+      "origin": "妙音站「其他推理」mp3 截取（需先生成）",
+      "hypothesis": "备用对照：判断换整段素材是否显著提升相似度。默认关闭，避免评测矩阵膨胀"
+    },
+    {
+      "id": "R5_sleep",
+      "label": "E",
+      "enabled": false,
+      "path": "../refs/shinobu_sleep_ref.wav",
+      "seconds": 4.32,
+      "origin": "当前生产参考（2026-11-08 起）：用户提供的《蝴蝶忍系统声音.zip》内《睡眠.wav》，日语，4.32s / 48kHz 单声道，未重采样；生产同时改为 language=Chinese / xVectorOnly=true / refText 为空",
+      "hypothesis": "与旧 R1 完全不同来源、更短、采样率更高。默认关闭以保持历史 P1 盲听矩阵（A/B/C）不变；评测当前生产需显式 --refs R5_sleep --lang-tag current，并注意 WAV 文件名不含标签，勿覆盖旧基线"
+    }
+  ]
+}

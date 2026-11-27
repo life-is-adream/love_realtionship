@@ -1,0 +1,22 @@
+# 浏览器端到端验收（2026-11-07）
+
+- 页面：`http://127.0.0.1:3000`
+- 浏览器：`chrome.exe Chrome/151.0.7922.34`（headless，CDP 直连）
+- 教练通道：真实上游 `/api/chat`
+- 记忆注入：页面状态入口 `RelationshipLLM.setState`（合成条目，不读写真实聊天记录）
+- 结果：12/12 通过
+
+| # | 检查 | 结果 | 证据 |
+| --- | --- | --- | --- |
+| identity | 身份直问给出固定答复并标为本地 | 通过 | text="我是 AI 模拟角色，不是真人。" source="本地兜底" |
+| unknown-fact | 没有记忆条目时不猜城市 | 通过 | text="我这边没有可靠记录，你愿意再告诉我一次吗？" |
+| memory-visible | 授权后记忆条目在面板中可见 | 通过 | timelineRows=1 |
+| memory-recall | 有依据时引用可见条目而不是编造 | 通过 | text="我这边找到的相关记录：「上周去了杭州，西湖边人很多」。" |
+| memory-edit-ui | 编辑后时间线只剩新内容 | 通过 | timeline=["上周去了成都，吃了火锅"] |
+| memory-edit-recall | 编辑后重问只引用新内容 | 通过 | text="我这边找到的相关记录：「上周去了成都，吃了火锅」。" |
+| memory-delete-ui | 删除后面板不再包含该内容 | 通过 | timeline=[] |
+| memory-delete-recall | 删除后重问承认没有记录 | 通过 | text="我这边没有可靠记录，你愿意再告诉我一次吗？" |
+| live-upstream | 教练通道经浏览器真实调用上游成功 | 通过 | status="模型调用成功。" |
+| style-persist | 刷新后风格选中项与可见标签一致 | 通过 | before="温柔陪伴" after="gentle"/"温柔陪伴" |
+| identity-badge | 刷新后仍显示 AI 模拟角色标识 | 通过 | badge="AI 模拟角色" messages=9 |
+| no-page-errors | 页面运行期无未捕获异常 | 通过 | 0 |

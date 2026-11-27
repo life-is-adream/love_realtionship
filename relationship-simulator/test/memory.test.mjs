@@ -138,24 +138,20 @@ test("buildMemoryInjection 空记忆返回空字符串", () => {
   assert.equal(result, "");
 });
 
-test("buildMemoryInjection 包含基础记忆", () => {
+test("buildMemoryInjection 不注入面板不可见的旧版基础记忆字段", () => {
   const mem = createDefaultEnhancedMemory();
   mem.background = "熟悉阶段";
   mem.interests = "电影";
   const result = buildMemoryInjection(mem);
-  assert.ok(result.includes("关系背景"));
-  assert.ok(result.includes("熟悉阶段"));
-  assert.ok(result.includes("她的兴趣"));
-  assert.ok(result.includes("电影"));
+  assert.equal(result, "");
 });
 
-test("buildMemoryInjection 包含增强记忆", () => {
+test("buildMemoryInjection 不注入面板不可见的聚合偏好", () => {
   const mem = createDefaultEnhancedMemory();
   mem.interactionHistory.commonTopics = ["电影", "美食", "旅行", "音乐", "运动"];
   mem.learnedPreferences.riskAreas = ["边界感"];
   const result = buildMemoryInjection(mem);
-  assert.ok(result.includes("常见话题"));
-  assert.ok(result.includes("需注意的维度"));
+  assert.equal(result, "");
 });
 
 test("buildMemoryInjection：最近一次会话摘要进入上下文（可见即生效）", () => {

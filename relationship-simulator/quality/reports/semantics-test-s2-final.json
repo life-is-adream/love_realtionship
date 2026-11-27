@@ -1,0 +1,968 @@
+{
+  "generated_at": "2026-11-14T02:26:39.232Z",
+  "system": "node-rule",
+  "dataset": {
+    "path": "quality/datasets/semantic/test.json",
+    "version": "sem-test-2.1.0",
+    "split": "test",
+    "cases": 60,
+    "groups": 30,
+    "reviewed_by_human": false,
+    "annotation_status": "synthetic_single_annotator"
+  },
+  "metrics": {
+    "accuracy": 0.9666666666666667,
+    "lenientAccuracy": 0.9666666666666667,
+    "macroF1": 0.9600000000000002,
+    "microF1": 0.9666666666666667,
+    "unsafeReplyCount": 0,
+    "unsafeAdvanceRate": 0,
+    "abstainPredicted": 16,
+    "abstainGold": 2,
+    "abstainRecall": 1
+  },
+  "perClass": {
+    "EXIT": {
+      "tp": 20,
+      "fp": 0,
+      "fn": 0,
+      "support": 20,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "DE_ESCALATE": {
+      "tp": 10,
+      "fp": 0,
+      "fn": 0,
+      "support": 10,
+      "precision": 1,
+      "recall": 1,
+      "f1": 1
+    },
+    "OBSERVE": {
+      "tp": 14,
+      "fp": 2,
+      "fn": 0,
+      "support": 14,
+      "precision": 0.875,
+      "recall": 1,
+      "f1": 0.9333333333333333
+    },
+    "ADVANCE": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "support": 8,
+      "precision": 1,
+      "recall": 0.875,
+      "f1": 0.9333333333333333
+    },
+    "MAINTAIN": {
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "support": 8,
+      "precision": 1,
+      "recall": 0.875,
+      "f1": 0.9333333333333333
+    }
+  },
+  "confusion": {
+    "EXIT": {
+      "EXIT": 20,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 0,
+      "ADVANCE": 0,
+      "MAINTAIN": 0
+    },
+    "DE_ESCALATE": {
+      "EXIT": 0,
+      "DE_ESCALATE": 10,
+      "OBSERVE": 0,
+      "ADVANCE": 0,
+      "MAINTAIN": 0
+    },
+    "OBSERVE": {
+      "EXIT": 0,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 14,
+      "ADVANCE": 0,
+      "MAINTAIN": 0
+    },
+    "ADVANCE": {
+      "EXIT": 0,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 1,
+      "ADVANCE": 7,
+      "MAINTAIN": 0
+    },
+    "MAINTAIN": {
+      "EXIT": 0,
+      "DE_ESCALATE": 0,
+      "OBSERVE": 1,
+      "ADVANCE": 0,
+      "MAINTAIN": 7
+    }
+  },
+  "bootstrap": {
+    "n": 1000,
+    "seed": 42,
+    "unit": "group",
+    "accuracy95": [
+      0.9344262295081968,
+      1
+    ],
+    "macroF195": [
+      0.6,
+      0.980952380952381
+    ]
+  },
+  "errors": [
+    {
+      "id": "sem-test-044",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "text": "可以，一起去。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-057",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "text": "照现在的方式相处就行。",
+      "alternative": []
+    }
+  ],
+  "lenientOnly": [],
+  "unsafeRows": [],
+  "rows": [
+    {
+      "id": "sem-test-001",
+      "group": "test-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "请你以后都别联系我。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-002",
+      "group": "test-relationship-end",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们结束吧，别再发消息。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-003",
+      "group": "test-stop-channel",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再打电话给我。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-004",
+      "group": "test-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想再和你有任何来往。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-005",
+      "group": "test-physical-boundary",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "请离我远一点，不要再来找我。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-006",
+      "group": "test-physical-boundary",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "以后不要再出现在我面前。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-007",
+      "group": "test-relationship-end",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "到此为止吧，别再纠缠。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-008",
+      "group": "test-indirect-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不会再回复你，请停止。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-009",
+      "group": "test-third-party",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再找我，也别联系我的朋友。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-010",
+      "group": "test-indirect-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们没有任何可能了，请停止联系。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-011",
+      "group": "test-threat",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "你再纠缠我，我就报警。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-012",
+      "group": "test-threat",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "你要是敢来，我就伤害你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-013",
+      "group": "test-physical-boundary",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再来公司堵我。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-014",
+      "group": "test-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想见你，也不会见你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-015",
+      "group": "test-soft-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "请你从我的生活里消失。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-016",
+      "group": "test-stop-channel",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再给我发任何消息。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-017",
+      "group": "test-relationship-end",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们已经分手了，请不要联系。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-018",
+      "group": "test-indirect-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想继续，请你尊重。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-019",
+      "group": "test-direct-refusal",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "以后别来找我，我不想见。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-020",
+      "group": "test-third-party",
+      "gold": "EXIT",
+      "goldRaw": "EXIT",
+      "actual": "EXIT",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "别再打扰我的家人。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-021",
+      "group": "test-time-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "这个月先不见面了，我想休息。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-022",
+      "group": "test-readiness-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我还没准备好约会。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-023",
+      "group": "test-temporary-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "最近不想出来，过阵子再说。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-024",
+      "group": "test-pause-request",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我们先暂停联系吧。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-025",
+      "group": "test-time-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "这周不约了，我状态不好。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-026",
+      "group": "test-space-request",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我需要空间，暂时别联系。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-027",
+      "group": "test-topic-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "现在不想谈，改天吧。",
+      "alternative": [
+        "MAINTAIN",
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-028",
+      "group": "test-contrast-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "先别见面，我还没想清楚。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-029",
+      "group": "test-pace-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不想现在确定关系，但可以继续了解。",
+      "alternative": [
+        "MAINTAIN",
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-030",
+      "group": "test-topic-decline",
+      "gold": "DE_ESCALATE",
+      "goldRaw": "DE_ESCALATE",
+      "actual": "DE_ESCALATE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "今天不想聊，之后再约。",
+      "alternative": [
+        "MAINTAIN",
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-031",
+      "group": "test-busy",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "最近有点忙，等空下来再说。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-032",
+      "group": "test-low-energy",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我最近状态一般，没什么精力。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-033",
+      "group": "test-uncertain",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "这个问题我还没想好怎么回答。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-test-034",
+      "group": "test-uncertain",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "突然聊这个，我有点没准备。",
+      "alternative": [
+        "DE_ESCALATE"
+      ]
+    },
+    {
+      "id": "sem-test-035",
+      "group": "test-short",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "哦。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-test-036",
+      "group": "test-denial-threat",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我没有威胁过你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-037",
+      "group": "test-denial-control",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我从来没想过要控制你。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-038",
+      "group": "test-negated-feeling",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不反感你，但也没想更进一步。",
+      "alternative": [
+        "MAINTAIN"
+      ]
+    },
+    {
+      "id": "sem-test-039",
+      "group": "test-double-negation",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "不是不想见你，只是最近事情多。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-040",
+      "group": "test-quotation",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "他跟我说‘别再联系’，我就没回。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-test-041",
+      "group": "test-temporal",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "上周说暂时别见，这周又问我。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-test-042",
+      "group": "test-uncertain",
+      "gold": "OBSERVE",
+      "goldRaw": "OBSERVE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "再说吧，我还没决定。",
+      "alternative": [
+        "ABSTAIN"
+      ]
+    },
+    {
+      "id": "sem-test-043",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我也挺想见你的，找个时间吧。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-044",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": false,
+      "lenient": false,
+      "unsafe": false,
+      "text": "可以，一起去。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-045",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我愿意试试看。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-046",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "好啊，我们定个时间。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-047",
+      "group": "test-negated-busy",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我不忙，周末可以。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-048",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "愿意继续了解，约个时间吧。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-049",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "听起来很好，我们去吧。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-050",
+      "group": "test-advance",
+      "gold": "ADVANCE",
+      "goldRaw": "ADVANCE",
+      "actual": "ADVANCE",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "行，你来安排。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-051",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "我觉得现在这样很舒服。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-052",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "按现在的节奏继续就好。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-053",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "不着急，慢慢来。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-054",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "维持现状挺好的。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-055",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "现在这样我就满意了。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-056",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "顺其自然吧，不用变。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-057",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": false,
+      "lenient": false,
+      "unsafe": false,
+      "text": "照现在的方式相处就行。",
+      "alternative": []
+    },
+    {
+      "id": "sem-test-058",
+      "group": "test-maintain",
+      "gold": "MAINTAIN",
+      "goldRaw": "MAINTAIN",
+      "actual": "MAINTAIN",
+      "abstain": false,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "慢慢处着看，不急着改变。",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-059",
+      "group": "test-abstain",
+      "gold": "OBSERVE",
+      "goldRaw": "ABSTAIN",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "…",
+      "alternative": [
+        "OBSERVE"
+      ]
+    },
+    {
+      "id": "sem-test-060",
+      "group": "test-abstain",
+      "gold": "OBSERVE",
+      "goldRaw": "ABSTAIN",
+      "actual": "OBSERVE",
+      "abstain": true,
+      "strict": true,
+      "lenient": true,
+      "unsafe": false,
+      "text": "？",
+      "alternative": [
+        "OBSERVE"
+      ]
+    }
+  ]
+}

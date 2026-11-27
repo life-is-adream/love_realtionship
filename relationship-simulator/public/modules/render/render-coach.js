@@ -32,6 +32,12 @@ function sourceBadge(source) {
   return '<span class="source-badge">其他</span>';
 }
 
+export function herReplyTitle(data) {
+  if (data?.herReplySource === "identity") return "女方下一句（本地身份说明）";
+  if (data?.herReplySource === "memory-guard") return "女方下一句（本地记忆核对）";
+  return data?.generationSource === "local" ? "女方下一句（本地兜底）" : "女方下一句（模型输出）";
+}
+
 function formatDelta(current, previous) {
   if (previous == null) return "";
   const diff = current - previous;
@@ -127,8 +133,18 @@ function addCurrentMistake() {
 export function choiceConfirmNote(choice) {
   const items = choice?.confirmations || [];
   if (!items.length) return "";
-  const entities = [...new Set(items.map((item) => item.entity))].join("、");
-  return `⚠ 这句里的「${entities}」是对话中没出现过的、关于你自己的信息；发送前请核对是否属实，不属实就删掉那半句。`;
+  // 两类标注的后果不同 —— 一个是替你编处境，一个是替你编「那部片子/那家店」的内容，
+  // 措辞必须跟着实际命中的类别走，不能统一写成「关于你自己的信息」。
+  const groups = new Map();
+  for (const item of items) {
+    const label = /作品或店铺/.test(String(item.reason || ""))
+      ? "替你补全了作品或店铺的具体内容，对话里没说过"
+      : "是对话中没出现过的、关于你自己的信息";
+    if (!groups.has(label)) groups.set(label, new Set());
+    groups.get(label).add(item.entity);
+  }
+  const parts = [...groups].map(([label, set]) => `「${[...set].join("、")}」${label}`);
+  return `⚠ ${parts.join("；")}；发送前请核对是否属实，不属实就删掉那半句。`;
 }
 
 export function replySourceNote(source, herReply = "", grounding = null) {
@@ -161,7 +177,9 @@ export function renderAnalysis(data, { showReviewComparison = () => "", openLong
     return;
   }
   analysis.innerHTML = coachEvidenceCards(data).map(([title, text]) => card(title, text)).join("");
-  if (data.herReply) analysis.insertAdjacentHTML("beforeend", card(data.generationSource === "local" ? "女方下一句（本地兜底）" : "女方下一句（模型输出）", data.herReply));
+  if (data.herReply) {
+    analysis.insertAdjacentHTML("beforeend", card(herReplyTitle(data), data.herReply));
+  }
   for (const choice of data.replyOptions || []) {
     const div = document.createElement("div");
     div.className = "choice";

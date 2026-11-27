@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-11-14T02:42:25.404Z",
+  "git_commit": "dc151140ceed0f2217bd7138b6187b6806b66f51",
+  "node": "v24.16.0",
+  "files": {
+    "heartflow-c/hf.exe": {
+      "bytes": 510976,
+      "sha256": "b96f40c37cc9b829ea7c7312aed845f2f31991b75f83b8475c919dd7df92b3c1"
+    },
+    "heartflow-c/hf.pre-v2-20261113.exe": {
+      "bytes": 458240,
+      "sha256": "908eb34735b07edf863c656ce5cdfb5779a7c7241cea0fb84e5e9fbe1d0d99d1"
+    },
+    "heartflow-c/backups/hf-pre-s6-20261114.exe": {
+      "bytes": 510976,
+      "sha256": "3220ef78d19dcaef43fa4ba9e01af406b8bddb12dd78ef602f3c7488cd0a7681"
+    },
+    "server/v2.js": {
+      "bytes": 55332,
+      "sha256": "d2a5d67c4c58eec3a86b9877c4719a205baafd43f6ea131d07f360fb2d876704"
+    },
+    "server/semantic-review.js": {
+      "bytes": 3780,
+      "sha256": "e5ccccbb3e17184dcd2ab1a22a54442d3f1502a5eb016d3708a3f2b0947737bb"
+    },
+    "server/staticServer.js": {
+      "bytes": 2718,
+      "sha256": "c6a6af3e3e800b5677177af6ea2b8fae6e10caea91892cc5f4bb01dd40e4cb66"
+    },
+    "heartflow-c/src/server/v2.c": {
+      "bytes": 70974,
+      "sha256": "967a1666cbf90ae065a595ed19e03e256dc8dfcb180a8708c59a943280b14bed"
+    },
+    "heartflow-c/src/server/static.c": {
+      "bytes": 8142,
+      "sha256": "18d68abae56d26c88a5aa36deb5864f41c36d132ba92fcb5bcd0853520be37d3"
+    },
+    "quality/datasets/FREEZE.json": {
+      "bytes": 679,
+      "sha256": "d9504d1c03fc6ff40427a711851bb3cb0568020fcd75566c53f6421a708a453d"
+    },
+    "quality/scenarios/contracts-2.1.json": {
+      "bytes": 4105,
+      "sha256": "67b1c1dcd4c3c97e2ef7f94b650dbbc178ddc25fab7375a8a0a2365e44672abc"
+    },
+    "public/love-learning/semantic-index/index.json": {
+      "bytes": 234948,
+      "sha256": "5ad623eaca82530369d35361311f56112a6cbfbddb10ae4c0bc77a8085a7ab7d"
+    },
+    "docs/heartflow-2.1/00_BASELINE_AUDIT.md": {
+      "bytes": 6698,
+      "sha256": "dc29614cc772975976e9bc78c462e61538de19cc20d2da4eec80042490222be8"
+    },
+    "docs/heartflow-2.1/01_DATASET_AND_ANNOTATION.md": {
+      "bytes": 4841,
+      "sha256": "1c63cfb425d8d1abb4b4e776879e482a201b54bdc21a6af28b3dfa358ec7b39c"
+    },
+    "docs/heartflow-2.1/02_SEMANTIC_UPGRADE.md": {
+      "bytes": 4951,
+      "sha256": "634b27e0673be3a49ebaf880f61df17da35962ebc9a685fb19deda404d509684"
+    },
+    "docs/heartflow-2.1/04_PRACTICE_AND_RUBRIC.md": {
+      "bytes": 4401,
+      "sha256": "7230a042c664fe221a34edbea457544f35a001c51d0175aa75ebbe841c756b32"
+    }
+  }
+}

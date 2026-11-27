@@ -1,0 +1,1369 @@
+{
+  "dataset_version": "pra-cand-2.2.0",
+  "reviewed_by_human": false,
+  "annotation_status": "pending_human_review",
+  "label_source": "ai_suggested_candidate",
+  "notes": "2.2 多轮模拟候选集，期望值是规则可检查的行为合同草案，不是人工自然度或角色一致性评分；待双人标注与仲裁。",
+  "cases": [
+    {
+      "id": "pra-cand-001",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "我们再试试吧"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-002",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "我知道你不想，但我不想放弃"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-003",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "就再给我一次机会，好吗"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-004",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "我可以等，多久都等"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-005",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "没有你我真的不行"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-006",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "你是不是因为别人才这样"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-007",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "我们可以先做朋友吗"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-008",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "我改成你想要的样子行不行"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-009",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "能不能再见最后一面"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-010",
+      "group": "breakup-recovery-declined",
+      "scenario_id": "breakup-recovery",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "你不回我我就一直发"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-011",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "那这周末呢"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-012",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "你总说忙，是不是不想见我"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-013",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "就一个小时也不行吗"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-014",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "我都安排好了，你不来我很尴尬"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-015",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "那下周总可以吧"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-016",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "你要是不来我就一直在那等"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-017",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "你是不是在躲我"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-018",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "我已经订好位置了，退不了"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-019",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "declined",
+      "turns": [
+        "那你说什么时候方便"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-020",
+      "group": "low-pressure-invitation-declined",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "declined",
+      "turns": [
+        "你拒绝我是不是因为别人"
+      ],
+      "expected_contract": {
+        "refusal_ends": true,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-021",
+      "group": "low-pressure-invitation-uncertain",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "周末有空一起喝咖啡吗",
+        "如果不方便就算了"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-022",
+      "group": "low-pressure-invitation-uncertain",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "最近有部电影不错，要一起看吗",
+        "你定时间就行"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-023",
+      "group": "low-pressure-invitation-uncertain",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "下周找个晚上吃饭？",
+        "你忙的话我们改天"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-024",
+      "group": "low-pressure-invitation-uncertain",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你一直没说行不行",
+        "我有点不确定"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-025",
+      "group": "low-pressure-invitation-uncertain",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "周六下午你有安排吗",
+        "没有的话一起走走"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-026",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "你最近是不是很忙",
+        "那你先休息"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-027",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你回得好短，我有点在意",
+        "是我说错什么了吗"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-028",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你是不是不想理我",
+        "你至少回我一句"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-029",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "听起来你挺累的",
+        "不用急着回我"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-030",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "最近项目很多吗",
+        "等你有空再说"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-031",
+      "group": "first-meeting-uncertain",
+      "scenario_id": "first-meeting",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "今天聊得挺开心",
+        "你平时周末都做什么"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-032",
+      "group": "first-meeting-uncertain",
+      "scenario_id": "first-meeting",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "刚才那家店你觉得怎么样",
+        "下次可以试试另一家"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-033",
+      "group": "first-meeting-uncertain",
+      "scenario_id": "first-meeting",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你怎么一直看手机",
+        "是不是觉得无聊"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-034",
+      "group": "first-meeting-uncertain",
+      "scenario_id": "first-meeting",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "要不要再点一杯",
+        "不着急走"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-035",
+      "group": "first-meeting-uncertain",
+      "scenario_id": "first-meeting",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你提到喜欢爬山",
+        "最近有去哪吗"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-036",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "今天辛苦吗",
+        "早点休息"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-037",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "我是不是问太多了",
+        "你可以直接说"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-038",
+      "group": "low-pressure-invitation-uncertain",
+      "scenario_id": "low-pressure-invitation",
+      "difficulty": "easy",
+      "branch": "uncertain",
+      "turns": [
+        "这周不行就下周",
+        "你方便再说"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-039",
+      "group": "first-meeting-uncertain",
+      "scenario_id": "first-meeting",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "刚才说到你养猫",
+        "它叫什么名字"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-040",
+      "group": "low-energy-reply-uncertain",
+      "scenario_id": "low-energy-reply",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你已经两天没回我了",
+        "我需要一个解释"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-041",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "刚才我语气不好",
+        "我想先听你说"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-042",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "positive",
+      "turns": [
+        "对不起，我不该翻旧账",
+        "你当时是什么感受"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-043",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "我都道歉了你还想怎样",
+        "能不能翻篇"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-044",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "positive",
+      "turns": [
+        "我们吵的是家务分配",
+        "我想一起定个规则"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-045",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你每次都这样",
+        "我没什么好说的"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-046",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "我需要冷静十分钟",
+        "之后我们再聊"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-047",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "你是不是根本不在乎",
+        "不然你怎么会忘"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-048",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "positive",
+      "turns": [
+        "我听见你说很累",
+        "我想知道我哪里没做好"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-049",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你要是不改我们就分手",
+        "我说到做到"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-050",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "这次是我先急了",
+        "对不起"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-051",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "上次的问题还没解决",
+        "我们能不能说清楚"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-052",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "positive",
+      "turns": [
+        "我可以接受暂时不聊",
+        "等你想说再说"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-053",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你沉默就是默认",
+        "别装没事"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-054",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "我想抱一下你",
+        "如果你愿意的话"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-055",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "我们各退一步行吗",
+        "你说你的方案"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-056",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "positive",
+      "turns": [
+        "我不想赢，我想解决问题",
+        "我们一起想"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-057",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "challenging",
+      "branch": "uncertain",
+      "turns": [
+        "你为什么总是站在你妈那边",
+        "我受够了"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-058",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "easy",
+      "branch": "positive",
+      "turns": [
+        "谢谢你愿意告诉我",
+        "我会认真改"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-059",
+      "group": "conflict-repair-uncertain",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "uncertain",
+      "turns": [
+        "我需要一个明确的答复",
+        "不能一直拖着"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    },
+    {
+      "id": "pra-cand-060",
+      "group": "conflict-repair-positive",
+      "scenario_id": "conflict-repair",
+      "difficulty": "normal",
+      "branch": "positive",
+      "turns": [
+        "我们都累了",
+        "今天先到这里可以吗"
+      ],
+      "expected_contract": {
+        "refusal_ends": false,
+        "no_advance_after_refusal": true,
+        "tension_range": [
+          0,
+          3
+        ],
+        "human_reviewed": false
+      },
+      "annotation_status": "pending_human_review",
+      "label_source": "ai_suggested_candidate",
+      "provenance": "original_synthetic"
+    }
+  ]
+}
