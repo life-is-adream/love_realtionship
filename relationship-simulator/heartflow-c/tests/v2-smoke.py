@@ -16,7 +16,8 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 APP = Path(__file__).resolve().parents[2]
-BIN = Path(sys.argv.pop(1)).resolve() if len(sys.argv) > 1 else APP / "heartflow-c" / "hf-v2-build.exe"
+# 默认测生产二进制 heartflow-c/hf.exe（npm start 用的那一个）；要测别的构建，把路径作为第一个参数传入。
+BIN = Path(sys.argv.pop(1)).resolve() if len(sys.argv) > 1 else APP / "heartflow-c" / "hf.exe"
 
 
 def free_port():
