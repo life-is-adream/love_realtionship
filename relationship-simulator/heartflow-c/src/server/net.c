@@ -207,6 +207,134 @@ int hf_http_request(const char *method, const char *url, const char *bearer,
     return do_request(method, url, bearer, ctype, body, body_len, timeout_ms, out, err, errsz);
 }
 
+/* 流式版本：连接/鉴权逻辑与 do_request 相同，但拿到 2xx 后逐块回调正文。
+ * 这样上游 SSE 的 data 帧能实时转发给浏览器，而不必等整段响应结束。 */
+int hf_http_stream(const char *method, const char *url, const char *bearer,
+                   const char *ctype, const char *body, size_t body_len,
+                   int timeout_ms, int *out_status,
+                   HfChunkFn on_chunk, void *user, char *err, size_t errsz)
+{
+    wchar_t *wurl = NULL, *whost = NULL, *wpath = NULL, *wmethod = NULL;
+    wchar_t hostbuf[256], pathbuf[4096], extrabuf[2048];
+    wchar_t headers[1024];
+    URL_COMPONENTS uc;
+    HINTERNET ses = NULL, con = NULL, req = NULL;
+    DWORD status = 0, sz;
+    int ok = -1, first = 1;
+
+    if (out_status) *out_status = 0;
+    if (err && errsz) err[0] = '\0';
+
+    wurl = widen(url);
+    wmethod = widen(method);
+    if (!wurl || !wmethod) { set_err(err, errsz, "url encode failed", 0); goto done; }
+
+    memset(&uc, 0, sizeof uc);
+    uc.dwStructSize = sizeof uc;
+    uc.lpszHostName = hostbuf;      uc.dwHostNameLength = 256;
+    uc.lpszUrlPath = pathbuf;       uc.dwUrlPathLength = 4096;
+    uc.lpszExtraInfo = extrabuf;    uc.dwExtraInfoLength = 2048;
+    if (!WinHttpCrackUrl(wurl, 0, 0, &uc)) { set_err(err, errsz, "bad url", GetLastError()); goto done; }
+    if (uc.dwHostNameLength >= 256 || uc.dwUrlPathLength >= 4096) {
+        set_err(err, errsz, "url too long", 0); goto done;
+    }
+    hostbuf[uc.dwHostNameLength] = L'\0';
+    pathbuf[uc.dwUrlPathLength] = L'\0';
+    extrabuf[uc.dwExtraInfoLength] = L'\0';
+    whost = _wcsdup(hostbuf);
+    if (uc.dwExtraInfoLength) {
+        size_t a = wcslen(pathbuf), b = wcslen(extrabuf);
+        wpath = (wchar_t *)malloc(sizeof(wchar_t) * (a + b + 1));
+        if (!wpath) { set_err(err, errsz, "oom", 0); goto done; }
+        wcscpy(wpath, pathbuf); wcscat(wpath, extrabuf);
+    } else {
+        wpath = _wcsdup(pathbuf);
+    }
+    if (!whost || !wpath) { set_err(err, errsz, "oom", 0); goto done; }
+
+    ses = WinHttpOpen(L"heartflow/0.1", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+                      WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    if (!ses) { set_err(err, errsz, "WinHttpOpen", GetLastError()); goto done; }
+    WinHttpSetTimeouts(ses, 5000, timeout_ms, timeout_ms, timeout_ms);
+    con = WinHttpConnect(ses, whost, (INTERNET_PORT)uc.nPort, 0);
+    if (!con) { set_err(err, errsz, "connect", GetLastError()); goto done; }
+    req = WinHttpOpenRequest(con, wmethod, wpath, NULL, WINHTTP_NO_REFERER,
+                             WINHTTP_DEFAULT_ACCEPT_TYPES,
+                             uc.nScheme == INTERNET_SCHEME_HTTPS ? WINHTTP_FLAG_SECURE : 0);
+    if (!req) { set_err(err, errsz, "open request", GetLastError()); goto done; }
+
+    headers[0] = L'\0';
+    if (ctype && *ctype) {
+        wchar_t wct[128];
+        if (MultiByteToWideChar(CP_UTF8, 0, ctype, -1, wct, 128) > 0) {
+            wcscpy(headers, L"Content-Type: ");
+            wcscat(headers, wct);
+            wcscat(headers, L"\r\n");
+        }
+    }
+    if (bearer && *bearer) {
+        wchar_t wauth[512];
+        if (MultiByteToWideChar(CP_UTF8, 0, bearer, -1, wauth, 512) > 0) {
+            wcscat(headers, L"Authorization: Bearer ");
+            wcscat(headers, wauth);
+            wcscat(headers, L"\r\n");
+        }
+    }
+    /* 明确要求上游不要 gzip：WinHTTP 不会自动解压，压缩后的 SSE 无法逐帧解析。 */
+    wcscat(headers, L"Accept: text/event-stream\r\n");
+    wcscat(headers, L"Accept-Encoding: identity\r\n");
+
+    if (!WinHttpSendRequest(req, headers[0] ? headers : WINHTTP_NO_ADDITIONAL_HEADERS,
+                            (DWORD)-1L, (LPVOID)body, (DWORD)body_len,
+                            (DWORD)body_len, 0)) {
+        set_err(err, errsz, "send", GetLastError()); goto done;
+    }
+    if (!WinHttpReceiveResponse(req, NULL)) { set_err(err, errsz, "receive", GetLastError()); goto done; }
+
+    sz = sizeof status;
+    if (!WinHttpQueryHeaders(req, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
+                             WINHTTP_HEADER_NAME_BY_INDEX, &status, &sz, WINHTTP_NO_HEADER_INDEX)) {
+        set_err(err, errsz, "status", GetLastError()); goto done;
+    }
+    if (out_status) *out_status = (int)status;
+    if (status < 200 || status >= 300) {
+        /* 非 2xx：攒完整错误体交调用方按非流式错误处理，不进回调。 */
+        HfHttpResp er;
+        memset(&er, 0, sizeof er);
+        for (;;) {
+            char buf[8192]; DWORD got = 0;
+            if (!WinHttpReadData(req, buf, sizeof buf, &got)) break;
+            if (!got) break;
+            { char *np = (char *)realloc(er.body, er.len + got + 1);
+              if (np) { er.body = np; memcpy(er.body + er.len, buf, got); er.len += got; er.body[er.len] = 0; } }
+        }
+        if (!er.body) er.body = (char *)calloc(1, 1);
+        /* 借用 out_status 通道把错误体首 200 字节透出，调用方另发 JSON 错误。 */
+        if (err && errsz) snprintf(err, errsz, "HTTP %d: %s", (int)status, er.body);
+        hf_http_free(&er);
+        ok = 0; goto done;
+    }
+
+    for (;;) {
+        char buf[8192];
+        DWORD got = 0;
+        if (!WinHttpReadData(req, buf, sizeof buf, &got)) {
+            set_err(err, errsz, "read", GetLastError()); goto done;
+        }
+        if (got == 0) break;
+        if (on_chunk && on_chunk(buf, got, user, first) != 0) break;
+        first = 0;
+    }
+    ok = 0;
+
+done:
+    if (req) WinHttpCloseHandle(req);
+    if (con) WinHttpCloseHandle(con);
+    if (ses) WinHttpCloseHandle(ses);
+    free(wurl); free(wmethod); free(whost); free(wpath);
+    return ok;
+}
+
 int hf_http_request_retry(const char *method, const char *url, const char *bearer,
                           const char *ctype, const char *body, size_t body_len,
                           int timeout_ms, HfHttpResp *out, char *err, size_t errsz)
@@ -313,6 +441,18 @@ void hf_http_free(HfHttpResp *r)
     r->body = NULL;
     r->header_block = NULL;
     r->len = 0;
+}
+
+int hf_http_stream(const char *method, const char *url, const char *bearer,
+                   const char *ctype, const char *body, size_t body_len,
+                   int timeout_ms, int *out_status,
+                   HfChunkFn on_chunk, void *user, char *err, size_t errsz)
+{
+    (void)method; (void)url; (void)bearer; (void)ctype; (void)body; (void)body_len;
+    (void)timeout_ms; (void)on_chunk; (void)user;
+    if (out_status) *out_status = 0;
+    if (err && errsz) snprintf(err, errsz, "streaming http requires Windows WinHTTP");
+    return -1;
 }
 
 int hf_http_header(const HfHttpResp *r, const char *name, char *out, size_t outsz)

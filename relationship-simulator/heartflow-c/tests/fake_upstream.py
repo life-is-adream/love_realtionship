@@ -39,6 +39,24 @@ class Handler(BaseHTTPRequestHandler):
         except Exception:
             body = {}
 
+        # SSE 流式：请求带 stream=true 时逐帧回 data:，模拟上游逐字生成。
+        if body.get("stream"):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+            self.send_header("Connection", "close")
+            self.end_headers()
+            frames = [
+                {"choices": [{"delta": {"content": "", "role": "assistant"}, "index": 0, "finish_reason": None}]},
+                {"choices": [{"delta": {"reasoning_content": "假思考"}, "index": 0, "finish_reason": None}]},
+                {"choices": [{"delta": {"content": "流式"}, "index": 0, "finish_reason": None}]},
+                {"choices": [{"delta": {"content": "回复"}, "index": 0, "finish_reason": "stop"}]},
+            ]
+            for f in frames:
+                self.wfile.write(("data: " + json.dumps(f, ensure_ascii=False) + "\n\n").encode("utf-8"))
+            self.wfile.write(b"data: [DONE]\n\n")
+            self.wfile.flush()
+            return
+
         if self.path.endswith("/responses"):
             self._send(
                 200,

@@ -21,6 +21,8 @@
 
 /* ================= 通用 ================= */
 
+static void route_chat_stream(HfConn *c, JNode *body, const char *api_key);
+
 static void utf8_truncate(const char *src, size_t max_bytes, char *out, size_t n)
 {
     size_t len = strlen(src);
@@ -170,6 +172,21 @@ static void route_chat(HfConn *c)
 
     body = body_of(c);
     if (!body) return;
+
+    /* stream:true 走 SSE 流式分支；其余请求保持原样（非流式）不受影响。 */
+    if (json_bool(body, "stream", 0)) {
+        api_key = json_str(body, "apiKey", NULL);
+        if (!api_key || !*api_key) api_key = g_cfg.llm_api_key;
+        if (!api_key || !*api_key) {
+            json_free(body);
+            hf_send_error(c, 400, "missing_api_key",
+                          "请在 .env 中配置 LLM_API_KEY，或在请求体中传 apiKey。");
+            return;
+        }
+        route_chat_stream(c, body, api_key);
+        json_free(body);
+        return;
+    }
 
     messages = json_get(body, "messages");
     if (!messages || messages->type != JARR || json_len(messages) == 0) {
@@ -365,6 +382,216 @@ static void route_chat(HfConn *c)
                   resp.content_type[0] ? resp.content_type : "application/json; charset=utf-8",
                   resp.body ? resp.body : "", resp.len, NULL);
     hf_http_free(&resp);
+}
+
+/* ================= /api/chat 的 SSE 流式分支 ================= */
+
+typedef struct {
+    HfConn *c;
+    char   *line;       /* 累积的行缓冲（跨 WinHTTP 块） */
+    size_t  line_len, line_cap;
+    int     began;      /* 是否已写出 SSE HTTP 头 */
+    int     sent_any;   /* 是否已发出任何内容帧 */
+    int     stopped;    /* 调用方请求提前结束 */
+} StreamCtx;
+
+static void sse_ensure_begin(StreamCtx *s)
+{
+    if (!s->began) { hf_sse_begin(s->c); s->began = 1; }
+}
+
+static void sse_line_append(StreamCtx *s, const char *p, size_t n)
+{
+    while (s->line_len + n + 1 > s->line_cap) {
+        size_t nc = s->line_cap ? s->line_cap * 2 : 8192;
+        char *np = (char *)realloc(s->line, nc);
+        if (!np) return;
+        s->line = np; s->line_cap = nc;
+    }
+    memcpy(s->line + s->line_len, p, n);
+    s->line_len += n;
+    s->line[s->line_len] = '\0';
+}
+
+/* 处理一个完整的 SSE data 行。返回 0 继续，非 0 停止。 */
+static int sse_data_line(StreamCtx *s, const char *jsonline)
+{
+    JNode *frame, *choices, *choice, *delta;
+    const char *content, *reasoning;
+    int stop = 0;
+
+    if (strcmp(jsonline, "[DONE]") == 0) { sse_ensure_begin(s); return 1; }
+    frame = json_parse(jsonline, strlen(jsonline), NULL, 0);
+    if (!frame || frame->type != JOBJ) { json_free(frame); return 0; }
+    choices = json_get(frame, "choices");
+    choice = (choices && choices->type == JARR) ? json_at(choices, 0) : NULL;
+    delta = choice ? json_get(choice, "delta") : NULL;
+    if (delta && delta->type == JOBJ) {
+        content = json_str(delta, "content", NULL);
+        reasoning = json_str(delta, "reasoning_content", NULL);
+        if (content && *content) {
+            JNode *ev = json_new_obj();
+            json_obj_set_str(ev, "type", "content");
+            json_obj_set_str(ev, "delta", content);
+            sse_ensure_begin(s);
+            hf_sse_event(s->c, ev);
+            json_free(ev);
+            s->sent_any = 1;
+        }
+        /* 思维链单独成帧，前端可据此显示"正在思考"；不混入正文。 */
+        if (reasoning && *reasoning) {
+            JNode *ev = json_new_obj();
+            json_obj_set_str(ev, "type", "reasoning");
+            json_obj_set_str(ev, "delta", reasoning);
+            sse_ensure_begin(s);
+            hf_sse_event(s->c, ev);
+            json_free(ev);
+            s->sent_any = 1;
+        }
+    } else {
+        /* 上游错误帧（无 choices）：把 message 透出，便于前端报错。 */
+        const char *em = json_str(frame, "message", NULL);
+        if (em && *em) {
+            JNode *ev = json_new_obj();
+            json_obj_set_str(ev, "type", "error");
+            json_obj_set_str(ev, "message", em);
+            sse_ensure_begin(s);
+            hf_sse_event(s->c, ev);
+            json_free(ev);
+            stop = 1;
+        }
+    }
+    json_free(frame);
+    return stop;
+}
+
+/* 逐块回调：按行拆分上游 SSE。WinHTTP 块边界与 data 帧边界无关。 */
+static int sse_chunk_cb(const char *chunk, size_t len, void *user, int first)
+{
+    StreamCtx *s = (StreamCtx *)user;
+    size_t i;
+    (void)first;
+    /* 逐字节累积到行缓冲，遇 \n 处理完整行。
+     * WinHTTP 的块边界与 SSE 的 data 帧边界无关，必须跨块拼行。 */
+    for (i = 0; i < len; i++) {
+        if (chunk[i] == '\n') {
+            if (s->line_len > 0) {
+                if (s->line[s->line_len - 1] == '\r') s->line_len--;
+                s->line[s->line_len] = '\0';
+                if (strncmp(s->line, "data:", 5) == 0) {
+                    const char *payload = s->line + 5;
+                    while (*payload == ' ') payload++;
+                    if (sse_data_line(s, payload)) { s->stopped = 1; s->line_len = 0; return 1; }
+                }
+                s->line_len = 0;
+            }
+        } else {
+            sse_line_append(s, chunk + i, 1);
+        }
+    }
+    return 0;
+}
+
+/* 流式 handler：与 route_chat 共用 payload 构造，但向上游发 stream=true，
+ * 并把上游 SSE 实时翻译成前端协议。仅在请求体带 stream:true 时进入。 */
+static void route_chat_stream(HfConn *c, JNode *body, const char *api_key)
+{
+    char ip[64];
+    JNode *messages, *payload, *th;
+    const char *ty;
+    char *req_text;
+    HfBuf b;
+    StreamCtx s;
+    int rc, status = 0;
+    char err[256];
+
+    peer_ip(c, ip, sizeof ip);
+    if (rate_limited(ip)) {
+        hf_send_error(c, 429, "rate_limited", "请求过于频繁，请稍后再试。");
+        return;
+    }
+
+    messages = json_get(body, "messages");
+    if (!messages || messages->type != JARR || json_len(messages) == 0) {
+        hf_send_error(c, 400, "bad_request", "`messages` 必须是非空数组。");
+        return;
+    }
+    if (json_len(messages) > 200) {
+        hf_send_error(c, 400, "bad_request", "`messages` 最多 200 条。");
+        return;
+    }
+
+    /* 只支持 chat_completions 的 SSE；responses 模式回退到非流式。 */
+    if (strcmp(g_cfg.llm_api_mode, "responses") == 0) {
+        hf_send_error(c, 400, "stream_unsupported",
+                      "流式仅支持 chat_completions 模式，请调整 LLM_API_MODE。");
+        return;
+    }
+
+    payload = json_new_obj();
+    json_obj_set_str(payload, "model", g_cfg.llm_model);
+    json_obj_set_num(payload, "temperature",
+                     clamp_num(body, "temperature", NULL, 0, 2, g_cfg.llm_temperature));
+    json_obj_set_num(payload, "top_p", clamp_num(body, "top_p", NULL, 0, 1, g_cfg.llm_top_p));
+    json_obj_set_bool(payload, "stream", 1);           /* 关键：上游开流 */
+    json_obj_set(payload, "messages", clone_messages(messages));
+    json_obj_set_num(payload, "max_completion_tokens",
+                     clamp_num(body, "max_completion_tokens", "max_output_tokens", 1, 4096,
+                               (double)g_cfg.llm_max_tokens));
+    th = json_get(body, "thinking");
+    ty = th ? json_str(th, "type", NULL) : NULL;
+    if (ty && (strcmp(ty, "disabled") == 0 || strcmp(ty, "enabled") == 0)) {
+        JNode *t = json_new_obj();
+        json_obj_set_str(t, "type", ty);
+        json_obj_set(payload, "thinking", t);
+    }
+    {
+        JNode *fp = json_get(body, "frequency_penalty");
+        JNode *pp = json_get(body, "presence_penalty");
+        if (fp && fp->type == JNUM) json_obj_set_num(payload, "frequency_penalty",
+            clamp_num(body, "frequency_penalty", NULL, -2, 2, 0));
+        if (pp && pp->type == JNUM) json_obj_set_num(payload, "presence_penalty",
+            clamp_num(body, "presence_penalty", NULL, -2, 2, 0));
+    }
+
+    hf_buf_init(&b);
+    json_write(payload, &b, 0, 0);
+    json_free(payload);
+    req_text = hf_buf_take(&b);
+
+    memset(&s, 0, sizeof s);
+    s.c = c;
+    rc = hf_http_stream("POST", g_cfg.llm_endpoint, api_key, "application/json",
+                        req_text, strlen(req_text), 120000, &status,
+                        sse_chunk_cb, &s, err, sizeof err);
+    free(req_text);
+    free(s.line);
+
+    if (rc != 0 && status == 0) {
+        /* 还没写流头就失败了，可以正常回 JSON 错误。 */
+        int timeout = strstr(err, "timed out") != NULL || strstr(err, "timeout") != NULL;
+        hf_send_error(c, timeout ? 504 : 502,
+                      timeout ? "upstream_timeout" : "upstream_unreachable",
+                      timeout ? "上游模型响应超时（120s）。" : "无法连接上游模型服务。");
+        return;
+    }
+    if (status >= 400 || (rc != 0 && !s.sent_any)) {
+        /* 上游非 2xx：错误体在 err 里（hf_http_stream 约定）。此时尚未写流头。 */
+        char detail[300];
+        utf8_truncate(err[0] ? err : "上游模型服务返回错误。", 260, detail, sizeof detail);
+        {
+            JNode *o = json_new_obj();
+            json_obj_set_str(o, "error", "upstream_error");
+            json_obj_set_num(o, "upstreamStatus", status);
+            json_obj_set_str(o, "message", detail);
+            hf_send_json(c, 502, o);
+        }
+        return;
+    }
+
+    /* 到这里已写过若干 SSE 帧（或上游 2xx 但零帧）：补 [DONE] 收尾。 */
+    if (!s.began) hf_sse_begin(c);
+    hf_sse_done(c);
 }
 
 /* ================= /api/search ================= */

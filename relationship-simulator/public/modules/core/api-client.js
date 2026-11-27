@@ -431,6 +431,74 @@ export async function callLLM({ endpoint = API_ENDPOINTS.chat, apiKey = "", mode
 }
 
 /**
+ * 流式版 LLM 调用（SSE）。逐块渲染首字，用于「她的回复」这类用户要等的链路。
+ * 与 callLLM 同样的出站脱敏与返回形状；额外通过回调吐出增量：
+ * @param {object}   options 同 callLLM
+ * @param {function} options.onReasoning - (accumText) => void 思维链增量（用于"正在思考"反馈）
+ * @param {function} options.onDelta     - (accumText) => void 正文增量（用于逐字渲染）
+ * @returns {Promise<{raw: Object, content: string, redactionHits: Array}>}
+ */
+export async function callLLMStream({
+  endpoint = API_ENDPOINTS.chat, apiKey = "", model = DEFAULT_MODEL, messages,
+  temperature = DEFAULT_TEMPERATURE, thinking, maxCompletionTokens, responseFormat,
+  signal, onReasoning = () => {}, onDelta = () => {}
+}) {
+  const { messages: safeMessages, hits: redactionHits } = sanitizeOutboundMessages(messages);
+  const payload = { model, messages: safeMessages, temperature, stream: true };
+  if (apiKey) payload.apiKey = apiKey;
+  if (thinking?.type === "disabled" || thinking?.type === "enabled") payload.thinking = { type: thinking.type };
+  if (Number.isFinite(maxCompletionTokens)) payload.max_completion_tokens = maxCompletionTokens;
+  if (responseFormat?.type === "json_object") payload.response_format = { type: "json_object" };
+
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    let msg = text;
+    try { const j = JSON.parse(text); msg = j?.message || j?.error || text; } catch { /* 原样 */ }
+    throw new Error(`HTTP ${res.status}: ${String(msg).slice(0, 500)}`);
+  }
+  if (!res.body?.getReader) throw new Error("当前环境不支持流式读取，请刷新页面重试。");
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder("utf-8");
+  let buf = "", content = "", reasoning = "", firstError = null;
+  const finish = () => { try { reader.releaseLock?.(); } catch { /* 已释放 */ } };
+
+  try {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, nl).replace(/\r$/, "");
+        buf = buf.slice(nl + 1);
+        if (!line.startsWith("data:")) continue;
+        const data = line.slice(5).trim();
+        if (!data) continue;
+        if (data === "[DONE]") { finish(); return { raw: { choices: [{ message: { role: "assistant", content } }] }, content, redactionHits }; }
+        let ev;
+        try { ev = JSON.parse(data); } catch { continue; }
+        if (ev.type === "error") { firstError = ev.message || "流式生成出错。"; break; }
+        if (ev.type === "reasoning" && ev.delta) { reasoning += ev.delta; onReasoning(reasoning); }
+        else if (ev.type === "content" && ev.delta) { content += ev.delta; onDelta(content); }
+      }
+      if (firstError) break;
+    }
+  } finally {
+    finish();
+  }
+  if (firstError) throw new Error(firstError);
+  if (!content.trim()) throw new Error("模型返回为空，未生成女方对话。");
+  return { raw: { choices: [{ message: { role: "assistant", content } }] }, content, redactionHits };
+}
+
+/**
  * 检查服务健康状态
  * @returns {Promise<Object>}
  */

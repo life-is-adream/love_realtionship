@@ -470,6 +470,9 @@ input:focus, select:focus, textarea:focus{
 .msg-source.source-model{ color:oklch(85% 0.08 72); border-color:oklch(80% 0.135 72 / .4); }
 .msg-source.source-local{ color:oklch(82% 0.1 250); border-color:oklch(73% 0.125 250 / .4); }
 .msg-source.source-seed{ color:var(--ink-subtle); }
+/* 流式临时气泡：脉冲运算符提示正在生成，正文逐字出现 */
+.msg.her.stream-bubble .msg-source{ color:oklch(82% 0.1 250); border-color:oklch(73% 0.125 250 / .4); animation:hfStreamPulse 1.2s ease-in-out infinite; }
+@keyframes hfStreamPulse{ 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
 
 /* composer */
 .composer{

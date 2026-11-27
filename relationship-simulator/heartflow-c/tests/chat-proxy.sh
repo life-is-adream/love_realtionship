@@ -114,6 +114,15 @@ check "A 转发最后一条消息"         "今天有点累"                    
 check "A 把密钥转给上游"           "Bearer $FAKE_KEY"             "$RESP_A"
 check "A 使用 .env/环境变量模型名"  "fake-model"                   "$RESP_A"
 
+# ---- A：SSE 流式（stream:true）----
+RESP_SSE="$(curl -s -m 20 -N -X POST "$A/api/chat" -H 'Content-Type: application/json' -d '{"messages":[{"role":"user","content":"hi"}],"stream":true}')"
+check "SSE Content-Type"            "text/event-stream"            "$(curl -s -m 20 -D - -o /dev/null -X POST "$A/api/chat" -H 'Content-Type: application/json' -d '{"messages":[{"role":"user","content":"hi"}],"stream":true}' | grep -i 'content-type')"
+check "SSE 逐帧 content 类型"       '"type":"content"'             "$RESP_SSE"
+check "SSE reasoning 独立成帧"      '"type":"reasoning"'           "$RESP_SSE"
+check "SSE 正文增量"                '"delta":"流式"'               "$RESP_SSE"
+check "SSE [DONE] 收尾"             'data: \[DONE\]'               "$RESP_SSE"
+check "SSE 帧单行紧凑格式"          'data: {"type":'               "$RESP_SSE"
+
 # ---- A：上游 5xx（重试一次后仍 5xx → 502）----
 RESP_FAIL="$(curl -s -m 20 -o /dev/null -w '%{http_code}' -X POST "$A/api/chat" -H 'Content-Type: application/json' -d '{"messages":[{"role":"user","content":"__FAKE_FAIL__"}]}')"
 check "A 上游 5xx 映射 502"        "502"                          "$RESP_FAIL"

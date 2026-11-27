@@ -188,7 +188,7 @@ node --test
 - `GET /api/health`：检查代理模式、模型和服务端是否配置 Key（不会返回 Key）。
 - `GET /api/long-content/:chapter`：读取第 1–10 章长篇原文，章节号严格校验，供阅读视图按章懒加载。
 - `POST /api/relationship-intelligence`：本地调用共享 `runRelationshipLoop`；最多读取最近 80 条有界消息，不调用远程模型，不返回原始消息。
-- `POST /api/chat`：转发模型请求。API Key 只从服务端 `.env` 或当前请求的受控字段读取，前端默认不保存 Key。
+- `POST /api/chat`：转发模型请求。API Key 只从服务端 `.env` 或当前请求的受控字段读取，前端默认不保存 Key。「她的回复」链路传 `"stream":true` 启用 SSE 流式（`text/event-stream`，逐帧 `data:` + `[DONE]` 收尾，`type` 为 `content` / `reasoning` / `error`），首个 token 到达即渲染，等待期显示"正在思考"；教练 JSON 等非流式调用不受影响。不支持流式的环境自动回退到普通请求。
 - `POST /api/search`：用户主动搜索公开依据。配置 `SEARCH_ENDPOINT` / `SEARCH_API_KEY` 时优先走外部搜索；否则使用 MiMo Chat Completions 的搜索插件。模型搜索不支持 Responses，返回受控 `503 search_api_mode_unsupported`；未知成功响应结构返回 `502 search_response_unsupported`。全部引用始终检查 HTTP(S) URL 和 `SEARCH_ALLOWED_DOMAINS`，不把域名匹配声明为观点已核验，不透出无可用引用的模型摘要。
 
 ## 目录说明

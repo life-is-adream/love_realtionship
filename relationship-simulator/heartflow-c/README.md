@@ -62,7 +62,9 @@ API Key: 已配置
 | 方法 | 路径 | 实现要点 |
 |---|---|---|
 | GET | `/api/health` | 返回模型、endpoint（去 query）、是否配置 key，从不回显 key |
-| POST | `/api/chat` | 转发到 OpenAI-compatible 上游；Responses 模式自动补 `choices` 结构；120s 超时；5xx 重试一次 |
+| POST | `/api/chat` | 转发到 OpenAI-compatible 上游；Responses 模式自动补 `choices` 结构；120s 超时；5xx 重试一次。带 `"stream":true` 时切 SSE 流式（见下） |
+
+**`/api/chat` 的 SSE 流式**（请求体加 `"stream":true`，仅 `chat_completions` 模式）：响应为 `text/event-stream; charset=utf-8`，`Connection: close`，每帧单行 `data: {...}\n\n`，以 `data: [DONE]\n\n` 收尾。帧的 `type` 有两种：`content`（正文增量在 `delta`）、`reasoning`（思维链增量在 `delta`，供前端显示"正在思考"，不混入正文）；上游错误帧带 `type:"error"` 和 `message`。C 侧用 WinHTTP 逐块读取上游 SSE（跨块拼行），**不攒完整响应**，首帧到达即转发——实测真实上游首帧约 4.8s（非流式需等 11–14s 全程）。不带 `stream` 的请求完全走原非流式路径，行为不变。 |
 | POST | `/api/search` | 只接受查询词；域名白名单；优先外部搜索 API，否则走模型 web_search 插件 |
 | POST | `/api/relationship-intelligence` | 确定性规则，无模型调用；输出分析、状态、决策、预测、记忆补丁 |
 | GET | `/api/long-content/:n` | 10 章教材，严格校验章节号 |

@@ -312,6 +312,53 @@ void hf_send_error(HfConn *c, int status, const char *code, const char *message)
     hf_send_json(c, status, o);
 }
 
+/* ---- SSE 流式写出 ---- */
+
+void hf_sse_begin(HfConn *c)
+{
+    HfBuf head;
+    char cors[600];
+
+    hf_buf_init(&head);
+    hf_buf_printf(&head, "HTTP/1.1 200 OK\r\n");
+    hf_buf_printf(&head, "Content-Type: text/event-stream; charset=utf-8\r\n");
+    hf_buf_printf(&head, "Cache-Control: no-cache, no-transform\r\n");
+    hf_buf_printf(&head, "X-Accel-Buffering: no\r\n");
+    /* SSE 流用 close 收尾：浏览器在连接关闭时自然知道流结束，无需 Content-Length。 */
+    hf_buf_printf(&head, "Connection: close\r\n");
+    if (c->req.origin[0]) {
+        hf_cors_origin(c->req.origin, cors, sizeof cors);
+        hf_buf_printf(&head, "Access-Control-Allow-Origin: %s\r\n", cors);
+    }
+    hf_buf_puts(&head, "\r\n");
+    send_all(c->fd, head.p, head.n);
+    hf_buf_free(&head);
+    c->keep_alive = 0;  /* 连接仅供本次 SSE，读完即关，不回 keep-alive 循环 */
+}
+
+void hf_sse_event(HfConn *c, const JNode *n)
+{
+    HfBuf b;
+    hf_buf_init(&b);
+    json_write(n, &b, 0, 0);   /* compact：SSE 单帧必须是一行 */
+    {
+        HfBuf frame;
+        hf_buf_init(&frame);
+        hf_buf_puts(&frame, "data: ");
+        hf_buf_add(&frame, b.p, b.n);
+        hf_buf_puts(&frame, "\n\n");
+        send_all(c->fd, frame.p, frame.n);
+        hf_buf_free(&frame);
+    }
+    hf_buf_free(&b);
+}
+
+void hf_sse_done(HfConn *c)
+{
+    const char *tail = "data: [DONE]\n\n";
+    send_all(c->fd, tail, strlen(tail));
+}
+
 static unsigned __stdcall conn_thread(void *arg)
 {
     HfConn *c = (HfConn *)arg;

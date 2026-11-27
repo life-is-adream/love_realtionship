@@ -31,7 +31,7 @@ import { buildBackup, buildBackupFilename, validateBackup, applyBackup } from ".
 import { buildTierPromptLine } from "./modules/core/investment.js";
 import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, migrateMemory } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
-import { buildHerMessages, buildCoachMessages, callLLM as callLLMPure, checkHealth as checkHealthApi, resolveDeterministicReply } from "./modules/core/api-client.js";
+import { buildHerMessages, buildCoachMessages, callLLM as callLLMPure, callLLMStream as callLLMStreamPure, checkHealth as checkHealthApi, resolveDeterministicReply } from "./modules/core/api-client.js";
 import { emit, Events } from "./modules/core/events.js";
 import { appendMine, appendMineIfNew, recallMine, renderChat } from "./modules/render/render-chat.js";
 import { appendGeneratedReply } from "./modules/core/conversation.js";
@@ -448,6 +448,7 @@ async function askAi({ silent = false } = {}) {
   $("apiStatus").textContent = "她正在输入…";
   let ticket;
   let coachTicket;
+  let streamBubble = null;
   try {
     savePersonaMemory(false);
     appendMineIfNew({ afterRender: afterChatRender });
@@ -460,9 +461,40 @@ async function askAi({ silent = false } = {}) {
     const latestMine = [...messages].reverse().find((message) => message.type === "me")?.text || "";
     // 身份直问与记忆核对共用同一个护栏入口，避免两条生成路径各写一份判断。
     const deterministic = resolveDeterministicReply(latestMine, messages, memorySource);
-    const herResult = deterministic
-      ? { content: deterministic.text }
-      : await callLLM({ ...api, ...HER_LANE, messages: buildHerMessages(persona, memory, messages, ui) });
+    let herResult;
+    if (deterministic) {
+      herResult = { content: deterministic.text };
+    } else {
+      const herMessages = buildHerMessages(persona, memory, messages, ui);
+      streamBubble = openStreamBubble(persona.name);
+      let sawReasoning = false;
+      try {
+        herResult = await callLLMStream({
+          ...api, ...HER_LANE, messages: herMessages,
+          onReasoning: (text) => {
+            if (!ticket.isCurrent() || !streamBubble?.head) return;
+            if (!sawReasoning) { sawReasoning = true; $("apiStatus").textContent = "她正在思考…"; }
+            streamBubble.head.textContent = `思考中…（${text.length} 字）`;
+          },
+          onDelta: (text) => {
+            if (!ticket.isCurrent() || !streamBubble?.body) return;
+            streamBubble.head.textContent = "正在输入…";
+            streamBubble.body.textContent = text;
+            const chat = $("chat");
+            if (chat) chat.scrollTop = chat.scrollHeight;
+          }
+        });
+      } catch (streamError) {
+        // 老浏览器不支持 ReadableStream / 服务端未升级时回退到非流式，功能不降级。
+        if (String(streamError?.message || "").includes("流式")) {
+          herResult = await callLLM({ ...api, ...HER_LANE, messages: herMessages });
+        } else {
+          throw streamError;
+        }
+      }
+    }
+    closeStreamBubble(streamBubble);
+    streamBubble = null;
     if (!ticket.isCurrent()) return STALE_RESULT;
     const bubbles = parseHerBubbles(herResult.content, persona.name);
     if (!bubbles.length) throw new Error("模型未返回女方对话。");
@@ -498,6 +530,8 @@ async function askAi({ silent = false } = {}) {
       : "模型调用成功。";
     return commitAnalysis(analysis, "model", { replyAlreadyCommitted: true });
   } catch (error) {
+    closeStreamBubble(streamBubble);
+    streamBubble = null;
     // 她的回复落盘后 ticket 的上下文快照必然已过期，此处以最近一次为准，
     // 否则提交阶段的真实错误会被当成过期结果静默吞掉。
     const active = coachTicket || ticket;
@@ -507,9 +541,44 @@ async function askAi({ silent = false } = {}) {
     if (!silent) throw error;
     return null;
   } finally {
+    closeStreamBubble(streamBubble);
     ticket?.finish();
     coachTicket?.finish();
   }
+}
+
+async function callLLMStream(options) {
+  if (typeof callLLMStreamPure !== "function") throw new Error("流式调用不可用");
+  const result = await callLLMStreamPure(options);
+  if (options.signal?.aborted) return result;
+  const notice = formatRedactionNotice(result.redactionHits);
+  const el = $("privacyNotice");
+  if (el) {
+    if (notice) {
+      el.textContent = `🛡 ${notice}`;
+      el.classList.remove("hidden");
+    } else {
+      el.classList.add("hidden");
+    }
+  }
+  return result;
+}
+
+/* 流式临时气泡：等首字期间给用户可见反馈，正式消息落盘后由 renderChat 覆盖。 */
+function openStreamBubble(personaName) {
+  if (typeof document === "undefined") return null;  // 测试/非浏览器环境
+  const chat = $("chat");
+  if (!chat) return null;
+  const div = document.createElement("div");
+  div.className = "msg her stream-bubble";
+  div.innerHTML = `<div class="msg-head"><span class="who">${escapeHtmlShared(personaName)}</span><span class="msg-source">正在输入…</span></div><div class="msg-body"></div>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return { el: div, head: div.querySelector(".msg-source"), body: div.querySelector(".msg-body") };
+}
+
+function closeStreamBubble(bubble) {
+  if (bubble?.el?.parentNode) bubble.el.parentNode.removeChild(bubble.el);
 }
 
 async function generateHerDialogue(options = {}) {

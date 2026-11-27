@@ -43,6 +43,11 @@ void hf_send_bytes_ex(HfConn *c, int status, const char *ctype,
 int  hf_static_serve(HfConn *c);
 long long hf_now_ms(void);
 void hf_send_error(HfConn *c, int status, const char *code, const char *message);
+/* SSE 流式响应：先写头（text/event-stream + Connection: close + 禁缓冲），
+ * 再用 hf_sse_event 逐帧写 "data: ...\n\n"。写完后调用方不复用连接。 */
+void hf_sse_begin(HfConn *c);
+void hf_sse_event(HfConn *c, const JNode *n);   /* 序列化为一个 data 事件 */
+void hf_sse_done(HfConn *c);                    /* 写 data: [DONE]，结束流 */
 const char *hf_cors_origin(const char *origin, char *buf, size_t n);
 /* 默认仅回环监听；只有显式配置 bind_host 才放行局域网来源。 */
 int  hf_bind_is_loopback(void);
