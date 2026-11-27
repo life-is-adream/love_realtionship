@@ -1,6 +1,6 @@
 # hf — 关系档案引擎（C 版）
 
-一个不联网也能用的本地程序：**命令行引擎 + 本地 HTTP 服务**，单文件约 430 KB，零外部依赖。
+一个不联网也能用的本地程序：**命令行引擎 + 本地 HTTP 服务**，单文件约 515 KB（2.2 构建，526,848 字节），零外部依赖。
 
 它替代的是原来的 Node 服务端（`server/` 下 14 个 JS 文件）与 `../../.agents/skills/relationship-coach-cn/runtime`（约 1300 行 JS）。前端 HTML/CSS/JS 仍作为静态资源存在——浏览器只能执行 JS，这部分不能"用 C 重写"，但**逻辑已经下沉到 C 服务端**，前端只剩渲染与交互。
 
@@ -33,6 +33,8 @@ make LDFLAGS="-lshell32 -lws2_32 -lwinhttp"   # Windows (MinGW)
 python -m pip install ziglang -i https://mirrors.aliyun.com/pypi/simple/
 ./build.sh
 ```
+
+**发布构建固定用 `./build.sh`（默认输出名 `hf.exe`）** [E]。整文件哈希依赖输出的目录与文件名：2026-11-27 实测，同目录同名连续构建两次逐字节相同；换目录或换名后哈希会变，差异只有 30 多个字节，全在调试目录（PE 头与 `.buildid` 段的调试时间戳、PDB GUID、PDB 文件名），代码段与数据段逐字节不变。2.2 验收文档写的「构建非确定性」因此不成立——那次是换名重建；要核对发布哈希，只能按原名原地重建。
 
 ## 启动服务
 
@@ -94,6 +96,8 @@ API Key: 已配置
 sh tests/run-all.sh
 ```
 
+这只覆盖 C 回归。**发布前用统一门禁 `npm run gate`**（在项目根目录），它按顺序跑 9 步：C 回归 7 组、v2 契约（打生产 `hf.exe`）、C/Node 检索一致性、C/Node 语义一致性、数据集校验、Node 单元测试、循环依赖与编码约定、安全冒烟（打生产 C 服务）、发布清单。全部用假上游与合成数据，不消耗额度；`--list` 列出步骤，`--only id1,id2` 只跑指定步。用例数随开发增长，以各步输出为准。
+
 也可以单独跑某一组：
 
 ```sh
@@ -118,6 +122,19 @@ voice/venv/Scripts/python.exe tests/tts-parity.py   # TTS 与 Python 逐字节�
 - **循环依赖门禁 11/11**（真实项目两边同为 106 模块 / 0 环；构造的有环 fixture 两边都 exit 1）
 - **静态资源字节级一致**：`/`、`/styles.css`、`/modules/core/api-client.js`、`/api/long-content/1` 与 Node 版 `cmp` 完全相同
 - **`/api/health` 输出逐字节一致**；`npm test` 1034/1034 通过，约定检查 0 违规
+
+### 发布清单
+
+`hf.exe` 与回滚用二进制不入库（见 `.gitignore`），`RELEASE_MANIFEST.json` 就是「被验收的那个 `hf.exe`」在仓库里的唯一凭据。它记录：
+
+- 生产 `hf.exe` 的大小与 SHA-256；
+- 全部编译输入的指纹——`src/**/*.{c,h}` 加 `build.sh`，换行符归一后计算，Windows 与 LF 检出得到同一个值；
+- 工具链版本，以及回滚文件（`hf.pre-v2-*.exe`、`backups/*.exe`）的哈希。
+
+`npm run release:check` 校验三者仍然一致，并且 C 引擎源码已全部提交；它是 `npm run gate` 的最后一步。
+发布顺序：改源码 → `./build.sh` → `npm run gate` → 提交源码 → `npm run release:manifest` 重新生成清单 → 提交清单。
+
+`docs/heartflow-2.1/RELEASE_MANIFEST.json` 是 2.1 发布时的历史快照，不再更新。
 
 ### 真实模型端到端（手动，不进 `run-all.sh`）
 
@@ -200,6 +217,8 @@ tests/fake_upstream.py 本地假上游（不消耗真实额度）
 tests/tts-parity.py  TTS 与 Python 逐字节对照（需 numpy）
 tests/tts-proxy.py   /api/tts 接线 + /api/tts/online 开关回归（本地假推理后端）
 tests/check-parity.sh 循环依赖门禁 C/JS 对照
+tests/v2-smoke.py    v2 契约与隐私（默认打 hf.exe，可传入别的构建路径）
+RELEASE_MANIFEST.json 当前生产二进制的发布清单（见「验证 → 发布清单」）
 tests/real-e2e.py    真实模型端到端（手动；需本地权重，--with-llm 计费）
 .e2e-out/            真实合成的 WAV 样本（不入库）
 .wasm-probe/         wasm 可行性探针（非产品代码，见其 build.sh 头部结论）

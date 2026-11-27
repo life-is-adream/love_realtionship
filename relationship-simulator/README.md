@@ -8,7 +8,7 @@
 
 截图识别需要先在页面同意发送图片，并配置支持图像输入的模型；可在 `.env` 中设置可选的 `VISION_MODEL`，未设置时沿用 `LLM_MODEL`。模型回复、角色及独立复核分别需要同意；浏览器语音识别可能由浏览器服务商处理。当前尚未完成真实截图模型、麦克风和人工评分验收。
 
-新增关系档案和计划保存在此浏览器；档案默认不保存复盘，开启后仍须手动填写。旧聊天和训练记录可能另存本机，关闭新档案授权不会删除旧记录、备份、已导出文件或远端服务的数据。当前没有多用户账户与服务端资源归属保护；C 服务的旧 API 仍监听所有网卡，不应直接用于公网。
+新增关系档案和计划保存在此浏览器；档案默认不保存复盘，开启后仍须手动填写。旧聊天和训练记录可能另存本机，关闭新档案授权不会删除旧记录、备份、已导出文件或远端服务的数据。当前没有多用户账户与服务端资源归属保护。C 服务默认只监听本机回环地址 `127.0.0.1`；只有显式配置 `--bind` 或环境变量 `HF_BIND_HOST` 才会监听其他网卡，此时不应直接暴露到公网。
 
 使用和验证详情见 [项目简介](docs/heartflow-2.0/PROJECT_OVERVIEW.md)、[功能状态](docs/heartflow-2.0/FEATURE_GAP_MATRIX.md)、[接口契约](docs/heartflow-2.0/API_CONTRACTS.md)、[测试报告](docs/heartflow-2.0/TEST_REPORT.md) 与 [风险说明](docs/heartflow-2.0/RISKS_AND_NEXT_STEPS.md)。原 C 启动文件已备份为 `heartflow-c/hf.pre-v2-20261113.exe`。
 
@@ -47,7 +47,15 @@ cd heartflow-c
 
 单文件、零依赖；静态资源与 7 个 API 已与 Node 版完成逐字节/逐字段对照。
 
-一键跑完全部回归（7 组共 119 项：CLI / 服务端 / Node 对照 / chat 代理 / TTS 算法与接线 / 循环依赖门禁；用本地假上游与假推理后端，不消耗真实额度）：
+**发布前统一门禁**（在项目根目录）：一条命令按顺序跑完 9 步——C 回归 7 组（CLI / 服务端 / Node 对照 / chat 代理 / TTS 算法与接线 / 循环依赖门禁）、v2 契约、C/Node 检索与语义一致性、数据集校验、Node 单元测试、安全冒烟、发布清单。全部用本地假上游、假推理后端与合成数据，不消耗真实额度；用例数随开发增长，以各步输出为准。
+
+```sh
+npm run gate          # --list 列出步骤；--only <id,...> 只跑指定步骤
+```
+
+最后一步核对 `heartflow-c/RELEASE_MANIFEST.json`：磁盘上的 `hf.exe`、编译输入的指纹与已提交的源码三者一致。发布流程、可复现性与回滚文件的说明见 `heartflow-c/README.md` 的「验证 → 发布清单」。
+
+只跑 C 回归（7 组）：
 
 ```sh
 cd heartflow-c
@@ -67,6 +75,8 @@ sh tests/run-all.sh
 ```powershell
 npm start          # 等价于 heartflow-c\hf.exe serve --port 3000 --root .
 ```
+
+`hf.exe` 不入库：新克隆后先构建一次（`cd heartflow-c` 后运行 `sh build.sh`），再 `npm start`。
 
 然后打开 `http://localhost:3000`，用健康检查确认配置已生效：
 
@@ -133,11 +143,13 @@ http://localhost:3000
 npm run build:index
 ```
 
-运行全部测试：
+快速回归（仅 JS：单元测试 + 循环依赖 + 编码约定）：
 
 ```powershell
 npm test
 ```
+
+发布前的完整门禁是 `npm run gate`（见上文「C 版服务」）。
 
 如果 PowerShell 的执行策略阻止 `npm.ps1`，直接运行等价命令：
 

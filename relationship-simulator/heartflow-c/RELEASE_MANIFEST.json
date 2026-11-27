@@ -1,0 +1,41 @@
+{
+  "schema": "heartflow-release-manifest/1",
+  "generated_at": "2026-11-27T14:15:54.129Z",
+  "note": "当前生效的发布清单；docs/heartflow-2.1/RELEASE_MANIFEST.json 是 2.1 发布时的历史快照，不再更新。",
+  "build": {
+    "recipe": "cd heartflow-c && sh build.sh",
+    "output_name": "hf.exe",
+    "toolchain": "ziglang 0.17.1（py -m ziglang cc）",
+    "reproducible": "同目录同输出名重建逐字节相同；换输出目录或文件名会改变整文件哈希（仅调试元数据），代码段不变。"
+  },
+  "binary": {
+    "path": "heartflow-c/hf.exe",
+    "bytes": 526848,
+    "sha256": "E79B0B3397540BB0C131C230870EBFA3FD65C84D05DBB542A101DF012E7C171B",
+    "modified": "2026-11-15T03:26:46.627Z"
+  },
+  "source": {
+    "files": 36,
+    "digest_sha256": "0D4242629B7BEDC99B085B3BBC8D00AFCA0400F95532B99BA2137C4AD7548A63",
+    "algorithm": "对 heartflow-c/src/**/*.{c,h} 与 heartflow-c/build.sh 按路径排序，逐项累加 '<路径>\\0<内容 SHA-256>\\n'；内容先把 CRLF 归一成 LF。"
+  },
+  "git_head": "72e7a478f4a8c77803c0a6851212a8d6e12bb3d2",
+  "source_committed": true,
+  "rollback": [
+    {
+      "path": "heartflow-c/hf.pre-v2-20261113.exe",
+      "bytes": 458240,
+      "sha256": "908EB34735B07EDF863C656CE5CDFB5779A7C7241CEA0FB84E5E9FBE1D0D99D1"
+    },
+    {
+      "path": "heartflow-c/backups/hf-2.1-final-rebuilt.exe",
+      "bytes": 510976,
+      "sha256": "F26119FD78119D1F516F8FD1BE5B5716355A0776C61669130C9D94B9F60E3AC8"
+    },
+    {
+      "path": "heartflow-c/backups/hf-pre-s6-20261114.exe",
+      "bytes": 510976,
+      "sha256": "3220EF78D19DCAEF43FA4BA9E01AF406B8BDDB12DD78EF602F3C7488CD0A7681"
+    }
+  ]
+}
