@@ -1,6 +1,7 @@
 import { $, escapeHtml } from "../core/dom.js";
 import { buildSignalExercise, classifySocialSignals, evaluateSignalGuess } from "../training/signals.js";
 import { scoreTiming } from "../training/timing.js";
+import { requestTiming } from "../core/rules-client.js";
 import { selectDailyTask, gradeMicroTask, getTrainingStreak } from "../training/micro-training.js";
 import { aggregateGrowth, buildRadarData, getMastery, buildGrowthSummary, GROWTH_DIMENSION_LABELS } from "../training/growth.js";
 import { buildCoachTextbookEvidence, buildTextbookCoachContext, buildAnalysisQuery } from "../content/textbook-search.js";
@@ -26,12 +27,54 @@ function shortenText(value, maxLength = 132) {
   return text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
 }
 
+let timingSeq = 0;
+let timingTimer = 0;
+let timingLastRequestAt = 0;
+let timingLastKey = "";
+
+function timingKey(input) {
+  const last = input.messages?.[input.messages.length - 1];
+  return [
+    input.messages?.length || 0,
+    last?.type || "",
+    last?.text || last?.content || "",
+    last?.createdAt || last?.timestamp || "",
+    input.latestDraft,
+    input.stage
+  ].join("|");
+}
+
+function renderTimingResult(result) {
+  const panel = $("timingPanel");
+  if (!panel) return;
+  const title = result.dataAvailable ? `时机感 ${result.score}/100` : "时机感：数据不足";
+  panel.innerHTML = `<div class="timing-summary"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(result.reasons?.[0] || "时机评分只作参考，不会阻止发送。")}</span></div>`;
+}
+
 export function renderTiming() {
   const panel = $("timingPanel");
   if (!panel) return;
-  const result = scoreTiming({ messages: getState().messages, latestDraft: $("userInput")?.value || "", stage: $("stage")?.value || "" });
-  const title = result.dataAvailable ? `时机感 ${result.score}/100` : "时机感：数据不足";
-  panel.innerHTML = `<div class="timing-summary"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(result.reasons?.[0] || "时机评分只作参考，不会阻止发送。")}</span></div>`;
+  const input = { messages: getState().messages, latestDraft: $("userInput")?.value || "", stage: $("stage")?.value || "" };
+  // 先同步渲染本地结果，保证输入时反馈不等待网络。
+  const local = scoreTiming(input);
+  renderTimingResult(local);
+
+  // C 规则引擎是权威实现；同一输入变化只在用户停顿后请求一次，并做 5 秒节流，
+  // 避免把 /api/v2/* 的 24 次/分钟限流桶打满。服务不可用时保留本地结果。
+  if (typeof window === "undefined" || typeof requestTiming !== "function") return;
+  const key = timingKey(input);
+  if (key === timingLastKey) return;
+  timingLastKey = key;
+  const seq = ++timingSeq;
+  clearTimeout(timingTimer);
+  const wait = Math.max(450, 5000 - (Date.now() - timingLastRequestAt));
+  timingTimer = setTimeout(() => {
+    timingLastRequestAt = Date.now();
+    requestTiming(input).then((remote) => {
+      if (seq !== timingSeq || timingKey(input) !== key) return;
+      renderTimingResult(remote);
+    }).catch(() => { /* keep local result */ });
+  }, wait);
 }
 
 function signalLabelText(label) {

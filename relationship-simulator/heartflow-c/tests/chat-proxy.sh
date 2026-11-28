@@ -106,10 +106,14 @@ printf '\n/api/chat 代理回归  A:%s  B:%s  C:%s  上游:%s\n' "$PORT_A" "$POR
 printf -- '--------------------------------------------------------------\n'
 
 BODY='{"messages":[{"role":"user","content":"今天有点累"}]}'
+# Windows 原生 curl 会把命令行里的中文按 ANSI 代码页转码，导致上游收到非 UTF-8
+# 字节、JSON 解析失败并回显空内容。写成 UTF-8 文件后用 --data-binary 发送，
+# 与浏览器/Node 客户端的真实字节一致。
+printf '%s' "$BODY" > "$ROOT/body.json"
 
 # ---- A：chat_completions ----
-RESP_A="$(curl -s -m 20 -X POST "$A/api/chat" -H 'Content-Type: application/json' -d "$BODY")"
-check "A 状态码 200"              "200"                          "$(curl -s -m 20 -o /dev/null -w '%{http_code}' -X POST "$A/api/chat" -H 'Content-Type: application/json' -d "$BODY")"
+RESP_A="$(curl -s -m 20 -X POST "$A/api/chat" -H 'Content-Type: application/json' --data-binary "@$ROOT/body.json")"
+check "A 状态码 200"              "200"                          "$(curl -s -m 20 -o /dev/null -w '%{http_code}' -X POST "$A/api/chat" -H 'Content-Type: application/json' --data-binary "@$ROOT/body.json")"
 check "A 转发最后一条消息"         "今天有点累"                     "$RESP_A"
 check "A 把密钥转给上游"           "Bearer $FAKE_KEY"             "$RESP_A"
 check "A 使用 .env/环境变量模型名"  "fake-model"                   "$RESP_A"
@@ -134,14 +138,14 @@ check "A 请求体超限 413"           "413"                          "$(curl -
 check "A 超限错误码"               "payload_too_large"            "$(curl -s -m 20 -X POST "$A/api/chat" -H 'Content-Type: application/json' --data-binary "@$ROOT/big.json")"
 
 # ---- B：responses 归一化 ----
-RESP_B="$(curl -s -m 20 -X POST "$B/api/chat" -H 'Content-Type: application/json' -d "$BODY")"
+RESP_B="$(curl -s -m 20 -X POST "$B/api/chat" -H 'Content-Type: application/json' --data-binary "@$ROOT/body.json")"
 check "B 补出 choices 结构"        '"choices"'                    "$RESP_B"
 check "B 回复内容"                 "responses 模式回复"            "$RESP_B"
 check "B 保留 output_text"         '"output_text"'                "$RESP_B"
 
 # ---- C：缺密钥 ----
-check "C 缺密钥 400"              "400"                          "$(curl -s -m 20 -o /dev/null -w '%{http_code}' -X POST "$C/api/chat" -H 'Content-Type: application/json' -d "$BODY")"
-check "C 缺密钥错误码"             "missing_api_key"              "$(curl -s -m 20 -X POST "$C/api/chat" -H 'Content-Type: application/json' -d "$BODY")"
+check "C 缺密钥 400"              "400"                          "$(curl -s -m 20 -o /dev/null -w '%{http_code}' -X POST "$C/api/chat" -H 'Content-Type: application/json' --data-binary "@$ROOT/body.json")"
+check "C 缺密钥错误码"             "missing_api_key"              "$(curl -s -m 20 -X POST "$C/api/chat" -H 'Content-Type: application/json' --data-binary "@$ROOT/body.json")"
 
 printf '\n结果：%d 通过，%d 失败\n\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

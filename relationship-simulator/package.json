@@ -30,6 +30,7 @@
     "quality:retrieval": "node quality/scripts/eval-retrieval.mjs --split=test --mode=hybrid --out=quality/reports/retrieval-test-hybrid.json",
     "quality:practice": "node quality/scripts/eval-practice.mjs --split=test --out=quality/reports/practice-test-2.1.json",
     "quality:parity": "node quality/scripts/check-semantic-parity.mjs",
+    "rules:parity": "node quality/scripts/check-rules-parity.mjs",
     "e2e:browser": "node scripts/e2e-browser.mjs",
     "e2e:sse": "node scripts/e2e-sse.mjs"
   },

@@ -136,7 +136,10 @@ export function normalizeReplyOptions(replyOptions) {
 
 export function normalizeCoachScore(input, latestMine, context = {}) {
   const fromModel = input && typeof input === "object" ? input : {};
-  const fallback = buildCoachScore(latestMine, context);
+  // 生产路径优先使用 C 规则引擎的结果；只有服务不可用（null/异常）时才落到本地兜底。
+  const fallback = context.fallbackCoachScore && typeof context.fallbackCoachScore === "object"
+    ? context.fallbackCoachScore
+    : buildCoachScore(latestMine, context);
   return {
     total: clampScore(fromModel.total ?? fromModel.score ?? fallback.total),
     naturalness: clampScore(fromModel.naturalness ?? fromModel["自然度"] ?? fallback.naturalness),
@@ -184,7 +187,11 @@ export function normalizeAnalysis(obj, raw, context = {}) {
     replyOptionsSource: selected.from,
     grounding: selected.grounding,
     recommendation: obj.recommendation || obj["推荐"] || "",
-    coachScore: normalizeCoachScore(obj.coachScore || obj["教练评分"], latestMine, { ...obj, herLastMessage: getPreviousHerText() })
+    coachScore: normalizeCoachScore(obj.coachScore || obj["教练评分"], latestMine, {
+      ...obj,
+      herLastMessage: getPreviousHerText(),
+      fallbackCoachScore: context.fallbackCoachScore
+    })
   };
 }
 
@@ -211,7 +218,11 @@ export function parsePlainTextFallback(raw, context = {}) {
     replyOptionsSource: selected.from,
     grounding: selected.grounding,
     recommendation: extractJsonLikeString(raw, "recommendation") || "先看右侧 A/B/C，再选一条更像你本人说话方式的。",
-    coachScore: normalizeCoachScore(null, latestMine, { risk: extractedRisk, judgement: extractedJudgement })
+    coachScore: normalizeCoachScore(null, latestMine, {
+      risk: extractedRisk,
+      judgement: extractedJudgement,
+      fallbackCoachScore: context.fallbackCoachScore
+    })
   };
 }
 
@@ -231,6 +242,9 @@ export function localAnalyze(modelError = "", uiValues = {}) {
     ? selectLocalPuaReply({ latestMine, previousHer, messageCount: state.messages.length })
     : buildLocalHerReply(persona, memory, latestMine, previousHer, uiValues));
   const background = String(memory.background || "").replace(/[。！？\s]+$/, "");
+  const coachScore = uiValues.fallbackCoachScore && typeof uiValues.fallbackCoachScore === "object"
+    ? uiValues.fallbackCoachScore
+    : buildCoachScore(latestMine, { risk: memory.boundaries, judgement: background || stage, herLastMessage: previousHer });
   if (mode === "pua") {
     return {
       source: "local",
@@ -243,7 +257,7 @@ export function localAnalyze(modelError = "", uiValues = {}) {
       herReply,
       replyOptions: buildLocalReplyOptions(style, latestMine, herReply),
       recommendation: "防御回应优先：先点出手法（如‘这话听着像在贬我抬你’），再给出健康替代（如直接表达自己的感受）。健康做法见每日课程（第22课边界、第23课非暴力沟通、第29课识别危险关系）。",
-      coachScore: buildCoachScore(latestMine, { risk: memory.boundaries, judgement: background || stage, herLastMessage: previousHer })
+      coachScore
     };
   }
   return {
@@ -258,7 +272,7 @@ export function localAnalyze(modelError = "", uiValues = {}) {
     herReply,
     replyOptions: buildLocalReplyOptions(style, latestMine, herReply),
     recommendation: buildRecommendation(style),
-    coachScore: buildCoachScore(latestMine, { risk: memory.boundaries, judgement: background || stage, herLastMessage: previousHer })
+    coachScore
   };
 }
 

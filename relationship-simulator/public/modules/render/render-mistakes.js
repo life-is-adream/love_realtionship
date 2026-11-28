@@ -15,6 +15,7 @@ import { resolveMistake, deleteMistake } from "../core/mistakes.js";
 import { findWeakestDim, buildRewriteComparison, aggregateMistakePatterns, MISTAKE_DIM_LABELS } from "../training/mistake-patterns.js";
 import { buildTrapProgress, TRAP_LIBRARY_NOTE } from "../training/trap-library.js";
 import { buildCoachScore, detectReplyFlags } from "../coach/coach.js";
+import { requestCoachScore } from "../core/rules-client.js";
 import { recordTrainingEvent } from "../core/learning-state.js";
 import { readIntakeProfile, buildIntakeSummary } from "../core/intake-profile.js";
 
@@ -199,7 +200,7 @@ function renderMistakePracticePanel() {
   $("resolveMistakePracticeBtn")?.addEventListener("click", resolveFromPractice);
 }
 
-function scoreMistakeRewrite() {
+async function scoreMistakeRewrite() {
   const ctx = practiceContext;
   const input = $("mistakeRewriteInput");
   const result = $("mistakeRewriteResult");
@@ -211,7 +212,13 @@ function scoreMistakeRewrite() {
     return;
   }
   const memory = getPersonaMemory(getCurrentPersona());
-  const rewriteScore = buildCoachScore(rewriteText, { risk: memory.boundaries, judgement: memory.background });
+  const context = { risk: memory.boundaries, judgement: memory.background };
+  let rewriteScore = null;
+  if (typeof requestCoachScore === "function") {
+    try { rewriteScore = await requestCoachScore(rewriteText, context); } catch { rewriteScore = null; }
+  }
+  if (practiceContext !== ctx || input.value.trim() !== rewriteText) return;
+  if (!rewriteScore) rewriteScore = buildCoachScore(rewriteText, context);
   const flags = detectReplyFlags(rewriteText, memory);
   const comparison = buildRewriteComparison(ctx.mistake.dims, rewriteScore, flags);
   lastRewriteResult = { rewriteText, comparison, rewriteScore };

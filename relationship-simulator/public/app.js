@@ -32,6 +32,7 @@ import { buildTierPromptLine } from "./modules/core/investment.js";
 import { extractMemoryFromConversation, updateMemoryState, buildMemoryInjection, migrateMemory } from "./modules/core/memory.js";
 import { localAnalyze, parseModelContent, extractJsonObject, normalizeCoachScore, normalizeReplyOptions, parsePreflightEvaluation, parseStageResult } from "./modules/coach/parser.js";
 import { buildHerMessages, buildCoachMessages, callLLM as callLLMPure, callLLMStream as callLLMStreamPure, checkHealth as checkHealthApi, resolveDeterministicReply } from "./modules/core/api-client.js";
+import { requestCoachScore, requestReplay } from "./modules/core/rules-client.js";
 import { emit, Events } from "./modules/core/events.js";
 import { appendMine, appendMineIfNew, recallMine, renderChat } from "./modules/render/render-chat.js";
 import { appendGeneratedReply } from "./modules/core/conversation.js";
@@ -508,6 +509,16 @@ async function askAi({ silent = false } = {}) {
     const herReply = joinHerReply(bubbles);
     commitHerReply(bubbles, deterministic ? "local" : "model");
 
+    // C 规则评分与教练模型调用并行：评分是毫秒级本地请求，通常在模型返回前就完成。
+    // 服务不可用时为 null，解析阶段自动落到浏览器本地兜底。
+    const coachScoreFallback = typeof requestCoachScore === "function"
+      ? requestCoachScore(latestMine, {
+          risk: memory.boundaries,
+          judgement: memory.background || ui.stage || "",
+          herLastMessage: herReply
+        }).catch(() => null)
+      : Promise.resolve(null);
+
     // 她的回复落盘会改变会话上下文，因此教练调用必须另开一条通道、在落盘之后取快照，
     // 否则结果回来一定被判定为过期而丢弃。
     coachTicket = modelRequests.begin("dialogue-coach");
@@ -524,12 +535,17 @@ async function askAi({ silent = false } = {}) {
       if (!coachTicket.isCurrent()) return STALE_RESULT;
       // herReply 必须进解析上下文：教练契约本身不输出这条回复，不传就会被当成「缺字段」，
       // 兜底 A/B/C 会拿原始 JSON 文本去判断她在说什么。
-      const coachContext = { ...ui, herReply };
+      const coachContext = { ...ui, herReply, fallbackCoachScore: await coachScoreFallback };
       analysis = { ...parseModelContent(coachResult.content, coachContext), herReply };
     } catch (coachError) {
       if (!coachTicket.isCurrent()) return STALE_RESULT;
       coachDegraded = true;
-      analysis = { ...localAnalyze(`教练分析失败：${coachError.message}`, { ...ui, herReply }), herReply };
+      analysis = {
+        ...localAnalyze(`教练分析失败：${coachError.message}`, {
+          ...ui, herReply, fallbackCoachScore: await coachScoreFallback
+        }),
+        herReply
+      };
     }
     analysis.herReplySource = deterministic ? deterministic.source : "model";
     $("apiStatus").textContent = coachDegraded
@@ -695,7 +711,13 @@ async function preflightReply() {
   const persona = getCurrentPersona();
   const memory = getPersonaMemory(persona);
   const lastHerMsg = [...state.messages].reverse().find((m) => m.type === "her")?.text || "";
-  const score = buildCoachScore(original, { risk: memory.boundaries, judgement: memory.background, herLastMessage: lastHerMsg });
+  const coachContext = { risk: memory.boundaries, judgement: memory.background, herLastMessage: lastHerMsg };
+  // 生产路径优先走 C 规则引擎；服务不可用时才用浏览器本地兜底（两边由一致性脚本核对）。
+  let score = null;
+  if (typeof requestCoachScore === "function") {
+    try { score = await requestCoachScore(original, coachContext); } catch { score = null; }
+  }
+  if (!score) score = buildCoachScore(original, coachContext);
   const flags = detectReplyFlags(original, memory);
   // F2 收集点一：preflight 最高档高危信号自动进错题本（保守收集，medium/low 不收集）。
   collectPreflightMistake({ text: original, score, flags });
@@ -923,15 +945,29 @@ function setRelationshipIntelligenceConsentFromUi() {
 function openReplayModal() { $("replayModal")?.classList.remove("hidden"); }
 function closeReplayModal() { $("replayModal")?.classList.add("hidden"); }
 
-function runReplayAnalysis() {
+async function runReplayAnalysis() {
   const raw = $("replayInput")?.value || "";
-  const parsed = parseReplayText(raw);
-  const analysis = analyzeReplay(parsed.messages);
+  let analysis = null;
+  let summary = "";
+  if (typeof requestReplay === "function") {
+    try {
+      const remote = await requestReplay(raw);
+      if (remote?.analysis) {
+        analysis = remote.analysis;
+        summary = remote.summary || "";
+      }
+    } catch { /* 服务不可用时落到本地实现 */ }
+  }
+  if (!analysis) {
+    const parsed = parseReplayText(raw);
+    analysis = analyzeReplay(parsed.messages);
+    summary = buildReplaySummary(analysis);
+  }
   const result = $("replayResult");
   if (!result) return;
-  result.innerHTML = `<div class="mini"><h4>本地回放结果</h4><p>${escapeHtml(buildReplaySummary(analysis))}</p>${(analysis.observations || []).slice(0, 4).map((item) => `<p>· ${escapeHtml(item.text || item.observation || "")}</p>`).join("")}</div>`;
+  result.innerHTML = `<div class="mini"><h4>本地回放结果</h4><p>${escapeHtml(summary)}</p>${(analysis.observations || []).slice(0, 4).map((item) => `<p>· ${escapeHtml(item.text || item.observation || item.evidence || "")}</p>`).join("")}</div>`;
   mutate((state) => {
-    state.learning.replayAnalyses = [...(state.learning.replayAnalyses || []), { createdAt: new Date().toISOString(), summary: buildReplaySummary(analysis), observations: (analysis.observations || []).slice(0, 4).map((item) => item.text || item.observation || "") }].slice(-12);
+    state.learning.replayAnalyses = [...(state.learning.replayAnalyses || []), { createdAt: new Date().toISOString(), summary, observations: (analysis.observations || []).slice(0, 4).map((item) => item.text || item.observation || item.evidence || "") }].slice(-12);
   });
 }
 

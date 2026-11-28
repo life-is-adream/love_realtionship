@@ -1,6 +1,7 @@
 import { $, escapeHtml } from "../core/dom.js";
 import { builtInPersonas, DEFAULT_MODEL } from "../core/config.js";
 import { buildCoachScore } from "../coach/coach.js";
+import { requestCoachScore } from "../core/rules-client.js";
 import { buildInterventionPrompt } from "../coach/prompts.js";
 import { callLLM } from "../core/api-client.js";
 import { loadChapterIndex } from "../content/long-content-loader.js";
@@ -121,11 +122,18 @@ export function renderInterventionComparison() {
   if (saveButton) { saveButton.style.display = "inline-block"; saveButton.onclick = saveInterventionAsLog; }
 }
 
-export function saveInterventionAsLog() {
+export async function saveInterventionAsLog() {
   const ctx = interventionContext;
   if (!ctx || !ctx.aiGeneratedReply || $("interventionInput")?.value.trim() !== ctx.userReply) return;
+  const scoreContext = { risk: ctx.reviewPoint.risk, judgement: ctx.reviewPoint.intent };
+  let score = null;
+  if (typeof requestCoachScore === "function") {
+    try { score = await requestCoachScore(ctx.userReply, scoreContext); } catch { score = null; }
+  }
+  if (interventionContext !== ctx || $("interventionInput")?.value.trim() !== ctx.userReply) return;
+  if (!score) score = buildCoachScore(ctx.userReply, scoreContext);
   mutate((state) => {
-    state.trainingLog.unshift({ time: new Date().toLocaleString("zh-CN", { hour12: false }), stage: "介入练习", mine: ctx.userReply, herReply: ctx.aiGeneratedReply, source: "intervention", score: buildCoachScore(ctx.userReply, { risk: ctx.reviewPoint.risk, judgement: ctx.reviewPoint.intent }), baseline: "calibrated", sourceChapter: ctx.chapterId, sourceReviewPoint: ctx.reviewPointId });
+    state.trainingLog.unshift({ time: new Date().toLocaleString("zh-CN", { hour12: false }), stage: "介入练习", mine: ctx.userReply, herReply: ctx.aiGeneratedReply, source: "intervention", score, baseline: "calibrated", sourceChapter: ctx.chapterId, sourceReviewPoint: ctx.reviewPointId });
     state.trainingLog = state.trainingLog.slice(0, 12);
   });
   $("apiStatus").textContent = "介入练习已保存为训练日志。";

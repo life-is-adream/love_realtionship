@@ -5,6 +5,7 @@
 #include "coach_internal.h"
 #include "config.h"
 #include "net.h"
+#include "rules.h"
 #include "../hf.h"
 #include <math.h>
 
@@ -1569,7 +1570,24 @@ int hf_v2_route(HfConn *c)
     if (!strcmp(method, "GET") && !strcmp(path, "/api/v2/practice/scenarios")) { hf_send_json(c, 200, hf_scenario_list()); return 1; }
     if (strcmp(method, "POST")) { hf_send_error(c, 405, "method_not_allowed", "不支持此请求方式。"); return 1; }
     body = v2_body(c); if (!body) return 1;
-    if (!strcmp(path, "/api/v2/imports/chat")) route_import(c, body);
+    if (!strcmp(path, "/api/v2/rules/coach-score")) {
+        JNode *context = json_get(body, "context");
+        JNode *out = hf_rule_coach_score(
+            json_str(body, "text", ""),
+            json_str(context, "risk", NULL),
+            json_str(context, "judgement", NULL),
+            json_str(context, "herLastMessage", NULL));
+        hf_send_json(c, 200, out);
+    }
+    else if (!strcmp(path, "/api/v2/rules/timing")) {
+        hf_send_json(c, 200, hf_rule_timing(body));
+    }
+    else if (!strcmp(path, "/api/v2/rules/replay")) {
+        JNode *out = hf_rule_replay(body);
+        if (out) hf_send_json(c, 200, out);
+        else hf_send_error(c, 400, "invalid_replay_input", "请提供 text（粘贴聊天记录）或 messages 数组。");
+    }
+    else if (!strcmp(path, "/api/v2/imports/chat")) route_import(c, body);
     else if (!strcmp(path, "/api/v2/imports/screenshot")) route_screenshot(c, body);
     else if (!strcmp(path, "/api/v2/analyses")) route_analysis(c, body);
     else if (!strcmp(path, "/api/v2/replies")) route_replies(c, body);

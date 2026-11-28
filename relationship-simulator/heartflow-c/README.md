@@ -73,6 +73,16 @@ API Key: 已配置
 | POST | `/api/tts` | C 侧清洗文本、钳制语速、校验 300 字、engine 白名单（`chattts` / `kokoro` / 一键启用的 `edge`）；请求 `format=pcm` 拿 raw float32 后自己做 RMS + WAV 封装；旧后端返回 WAV 时原样透传；白名单透传 `X-Tts-Engine` / `X-Tts-Latency-Ms` |
 | OPTIONS | `/api/*` | CORS 预检，仅放行本机与 RFC1918 来源 |
 
+**规则引擎端点**（`/api/v2/rules/*`，将浏览器本地规则下沉到 C；仅本机同源）：
+
+| 方法 | 路径 | 输入 → 输出 |
+|---|---|---|
+| POST | `/api/v2/rules/coach-score` | `{ text, context:{risk,judgement,herLastMessage} }` → 四维评分、最弱/最强维度、校准反馈 |
+| POST | `/api/v2/rules/timing` | `{ messages, latestDraft, stage, now }` → 时机分数、原因、建议、flags、metrics |
+| POST | `/api/v2/rules/replay` | `{ text }` 或 `{ messages, options }` → 解析结果、回放分析、摘要 |
+
+浏览器优先调用这三个端点；C 服务不可用时才回退到 `public/modules` 的本地实现。两边由 `quality/scripts/check-rules-parity.mjs` 用 90+ 个样本逐字段核对，已接入 `npm run gate`。
+
 ## CLI 五个能力
 
 | 需求 | 命令 | 它到底做什么 |
@@ -206,6 +216,7 @@ src/server/net.c     出站 HTTPS（WinHTTP）
 src/server/static.c  静态资源、MIME、模块版本号注入
 src/server/routes.c  7 个 API
 src/server/coach*.c  关系智能运行时（分析/状态/记忆/预测/场景）
+src/server/rules*.c  教练评分 / 时机评分 / 聊天回放规则引擎（浏览器 JS 的对照实现）
 src/voice/tts.c      TTS 文本清洗 / 分句 / RMS / WAV 封装
 src/voice/cli.c      hf tts 对照入口
 src/tools/check.c    hf check circular（替代 JS 门禁脚本）

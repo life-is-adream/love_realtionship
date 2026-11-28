@@ -119,6 +119,7 @@ const steps = [
     { id: "v2-contract", title: "v2 契约与隐私（打生产 hf.exe）", need: needExe, run: () => exec(PYTHON, ["heartflow-c/tests/v2-smoke.py", "heartflow-c/hf.exe"]) },
     { id: "retrieval-parity", title: "C/Node 课程检索一致性", need: needExe, run: () => exec(node, ["quality/scripts/check-retrieval-parity.mjs"]) },
     { id: "semantic-parity", title: "C/Node 语义一致性", need: needExe, run: () => exec(node, ["quality/scripts/check-semantic-parity.mjs"]) },
+    { id: "rules-parity", title: "C/浏览器 JS 规则一致性（教练/时机/回放）", need: needExe, run: () => exec(node, ["quality/scripts/check-rules-parity.mjs"]) },
     { id: "datasets", title: "数据集结构与泄漏校验", run: () => exec(node, ["quality/scripts/validate-datasets.mjs"]) },
     { id: "js-unit", title: "Node 单元测试", run: () => exec(node, ["--test"]) },
     {
@@ -138,6 +139,7 @@ const PORTS = {
     "c-regression": [3101, 3102, 3201, 3110, 3111, 3112, 3310, 3120, 3320],
     "retrieval-parity": [Number(process.env.HF_RETRIEVAL_PARITY_PORT || 3298)],
     "semantic-parity": [Number(process.env.HF_PARITY_PORT || 3299)],
+    "rules-parity": [Number(process.env.HF_RULES_PORT || 3296)],
     security: [Number(process.env.HF_SECURITY_PORT || 3397)]
 };
 const listening = (port) => new Promise((resolve) => {
