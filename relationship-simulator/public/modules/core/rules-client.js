@@ -6,6 +6,9 @@
  * quality/scripts/check-rules-parity.mjs 逐字段核对。
  *
  * 本模块不读 DOM、不写 localStorage；只做 HTTP。
+ *
+ * 默认 3 秒超时：服务半死（端口在听但不应答）时，调用方能在 3 秒内拿到异常
+ * 并回退本地实现，而不是让教练分析一直等下去。
  */
 
 const ENDPOINTS = Object.freeze({
@@ -14,23 +17,36 @@ const ENDPOINTS = Object.freeze({
   replay: "/api/v2/rules/replay"
 });
 
-async function postJson(path, payload, { signal } = {}) {
+const DEFAULT_TIMEOUT_MS = 3000;
+
+async function postJson(path, payload, { signal, timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   if (typeof fetch !== "function") throw new Error("当前环境不支持 fetch");
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-    signal
-  });
-  if (!response.ok) {
-    let message = `规则服务 HTTP ${response.status}`;
-    try {
-      const body = await response.json();
-      if (body?.error?.message) message = body.error.message;
-    } catch { /* keep status message */ }
-    throw new Error(message);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  // 调用方自带 signal 时也要能取消；AbortSignal.any 兼容性不足，这里手动桥接。
+  if (signal) {
+    if (signal.aborted) controller.abort();
+    else signal.addEventListener("abort", () => controller.abort(), { once: true });
   }
-  return response.json();
+  try {
+    const response = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    if (!response.ok) {
+      let message = `规则服务 HTTP ${response.status}`;
+      try {
+        const body = await response.json();
+        if (body?.error?.message) message = body.error.message;
+      } catch { /* keep status message */ }
+      throw new Error(message);
+    }
+    return response.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /** 四维教练评分。context 与浏览器本地 buildCoachScore 的第二个参数同形。 */
