@@ -1112,9 +1112,12 @@ void hf_route(HfConn *c)
     }
 
     /* 统一入口限流：覆盖所有 API 端点（含 v2、search、tts、relationship-intelligence），
-     * 不再只限 chat。health 探活与 CORS 预检不计入配额。
+     * 不再只限 chat。health 探活、CORS 预检与纯本地规则计算不计入配额：
+     * /api/v2/rules/ 不调用上游、不消耗模型额度，且时机面板会周期性重算，
+     * 与聊天共用同一个桶会把正常对话挤成 429。
      * 放在 host 校验之后、分发之前，SSE 与非流式各计一次（不再双计）。 */
     if (strncmp(p, "/api/", 5) == 0 && strcmp(p, "/api/health") != 0 &&
+        strncmp(p, "/api/v2/rules/", 14) != 0 &&
         strcmp(m, "OPTIONS") != 0) {
         char ip[64];
         peer_ip(c, ip, sizeof ip);
