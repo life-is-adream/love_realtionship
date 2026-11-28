@@ -1,25 +1,25 @@
 {
   "schema": "heartflow-release-manifest/1",
-  "generated_at": "2026-11-27T17:38:22.593Z",
+  "generated_at": "2026-11-28T02:18:32.004Z",
   "note": "当前生效的发布清单；docs/heartflow-2.1/RELEASE_MANIFEST.json 是 2.1 发布时的历史快照，不再更新。",
   "build": {
     "recipe": "cd heartflow-c && sh build.sh",
     "output_name": "hf.exe",
-    "toolchain": "ziglang 0.17.1（py -m ziglang cc）",
+    "toolchain": "ziglang 0.17.1（python -m ziglang cc）",
     "reproducible": "同目录同输出名重建逐字节相同；换输出目录或文件名会改变整文件哈希（仅调试元数据），代码段不变。"
   },
   "binary": {
     "path": "heartflow-c/hf.exe",
-    "bytes": 535040,
-    "sha256": "CD7EF0F9A4AA31716BA9F0D9B07355ED97C402C27D64F6F9C717C70CE9CE91C1",
-    "modified": "2026-11-27T17:04:06.238Z"
+    "bytes": 601088,
+    "sha256": "E2202F34D5977A7BAC97AC2CF606788798CD91AB3BF946B37B3DBF35A591EE4C",
+    "modified": "2026-11-28T02:10:23.712Z"
   },
   "source": {
-    "files": 36,
-    "digest_sha256": "17997E1AFC97E829F9081086A38E8975A0A7CA5F9DC2D12A618AE7C4270CEFC9",
+    "files": 42,
+    "digest_sha256": "87F4D3E6A6D77B3133009F827F03195EE1E049E46C925BE4800718410B4ACFDB",
     "algorithm": "对 heartflow-c/src/**/*.{c,h} 与 heartflow-c/build.sh 按路径排序，逐项累加 '<路径>\\0<内容 SHA-256>\\n'；内容先把 CRLF 归一成 LF。"
   },
-  "git_head": "feb46d4f3ad5cc93c148a354cb0eecbc7c84b51c",
+  "git_head": "dd32223d482c454f068e4c478fb7df21d02b531b",
   "source_committed": true,
   "rollback": [
     {
