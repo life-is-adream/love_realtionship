@@ -1,6 +1,6 @@
 {
   "schema": "heartflow-release-manifest/1",
-  "generated_at": "2026-11-28T02:18:32.004Z",
+  "generated_at": "2026-11-28T04:26:31.258Z",
   "note": "当前生效的发布清单；docs/heartflow-2.1/RELEASE_MANIFEST.json 是 2.1 发布时的历史快照，不再更新。",
   "build": {
     "recipe": "cd heartflow-c && sh build.sh",
@@ -11,15 +11,15 @@
   "binary": {
     "path": "heartflow-c/hf.exe",
     "bytes": 601088,
-    "sha256": "E2202F34D5977A7BAC97AC2CF606788798CD91AB3BF946B37B3DBF35A591EE4C",
-    "modified": "2026-11-28T02:10:23.712Z"
+    "sha256": "A27B7591F0592B3FADFF333FFC3736BA7444CE52C7B5335F244DAA87915F90D4",
+    "modified": "2026-11-28T04:26:03.657Z"
   },
   "source": {
     "files": 42,
-    "digest_sha256": "87F4D3E6A6D77B3133009F827F03195EE1E049E46C925BE4800718410B4ACFDB",
+    "digest_sha256": "592DB62A83BF107863CF291E674F7CB4FC5BD9C559BD8735320953FD46869586",
     "algorithm": "对 heartflow-c/src/**/*.{c,h} 与 heartflow-c/build.sh 按路径排序，逐项累加 '<路径>\\0<内容 SHA-256>\\n'；内容先把 CRLF 归一成 LF。"
   },
-  "git_head": "dd32223d482c454f068e4c478fb7df21d02b531b",
+  "git_head": "0ae99ea858e8a300c8bfd54b567d19e9928c6e3f",
   "source_committed": true,
   "rollback": [
     {
